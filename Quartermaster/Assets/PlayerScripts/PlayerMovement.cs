@@ -10,7 +10,7 @@ public class PlayerMovement : MonoBehaviour
 
      public float jumpForce;
      public float jumpCooldown;
-     public float airMultiplier;
+     public float airMultiplier;   // movement modifier in air
      bool readyToJump;
 
      [Header("Keybinds")]
@@ -18,7 +18,7 @@ public class PlayerMovement : MonoBehaviour
 
      [Header("Ground Check")]
      public Transform groundCheck;
-     public float groundDistance = 0.4f;
+     public float groundDistance = 0.4f;     // extra distance to check for ground from bottom of player
      public float playerHeight;
      public LayerMask whatIsGround;
      bool grounded;
@@ -66,7 +66,7 @@ public class PlayerMovement : MonoBehaviour
           verticalInput = Input.GetAxis("Vertical");
 
           // If jump key is pressed and player is grounded, jump
-          if (Input.GetKeyDown(jumpKey) && readyToJump && grounded)
+          if (Input.GetKey(jumpKey) && readyToJump && grounded)
           {
                Jump();
                readyToJump = false;
