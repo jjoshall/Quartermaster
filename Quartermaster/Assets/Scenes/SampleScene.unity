@@ -2065,14 +2065,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 3494976433588474898, guid: a87c66fe33e612c4abae793551eb0416, type: 3}
-      propertyPath: playerInput
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 7474722873629999202, guid: a87c66fe33e612c4abae793551eb0416, type: 3}
-      propertyPath: groundDrag
-      value: 5
-      objectReference: {fileID: 0}
     - target: {fileID: 7474722873629999202, guid: a87c66fe33e612c4abae793551eb0416, type: 3}
       propertyPath: jumpCooldown
       value: 0.1
@@ -2117,9 +2109,7 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 0}
-    - {fileID: 0}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
