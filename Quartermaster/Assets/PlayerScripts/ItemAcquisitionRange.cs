@@ -1,15 +1,18 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class ItemAcquisitionRange : MonoBehaviour
 {
-    public GameObject parent;
+    private bool DEBUG_FLAG = true;
+    private GameObject playerObj;
 
     private List<GameObject> itemsInRange;
     private GameObject closestItem;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        playerObj = transform.parent.gameObject;
         itemsInRange = new List<GameObject>();
     }
 
@@ -21,37 +24,40 @@ public class ItemAcquisitionRange : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Entered trigger");
         if (isAnItem(other.gameObject))
         {
-            itemsInRange.Add(other.gameObject);
-            string inventory = "Inventory: ";
-            foreach (GameObject item in itemsInRange)
-            {
-                inventory += item.name + ", ";
-            }
-            Debug.Log(inventory);
+            addItem(other.gameObject);
         }
     }
 
+    public void addItem(GameObject item){
+        if (itemsInRange.Contains(item))
+        {
+            return;
+        }
+        itemsInRange.Add(item);
+        debug_print_items_in_range();
+    }
     void OnTriggerExit(Collider other)
     {
         if (isAnItem(other.gameObject))
         {
-            itemsInRange.Remove(other.gameObject);
-            string inventory = "Inventory: ";
-            foreach (GameObject item in itemsInRange)
-            {
-                inventory += item.name + ", ";
-            }
-            Debug.Log(inventory);
+            removeItem(other.gameObject);
         }
     }
 
+    public void removeItem(GameObject item){
+        if (!itemsInRange.Contains(item))
+        {
+            return;
+        }
+        itemsInRange.Remove(item);
+        debug_print_items_in_range();
+    }
     private void updateClosestItem(){
         // Call this function every update() if we want to apply a shader to closest item.
         //     otherwise, only call it when we need to get the closest item.
-        
+
         if (itemsInRange.Count == 0)
         {
             closestItem = null;
@@ -62,13 +68,14 @@ public class ItemAcquisitionRange : MonoBehaviour
         float closestDistance = Mathf.Infinity;
         foreach (GameObject item in itemsInRange)
         {
-            float distance = Vector3.Distance(parent.transform.position, item.transform.position);
+            float distance = Vector3.Distance(playerObj.transform.position, item.transform.position);
             if (distance < closestDistance)
             {
                 localClosest = item;
                 closestDistance = distance;
             }
         }
+        closestItem = localClosest;
     }
 
     public GameObject getClosestItem(){
@@ -78,5 +85,18 @@ public class ItemAcquisitionRange : MonoBehaviour
 
     bool isAnItem(GameObject obj){
         return obj.CompareTag("Item");
+        // return true; 
+    }
+
+    private void debug_print_items_in_range(){
+        if (DEBUG_FLAG)
+        {
+            string DEBUG_STRING = "DEBUG: Items in range: ";
+            foreach (GameObject item in itemsInRange)
+            {
+                DEBUG_STRING += item.name + ", ";
+            }
+            Debug.Log(DEBUG_STRING);
+        }
     }
 }

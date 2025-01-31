@@ -16,6 +16,7 @@ public class PlayerMovement : MonoBehaviour
      [Header("Keybinds")]
      public KeyCode jumpKey = KeyCode.Space;
 
+
      [Header("Ground Check")]
      public Transform groundCheck;
      public float groundDistance = 0.4f;     // extra distance to check for ground from bottom of player
