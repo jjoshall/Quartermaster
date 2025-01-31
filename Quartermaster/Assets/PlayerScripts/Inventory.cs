@@ -5,6 +5,8 @@ public class Inventory : MonoBehaviour
 {
     private GameObject playerObj;
     private GameObject itemAcquisitionRange;
+    [Header("Orientation for dropItem direction")]
+    public Transform orientation;
 
     [Header("Inventory Keybinds")]
     public KeyCode pickupKey = KeyCode.E;
@@ -106,6 +108,9 @@ public class Inventory : MonoBehaviour
         inventory[currentInventoryIndex] = null; // C# has a garbage collector(?)
 
         GameObject droppedItem = ItemManager.instance.spawnWorldItem(selectedItemId);
+        // give it a forward velocity to throw the item forward
+        Rigidbody rb = droppedItem.GetComponent<Rigidbody>();
+        rb.linearVelocity = orientation.forward * 10;
 
         // Drop the item in front of the player
         Vector3 dropPosition = playerObj.transform.position; //  + playerParent.transform.forward;

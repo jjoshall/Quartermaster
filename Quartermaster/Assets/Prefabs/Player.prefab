@@ -86,12 +86,6 @@ MonoBehaviour:
   jumpCooldown: 0.1
   airMultiplier: 0.4
   jumpKey: 32
-  pickupKey: 101
-  dropItemKey: 113
-  selectItemOneKey: 49
-  selectItemTwoKey: 50
-  selectItemThreeKey: 51
-  selectItemFourKey: 52
   groundCheck: {fileID: 2714463514618859628}
   groundDistance: 0.4
   playerHeight: 2
@@ -290,6 +284,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dfc0aab381ff794cb7130264d84aa3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  orientation: {fileID: 8252331203226159224}
   pickupKey: 101
   dropItemKey: 113
   selectItemOneKey: 49
@@ -393,7 +388,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8265d135fb67234e8627993530a69bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  parent: {fileID: 533627647367738219}
 --- !u!1 &6709752921239053636
 GameObject:
   m_ObjectHideFlags: 0
