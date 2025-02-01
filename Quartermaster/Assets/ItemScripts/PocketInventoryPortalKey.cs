@@ -10,5 +10,6 @@ public class PocketInventoryPortalKey : InventoryItem
         // Store player current location.
         // Teleport player to pocket inventory location.
         
+        
     }
 }
