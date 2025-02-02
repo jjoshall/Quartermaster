@@ -1,0 +1,8 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/PauseMenuStyle.uss?fileID=7433441132597879392&amp;guid=3a62a01b22e8a8e43af7c4ec594f7ee1&amp;type=3#PauseMenuStyle" />
+    <engine:VisualElement name="Container" style="flex-grow: 1; background-color: rgba(150, 184, 218, 0.67);">
+        <engine:Label text="Paused" name="Header" class="header" />
+        <engine:Button text="Resume" name="ResumeButton" class="button" />
+        <engine:Button text="Main Menu" name="MainMenuButton" class="button" />
+    </engine:VisualElement>
+</engine:UXML>
