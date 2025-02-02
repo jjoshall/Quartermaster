@@ -1,3 +1,4 @@
+// Code help from: https://www.youtube.com/watch?v=_jtj73lu2Ko&ab_channel=SasquatchBStudios
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
@@ -5,7 +6,6 @@ using UnityEngine.SceneManagement;
 public class MainMenuEvents : MonoBehaviour
 {
      private UIDocument _document;
-
      private Button _button;
 
      private void Awake()
