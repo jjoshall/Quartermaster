@@ -1,0 +1,24 @@
+.header {
+    font-size: 120px;
+    -unity-text-align: upper-center;
+}
+
+.button {
+    align-self: center;
+    width: 350px;
+    height: 80px;
+    font-size: 40px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background-color: rgb(255, 205, 0);
+    margin-top: 50px;
+    transition-duration: 0.35s;
+    transition-timing-function: ease-in-out;
+}
+
+.button:hover {
+    scale: 1.1 1.1;
+    background-color: rgb(255, 79, 0);
+}
