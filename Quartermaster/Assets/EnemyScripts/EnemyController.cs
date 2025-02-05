@@ -25,8 +25,11 @@ public class EnemyController : MonoBehaviour
      private float movementSpeedBlend;
      private Vector3 separationForce;
 
+     private EnemyShooter enemyShooter;
+
      private void Awake()
      {
+          enemyShooter = GetComponent<EnemyShooter>();
           target = GameObject.FindFirstObjectByType<PlayerMovement>().transform;
           //animator = GetComponent<Animator>();
      }
@@ -138,7 +141,8 @@ public class EnemyController : MonoBehaviour
 
      private void StopMove()
      {
-          Debug.Log("Stop");
+          // Call the shoot function from the enemy shooter script
+          enemyShooter.Shoot();
           //movementSpeedBlend = Mathf.Lerp(movementSpeedBlend, 0, Time.deltaTime * speed);
           //animator.SetFloat("Speed", movementSpeedBlend);
      }
