@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1206790136684778829}
   - component: {fileID: 6916323562141474782}
   - component: {fileID: 6541054325533554856}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Eyes
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -100,8 +100,8 @@ GameObject:
   - component: {fileID: 3310142302478996578}
   - component: {fileID: -8325517055752307870}
   - component: {fileID: -3986134978630611849}
-  m_Layer: 0
-  m_Name: BoidMeleeEnemy
+  m_Layer: 7
+  m_Name: BoidEnemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -239,6 +239,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8a6f31e8a59ae543b85e260c5db69a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  speed: 5
+  rotationSpeed: 10
+  stoppingDistance: 1.5
+  detectionDistance: 1
+  separationWeight: 0.5
+  alignmentWeight: 1
+  cohesionWeight: 1
 --- !u!1 &7312951251464179336
 GameObject:
   m_ObjectHideFlags: 0
@@ -250,7 +257,7 @@ GameObject:
   - component: {fileID: 3884667141811657669}
   - component: {fileID: 125175446517352918}
   - component: {fileID: 3869151274750150421}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Weapon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
