@@ -39,7 +39,7 @@ public class EnemyAttack : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(attackCooldown);
-            player.GetComponent<PlayerHealth>().Damage(damage);
-        }
+            player.GetComponent<PlayerHealth>().Damage(damage, transform.position);
+          }
     }
 }

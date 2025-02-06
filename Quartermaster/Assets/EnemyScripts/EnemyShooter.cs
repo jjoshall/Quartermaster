@@ -68,7 +68,8 @@ public class EnemyShooter : MonoBehaviour
           }
 
           trail.transform.position = hit.point;
-          playerHealth.Damage(damage);
+          // Deal damage to the player
+          playerHealth.Damage(damage, gunPoint.position);
 
           // Wait for trail to finish before returning it to the pool
           yield return new WaitForSeconds(trail.time);

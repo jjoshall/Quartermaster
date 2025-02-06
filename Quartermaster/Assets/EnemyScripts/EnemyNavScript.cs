@@ -48,7 +48,6 @@ public class EnemyNavScript : MonoBehaviour
      {
           if (Time.time >= pathUpdateDeadline)
           {
-               Debug.Log("Updating path");
                pathUpdateDeadline = Time.time + enemyReferences.pathUpdateDelay;
                enemyReferences.agent.SetDestination(target.position);
           }
