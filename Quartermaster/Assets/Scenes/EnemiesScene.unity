@@ -238,7 +238,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2675775069118099314, guid: b09eb5eae34e906439da176aece8901f, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6136554406852902502, guid: b09eb5eae34e906439da176aece8901f, type: 3}
       propertyPath: target
@@ -249,54 +249,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b09eb5eae34e906439da176aece8901f, type: 3}
---- !u!1 &133713145
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 133713147}
-  - component: {fileID: 133713146}
-  m_Layer: 0
-  m_Name: ObjectPooler
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &133713146
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 133713145}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9675afec71ff9b443ab71c940a9f2141, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pools:
-  - tag: BulletTrail
-    prefab: {fileID: 1649034064736082309, guid: 97d3b70fbea7c2b418e4753da8bd372e, type: 3}
-    size: 10
---- !u!4 &133713147
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 133713145}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &136536891
 GameObject:
   m_ObjectHideFlags: 0
@@ -1121,12 +1073,16 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -3986134978630611849, guid: 69de7c9352a23844187f99a1518c29a9, type: 3}
       propertyPath: stoppingDistance
-      value: 6
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 1656816831642735696, guid: 69de7c9352a23844187f99a1518c29a9, type: 3}
       propertyPath: m_Name
       value: BoidEnemy
       objectReference: {fileID: 0}
+    - target: {fileID: 3136336727180567746, guid: 69de7c9352a23844187f99a1518c29a9, type: 3}
+      propertyPath: m_Icon
+      value: 
+      objectReference: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
     - target: {fileID: 3551560962508933810, guid: 69de7c9352a23844187f99a1518c29a9, type: 3}
       propertyPath: m_LocalPosition.x
       value: 9.694471
@@ -2768,63 +2724,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ddb3379427a1424ea47d9320f79be25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1001 &4102165461506078932
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1649034064736082309, guid: 97d3b70fbea7c2b418e4753da8bd372e, type: 3}
-      propertyPath: m_Name
-      value: BulletTrail
-      objectReference: {fileID: 0}
-    - target: {fileID: 7289495974677499166, guid: 97d3b70fbea7c2b418e4753da8bd372e, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 7.0716114
-      objectReference: {fileID: 0}
-    - target: {fileID: 7289495974677499166, guid: 97d3b70fbea7c2b418e4753da8bd372e, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.3770889
-      objectReference: {fileID: 0}
-    - target: {fileID: 7289495974677499166, guid: 97d3b70fbea7c2b418e4753da8bd372e, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 3.409936
-      objectReference: {fileID: 0}
-    - target: {fileID: 7289495974677499166, guid: 97d3b70fbea7c2b418e4753da8bd372e, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7289495974677499166, guid: 97d3b70fbea7c2b418e4753da8bd372e, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7289495974677499166, guid: 97d3b70fbea7c2b418e4753da8bd372e, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7289495974677499166, guid: 97d3b70fbea7c2b418e4753da8bd372e, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7289495974677499166, guid: 97d3b70fbea7c2b418e4753da8bd372e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7289495974677499166, guid: 97d3b70fbea7c2b418e4753da8bd372e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7289495974677499166, guid: 97d3b70fbea7c2b418e4753da8bd372e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 97d3b70fbea7c2b418e4753da8bd372e, type: 3}
 --- !u!1001 &6345854397018957294
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2886,7 +2785,6 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 133713147}
   - {fileID: 761992208}
   - {fileID: 410087041}
   - {fileID: 832575519}
@@ -2902,4 +2800,3 @@ SceneRoots:
   - {fileID: 582257109492897953}
   - {fileID: 6345854397018957294}
   - {fileID: 180577775}
-  - {fileID: 4102165461506078932}

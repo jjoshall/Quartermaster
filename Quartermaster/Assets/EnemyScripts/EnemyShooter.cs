@@ -7,28 +7,36 @@ public class EnemyShooter : MonoBehaviour
      public Transform shootPoint;
      public Transform gunPoint;
      public LayerMask layerMask;
+     public int damage = 15;
+     private PlayerHealth playerHealth;
 
      [Header("Gun")]
      public Vector3 spread = new Vector3(0.06f, 0.06f, 0.06f);
      public TrailRenderer bulletTrail;
-     private EnemyReferences enemyReferences;
+     private float shootDelay = 0.5f;
+     private float lastShootTime;
 
      private void Awake()
      {
-          enemyReferences = GetComponent<EnemyReferences>();
+          playerHealth = FindAnyObjectByType<PlayerHealth>();
      }
 
      public void Shoot()
      {
-          Vector3 direction = GetDirection();
-
-          if (Physics.Raycast(shootPoint.position, direction, out RaycastHit hit, float.MaxValue, layerMask))
+          if (lastShootTime + shootDelay < Time.time)
           {
-               Debug.DrawLine(shootPoint.position, shootPoint.position + direction * 10f, Color.red, 1f);
+               Vector3 direction = GetDirection();
 
-               // TODO: Bad practice, should use object pooling
-               TrailRenderer trail = Instantiate(bulletTrail, gunPoint.position, Quaternion.identity);
-               StartCoroutine(SpawnTrail(trail, hit));
+               if (Physics.Raycast(shootPoint.position, direction, out RaycastHit hit, float.MaxValue, layerMask))
+               {
+                    //Debug.DrawLine(shootPoint.position, shootPoint.position + direction * 10f, Color.red, 1f);
+
+                    // TODO: Bad practice, should use object pooling
+                    TrailRenderer trail = Instantiate(bulletTrail, gunPoint.position, Quaternion.identity);
+                    StartCoroutine(SpawnTrail(trail, hit));
+
+                    lastShootTime = Time.time;
+               }
           }
      }
 
@@ -59,6 +67,10 @@ public class EnemyShooter : MonoBehaviour
           }
 
           trail.transform.position = hit.point;
+
+          Debug.Log("Player taking damage");
+          playerHealth.Damage(damage);
+
           Destroy(trail.gameObject, trail.time);
      }
 }
