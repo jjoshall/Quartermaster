@@ -13,7 +13,7 @@ public class EnemyShooter : MonoBehaviour
      [Header("Gun")]
      public Vector3 spread = new Vector3(0.06f, 0.06f, 0.06f);
      public TrailRenderer bulletTrailPrefab;
-     private float shootDelay = 0.5f;
+     [SerializeField] private float shootDelay = 0.5f;
      private float lastShootTime;
 
      private void Awake()
