@@ -6,6 +6,7 @@ public class PlayerHealth : MonoBehaviour
      public int maxHealth = 100;
      public int currentHealth;
 
+     public FullScreenTestController myFullScreenTestController;
      public DamageIndicator myDamageIndicator;
      public Canvas myCanvas; // Reference to the Canvas
 
@@ -21,6 +22,8 @@ public class PlayerHealth : MonoBehaviour
           go.transform.position = myDamageIndicator.transform.position;
           go.transform.rotation = myDamageIndicator.transform.rotation;
           go.SetActive(true);
+
+          myFullScreenTestController.StartCoroutine(myFullScreenTestController.Hurt());
 
           currentHealth -= health;
           if (currentHealth <= 0)

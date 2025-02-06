@@ -6,6 +6,7 @@ public class EnemyAttack : MonoBehaviour
     public int damage = 10;
     public int attackCooldown = 1;   // wait time between attacks
     private Coroutine damageCoroutine;
+    public Transform enemy;
 
     void Start(){
         damageCoroutine = null;
@@ -39,7 +40,7 @@ public class EnemyAttack : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(attackCooldown);
-            player.GetComponent<PlayerHealth>().Damage(damage, transform.position);
+            player.GetComponent<PlayerHealth>().Damage(damage, enemy.position);
           }
     }
 }

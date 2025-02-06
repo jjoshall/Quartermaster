@@ -240,6 +240,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3197283949255688512, guid: b09eb5eae34e906439da176aece8901f, type: 3}
+      propertyPath: enemy
+      value: 
+      objectReference: {fileID: 1931413314}
     - target: {fileID: 6136554406852902502, guid: b09eb5eae34e906439da176aece8901f, type: 3}
       propertyPath: target
       value: 
@@ -2134,6 +2138,56 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 883565956}
   m_CullTransparentMesh: 1
+--- !u!1 &956773207
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 956773209}
+  - component: {fileID: 956773208}
+  m_Layer: 0
+  m_Name: FullScreenEffectController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &956773208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 956773207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d21b1ae0508f88b4a86d64ea12760fec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _hurtDisplayTime: 1.5
+  _hurtFadeOutTime: 0.5
+  _fullScreenDamage: {fileID: -3284044202905041507, guid: f288ae1f4751b564a96ac7587541f7a2, type: 2}
+  _material: {fileID: 2100000, guid: 865388399bda7c0459e28d436d7a9087, type: 2}
+  _voronoiIntensityStat: 2.5
+  _vignetteIntensityStat: 1.5
+--- !u!4 &956773209
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 956773207}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 3.9194014, y: 1.4366884, z: -2.0205061}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &961790467 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8584196291748469959, guid: 60b81b768a14e3a4ab25c1117cf064ae, type: 3}
@@ -2648,6 +2702,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8584196291748469959, guid: 60b81b768a14e3a4ab25c1117cf064ae, type: 3}
   m_PrefabInstance: {fileID: 456558113}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &1931413314 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 521860666677488949, guid: b09eb5eae34e906439da176aece8901f, type: 3}
+  m_PrefabInstance: {fileID: 29134617}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1968635548 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8584196291748469959, guid: 60b81b768a14e3a4ab25c1117cf064ae, type: 3}
@@ -2964,6 +3023,10 @@ PrefabInstance:
       propertyPath: myDamageIndicator
       value: 
       objectReference: {fileID: 267983229}
+    - target: {fileID: 4401392356553891160, guid: a87c66fe33e612c4abae793551eb0416, type: 3}
+      propertyPath: myFullScreenTestController
+      value: 
+      objectReference: {fileID: 956773208}
     - target: {fileID: 9088713721328530041, guid: a87c66fe33e612c4abae793551eb0416, type: 3}
       propertyPath: orientation
       value: 
@@ -3099,6 +3162,7 @@ SceneRoots:
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 1869195144}
+  - {fileID: 956773209}
   - {fileID: 2193076350893646897}
   - {fileID: 29134617}
   - {fileID: 560695283}
