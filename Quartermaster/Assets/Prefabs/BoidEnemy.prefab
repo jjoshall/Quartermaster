@@ -265,8 +265,9 @@ MonoBehaviour:
   layerMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  damage: 15
   spread: {x: 0.06, y: 0.06, z: 0.06}
-  bulletTrail: {fileID: 3492294749685168360, guid: 97d3b70fbea7c2b418e4753da8bd372e, type: 3}
+  bulletTrailPrefab: {fileID: 3492294749685168360, guid: 97d3b70fbea7c2b418e4753da8bd372e, type: 3}
 --- !u!1 &3136336727180567746
 GameObject:
   m_ObjectHideFlags: 0

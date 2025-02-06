@@ -12,7 +12,7 @@ public class EnemyShooter : MonoBehaviour
 
      [Header("Gun")]
      public Vector3 spread = new Vector3(0.06f, 0.06f, 0.06f);
-     public TrailRenderer bulletTrail;
+     public TrailRenderer bulletTrailPrefab;
      private float shootDelay = 0.5f;
      private float lastShootTime;
 
@@ -31,8 +31,9 @@ public class EnemyShooter : MonoBehaviour
                {
                     //Debug.DrawLine(shootPoint.position, shootPoint.position + direction * 10f, Color.red, 1f);
 
-                    // TODO: Bad practice, should use object pooling
-                    TrailRenderer trail = Instantiate(bulletTrail, gunPoint.position, Quaternion.identity);
+                    // Get a bullet trail from the pool, set its position, and start the coroutine
+                    TrailRenderer trail = BulletPools.instance.GetBulletTrail();
+                    trail.transform.position = gunPoint.position;
                     StartCoroutine(SpawnTrail(trail, hit));
 
                     lastShootTime = Time.time;
@@ -67,10 +68,12 @@ public class EnemyShooter : MonoBehaviour
           }
 
           trail.transform.position = hit.point;
-
-          Debug.Log("Player taking damage");
           playerHealth.Damage(damage);
 
-          Destroy(trail.gameObject, trail.time);
+          // Wait for trail to finish before returning it to the pool
+          yield return new WaitForSeconds(trail.time);
+
+          // Return the bullet trail to the pool
+          BulletPools.instance.ReturnBulletTrail(trail);
      }
 }
