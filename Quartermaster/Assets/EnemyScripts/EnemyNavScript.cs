@@ -1,20 +1,55 @@
+using System;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class EnemyNavScript : MonoBehaviour
 {
-     public Transform player;
-     private NavMeshAgent agent;
+     public Transform target;
+     private EnemyReferences enemyReferences;
+     private float pathUpdateDeadline;
+     private float attackDistance;
 
-     // Start is called once before the first execution of Update after the MonoBehaviour is created
-     void Start()
+     private void Awake()
      {
-          agent = GetComponent<NavMeshAgent>();
+          enemyReferences = GetComponent<EnemyReferences>();
      }
 
-     // Update is called once per frame
-     void Update()
+     private void Start()
      {
-          agent.destination = player.position;
+          attackDistance = enemyReferences.agent.stoppingDistance;
+     }
+
+     private void Update()
+     {
+          if (target != null)
+          {
+               bool inRange = Vector3.Distance(transform.position, target.position) <= attackDistance;
+
+               if (inRange)
+               {
+                    LookAtTarget();
+               }
+               else
+               {
+                    UpdatePath();
+               }
+          }
+     }
+
+     private void LookAtTarget()
+     {
+          Vector3 lookPos = target.position - transform.position;
+          lookPos.y = 0;
+          Quaternion rotation = Quaternion.LookRotation(lookPos);
+          transform.rotation = Quaternion.Slerp(transform.rotation, rotation, 0.2f);
+     }
+     
+     private void UpdatePath()
+     {
+          if (Time.time >= pathUpdateDeadline)
+          {
+               pathUpdateDeadline = Time.time + enemyReferences.pathUpdateDelay;
+               enemyReferences.agent.SetDestination(target.position);
+          }
      }
 }
