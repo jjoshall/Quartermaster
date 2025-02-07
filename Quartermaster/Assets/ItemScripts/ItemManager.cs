@@ -49,13 +49,27 @@ public class ItemManager : MonoBehaviour
         
     }
 
-    public GameObject spawnWorldItem(int id){
+    public GameObject spawnWorldItem(int id, int quantity, float lastUsed){
         GameObject newWorldItem = Instantiate(itemEntries[id].worldPrefab);
+        newWorldItem.GetComponent<WorldItem>().initializeItem(id, quantity, lastUsed);
         return newWorldItem;
     }
 
-    public InventoryItem spawnInventoryItem (string id){
+    public InventoryItem spawnInventoryItem (string id, int stackQuantity, float timeLastUsed){
         InventoryItem newInventoryItem = itemClassMap[id]();
+        newInventoryItem.quantity = stackQuantity;
+        newInventoryItem.last_used = timeLastUsed;
         return newInventoryItem;
     }
+
+    // public int getItemID(GameObject item){
+    //     for (int i = 0; i < itemEntries.Count; i++){
+    //         // if item name is same as itemEntries[i].worldPrefab name
+    //         if (item.name == itemEntries[i].worldPrefab.name){
+    //             return i;
+    //         }
+    //     }
+    //     Debug.Log ("Could not find item ID for item: " + item + "\nReturned 0. Could be a problem.");
+    //     return 0;
+    // }
 }

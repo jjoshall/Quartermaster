@@ -2,6 +2,10 @@ using UnityEngine;
 
 public class PocketInventory : MonoBehaviour
 {
+    // Script for the pocket inventory prefab.
+        // Handles teleportation, return position, cooldown.
+        // Singleton (there is only one pocket inventory).
+
     public static PocketInventory instance;
     void Awake(){
         // Singleton
@@ -47,8 +51,24 @@ public class PocketInventory : MonoBehaviour
     }
 
     public void teleportToPocket(GameObject user){
+
+        if (playerInPocket != null)
+        {
+            Debug.Log ("already a player in pocket: " + playerInPocket);
+            return;
+        }
+
+        float time_since_last_use = Time.time - timeEnteredPocket;
+        if (time_since_last_use < POCKET_COOLDOWN)
+        {
+            Debug.Log ("pocket cooldown not met: " + time_since_last_use);
+            return;
+        }
+
         playerReturnPosition = user.transform.position;
         user.transform.position = teleportPosition;
+        playerInPocket = user;
+        timeEnteredPocket = Time.time;
     }
 
     private void returnToPreviousPosition(GameObject user){
