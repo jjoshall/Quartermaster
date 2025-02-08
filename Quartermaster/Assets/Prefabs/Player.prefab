@@ -11,11 +11,12 @@ GameObject:
   - component: {fileID: 9178118900874394549}
   - component: {fileID: 4058199120900012297}
   - component: {fileID: 5388706731626316273}
-  - component: {fileID: 4401392356553891160}
+  - component: {fileID: 7293770255552911695}
   - component: {fileID: 510304234241520357}
   - component: {fileID: 6270068357289197132}
   - component: {fileID: 6744333873943678921}
   - component: {fileID: 8418772054471227725}
+  - component: {fileID: 805575750999914603}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -220,20 +221,31 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &4401392356553891160
+--- !u!114 &7293770255552911695
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 533627647367738219}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ddb3379427a1424ea47d9320f79be25, type: 3}
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
-  currentHealth: 100
+  GlobalObjectIdHash: 2396964407
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 0
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!114 &510304234241520357
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -246,6 +258,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7080891552224339a05a824474b23c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!114 &6270068357289197132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -258,6 +271,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e8f8263439054369abb87db38179d0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   groundSpeed: 5
   sprintModifier: 2
   maxAirSpeed: 7.5
@@ -325,6 +339,42 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &805575750999914603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 533627647367738219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkTransformExpanded: 0
+  AuthorityMode: 1
+  TickSyncChildren: 0
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 0
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 0
+  SyncScaleX: 0
+  SyncScaleY: 0
+  SyncScaleZ: 0
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 0
+  SwitchTransformSpaceWhenParented: 0
+  Interpolate: 1
+  SlerpPosition: 0
 --- !u!1 &1422087879994454598
 GameObject:
   m_ObjectHideFlags: 0
