@@ -7,7 +7,10 @@ public abstract class InventoryItem
 
     public abstract int quantity {get; set;}
 
-    public abstract float last_used {get; set;}
+    public abstract float lastUsed {get; set;}
+
+    // class static cooldown. defined by inherited class
+    public abstract float cooldown {get; set;}
 
     public abstract void use(GameObject user);
 

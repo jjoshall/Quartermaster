@@ -20,15 +20,15 @@ public class PocketInventory : MonoBehaviour
         }
     }
 
-    public Vector3 teleportPosition;
-    public Vector3 playerReturnPosition;
+    private Vector3 teleportPosition;
+    private Vector3 playerReturnPosition;
 
     // store time when player teleported to pocket
     public float timeEnteredPocket;
     private static float MAX_TIME_IN_POCKET = 10.0f;
-    private static float POCKET_COOLDOWN = 100.0f;
 
     private GameObject playerInPocket;
+    public GameObject droppedPortalKeyInPocket;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -44,10 +44,13 @@ public class PocketInventory : MonoBehaviour
         {
             if (Time.time - timeEnteredPocket > MAX_TIME_IN_POCKET)
             {
-                returnToPreviousPosition(GameObject.Find("Player"));
-                playerInPocket = null;
+                returnToPreviousPosition(playerInPocket);
             }
         }
+    }
+
+    public GameObject playerInsidePocket(){
+        return playerInPocket;
     }
 
     public void teleportToPocket(GameObject user){
@@ -58,20 +61,29 @@ public class PocketInventory : MonoBehaviour
             return;
         }
 
-        float time_since_last_use = Time.time - timeEnteredPocket;
-        if (time_since_last_use < POCKET_COOLDOWN)
-        {
-            Debug.Log ("pocket cooldown not met: " + time_since_last_use);
-            return;
-        }
-
-        playerReturnPosition = user.transform.position;
-        user.transform.position = teleportPosition;
+        playerReturnPosition = user.transform.position; // save return spot
+        teleportUserToPosition (user, teleportPosition);     // teleport 
         playerInPocket = user;
         timeEnteredPocket = Time.time;
     }
 
-    private void returnToPreviousPosition(GameObject user){
-        user.transform.position = playerReturnPosition;
+    private void teleportUserToPosition(GameObject user, Vector3 position){
+        while (user.GetComponent<PlayerController>().toggleCharacterController()){
+            // until toggle returns false for toggled off.
+        }
+        user.transform.position = position;
+        while (!user.GetComponent<PlayerController>().toggleCharacterController()){
+            // until toggle returns true for toggled on.
+        }
+    }
+
+    public void returnToPreviousPosition(GameObject user){
+        teleportUserToPosition (playerInPocket, playerReturnPosition);
+        if (droppedPortalKeyInPocket != null){
+            Debug.Log ("dropped key returned at user's position");
+            droppedPortalKeyInPocket.transform.position = playerReturnPosition;
+        }
+        playerInPocket = null; // change to remove from array if multiple players
+        droppedPortalKeyInPocket = null;
     }
 }

@@ -85,6 +85,15 @@ public class PlayerController : MonoBehaviour
         stateMachine.FixedUpdate();
     }
 
+    // allow transform teleporting.
+    public bool toggleCharacterController(){
+        Controller.enabled = !Controller.enabled;
+        if (Controller.enabled){
+            return true;
+        }
+        return false;
+    }
+
     void HandleLook(){
         // horizontal
         transform.Rotate(

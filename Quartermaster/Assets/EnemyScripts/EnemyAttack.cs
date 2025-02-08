@@ -6,10 +6,12 @@ public class EnemyAttack : MonoBehaviour
     public int damage = 10;
     public int attackCooldown = 1;   // wait time between attacks
     private Coroutine damageCoroutine;
-    public Transform enemy;
+    private Transform enemy;
 
     void Start(){
         damageCoroutine = null;
+        // enemy is parent of the attack object
+        enemy = transform.parent;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -40,6 +42,10 @@ public class EnemyAttack : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(attackCooldown);
+            if (enemy == null)
+            {
+                Debug.Log ("enemy reference is null for some reason");
+            }
             player.GetComponent<PlayerHealth>().Damage(damage, enemy.position);
           }
     }

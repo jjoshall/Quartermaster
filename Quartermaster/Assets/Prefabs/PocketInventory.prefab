@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 281054257700737430}
+  - component: {fileID: 6898755106901803380}
   m_Layer: 0
   m_Name: PocketInventory
   m_TagString: Untagged
@@ -36,6 +37,19 @@ Transform:
   - {fileID: 928475632410196074}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6898755106901803380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3691139008586363369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c391b73f646b17f4d857b872daeaec4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timeEnteredPocket: 0
 --- !u!1 &5143447935524285529
 GameObject:
   m_ObjectHideFlags: 0
@@ -48,7 +62,7 @@ GameObject:
   - component: {fileID: 4955226670023748162}
   - component: {fileID: 3328335257686204366}
   - component: {fileID: 3993614146733968125}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}

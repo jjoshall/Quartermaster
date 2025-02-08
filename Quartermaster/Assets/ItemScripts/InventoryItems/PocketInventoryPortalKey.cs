@@ -2,18 +2,33 @@ using UnityEngine;
 
 public class PocketInventoryPortalKey : InventoryItem
 {
-    public override int itemID { get; set; }
-    public override int quantity {get; set;}
-    public override float last_used {get; set;}
-    public override void use(GameObject user)
+    // Backing fields
+    private int id = 0;
+    private int pocketInventoryQuantity = 0;
+    private float lastUsedTime = float.MinValue;
+    private static float itemCooldown = 10f;
+
+    // Abstract overrides
+    public override float cooldown
     {
-        Debug.Log("PocketInventoryPortalKey used");
-        // Reusable item. Do not destroy.
-        // Store player current location.
-        // Teleport player to pocket inventory location.
-        PocketInventory.instance.teleportToPocket(user);
+        get => itemCooldown;
+        set => itemCooldown = value;
+    }
+    public override int itemID {
+        get => id;
+        set => id = value;
+    }
+    public override int quantity {
+        get => pocketInventoryQuantity;
+        set => pocketInventoryQuantity = value;
     }
 
+    public override float lastUsed {
+        get => lastUsedTime;
+        set => lastUsedTime = value;
+    }
+
+    // Override methods (used as "static fields" for subclass)
     public override bool isConsumable()
     {
         return false;
@@ -23,4 +38,28 @@ public class PocketInventoryPortalKey : InventoryItem
     {
         return 1;
     }
+
+    public override void use(GameObject user)
+    {
+        string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
+        if (lastUsed + cooldown > Time.time){
+            Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
+            Debug.Log ("cooldown remaining: " + (lastUsed + cooldown - Time.time));
+            return;
+        }
+        Debug.Log(itemStr + " (" + itemID + ") used");
+    
+        if (isConsumable()){
+            quantity--;
+        }
+        lastUsed = Time.time;
+
+        itemEffect(user);
+
+    }
+
+    private void itemEffect(GameObject user){
+        PocketInventory.instance.teleportToPocket(user);
+    }
+
 }
