@@ -197,9 +197,12 @@ public class Inventory : MonoBehaviour
         inventory[currentInventoryIndex] = null;
 
         GameObject droppedItem = ItemManager.instance.spawnWorldItem(selectedItemId, stackQuantity, lastUsed);
+        
+        Debug.Log ("dropped stringID: " + stringID);
         if (stringID == "PocketInventoryPortalKey"){
-            if (this.gameObject == PocketInventory.instance.playerInsidePocket()){
+            if (playerObj == PocketInventory.instance.playerInsidePocket()){
                 PocketInventory.instance.droppedPortalKeyInPocket = droppedItem;
+                Debug.Log ("dropped portal key inside pocket");
             }
         }
 

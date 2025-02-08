@@ -46,6 +46,14 @@ public class EnemyAttack : MonoBehaviour
             {
                 Debug.Log ("enemy reference is null for some reason");
             }
+            if (player == null)
+            {
+                Debug.Log ("player reference is null for some reason");
+            }
+            if (player.GetComponent<PlayerHealth>() == null)
+            {
+                Debug.Log ("player health reference is null for some reason");
+            }
             player.GetComponent<PlayerHealth>().Damage(damage, enemy.position);
           }
     }
