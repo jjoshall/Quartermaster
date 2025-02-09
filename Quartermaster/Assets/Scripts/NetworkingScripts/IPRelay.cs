@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Unity.Netcode.Transports.UTP;
 using Unity.Services.Authentication;
 using Unity.Netcode;
@@ -6,9 +5,13 @@ using Unity.Services.Core;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using UnityEngine;
-using Unity.Networking.Transport.Relay;
+using TMPro;
+using System.Collections;
 
 public class IPRelay : MonoBehaviour {
+    [SerializeField] private TMP_Text joinCodeText;
+    [SerializeField] private Canvas playerUICanvas;
+    [SerializeField] private LobbyManagerUI lobbyManagerUI;
 
     private async void Start() {
         await UnityServices.InitializeAsync();
@@ -36,6 +39,8 @@ public class IPRelay : MonoBehaviour {
             );
 
             NetworkManager.Singleton.StartHost();
+
+            StartCoroutine(DelayedUIEnable(joinCode));
         
         } catch (RelayServiceException e) {
             Debug.LogError(e);
@@ -58,9 +63,22 @@ public class IPRelay : MonoBehaviour {
 
             NetworkManager.Singleton.StartClient();
 
+            playerUICanvas.gameObject.SetActive(true);
+            StartCoroutine(lobbyManagerUI.HideLobbyUI());
+
         } catch (RelayServiceException e) {
             Debug.LogError(e);
         }
+    }
+
+    private IEnumerator DelayedUIEnable(string joinCode) {
+        yield return new WaitForSeconds(.5f);
+
+        playerUICanvas.gameObject.SetActive(true);
+        joinCodeText.gameObject.SetActive(true);
+        joinCodeText.text = joinCode;
+
+        lobbyManagerUI.HideLobbyUI();
     }
 
 }
