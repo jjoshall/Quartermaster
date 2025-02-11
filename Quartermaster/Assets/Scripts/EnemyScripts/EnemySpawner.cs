@@ -21,7 +21,8 @@ public class EnemySpawner : NetworkBehaviour
           for (int i = 0; i < maxEnemyInstanceCount; i++)
           {
                GameObject enemy = Instantiate(enemyPrefab, new Vector3(Random.Range(-10, 10), 3, Random.Range(-10, 10)), Quaternion.identity);
-               
+               enemy.GetComponent<NetworkObject>().Spawn(true);
+
                // pool instantiation
           }
      }
