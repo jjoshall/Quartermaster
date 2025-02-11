@@ -30,7 +30,7 @@ public class EnemyController : MonoBehaviour
      private void Awake()
      {
           enemyShooter = GetComponent<EnemyShooter>();
-          target = GameObject.FindFirstObjectByType<PlayerMovement>().transform;
+          target = GameObject.FindFirstObjectByType<PlayerController>().transform;
           //animator = GetComponent<Animator>();
      }
 

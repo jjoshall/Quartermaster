@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using Unity.Netcode;
 
+namespace temp {
 public class EnemyNavScript : MonoBehaviour
 {
      private Transform player;
@@ -31,4 +32,5 @@ public class EnemyNavScript : MonoBehaviour
                }
           }
      }
+}
 }
