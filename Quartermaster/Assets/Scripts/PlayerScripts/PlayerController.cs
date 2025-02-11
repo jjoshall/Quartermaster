@@ -1,8 +1,14 @@
 // Code is inspired from Unity's 3D FPS template
 using UnityEngine;
+// include network bheaviour
+using Unity.Netcode;
+using Unity.Collections;
+using System.Collections.Generic;
+
+// Replace MonoBehaviour with NetworkBehaviour
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler)/*, typeof(AudioSource)*/)]
-public class PlayerController : MonoBehaviour
+public class PlayerController : NetworkBehaviour
 {
     private CharacterController Controller;
     private PlayerInputHandler InputHandler;
@@ -44,8 +50,66 @@ public class PlayerController : MonoBehaviour
     [Header("State Machine")]
     private StateMachine stateMachine;
 
-    void Start()
-    {
+
+// NEW NETWORKING SHIT
+
+    // network vars must be value types (int, string, bool, etc)
+    // cannot be structs (gameobject, vector3, etc)
+    [Header("Network Variables")]
+    // must set proper read/write permission depending on if server or client
+    private NetworkVariable<int> testNetworkVar = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);    
+
+    private NetworkVariable<CustomNetworkData> testCustomNetworkVar = new NetworkVariable<CustomNetworkData>(new CustomNetworkData {_int = 4, _bool = true, message = "tee hee"}, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    // in order to use the above, you need to define the struct:
+    public struct CustomNetworkData: INetworkSerializable {
+        public int _int;
+        public bool _bool;
+        // for strings you must use FixedString, pick the one with the correct number
+        // of bytes for the use case (1 char = 1 byte)
+        public FixedString128Bytes message;
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter {
+            serializer.SerializeValue(ref _int);
+            serializer.SerializeValue(ref _bool);
+            serializer.SerializeValue(ref message);
+        } 
+    }
+
+
+    // example of a server rpc
+    // when the host runs it, it runs fine
+    // when a client runs it, it doesnt appear on the client side, it 
+    // instead requests the host to run it, and the host runs it
+    // ServerRpcParams is used to get info about the client that called the rpc
+    [ServerRpc]
+    private void TestServerRpc(string message, ServerRpcParams serverRpcParams) {
+        Debug.Log("TestServerRpc called by " + OwnerClientId + " with message: " + message + " and from: " + serverRpcParams.Receive.SenderClientId);
+    }
+
+
+    // example of a client rpc
+    // queued by the server to run on all clients
+    // can also be run by the host
+    // you can also specify if you want only specific clients to recieve a client rpc
+    // by using ClientRpcParams (further below at line 161)
+    [ClientRpc]
+    private void TestClientRpc(string message, ClientRpcParams clientRpcParams) {
+        Debug.Log("TestClientRpc called by " + OwnerClientId + " with message: " + message + " and from: " + clientRpcParams);
+    }
+
+// END NEW NETWORKING SHIT
+
+
+    void Start() {
+        if (!IsOwner) {
+            // if not owner, disable other players cameras and audio listeners
+            // they still work on other peoples clients, but it prevents the client
+            // from controlling other players cameras
+            PlayerCamera.gameObject.SetActive(false);
+            PlayerCamera.GetComponent<AudioListener>().enabled = false;
+            return;
+        }
+
         Controller = GetComponent<CharacterController>();
         InputHandler = GetComponent<PlayerInputHandler>();
         if (!PlayerCamera){
@@ -67,9 +131,37 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    // use this to do something with a network variable when the player spawns
+    public override void OnNetworkSpawn() {
+        if (IsOwner) {
+            Debug.Log("Player spawned");
+        }
+    }
+
+
     // Update is called once per frame
-    void Update()
-    {
+    void Update() {
+        if (!IsOwner) return;
+        //Debug.Log("IsOwner: " + IsOwner);
+        
+        // example usage of network var
+        if (Input.GetKeyDown(KeyCode.T)) {
+            testNetworkVar.Value = Random.Range(0, 100);
+            Debug.Log("testNetworkVar: " + testNetworkVar.Value);
+        }
+
+        // example usage of server RPC
+        if (Input.GetKeyDown(KeyCode.Y)) {
+            TestServerRpc("test message", new ServerRpcParams());
+        }
+
+        // example usage of client RPC
+        // uses ClientRpcParams to send to only client 1
+        if (Input.GetKeyDown(KeyCode.U)) {
+            TestClientRpc("test message", new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = new List<ulong> { 1 } } } );
+        }
+
+
         jumpedThisFrame = false;
         GroundCheck();
         // TODO: landing from a fall logic
@@ -81,11 +173,16 @@ public class PlayerController : MonoBehaviour
         stateMachine.Update();
     }
 
-    void FixedUpdate(){
+    void FixedUpdate() {
+        if (!IsOwner) return;
+        
+
         stateMachine.FixedUpdate();
     }
 
-    void HandleLook(){
+    void HandleLook() {
+        if (!IsOwner) return;
+
         // horizontal
         transform.Rotate(
             new Vector3(0f, (InputHandler.GetHorizontalLook() * horizontal_sens * rotationMultiplier * (invertHorizontalInput ? -1 : 1)), 0f), Space.Self
@@ -97,6 +194,8 @@ public class PlayerController : MonoBehaviour
     }
 
     public void HandleGroundMovement(){
+        if (!IsOwner) return;
+
         Vector3 targetVelocity = worldspaceMove * groundSpeed * speedModifier;
         targetVelocity = GetDirectionReorientedOnSlope(targetVelocity.normalized, GroundNormal)
                         * targetVelocity.magnitude;
@@ -112,7 +211,9 @@ public class PlayerController : MonoBehaviour
         MovePlayer();
     }
 
-    public void HandleAirMovement(){
+    public void HandleAirMovement() {
+        if (!IsOwner) return;
+
         playerVelocity += worldspaceMove * airAcceleration * Time.deltaTime;
         // limit horizontal air speed if needed (hence gap in playerVelocity assignments)
         float verticalVelocity = playerVelocity.y;
@@ -123,7 +224,9 @@ public class PlayerController : MonoBehaviour
         MovePlayer();
     }
 
-    void MovePlayer(){
+    void MovePlayer() {
+        if (!IsOwner) return;
+
         Vector3 capsuleBottomBeforeMove = GetCapsuleBottomHemisphere();
         Vector3 capsuleTopBeforeMove = GetCapsuleTopHemisphere();
         Controller.Move(playerVelocity * Time.deltaTime);
@@ -141,7 +244,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void HandleMovement(){
+    void HandleMovement() {
+        if (!IsOwner) return;
+
         // handle rotation
         // horizontal
         transform.Rotate(
@@ -208,7 +313,9 @@ public class PlayerController : MonoBehaviour
     }
 
     // Code from Unity FPS template
-    void GroundCheck(){
+    void GroundCheck() {
+        if (!IsOwner) return;
+
         // Make sure that the ground check distance while already in air is very small, to prevent suddenly snapping to ground
         float chosenGroundCheckDistance =
             IsGrounded ? (Controller.skinWidth + k_GroundCheckDistance) : k_GroundCheckDistanceInAir;

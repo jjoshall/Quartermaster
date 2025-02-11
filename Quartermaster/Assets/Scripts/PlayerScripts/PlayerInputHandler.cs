@@ -1,11 +1,11 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-
+using Unity.Netcode;
 
 /*
 USE CALLBACKS TO SET VARIABLES, HAVE {GET; PRIVATE SET} FOR DATA VALUES TO BE PASSED TO CONTROLLER WHICH HAS ACTUAL UPDATE()
 */
-public class PlayerInputHandler : MonoBehaviour
+public class PlayerInputHandler : NetworkBehaviour
 {
     public Vector3 move_vector { get; private set;}
     public Vector2 look_vector { get; private set;}
@@ -14,6 +14,9 @@ public class PlayerInputHandler : MonoBehaviour
     
 
     void Start(){
+
+        if (!IsOwner) return;
+
         //playerInput = new PlayerControls();
         move_vector = Vector3.zero;
         look_vector = Vector2.zero;
@@ -25,12 +28,16 @@ public class PlayerInputHandler : MonoBehaviour
     }
 
     public void Move(InputAction.CallbackContext ctx){
+        if (!IsOwner) return;
+
         Vector2 move_xy = ctx.ReadValue<Vector2>();
         move_vector = new Vector3(move_xy.x, 0f, move_xy.y);
         move_vector = Vector3.ClampMagnitude(move_vector,1);
     }
 
     public void Jump(InputAction.CallbackContext ctx){
+        if (!IsOwner) return;
+
         // change to ctx.started to disable continuous jumping via holding button
         if (ctx.performed){
             jumped = true;
@@ -41,6 +48,8 @@ public class PlayerInputHandler : MonoBehaviour
     }
 
     public void Sprint(InputAction.CallbackContext ctx){
+        if (!IsOwner) return;
+
         if (ctx.performed){
             IsSprinting = true;
         }
@@ -50,6 +59,8 @@ public class PlayerInputHandler : MonoBehaviour
     }
 
     public void Look(InputAction.CallbackContext ctx){
+        if (!IsOwner) return;
+
         look_vector = ctx.ReadValue<Vector2>();
     }
 
