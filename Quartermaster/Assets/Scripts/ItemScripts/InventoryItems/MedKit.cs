@@ -61,7 +61,9 @@ public class MedKit : InventoryItem
     }
 
     private void itemEffect(GameObject user){
-        user.GetComponent<PlayerHealth>().Heal(HEAL_AMOUNT);
+        // user.GetComponent<PlayerHealth>().Heal(HEAL_AMOUNT);
+        // What handles health now?
+        // PlayerHealth Deprecated.
     }
 
 }

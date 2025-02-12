@@ -108,6 +108,11 @@ public class Inventory : MonoBehaviour
         if (inventory[currentInventoryIndex] != null){
 
             // Use the item effect.
+            if (playerObj == null){
+                Debug.Log("playerObj is null");
+                playerObj = transform.parent.gameObject;
+            }
+
             inventory[currentInventoryIndex].use(playerObj);
 
             if (inventory[currentInventoryIndex].quantity <= 0){
