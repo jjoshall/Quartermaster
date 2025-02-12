@@ -1,10 +1,12 @@
 using System;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class EnemyNavScript : MonoBehaviour
+public class EnemyNavScript : NetworkBehaviour
 {
      public Transform target;
+     public GameObject enemyPrefab;
      private EnemyReferences enemyReferences;
      private float pathUpdateDeadline;
      private float attackDistance;
@@ -21,6 +23,11 @@ public class EnemyNavScript : MonoBehaviour
 
      private void Update()
      {
+          if (!NetworkManager.Singleton.IsServer)
+          {
+               return;
+          }
+
           if (target != null)
           {
                bool inRange = Vector3.Distance(transform.position, target.position) <= attackDistance;
@@ -33,6 +40,12 @@ public class EnemyNavScript : MonoBehaviour
                {
                     UpdatePath();
                }
+          }
+
+          if (Input.GetKeyDown(KeyCode.N))
+          {
+               NetworkObjectPool.Singleton.ReturnNetworkObject(NetworkObject, enemyPrefab);
+               //NetworkObject.Despawn();
           }
      }
 
