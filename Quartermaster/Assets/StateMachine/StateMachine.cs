@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor.EditorTools;
-using UnityEngine.Rendering;
 
 public class StateMachine {
     StateNode current;
