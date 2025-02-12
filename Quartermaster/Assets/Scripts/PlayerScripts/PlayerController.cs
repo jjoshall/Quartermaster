@@ -100,6 +100,15 @@ public class PlayerController : NetworkBehaviour
 // END NEW NETWORKING SHIT
 
 
+    // allow transform teleporting.
+    public bool toggleCharacterController(){
+        Controller.enabled = !Controller.enabled;
+        if (Controller.enabled){
+            return true;
+        }
+        return false;
+    }
+    
     void Start() {
         if (!IsOwner) {
             // if not owner, disable other players cameras and audio listeners

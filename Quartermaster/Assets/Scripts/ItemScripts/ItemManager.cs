@@ -14,8 +14,7 @@ public class ItemManager : MonoBehaviour
             Destroy(this);
         }
 
-        // Iterates over item entry list and initializes a function that returns the appropriate InventoryItem object
-        //     when given the InventoryItem string name (e.g., "MedKit") as a key in the itemClassMap.
+        // Map each string to a function that creates an instance of the class
         foreach (itemStruct item in itemEntries)
         {
             Type itemType = Type.GetType(item.inventoryItemClass);
@@ -27,10 +26,11 @@ public class ItemManager : MonoBehaviour
             itemClassMap[item.inventoryItemClass] = () => (InventoryItem)Activator.CreateInstance(itemType);
         }
     }
+
     [Serializable]
-    public struct itemStruct
+    public struct itemStruct    // This is the struct for each item in the ItemManager's list
     {
-        public GameObject worldPrefab; // Assign in Inspector
+        public GameObject worldPrefab; // assign in inspector
         public string inventoryItemClass; // Fully qualified class name (e.g., "HealthPotionItem")
     }
 
@@ -49,13 +49,28 @@ public class ItemManager : MonoBehaviour
         
     }
 
-    public GameObject spawnWorldItem(int id){
+    public GameObject spawnWorldItem(int id, int quantity, float lastUsed){
         GameObject newWorldItem = Instantiate(itemEntries[id].worldPrefab);
+        newWorldItem.GetComponent<WorldItem>().initializeItem(id, quantity, lastUsed);
         return newWorldItem;
     }
 
-    public InventoryItem spawnInventoryItem (string id){
+    public InventoryItem spawnInventoryItem (string id, int stackQuantity, float timeLastUsed){
         InventoryItem newInventoryItem = itemClassMap[id]();
+        newInventoryItem.itemID = itemEntries.FindIndex(item => item.inventoryItemClass == id);
+        newInventoryItem.quantity = stackQuantity;
+        newInventoryItem.lastUsed = timeLastUsed;
         return newInventoryItem;
     }
+
+    // public int getItemID(GameObject item){
+    //     for (int i = 0; i < itemEntries.Count; i++){
+    //         // if item name is same as itemEntries[i].worldPrefab name
+    //         if (item.name == itemEntries[i].worldPrefab.name){
+    //             return i;
+    //         }
+    //     }
+    //     Debug.Log ("Could not find item ID for item: " + item + "\nReturned 0. Could be a problem.");
+    //     return 0;
+    // }
 }

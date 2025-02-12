@@ -1,0 +1,67 @@
+using UnityEngine;
+
+public class MedKit : InventoryItem
+{
+    // Backing fields
+    private int id = 0;
+    private int medkitQuantity = 0;
+    private float lastUsedTime = float.MinValue;
+    private static float itemCooldown = 10f;
+
+    // Abstract overrides
+    public override float cooldown
+    {
+        get => itemCooldown;
+        set => itemCooldown = value;
+    }
+    public override int itemID {
+        get => id;
+        set => id = value;
+    }
+    public override int quantity {
+        get => medkitQuantity;
+        set => medkitQuantity = value;
+    }
+
+    public override float lastUsed {
+        get => lastUsedTime;
+        set => lastUsedTime = value;
+    }
+
+    // Override methods (used as "static fields" for subclass)
+    public override bool isConsumable()
+    {
+        return true;
+    }
+
+    public override int stackLimit(){
+        return 5;
+    }
+
+    // Item constants
+    private const int HEAL_AMOUNT = 50;
+
+    public override void use(GameObject user)
+    {
+        string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
+        if (lastUsed + cooldown > Time.time){
+            Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
+            Debug.Log ("cooldown remaining: " + (lastUsed + cooldown - Time.time));
+            return;
+        }
+        Debug.Log(itemStr + " (" + itemID + ") used");
+    
+        if (isConsumable()){
+            quantity--;
+        }
+        lastUsed = Time.time;
+
+        itemEffect(user);
+
+    }
+
+    private void itemEffect(GameObject user){
+        user.GetComponent<PlayerHealth>().Heal(HEAL_AMOUNT);
+    }
+
+}
