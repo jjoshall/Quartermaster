@@ -66,55 +66,55 @@ public class Inventory : MonoBehaviour
 
 
     void MyInput(){
-        if (Input.GetKeyDown(KeyCode.G)){
-            // spawn a portal key. debug function.
-            NetworkObjectReference n_playerObj = playerObj.GetComponent<NetworkObject>();
+        // if (Input.GetKeyDown(KeyCode.G)){
+        //     // spawn a portal key. debug function.
+        //     NetworkObjectReference n_playerObj = playerObj.GetComponent<NetworkObject>();
 
-            ItemManager.instance.SpawnWorldItemServerRpc(
-                                                0, 
-                                                1, 
-                                                0, 
-                                                playerObj.transform.position, 
-                                                playerObj.transform.forward * 10,
-                                                n_playerObj);
+        //     ItemManager.instance.SpawnWorldItemServerRpc(
+        //                                         0, 
+        //                                         1, 
+        //                                         0, 
+        //                                         playerObj.transform.position, 
+        //                                         playerObj.transform.forward * 10,
+        //                                         n_playerObj);
 
-        }
+        // }
         if (Input.GetKeyDown(pickupKey)){
             GameObject closestItem = itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().GetClosestItem();
             if (closestItem != null){
                 PickUpItem(closestItem);
-                DEBUG_PRINT_INVENTORY();
+                // DEBUG_PRINT_INVENTORY();
             }
         }
 
         if (Input.GetKeyDown(dropItemKey)){
             DropItem();
-            DEBUG_PRINT_INVENTORY();
+            // DEBUG_PRINT_INVENTORY();
         }
 
         if (Input.GetKeyDown(useItemKey)){
             UseItem();
-            DEBUG_PRINT_INVENTORY();
+            // DEBUG_PRINT_INVENTORY();
         }
 
         if (Input.GetKeyDown(selectItemOneKey)){
             currentInventoryIndex = 0;
-            DEBUG_SELECT_SLOT();
+            // DEBUG_SELECT_SLOT();
         }
 
         if (Input.GetKeyDown(selectItemTwoKey)){
             currentInventoryIndex = 1;
-            DEBUG_SELECT_SLOT();
+            // DEBUG_SELECT_SLOT();
         }
 
         if (Input.GetKeyDown(selectItemThreeKey)){
             currentInventoryIndex = 2;
-            DEBUG_SELECT_SLOT();
+            // DEBUG_SELECT_SLOT();
         }
 
         if (Input.GetKeyDown(selectItemFourKey)){
             currentInventoryIndex = 3;
-            DEBUG_SELECT_SLOT();
+            // DEBUG_SELECT_SLOT();
         }
     }
 
@@ -232,9 +232,6 @@ public class Inventory : MonoBehaviour
     }
 
     void DEBUG_PRINT_INVENTORY(){
-        if (!DEBUG_FLAG){
-            return;
-        }
         string DEBUG_STRING = "DEBUG: Inventory: \n";
         for (int i = 0; i < inventory.Length; i++){
             InventoryItem item = inventory[i];
@@ -247,9 +244,6 @@ public class Inventory : MonoBehaviour
     }
 
     void DEBUG_SELECT_SLOT(){
-        if (!DEBUG_FLAG){
-            return;
-        }
         string DEBUG_STRING = "DEBUG: Selected: \n";
         DEBUG_STRING += "Current Index: " + (currentInventoryIndex+1) + ", ";
         DEBUG_STRING += "Item: ";
