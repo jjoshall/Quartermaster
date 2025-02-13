@@ -66,14 +66,13 @@ public class ItemManager : NetworkBehaviour
         GameObject newWorldItem = Instantiate(itemEntries[id].worldPrefab);
         newWorldItem.GetComponent<WorldItem>().InitializeItem(id, quantity, lastUsed);
         NetworkObject netObj = newWorldItem.GetComponent<NetworkObject>();
-        
+
         if (netObj == null)
         {
             Debug.LogError("SpawnWorldItemServerRpc: The spawned object is missing a NetworkObject component!");
             Destroy(newWorldItem);  // Prevent stray objects in the scene
             return;
         }
-        netObj.Spawn(true);
 
         netObj.transform.position = spawnLoc;
         netObj.GetComponent<Rigidbody>().linearVelocity = initialVelocity;
@@ -87,6 +86,8 @@ public class ItemManager : NetworkBehaviour
                 Debug.Log ("dropped portal key inside pocket");
             }
         }
+        
+        netObj.Spawn(true);
     }
 
 

@@ -45,11 +45,38 @@ public class WorldItem : NetworkBehaviour
 
     void Update()
     {
-        floatyAnimation();
+        FloatyAnimation();
     }
 
-    void floatyAnimation(){
+    void FloatyAnimation(){
         // Make the item float up and down
     }
+
+    public override void OnDestroy()
+    {
+    // Notify all nearby acquisition ranges
+        foreach (var collider in Physics.OverlapSphere(transform.position, 2.0f)) // Adjust radius if needed
+        {
+            ItemAcquisitionRange range = collider.GetComponent<ItemAcquisitionRange>();
+            if (range != null)
+            {
+                range.RemoveItem(gameObject);
+            }
+        }
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        foreach (var collider in Physics.OverlapSphere(transform.position, 2.0f)) // Adjust radius if needed
+        {
+            var range = collider.GetComponent<ItemAcquisitionRange>();
+            if (range != null)
+            {
+                range.AddItem(gameObject);
+            }
+        }
+    }
+
 
 }

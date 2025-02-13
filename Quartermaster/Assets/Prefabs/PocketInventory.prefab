@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 281054257700737430}
   - component: {fileID: 180000619443434344}
   - component: {fileID: 3694240355070316731}
+  - component: {fileID: 8510010251518134782}
   m_Layer: 0
   m_Name: PocketInventory
   m_TagString: Untagged
@@ -50,8 +51,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2330216953
-  InScenePlacedSourceGlobalObjectIdHash: 0
+  GlobalObjectIdHash: 2607813253
+  InScenePlacedSourceGlobalObjectIdHash: 1346623139
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
@@ -76,8 +77,46 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  timeEnteredPocket: 0
-  droppedPortalKeyInPocket: {fileID: 0}
+  timeEnteredPocketNetworkVar:
+    m_InternalValue: 0
+  n_droppedPortalKeyInPocket:
+    m_InternalValue: 0
+--- !u!114 &8510010251518134782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3691139008586363369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkTransformExpanded: 0
+  AuthorityMode: 0
+  TickSyncChildren: 0
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
+  SyncScaleX: 1
+  SyncScaleY: 1
+  SyncScaleZ: 1
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 0
+  SwitchTransformSpaceWhenParented: 0
+  Interpolate: 1
+  SlerpPosition: 0
 --- !u!1 &5143447935524285529
 GameObject:
   m_ObjectHideFlags: 0

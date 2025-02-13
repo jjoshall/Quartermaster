@@ -80,7 +80,7 @@ public class Inventory : MonoBehaviour
 
         }
         if (Input.GetKeyDown(pickupKey)){
-            GameObject closestItem = itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().getClosestItem();
+            GameObject closestItem = itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().GetClosestItem();
             if (closestItem != null){
                 PickUpItem(closestItem);
                 DEBUG_PRINT_INVENTORY();
@@ -149,7 +149,7 @@ public class Inventory : MonoBehaviour
         int stackQuantity = pickedUp.GetComponent<WorldItem>().GetStackQuantity();
         float lastUsed = pickedUp.GetComponent<WorldItem>().GetLastUsed();
 
-        itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().removeItem(pickedUp); // remove the item from the list of items in range
+        itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().RemoveItem(pickedUp); // remove the item from the list of items in range
         ItemManager.instance.DestroyWorldItemServerRpc(pickedUp.GetComponent<NetworkObject>());
 
         // spawnInventoryItem uses stringID for lookup. 
