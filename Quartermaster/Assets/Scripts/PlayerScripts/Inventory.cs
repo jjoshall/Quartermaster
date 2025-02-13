@@ -68,23 +68,16 @@ public class Inventory : MonoBehaviour
     void MyInput(){
         if (Input.GetKeyDown(KeyCode.G)){
             // spawn a portal key. debug function.
-            ItemManager.instance.SpawnWorldItemServerRpc(0, 1, 0, 
-                                                playerObj.transform.position, 
-                                                playerObj.transform.forward * 10);
-            GameObject worldItemPortalKey = null;
-            Collider[] colliders = Physics.OverlapSphere(playerObj.transform.position, 1);
-            foreach (Collider col in colliders){
-                if (col.gameObject.GetComponent<WorldItem>() != null){
-                    worldItemPortalKey = col.gameObject;
-                    break;
-                }
-            }
-            if (worldItemPortalKey == null){
-                Debug.Log("worldItemPortalKey is null");
-                return;
-            }
+            NetworkObjectReference n_playerObj = playerObj.GetComponent<NetworkObject>();
 
-            itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().addItem(worldItemPortalKey);
+            ItemManager.instance.SpawnWorldItemServerRpc(
+                                                0, 
+                                                1, 
+                                                0, 
+                                                playerObj.transform.position, 
+                                                playerObj.transform.forward * 10,
+                                                n_playerObj);
+
         }
         if (Input.GetKeyDown(pickupKey)){
             GameObject closestItem = itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().getClosestItem();
@@ -157,7 +150,7 @@ public class Inventory : MonoBehaviour
         float lastUsed = pickedUp.GetComponent<WorldItem>().GetLastUsed();
 
         itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().removeItem(pickedUp); // remove the item from the list of items in range
-        Destroy(pickedUp);
+        ItemManager.instance.DestroyWorldItemServerRpc(pickedUp.GetComponent<NetworkObject>());
 
         // spawnInventoryItem uses stringID for lookup. 
         InventoryItem newItem = ItemManager.instance.SpawnInventoryItem(stringID, stackQuantity, lastUsed);
@@ -224,24 +217,17 @@ public class Inventory : MonoBehaviour
         inventory[currentInventoryIndex] = null;
 
         Vector3 initVelocity = orientation.forward * 10;
+        NetworkObjectReference n_playerObj = playerObj.GetComponent<NetworkObject>();
         ItemManager.instance.SpawnWorldItemServerRpc(
                                     selectedItemId, 
                                     stackQuantity, 
                                     lastUsed, 
                                     this.transform.position, 
-                                    initVelocity);
+                                    initVelocity,
+                                    n_playerObj);
         
         Debug.Log ("dropped stringID: " + stringID);
-        if (stringID == "PocketInventoryPortalKey"){
-            if (PocketInventory.instance.PlayerIsInPocket(playerObj.GetComponent<NetworkObject>())){
-                PocketInventory.instance.n_droppedPortalKeyInPocket.Value = true; 
-                Collider[] colliders = Physics.OverlapSphere(playerObj.transform.position, 1);
-                PocketInventory.instance.n_storedKeyObj = ;
-                Debug.Log ("dropped portal key inside pocket");
-            }
-        }
 
-        itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().addItem(droppedItem);
         currentHeldItems--;
     }
 

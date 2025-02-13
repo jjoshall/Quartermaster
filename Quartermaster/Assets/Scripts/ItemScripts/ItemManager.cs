@@ -50,20 +50,43 @@ public class ItemManager : NetworkBehaviour
         
     }
 
-    [ServerRpc]
-    public void SpawnWorldItemServerRpc(int id, int quantity, float lastUsed, Vector3 spawnLoc, Vector3 initialVelocity)
+    [ServerRpc(RequireOwnership = false)]
+    public void SpawnWorldItemServerRpc(int id, int quantity, float lastUsed, Vector3 spawnLoc, Vector3 initialVelocity, NetworkObjectReference n_playerObj)
     {
         if (!IsServer)
         {
             return;
         }
 
+        if (!n_playerObj.TryGet(out NetworkObject playerObj))
+        {
+            Debug.Log ("Could not get player object from reference.");
+        }
+
         GameObject newWorldItem = Instantiate(itemEntries[id].worldPrefab);
         newWorldItem.GetComponent<WorldItem>().InitializeItem(id, quantity, lastUsed);
         NetworkObject netObj = newWorldItem.GetComponent<NetworkObject>();
+        
+        if (netObj == null)
+        {
+            Debug.LogError("SpawnWorldItemServerRpc: The spawned object is missing a NetworkObject component!");
+            Destroy(newWorldItem);  // Prevent stray objects in the scene
+            return;
+        }
         netObj.Spawn(true);
+
         netObj.transform.position = spawnLoc;
         netObj.GetComponent<Rigidbody>().linearVelocity = initialVelocity;
+
+        // map id number to its stringID
+        string stringID = itemEntries[id].inventoryItemClass;
+        if (stringID == "PocketInventoryPortalKey"){
+            if (PocketInventory.instance.PlayerIsInPocket(playerObj)){
+                PocketInventory.instance.n_droppedPortalKeyInPocket.Value = true;
+                PocketInventory.instance.n_storedKeyObj = netObj;
+                Debug.Log ("dropped portal key inside pocket");
+            }
+        }
     }
 
 
@@ -73,6 +96,20 @@ public class ItemManager : NetworkBehaviour
         newInventoryItem.quantity = stackQuantity;
         newInventoryItem.lastUsed = timeLastUsed;
         return newInventoryItem;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void DestroyWorldItemServerRpc(NetworkObjectReference n_worldItem){
+        if (!IsServer)
+        {
+            return;
+        }
+
+        if (n_worldItem.TryGet(out NetworkObject worldItem))
+        {
+            worldItem.Despawn();
+            // Destroy(worldItem.gameObject);
+        }
     }
 
 }

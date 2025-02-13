@@ -54,11 +54,7 @@ public class PocketInventory : NetworkBehaviour
         {
             if (NetworkManager.Singleton.ServerTime.Time - timeEnteredPocketNetworkVar.Value > MAX_TIME_IN_POCKET)
             {
-                foreach (NetworkObjectReference player in playersInPocket){
-                    if (player.TryGet(out NetworkObject playerObj)){
-                        ReturnToPreviousPositionClientRpc(playerObj);
-                    }
-                }
+                ReturnAllPlayersClientRpc();
             }
         }
     }
@@ -101,26 +97,28 @@ public class PocketInventory : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void ReturnToPreviousPositionClientRpc(NetworkObject playerObj){
-        NetworkObjectReference playerRef = playerObj.GetComponent<NetworkObjectReference>();
-        if (playerReturnPositions.TryGetValue(playerRef, out Vector3 playerReturnPosition))
+    public void ReturnToPreviousPositionClientRpc(NetworkObjectReference n_playerObjRef){
+        
+        if (playerReturnPositions.TryGetValue(n_playerObjRef, out Vector3 playerReturnPosition))
         {
-            TeleportUserToPositionClientRpc(playerRef, playerReturnPosition);
-            if (n_storedKeyObj.TryGet(out NetworkObject keyObj))
+            TeleportUserToPositionClientRpc(n_playerObjRef, playerReturnPosition);
+            if (n_droppedPortalKeyInPocket.Value)
             {
-                Debug.Log("dropped key returned at user's position");
-                keyObj.transform.position = playerReturnPosition;
+                if (n_storedKeyObj.TryGet(out NetworkObject keyObj))
+                {
+                    Debug.Log("dropped key returned at user's position");
+                    keyObj.transform.position = playerReturnPosition;
+                }
             }
-            playersInPocket.Remove(playerRef);
+            playersInPocket.Remove(n_playerObjRef);
             n_storedKeyObj = new NetworkObjectReference();
         }
     }
 
+    [ClientRpc]
     public void ReturnAllPlayersClientRpc(){
-        foreach (NetworkObjectReference player in playersInPocket){
-            if (player.TryGet(out NetworkObject playerObj)){
-                ReturnToPreviousPositionClientRpc(playerObj);
-            }
+        foreach (NetworkObjectReference n_player in playersInPocket){
+            ReturnToPreviousPositionClientRpc(n_player);
         }
     }
 
