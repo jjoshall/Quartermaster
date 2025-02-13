@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.Netcode;
 
 public class Inventory : MonoBehaviour
 {
@@ -65,21 +66,41 @@ public class Inventory : MonoBehaviour
 
 
     void MyInput(){
+        if (Input.GetKeyDown(KeyCode.G)){
+            // spawn a portal key. debug function.
+            ItemManager.instance.SpawnWorldItemServerRpc(0, 1, 0, 
+                                                playerObj.transform.position, 
+                                                playerObj.transform.forward * 10);
+            GameObject worldItemPortalKey = null;
+            Collider[] colliders = Physics.OverlapSphere(playerObj.transform.position, 1);
+            foreach (Collider col in colliders){
+                if (col.gameObject.GetComponent<WorldItem>() != null){
+                    worldItemPortalKey = col.gameObject;
+                    break;
+                }
+            }
+            if (worldItemPortalKey == null){
+                Debug.Log("worldItemPortalKey is null");
+                return;
+            }
+
+            itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().addItem(worldItemPortalKey);
+        }
         if (Input.GetKeyDown(pickupKey)){
             GameObject closestItem = itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().getClosestItem();
             if (closestItem != null){
-                pickUpItem(closestItem);
+                PickUpItem(closestItem);
                 DEBUG_PRINT_INVENTORY();
             }
         }
 
         if (Input.GetKeyDown(dropItemKey)){
-            dropItem();
+            DropItem();
             DEBUG_PRINT_INVENTORY();
         }
 
         if (Input.GetKeyDown(useItemKey)){
-            useItem();
+            UseItem();
             DEBUG_PRINT_INVENTORY();
         }
 
@@ -104,7 +125,7 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    void useItem (){
+    void UseItem (){
         if (inventory[currentInventoryIndex] != null){
 
             // Use the item effect.
@@ -113,7 +134,7 @@ public class Inventory : MonoBehaviour
                 playerObj = transform.parent.gameObject;
             }
 
-            inventory[currentInventoryIndex].use(playerObj);
+            inventory[currentInventoryIndex].Use(playerObj);
 
             if (inventory[currentInventoryIndex].quantity <= 0){
                 inventory[currentInventoryIndex] = null;
@@ -122,25 +143,26 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    void pickUpItem (GameObject pickedUp){
-        int itemID = pickedUp.GetComponent<WorldItem>().getItemID();
+    void PickUpItem (GameObject pickedUp){
+        int itemID = pickedUp.GetComponent<WorldItem>().GetItemID();
         string stringID = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
         if (stringID == "PocketInventoryPortalKey"){
-            if (this.gameObject == PocketInventory.instance.playerInsidePocket()){
-                PocketInventory.instance.droppedPortalKeyInPocket = null;
+            // if (this.gameObject == PocketInventory.instance.playerInsidePocket()){
+            if (PocketInventory.instance.PlayerIsInPocket(playerObj.GetComponent<NetworkObject>())){
+                PocketInventory.instance.n_droppedPortalKeyInPocket.Value = false; 
             }
         }
 
-        int stackQuantity = pickedUp.GetComponent<WorldItem>().getStackQuantity();
-        float lastUsed = pickedUp.GetComponent<WorldItem>().getLastUsed();
+        int stackQuantity = pickedUp.GetComponent<WorldItem>().GetStackQuantity();
+        float lastUsed = pickedUp.GetComponent<WorldItem>().GetLastUsed();
 
         itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().removeItem(pickedUp); // remove the item from the list of items in range
         Destroy(pickedUp);
 
         // spawnInventoryItem uses stringID for lookup. 
-        InventoryItem newItem = ItemManager.instance.spawnInventoryItem(stringID, stackQuantity, lastUsed);
+        InventoryItem newItem = ItemManager.instance.SpawnInventoryItem(stringID, stackQuantity, lastUsed);
 
-        if (stackedItem (newItem))
+        if (TryStackItem (newItem))
         {
             return;
         } 
@@ -151,21 +173,21 @@ public class Inventory : MonoBehaviour
 
         // else add to first empty slot
         if (currentHeldItems < maxInventorySize){
-            addToFirstEmptySlot(newItem); // convert worlditem to inventoryitem
+            AddToFirstEmptySlot(newItem); // convert worlditem to inventoryitem
         }
     }
 
     // Return true if fully merged into existing stacks.
-    bool stackedItem (InventoryItem newItem){
+    bool TryStackItem (InventoryItem newItem){
         for (int i = 0; i < inventory.Length; i++){
             if (inventory[i] == null){
                 continue;
             }
             if (inventory[i].itemID == newItem.itemID){
                 inventory[i].quantity += newItem.quantity;
-                if (inventory[i].quantity > inventory[i].stackLimit()){
-                    newItem.quantity = inventory[i].quantity - inventory[i].stackLimit(); // left over quantity
-                    inventory[i].quantity = inventory[i].stackLimit(); // cap curr item to stackLimit
+                if (inventory[i].quantity > inventory[i].StackLimit()){
+                    newItem.quantity = inventory[i].quantity - inventory[i].StackLimit(); // left over quantity
+                    inventory[i].quantity = inventory[i].StackLimit(); // cap curr item to stackLimit
                 } else {
                     // same item as curr index and total quantity under stack limit.
                     // aka, we stacked into an existing stack with non left over.
@@ -177,7 +199,7 @@ public class Inventory : MonoBehaviour
         return false;
     }
 
-    void addToFirstEmptySlot (InventoryItem item){
+    void AddToFirstEmptySlot (InventoryItem item){
         for (int i = 0; i < inventory.Length; i++){
             if (inventory[i] == null){
                 inventory[i] = item;
@@ -188,7 +210,7 @@ public class Inventory : MonoBehaviour
     }
 
 
-    void dropItem (){
+    void DropItem (){
 
         // If null, no selected item.
         if (inventory[currentInventoryIndex] == null){
@@ -201,32 +223,28 @@ public class Inventory : MonoBehaviour
         float lastUsed = inventory[currentInventoryIndex].lastUsed;
         inventory[currentInventoryIndex] = null;
 
-        GameObject droppedItem = ItemManager.instance.spawnWorldItem(selectedItemId, stackQuantity, lastUsed);
+        Vector3 initVelocity = orientation.forward * 10;
+        ItemManager.instance.SpawnWorldItemServerRpc(
+                                    selectedItemId, 
+                                    stackQuantity, 
+                                    lastUsed, 
+                                    this.transform.position, 
+                                    initVelocity);
         
         Debug.Log ("dropped stringID: " + stringID);
         if (stringID == "PocketInventoryPortalKey"){
-            if (playerObj == PocketInventory.instance.playerInsidePocket()){
-                PocketInventory.instance.droppedPortalKeyInPocket = droppedItem;
+            if (PocketInventory.instance.PlayerIsInPocket(playerObj.GetComponent<NetworkObject>())){
+                PocketInventory.instance.n_droppedPortalKeyInPocket.Value = true; 
+                Collider[] colliders = Physics.OverlapSphere(playerObj.transform.position, 1);
+                PocketInventory.instance.n_storedKeyObj = ;
                 Debug.Log ("dropped portal key inside pocket");
             }
         }
-
-        // give it a forward velocity to throw the item forward
-        Rigidbody rb = droppedItem.GetComponent<Rigidbody>();
-        rb.linearVelocity = orientation.forward * 10;
-        // rb.linearVelocity = orientation.forward * 10;
-
-        // Drop the item in front of the player
-        Vector3 dropPosition = playerObj.transform.position; //  + playerParent.transform.forward;
-        droppedItem.transform.position = dropPosition;
 
         itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().addItem(droppedItem);
         currentHeldItems--;
     }
 
-    // bool slotIsEmpty(int index){
-    //     return inventory[index] == null;
-    // }
     void DEBUG_PRINT_INVENTORY(){
         if (!DEBUG_FLAG){
             return;

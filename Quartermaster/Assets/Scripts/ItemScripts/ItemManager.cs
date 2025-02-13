@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
-public class ItemManager : MonoBehaviour
+public class ItemManager : NetworkBehaviour
 {
     // Singleton
     public static ItemManager instance;
@@ -49,13 +50,24 @@ public class ItemManager : MonoBehaviour
         
     }
 
-    public GameObject spawnWorldItem(int id, int quantity, float lastUsed){
+    [ServerRpc]
+    public void SpawnWorldItemServerRpc(int id, int quantity, float lastUsed, Vector3 spawnLoc, Vector3 initialVelocity)
+    {
+        if (!IsServer)
+        {
+            return;
+        }
+
         GameObject newWorldItem = Instantiate(itemEntries[id].worldPrefab);
-        newWorldItem.GetComponent<WorldItem>().initializeItem(id, quantity, lastUsed);
-        return newWorldItem;
+        newWorldItem.GetComponent<WorldItem>().InitializeItem(id, quantity, lastUsed);
+        NetworkObject netObj = newWorldItem.GetComponent<NetworkObject>();
+        netObj.Spawn(true);
+        netObj.transform.position = spawnLoc;
+        netObj.GetComponent<Rigidbody>().linearVelocity = initialVelocity;
     }
 
-    public InventoryItem spawnInventoryItem (string id, int stackQuantity, float timeLastUsed){
+
+    public InventoryItem SpawnInventoryItem (string id, int stackQuantity, float timeLastUsed){
         InventoryItem newInventoryItem = itemClassMap[id]();
         newInventoryItem.itemID = itemEntries.FindIndex(item => item.inventoryItemClass == id);
         newInventoryItem.quantity = stackQuantity;
@@ -63,14 +75,4 @@ public class ItemManager : MonoBehaviour
         return newInventoryItem;
     }
 
-    // public int getItemID(GameObject item){
-    //     for (int i = 0; i < itemEntries.Count; i++){
-    //         // if item name is same as itemEntries[i].worldPrefab name
-    //         if (item.name == itemEntries[i].worldPrefab.name){
-    //             return i;
-    //         }
-    //     }
-    //     Debug.Log ("Could not find item ID for item: " + item + "\nReturned 0. Could be a problem.");
-    //     return 0;
-    // }
 }

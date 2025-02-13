@@ -29,17 +29,17 @@ public class PocketInventoryPortalKey : InventoryItem
     }
 
     // Override methods (used as "static fields" for subclass)
-    public override bool isConsumable()
+    public override bool IsConsumable()
     {
         return false;
     }
 
-    public override int stackLimit()
+    public override int StackLimit()
     {
         return 1;
     }
 
-    public override void use(GameObject user)
+    public override void Use(GameObject user)
     {
         string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
         if (lastUsed + cooldown > Time.time){
@@ -49,17 +49,17 @@ public class PocketInventoryPortalKey : InventoryItem
         }
         Debug.Log(itemStr + " (" + itemID + ") used");
     
-        if (isConsumable()){
+        if (IsConsumable()){
             quantity--;
         }
         lastUsed = Time.time;
 
-        itemEffect(user);
+        ItemEffect(user);
 
     }
 
-    private void itemEffect(GameObject user){
-        PocketInventory.instance.teleportToPocket(user);
+    private void ItemEffect(GameObject user){
+        PocketInventory.instance.TeleportToPocketClientRpc(user);
     }
 
 }

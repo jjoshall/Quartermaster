@@ -12,9 +12,9 @@ public abstract class InventoryItem
     // class static cooldown. defined by inherited class
     public abstract float cooldown {get; set;}
 
-    public abstract void use(GameObject user);
+    public abstract void Use(GameObject user);
 
-    public abstract bool isConsumable();
+    public abstract bool IsConsumable();
 
-    public abstract int stackLimit();
+    public abstract int StackLimit();
 }
