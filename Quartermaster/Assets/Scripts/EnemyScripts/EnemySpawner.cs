@@ -52,7 +52,7 @@ public class EnemySpawner : NetworkBehaviour
 
      private IEnumerator SpawnOverTime()
      {
-          while (true)
+          while (false)
           {
                if (enemyList.Count < maxEnemyInstanceCount)
                {

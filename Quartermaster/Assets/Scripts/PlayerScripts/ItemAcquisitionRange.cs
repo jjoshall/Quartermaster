@@ -24,37 +24,37 @@ public class ItemAcquisitionRange : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (isAnItem(other.gameObject))
+        if (IsAnItem(other.gameObject))
         {
-            addItem(other.gameObject);
+            AddItem(other.gameObject);
         }
     }
 
-    public void addItem(GameObject item){
+    public void AddItem(GameObject item){
         if (itemsInRange.Contains(item))
         {
             return;
         }
         itemsInRange.Add(item);
-        debug_print_items_in_range();
+        Debug_print_items_in_range();
     }
     void OnTriggerExit(Collider other)
     {
-        if (isAnItem(other.gameObject))
+        if (IsAnItem(other.gameObject))
         {
-            removeItem(other.gameObject);
+            RemoveItem(other.gameObject);
         }
     }
 
-    public void removeItem(GameObject item){
+    public void RemoveItem(GameObject item){
         if (!itemsInRange.Contains(item))
         {
             return;
         }
         itemsInRange.Remove(item);
-        debug_print_items_in_range();
+        Debug_print_items_in_range();
     }
-    private void updateClosestItem(){
+    private void UpdateClosestItem(){
         // Call this function every update() if we want to apply a shader to closest item.
         //     otherwise, only call it when we need to get the closest item.
 
@@ -78,17 +78,17 @@ public class ItemAcquisitionRange : MonoBehaviour
         closestItem = localClosest;
     }
 
-    public GameObject getClosestItem(){
-        updateClosestItem();
+    public GameObject GetClosestItem(){
+        UpdateClosestItem();
         return closestItem;
     }   
 
-    bool isAnItem(GameObject obj){
+    bool IsAnItem(GameObject obj){
         return obj.CompareTag("Item");
         // return true; 
     }
 
-    private void debug_print_items_in_range(){
+    private void Debug_print_items_in_range(){
         if (DEBUG_FLAG)
         {
             string DEBUG_STRING = "DEBUG: Items in range: ";
