@@ -13,9 +13,8 @@ GameObject:
   - component: {fileID: 4443575173108261974}
   - component: {fileID: 7933799779800684133}
   - component: {fileID: -5144454891283388636}
-  - component: {fileID: 6136554406852902502}
-  - component: {fileID: 2686380082172503434}
   - component: {fileID: 2895127981746352734}
+  - component: {fileID: 6136554406852902502}
   - component: {fileID: 5662184945285433752}
   m_Layer: 0
   m_Name: Enemy
@@ -139,33 +138,6 @@ NavMeshAgent:
   m_BaseOffset: 1
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &6136554406852902502
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2675775069118099314}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0697d6eb229c4a84f89d45b4c7890335, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 9178118900874394549, guid: a87c66fe33e612c4abae793551eb0416, type: 3}
---- !u!114 &2686380082172503434
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2675775069118099314}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ab31657140d6d54db5b4a1236b6b359, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  agent: {fileID: 0}
-  pathUpdateDelay: 0.2
 --- !u!114 &2895127981746352734
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -191,6 +163,22 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!114 &6136554406852902502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2675775069118099314}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0697d6eb229c4a84f89d45b4c7890335, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  enemySpawner: {fileID: 0}
+  agent: {fileID: 0}
+  attackDistance: 2
 --- !u!114 &5662184945285433752
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,36 +1,46 @@
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using System.Threading.Tasks;
 
-public class EnemySpawner : MonoBehaviour
+public class EnemySpawner : NetworkBehaviour
 {
-     [SerializeField] private GameObject enemyPrefab;
+     [SerializeField] private Transform enemyPrefab;
      [SerializeField] private int maxEnemyInstanceCount = 20;
+     [SerializeField] private float spawnCooldown = 2f;
 
-     private void Start()
+     public List<Transform> enemyList = new List<Transform>();
+     public List<GameObject> playerList;
+
+     //private void Start()
+     //{
+     //     //NetworkManager.Singleton.OnServerStarted += SpawnEnemiesStart; 
+     //}
+
+     public override void OnNetworkSpawn()
      {
-          NetworkManager.Singleton.OnServerStarted += SpawnEnemiesStart;
-     }
-
-     public void SpawnEnemiesStart()
-     {
-          NetworkManager.Singleton.OnServerStarted -= SpawnEnemiesStart;
-          NetworkObjectPool.Singleton.InitializePool();
-
-          for (int i = 0; i < maxEnemyInstanceCount; i++)
+          if (!IsServer)
           {
-               SpawnEnemies();
+               enabled = false;
+               return;
           }
 
           StartCoroutine(SpawnOverTime());
+
+          NetworkManager.Singleton.OnClientConnectedCallback += ClientConnected;
+          NetworkManager.Singleton.OnClientDisconnectCallback += ClientDisconnected;
      }
 
-     public void SpawnEnemies()
+     private void ClientConnected(ulong u)
      {
-          NetworkObject obj = NetworkObjectPool.Singleton.GetNetworkObject(enemyPrefab, GetRandomPositionOnMap(), Quaternion.identity);
+          playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
+     }
 
-          obj.GetComponent<EnemyNavScript>().enemyPrefab = enemyPrefab;
-          obj.Spawn(true);
+     private async void ClientDisconnected(ulong u)
+     {
+          await Task.Yield();
+          playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
      }
 
      private Vector3 GetRandomPositionOnMap()
@@ -42,18 +52,42 @@ public class EnemySpawner : MonoBehaviour
 
      private IEnumerator SpawnOverTime()
      {
-          while (NetworkManager.Singleton.ConnectedClients.Count > 0)
+          while (true)
           {
-               yield return new WaitForSeconds(3f);
-               SpawnEnemies();
+               if (enemyList.Count < maxEnemyInstanceCount)
+               {
+                    Transform enemyTransform = Instantiate(enemyPrefab, GetRandomPositionOnMap(), Quaternion.identity, transform);
+                    enemyTransform.GetComponent<EnemyNavScript>().enemySpawner = this;
+                    enemyTransform.GetComponent<NetworkObject>().Spawn(true);
+                    enemyList.Add(enemyTransform);
+
+                    yield return new WaitForSeconds(spawnCooldown);
+               }
+
+               yield return null;
           }
      }
 
-     private void Update()
-     {
-          if (Input.GetKeyDown(KeyCode.M))
-          {
-               SpawnEnemies();
-          }
-     }
+     //public void SpawnEnemiesStart()
+     //{
+     //     NetworkManager.Singleton.OnServerStarted -= SpawnEnemiesStart;
+     //     //NetworkObjectPool.Singleton.InitializePool();
+
+     //     for (int i = 0; i < maxEnemyInstanceCount; i++)
+     //     {
+     //          SpawnEnemies();
+     //     }
+
+     //     StartCoroutine(SpawnOverTime());
+     //}
+
+     //public void SpawnEnemies()
+     //{
+     //     //NetworkObject obj = NetworkObjectPool.Singleton.GetNetworkObject(enemyPrefab, GetRandomPositionOnMap(), Quaternion.identity);
+
+     //     //obj.GetComponent<EnemyNavScript>().enemyPrefab = enemyPrefab;
+     //     //obj.Spawn(true);
+
+
+     //}
 }

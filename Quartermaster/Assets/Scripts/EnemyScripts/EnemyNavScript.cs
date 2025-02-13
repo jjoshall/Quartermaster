@@ -1,36 +1,58 @@
-using System;
+using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class EnemyNavScript : NetworkBehaviour
 {
-     public Transform target;
-     public GameObject enemyPrefab;
-     private EnemyReferences enemyReferences;
-     private float pathUpdateDeadline;
-     private float attackDistance;
+     public EnemySpawner enemySpawner;
+     private Transform player;
+     private NavMeshAgent agent;
 
-     private void Awake()
+     [SerializeField] private float attackDistance = 2;
+     [Tooltip("Path will update at a random float time between 0.05 - 0.1 seconds so that all enemies don't update at the same time causing performance issues")]
+     private float pathUpdateDelay;
+
+     public override void OnNetworkSpawn()
      {
-          enemyReferences = GetComponent<EnemyReferences>();
+          if (!IsServer)
+          {
+               enabled = false;
+               GetComponent<NavMeshAgent>().enabled = false;
+               return;
+          }
+          NetworkManager.Singleton.OnClientDisconnectCallback += ClientDisconnected;
+
+          agent = GetComponent<NavMeshAgent>();
+          // animator = GetComponent<Animator>();
+
+          pathUpdateDelay = Random.Range(0.05f, 0.1f);
      }
 
-     private void Start()
+     private void ClientDisconnected(ulong u)
      {
-          attackDistance = enemyReferences.agent.stoppingDistance;
+          player = null;
      }
 
      private void Update()
      {
-          if (!NetworkManager.Singleton.IsServer)
+          //if (!NetworkManager.Singleton.IsServer)
+          //{
+          //     return;
+          //}
+
+          foreach (GameObject obj in enemySpawner.playerList)
           {
-               return;
+               if (player == null || Vector3.Distance(transform.position, obj.transform.position) < Vector3.Distance(transform.position, player.position))
+               {
+                    player = obj.transform;
+               }
           }
 
-          if (target != null)
+          if (player != null)
           {
-               bool inRange = Vector3.Distance(transform.position, target.position) <= attackDistance;
+               bool inRange = Vector3.Distance(transform.position, player.position) <= attackDistance;
 
                if (inRange)
                {
@@ -41,17 +63,11 @@ public class EnemyNavScript : NetworkBehaviour
                     UpdatePath();
                }
           }
-
-          if (Input.GetKeyDown(KeyCode.N))
-          {
-               NetworkObjectPool.Singleton.ReturnNetworkObject(NetworkObject, enemyPrefab);
-               //NetworkObject.Despawn();
-          }
      }
 
      private void LookAtTarget()
      {
-          Vector3 lookPos = target.position - transform.position;
+          Vector3 lookPos = player.position - transform.position;
           lookPos.y = 0;
           Quaternion rotation = Quaternion.LookRotation(lookPos);
           transform.rotation = Quaternion.Slerp(transform.rotation, rotation, 0.2f);
@@ -59,10 +75,10 @@ public class EnemyNavScript : NetworkBehaviour
      
      private void UpdatePath()
      {
-          if (Time.time >= pathUpdateDeadline)
+          if (Time.time >= pathUpdateDelay)
           {
-               pathUpdateDeadline = Time.time + enemyReferences.pathUpdateDelay;
-               enemyReferences.agent.SetDestination(target.position);
+               pathUpdateDelay = Time.time + Random.Range(0.2f, 0.5f);
+               agent.SetDestination(player.position);
           }
      }
 }

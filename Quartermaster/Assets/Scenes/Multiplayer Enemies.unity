@@ -2252,7 +2252,6 @@ GameObject:
   m_Component:
   - component: {fileID: 908458849}
   - component: {fileID: 908458847}
-  - component: {fileID: 908458848}
   - component: {fileID: 908458850}
   m_Layer: 0
   m_Name: PoolManager
@@ -2286,22 +2285,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &908458848
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 908458846}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fd1cfd9ce81ad5349af2f3b0c3b4f8df, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  PooledPrefabsList:
-  - Prefab: {fileID: 2675775069118099314, guid: b09eb5eae34e906439da176aece8901f, type: 3}
-    PrewarmCount: 20
 --- !u!4 &908458849
 Transform:
   m_ObjectHideFlags: 0
@@ -2330,8 +2313,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  enemyPrefab: {fileID: 0}
+  enemyPrefab: {fileID: 521860666677488949, guid: b09eb5eae34e906439da176aece8901f, type: 3}
   maxEnemyInstanceCount: 10
+  spawnCooldown: 2
+  enemyList: []
 --- !u!1 &921383889
 GameObject:
   m_ObjectHideFlags: 0
