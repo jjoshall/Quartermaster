@@ -6,7 +6,7 @@ using UnityEngine.AI;
 
 public class EnemyNavScript : NetworkBehaviour
 {
-     public EnemySpawner enemySpawner;
+     [HideInInspector] public EnemySpawner enemySpawner;
      private Transform player;
      private NavMeshAgent agent;
 
