@@ -36,7 +36,7 @@ public class ItemAcquisitionRange : MonoBehaviour
             return;
         }
         itemsInRange.Add(item);
-        Debug_print_items_in_range();
+        // Debug_print_items_in_range();
     }
     void OnTriggerExit(Collider other)
     {
@@ -52,7 +52,7 @@ public class ItemAcquisitionRange : MonoBehaviour
             return;
         }
         itemsInRange.Remove(item);
-        Debug_print_items_in_range();
+        // Debug_print_items_in_range();
     }
     private void UpdateClosestItem(){
         // Call this function every update() if we want to apply a shader to closest item.

@@ -79,8 +79,6 @@ public class Inventory : NetworkBehaviour
 
         if (Input.GetKeyDown(dropItemKey)){
             DropItem();
-            string droppingPlayerNetworkId = playerObj.GetComponent<NetworkObject>().NetworkObjectId.ToString();
-            Debug.Log("MyInput: drop item from player: " + droppingPlayerNetworkId);
             // DEBUG_PRINT_INVENTORY();
         }
 
@@ -196,9 +194,6 @@ public class Inventory : NetworkBehaviour
 
 
     void DropItem (){
-        // check if this is the own
-        string droppingPlayerNetworkId = playerObj.GetComponent<NetworkObject>().NetworkObjectId.ToString();
-        Debug.Log("drop item from player: " + droppingPlayerNetworkId);
         
         // If null, no selected item.
         if (inventory[currentInventoryIndex] == null){
@@ -222,8 +217,6 @@ public class Inventory : NetworkBehaviour
                                     this.transform.position, 
                                     initVelocity,
                                     n_playerObj);
-        
-        Debug.Log ("dropped stringID: " + stringID);
 
         currentHeldItems--;
     }
