@@ -132,7 +132,7 @@ public class Inventory : NetworkBehaviour
         if (stringID == "PocketInventoryPortalKey"){
             // if (this.gameObject == PocketInventory.instance.playerInsidePocket()){
             if (PocketInventory.instance.PlayerIsInPocket(playerObj.GetComponent<NetworkObject>())){
-                PocketInventory.instance.n_droppedPortalKeyInPocket.Value = false; 
+                PocketInventory.instance.clearDroppedKeyServerRpc();
             }
         }
 

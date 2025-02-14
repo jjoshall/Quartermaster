@@ -69,7 +69,6 @@ public class ItemManager : NetworkBehaviour
         }
 
         GameObject newWorldItem = Instantiate(itemEntries[id].worldPrefab);
-        newWorldItem.GetComponent<WorldItem>().InitializeItem(id, quantity, lastUsed);
         NetworkObject netObj = newWorldItem.GetComponent<NetworkObject>();
 
         if (netObj == null)
@@ -81,6 +80,8 @@ public class ItemManager : NetworkBehaviour
 
         netObj.transform.position = spawnLoc;
         netObj.GetComponent<Rigidbody>().linearVelocity = initialVelocity;
+        netObj.Spawn(true);
+        newWorldItem.GetComponent<WorldItem>().InitializeItem(id, quantity, lastUsed);
 
         // map id number to its stringID
         string stringID = itemEntries[id].inventoryItemClass;
@@ -92,7 +93,6 @@ public class ItemManager : NetworkBehaviour
             }
         }
         
-        netObj.Spawn(true);
     }
 
 
