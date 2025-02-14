@@ -86,11 +86,17 @@ public class PocketInventory : NetworkBehaviour
     private void TeleportUserToPositionClientRpc(NetworkObjectReference userRef, Vector3 position){
         if (userRef.TryGet(out NetworkObject user))
         {
-            while (user.GetComponent<PlayerController>().toggleCharacterController()){
+            GameObject playerObj = user.gameObject;
+            if (playerObj == null)
+            {
+                Debug.Log ("player object is null");
+                return;
+            }
+            while (playerObj.GetComponent<PlayerController>().toggleCharacterController()){
                 // until toggle returns false for toggled off.
             }
-            user.transform.position = position;
-            while (!user.GetComponent<PlayerController>().toggleCharacterController()){
+            playerObj.transform.position = position;
+            while (!playerObj.GetComponent<PlayerController>().toggleCharacterController()){
                 // until toggle returns true for toggled on.
             }
         }
