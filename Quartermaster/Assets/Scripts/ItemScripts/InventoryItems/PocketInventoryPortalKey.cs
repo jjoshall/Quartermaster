@@ -59,7 +59,7 @@ public class PocketInventoryPortalKey : InventoryItem
     }
 
     private void ItemEffect(GameObject user){
-        PocketInventory.instance.TeleportToPocketClientRpc(user);
+        PocketInventory.instance.TeleportToPocketServerRpc(user);
     }
 
 }

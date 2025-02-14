@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.Netcode;
 
-public class Inventory : MonoBehaviour
+public class Inventory : NetworkBehaviour
 {
     private const bool DEBUG_FLAG = true;
     private GameObject playerObj;
@@ -43,7 +43,7 @@ public class Inventory : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        playerObj = transform.parent.gameObject;
+        playerObj = this.gameObject;
         itemAcquisitionRange = playerObj.GetComponentInChildren<ItemAcquisitionRange>().gameObject;
 
         // if (orientation == null)
@@ -66,19 +66,9 @@ public class Inventory : MonoBehaviour
 
 
     void MyInput(){
-        // if (Input.GetKeyDown(KeyCode.G)){
-        //     // spawn a portal key. debug function.
-        //     NetworkObjectReference n_playerObj = playerObj.GetComponent<NetworkObject>();
+        if (!IsOwner) return;
+        
 
-        //     ItemManager.instance.SpawnWorldItemServerRpc(
-        //                                         0, 
-        //                                         1, 
-        //                                         0, 
-        //                                         playerObj.transform.position, 
-        //                                         playerObj.transform.forward * 10,
-        //                                         n_playerObj);
-
-        // }
         if (Input.GetKeyDown(pickupKey)){
             GameObject closestItem = itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().GetClosestItem();
             if (closestItem != null){
@@ -142,7 +132,7 @@ public class Inventory : MonoBehaviour
         if (stringID == "PocketInventoryPortalKey"){
             // if (this.gameObject == PocketInventory.instance.playerInsidePocket()){
             if (PocketInventory.instance.PlayerIsInPocket(playerObj.GetComponent<NetworkObject>())){
-                PocketInventory.instance.n_droppedPortalKeyInPocket.Value = false; 
+                PocketInventory.instance.clearDroppedKeyServerRpc();
             }
         }
 
@@ -204,7 +194,7 @@ public class Inventory : MonoBehaviour
 
 
     void DropItem (){
-
+        
         // If null, no selected item.
         if (inventory[currentInventoryIndex] == null){
             return;
@@ -217,7 +207,9 @@ public class Inventory : MonoBehaviour
         inventory[currentInventoryIndex] = null;
 
         Vector3 initVelocity = orientation.forward * 10;
+
         NetworkObjectReference n_playerObj = playerObj.GetComponent<NetworkObject>();
+
         ItemManager.instance.SpawnWorldItemServerRpc(
                                     selectedItemId, 
                                     stackQuantity, 
@@ -225,8 +217,6 @@ public class Inventory : MonoBehaviour
                                     this.transform.position, 
                                     initVelocity,
                                     n_playerObj);
-        
-        Debug.Log ("dropped stringID: " + stringID);
 
         currentHeldItems--;
     }

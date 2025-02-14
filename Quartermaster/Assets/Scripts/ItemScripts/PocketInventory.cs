@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using Unity.Netcode.Components;
 using System.Collections.Generic;
 
 
@@ -63,8 +64,8 @@ public class PocketInventory : NetworkBehaviour
     //     return playerInPocket;
     // }
 
-    [ClientRpc]
-    public void TeleportToPocketClientRpc(NetworkObjectReference userRef){
+    [ServerRpc(RequireOwnership = false)]
+    public void TeleportToPocketServerRpc(NetworkObjectReference userRef){
 
         // if (playerInPocket != null)
         if (playersInPocket.Count > 0)
@@ -75,33 +76,47 @@ public class PocketInventory : NetworkBehaviour
 
         if (userRef.TryGet(out NetworkObject user))
         {
+
             playerReturnPositions[userRef] = user.transform.position; // save return spot
             TeleportUserToPositionClientRpc(userRef, teleportPosition); // teleport
             playersInPocket.Add(userRef);
             timeEnteredPocketNetworkVar.Value = NetworkManager.Singleton.ServerTime.Time;
+
         }
+    }
+    [ServerRpc(RequireOwnership = false)]
+    public void clearDroppedKeyServerRpc(){
+        n_droppedPortalKeyInPocket.Value = false;
+        n_storedKeyObj = new NetworkObjectReference();
     }
 
     [ClientRpc]
     private void TeleportUserToPositionClientRpc(NetworkObjectReference userRef, Vector3 position){
         if (userRef.TryGet(out NetworkObject user))
         {
-            while (user.GetComponent<PlayerController>().toggleCharacterController()){
-                // until toggle returns false for toggled off.
-            }
-            user.transform.position = position;
-            while (!user.GetComponent<PlayerController>().toggleCharacterController()){
-                // until toggle returns true for toggled on.
-            }
+            GameObject playerObj = user.gameObject;
+            if (playerObj == null) return;
+
+            // turn off interpolation and char controller temporarily for teleport
+            playerObj.GetComponent<NetworkTransform>().Interpolate = false;
+            while (playerObj.GetComponent<PlayerController>().toggleCharacterController()){}
+
+            playerObj.transform.position = position; // teleport player
+
+            while (!playerObj.GetComponent<PlayerController>().toggleCharacterController()){}
+            playerObj.GetComponent<NetworkTransform>().Interpolate = true;
         }
     }
 
     [ClientRpc]
-    public void ReturnToPreviousPositionClientRpc(NetworkObjectReference n_playerObjRef){
-        
+    public void ReturnToPreviousPositionClientRpc(NetworkObjectReference n_playerObjRef)
+    {
+        // Grab return position from dictionary playerReturnPositions
         if (playerReturnPositions.TryGetValue(n_playerObjRef, out Vector3 playerReturnPosition))
         {
             TeleportUserToPositionClientRpc(n_playerObjRef, playerReturnPosition);
+
+            // Return dropped portal key if exists.
             if (n_droppedPortalKeyInPocket.Value)
             {
                 if (n_storedKeyObj.TryGet(out NetworkObject keyObj))
@@ -110,6 +125,7 @@ public class PocketInventory : NetworkBehaviour
                     keyObj.transform.position = playerReturnPosition;
                 }
             }
+
             playersInPocket.Remove(n_playerObjRef);
             n_storedKeyObj = new NetworkObjectReference();
         }

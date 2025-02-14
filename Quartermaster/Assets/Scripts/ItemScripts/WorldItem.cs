@@ -25,8 +25,8 @@ public class WorldItem : NetworkBehaviour
         n_stackQuantity.Value = quantity;
         // lastUsed = timeLastUsed;
         n_lastUsed.Value = timeLastUsed;
-        Debug.Log ("GameObject Initialized: " + gameObject + " has itemID: " + itemID + " and quantity: " + n_stackQuantity.Value);
     }
+    
     public int GetItemID(){
         return itemID;
     }

@@ -151,7 +151,6 @@ public class PlayerController : NetworkBehaviour
     // Update is called once per frame
     void Update() {
         if (!IsOwner) return;
-        //Debug.Log("IsOwner: " + IsOwner);
         
         // example usage of network var
         if (Input.GetKeyDown(KeyCode.T)) {
