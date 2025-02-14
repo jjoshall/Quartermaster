@@ -43,7 +43,7 @@ public class Inventory : NetworkBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        playerObj = transform.parent.gameObject;
+        playerObj = this.gameObject;
         itemAcquisitionRange = playerObj.GetComponentInChildren<ItemAcquisitionRange>().gameObject;
 
         // if (orientation == null)
