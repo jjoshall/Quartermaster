@@ -51,7 +51,12 @@ public class ItemManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SpawnWorldItemServerRpc(int id, int quantity, float lastUsed, Vector3 spawnLoc, Vector3 initialVelocity, NetworkObjectReference n_playerObj)
+    public void SpawnWorldItemServerRpc(int id, 
+                                        int quantity, 
+                                        float lastUsed, 
+                                        Vector3 spawnLoc, 
+                                        Vector3 initialVelocity, 
+                                        NetworkObjectReference n_playerObj)
     {
         if (!IsServer)
         {

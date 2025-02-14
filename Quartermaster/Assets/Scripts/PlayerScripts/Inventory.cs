@@ -89,6 +89,8 @@ public class Inventory : MonoBehaviour
 
         if (Input.GetKeyDown(dropItemKey)){
             DropItem();
+            string droppingPlayerNetworkId = playerObj.GetComponent<NetworkObject>().NetworkObjectId.ToString();
+            Debug.Log("drop item from player: " + droppingPlayerNetworkId);
             // DEBUG_PRINT_INVENTORY();
         }
 
@@ -204,7 +206,10 @@ public class Inventory : MonoBehaviour
 
 
     void DropItem (){
-
+        // check if this is the own
+        string droppingPlayerNetworkId = playerObj.GetComponent<NetworkObject>().NetworkObjectId.ToString();
+        Debug.Log("drop item from player: " + droppingPlayerNetworkId);
+        
         // If null, no selected item.
         if (inventory[currentInventoryIndex] == null){
             return;
@@ -217,7 +222,9 @@ public class Inventory : MonoBehaviour
         inventory[currentInventoryIndex] = null;
 
         Vector3 initVelocity = orientation.forward * 10;
+
         NetworkObjectReference n_playerObj = playerObj.GetComponent<NetworkObject>();
+
         ItemManager.instance.SpawnWorldItemServerRpc(
                                     selectedItemId, 
                                     stackQuantity, 
