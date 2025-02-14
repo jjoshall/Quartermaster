@@ -66,6 +66,7 @@ public class Inventory : MonoBehaviour
 
 
     void MyInput(){
+        if (!IsOwner) return;
         // if (Input.GetKeyDown(KeyCode.G)){
         //     // spawn a portal key. debug function.
         //     NetworkObjectReference n_playerObj = playerObj.GetComponent<NetworkObject>();
@@ -90,7 +91,7 @@ public class Inventory : MonoBehaviour
         if (Input.GetKeyDown(dropItemKey)){
             DropItem();
             string droppingPlayerNetworkId = playerObj.GetComponent<NetworkObject>().NetworkObjectId.ToString();
-            Debug.Log("drop item from player: " + droppingPlayerNetworkId);
+            Debug.Log("MyInput: drop item from player: " + droppingPlayerNetworkId);
             // DEBUG_PRINT_INVENTORY();
         }
 
