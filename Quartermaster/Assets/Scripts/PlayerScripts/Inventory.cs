@@ -66,10 +66,8 @@ public class Inventory : NetworkBehaviour
 
 
     void MyInput(){
-        if (!IsOwner) {
-            Debug.Log("Ownerid: " + OwnerClientId);
-            return;
-        }
+        if (!IsOwner) return;
+        
 
         if (Input.GetKeyDown(pickupKey)){
             GameObject closestItem = itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().GetClosestItem();
