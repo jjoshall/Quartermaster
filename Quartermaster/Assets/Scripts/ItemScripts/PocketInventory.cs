@@ -63,8 +63,8 @@ public class PocketInventory : NetworkBehaviour
     //     return playerInPocket;
     // }
 
-    [ClientRpc]
-    public void TeleportToPocketClientRpc(NetworkObjectReference userRef){
+    [ServerRpc]
+    public void TeleportToPocketServerRpc(NetworkObjectReference userRef){
 
         // if (playerInPocket != null)
         if (playersInPocket.Count > 0)
