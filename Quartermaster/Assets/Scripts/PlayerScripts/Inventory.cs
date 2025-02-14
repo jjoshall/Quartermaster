@@ -66,20 +66,11 @@ public class Inventory : NetworkBehaviour
 
 
     void MyInput(){
-        if (!IsOwner) return;
-        // if (Input.GetKeyDown(KeyCode.G)){
-        //     // spawn a portal key. debug function.
-        //     NetworkObjectReference n_playerObj = playerObj.GetComponent<NetworkObject>();
+        if (!IsOwner) {
+            Debug.Log("Ownerid: " + OwnerClientId);
+            return;
+        }
 
-        //     ItemManager.instance.SpawnWorldItemServerRpc(
-        //                                         0, 
-        //                                         1, 
-        //                                         0, 
-        //                                         playerObj.transform.position, 
-        //                                         playerObj.transform.forward * 10,
-        //                                         n_playerObj);
-
-        // }
         if (Input.GetKeyDown(pickupKey)){
             GameObject closestItem = itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().GetClosestItem();
             if (closestItem != null){
