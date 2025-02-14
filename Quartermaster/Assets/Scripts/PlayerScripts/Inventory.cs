@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.Netcode;
 
-public class Inventory : MonoBehaviour
+public class Inventory : NetworkBehaviour
 {
     private const bool DEBUG_FLAG = true;
     private GameObject playerObj;
