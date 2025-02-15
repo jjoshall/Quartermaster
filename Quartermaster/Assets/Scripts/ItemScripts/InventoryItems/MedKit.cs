@@ -29,19 +29,19 @@ public class MedKit : InventoryItem
     }
 
     // Override methods (used as "static fields" for subclass)
-    public override bool isConsumable()
+    public override bool IsConsumable()
     {
         return true;
     }
 
-    public override int stackLimit(){
+    public override int StackLimit(){
         return 5;
     }
 
     // Item constants
     private const int HEAL_AMOUNT = 50;
 
-    public override void use(GameObject user)
+    public override void Use(GameObject user)
     {
         string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
         if (lastUsed + cooldown > Time.time){
@@ -51,16 +51,16 @@ public class MedKit : InventoryItem
         }
         Debug.Log(itemStr + " (" + itemID + ") used");
     
-        if (isConsumable()){
+        if (IsConsumable()){
             quantity--;
         }
         lastUsed = Time.time;
 
-        itemEffect(user);
+        ItemEffect(user);
 
     }
 
-    private void itemEffect(GameObject user){
+    private void ItemEffect(GameObject user){
         // user.GetComponent<PlayerHealth>().Heal(HEAL_AMOUNT);
         // What handles health now?
         // PlayerHealth Deprecated.
