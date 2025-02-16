@@ -11,6 +11,7 @@ public class PlayerInputHandler : NetworkBehaviour
     public Vector2 look_vector { get; private set;}
     public bool jumped {get; private set;}
     public bool IsSprinting {get; private set;}
+    public bool IsCrouching {get; private set;}
     
 
     void Start(){
@@ -55,6 +56,17 @@ public class PlayerInputHandler : NetworkBehaviour
         }
         else if (ctx.canceled){
             IsSprinting = false;
+        }
+    }
+
+    public void Crouch(InputAction.CallbackContext ctx){
+        if(!IsOwner) return;
+
+        if (ctx.started){
+            IsCrouching = true;
+        }
+        else if (ctx.canceled){
+            IsCrouching = false;
         }
     }
 
