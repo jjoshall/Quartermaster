@@ -284,10 +284,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   groundSpeed: 5
-  sprintModifier: 2
-  crouchModifier: 0.5
   maxAirSpeed: 7.5
   airAcceleration: 3
+  minSlideSpeed: 0.2
+  slideDeceleration: 2
   groundSharpness: 50
   PlayerCamera: {fileID: 7563249083227475095}
   invertVerticalInput: 1
@@ -385,7 +385,7 @@ Transform:
   m_GameObject: {fileID: 3428043383610237515}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.8, z: 0.308}
+  m_LocalPosition: {x: 0, y: 0.8, z: 0.36}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

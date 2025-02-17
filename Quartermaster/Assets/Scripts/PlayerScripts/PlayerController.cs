@@ -4,7 +4,6 @@ using UnityEngine;
 using Unity.Netcode;
 using Unity.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 
 // Replace MonoBehaviour with NetworkBehaviour
 
@@ -17,20 +16,22 @@ public class PlayerController : NetworkBehaviour
     [Header("Movement")]
     private Vector3 worldspaceMove = Vector3.zero;
     public const float k_GravityForce = 20f;
-    public float groundSpeed = 5f;
     [Tooltip("Speed multiplier when holding sprint key")]
-    public float sprintModifier = 2f;
-    public float crouchModifier = 0.5f;
+    public const float k_SprintSpeedModifier = 2f;
+    public const float k_CrouchSpeedModifier = 0.5f;
     private float speedModifier = 1f;
+    public float groundSpeed = 5f;
     public float maxAirSpeed = 7.5f;
     public float airAcceleration = 15f;
+    public float minSlideSpeed = 0.1f;
+    public float slideDeceleration = 5f;
     [Tooltip("Sharpness affects acceleration/deceleration. Low values mean slow acceleration/deceleration and vice versa")]
     public float groundSharpness = 15f;
     private Vector3 playerVelocity;
 
     [Header("Looking")]
     public Camera PlayerCamera;
-    private Vector3 cameraOffset = new Vector3(0f,0f,0.31f);
+    private Vector3 cameraOffset = new Vector3(0f,0f,0.36f);
     [SerializeField] private bool invertVerticalInput;
     [SerializeField] private bool invertHorizontalInput;
     [SerializeField] private float vertical_sens = 100f;
@@ -146,10 +147,22 @@ public class PlayerController : NetworkBehaviour
         stateMachine = new StateMachine();
         WalkState walkState = new WalkState(this);
         AirborneState airborneState = new AirborneState(this);
+        SlideState slideState = new SlideState(this);
+        SprintState sprintState = new SprintState(this);
+        CrouchState crouchState = new CrouchState(this);
+
 
         // State transitions
         Any(airborneState, new FuncPredicate(() => !IsGrounded));
         At(airborneState, walkState, new FuncPredicate(() => IsGrounded));
+        At(walkState, sprintState, new FuncPredicate(() => InputHandler.isSprinting));
+        At(sprintState, walkState, new FuncPredicate(() => !InputHandler.isSprinting));
+        At(sprintState, slideState, new FuncPredicate(() => IsCrouched));
+        At(slideState, walkState, new FuncPredicate(() => !IsCrouched));
+        At(slideState, crouchState, new FuncPredicate(() => !InputHandler.isCrouching && IsCrouched));
+        At(slideState, crouchState, new FuncPredicate(() => playerVelocity.sqrMagnitude < minSlideSpeed));
+        At(walkState, crouchState, new FuncPredicate(() => IsCrouched));
+        At(crouchState, walkState, new FuncPredicate(() => !IsCrouched));
 
         // Set initial state
         stateMachine.SetState(walkState);
@@ -190,9 +203,9 @@ public class PlayerController : NetworkBehaviour
         GroundCheck();
         // TODO: landing from a fall logic
         // TODO: crouching
-        speedModifier = InputHandler.IsSprinting ? sprintModifier : 1f;
+        //speedModifier = InputHandler.IsSprinting ? sprintModifier : 1f;
         worldspaceMove = transform.TransformVector(InputHandler.move_vector);
-        SetCrouchingState(InputHandler.IsCrouching, false);
+        SetCrouchingState(InputHandler.isCrouching, false);
         UpdateHeight(false);
         HandleLook();
         //HandleMovement();
@@ -225,18 +238,26 @@ public class PlayerController : NetworkBehaviour
         Vector3 targetVelocity = worldspaceMove * groundSpeed * speedModifier;
         targetVelocity = GetDirectionReorientedOnSlope(targetVelocity.normalized, GroundNormal)
                         * targetVelocity.magnitude;
-        if (IsCrouched){
+        /*if (IsCrouched){
             targetVelocity *= crouchModifier;
-        }
+        }*/
         playerVelocity = Vector3.Lerp(playerVelocity, targetVelocity, groundSharpness * Time.deltaTime);
-        if (IsGrounded && InputHandler.jumped){
-            playerVelocity = new Vector3(playerVelocity.x, 0f, playerVelocity.z);
-            playerVelocity += Vector3.up * jumpForce;
-            lastTimeJumped = Time.time;
-            jumpedThisFrame = true;
-            IsGrounded = false;
-            GroundNormal = Vector3.up;
-        }
+        JumpCheck();
+        MovePlayer();
+    }
+
+    public void HandleSlideMovement(){
+        /*
+        - as player enters slide, save their last velocity vector as new target velocity
+        - set velocity to slideForce * lastVelocity
+        - lerp from that velocity to new target velocity using some slideSharpness
+        */
+        if (!IsOwner) return;
+        playerVelocity -= playerVelocity * slideDeceleration * Time.deltaTime;
+        /*if (playerVelocity.sqrMagnitude < minSlideSpeed){
+            playerVelocity = Vector3.zero;
+        }*/
+        JumpCheck();
         MovePlayer();
     }
 
@@ -249,6 +270,7 @@ public class PlayerController : NetworkBehaviour
         Vector3 horizontalVelocity = Vector3.ProjectOnPlane(playerVelocity, Vector3.up);
         horizontalVelocity = Vector3.ClampMagnitude(horizontalVelocity, maxAirSpeed * speedModifier);
         playerVelocity = horizontalVelocity + (Vector3.up * verticalVelocity);
+        // Gravity
         playerVelocity += Vector3.down * k_GravityForce * Time.deltaTime;
         MovePlayer();
     }
@@ -270,6 +292,17 @@ public class PlayerController : NetworkBehaviour
             lastImpactSpeed = playerVelocity;
 
             playerVelocity = Vector3.ProjectOnPlane(playerVelocity, hit.normal);
+        }
+    }
+
+    void JumpCheck(){
+        if (IsGrounded && InputHandler.jumped){
+            playerVelocity = new Vector3(playerVelocity.x, 0f, playerVelocity.z);
+            playerVelocity += Vector3.up * jumpForce;
+            lastTimeJumped = Time.time;
+            jumpedThisFrame = true;
+            IsGrounded = false;
+            GroundNormal = Vector3.up;
         }
     }
 
@@ -336,7 +369,6 @@ public class PlayerController : NetworkBehaviour
 
     bool SetCrouchingState (bool crouched , bool ignoreObstructions){
         if (IsCrouched == crouched) return true;
-        //Debug.Log("changing crouching state");
         if (crouched){
             targetHeight = CapsuleHeightCrouching;
         }else{
@@ -358,7 +390,6 @@ public class PlayerController : NetworkBehaviour
 
             targetHeight = CapsuleHeightStanding;
         }
-        Debug.Log("changed crouch state " + crouched);
         IsCrouched = crouched;
         return true;
     }
@@ -376,6 +407,13 @@ public class PlayerController : NetworkBehaviour
     }   
     Vector3 GetCapsuleTopHemisphere(float atHeight){
         return transform.position + (transform.up * (atHeight - Controller.radius));
+    }
+    public void SetSpeedModifier(float modifier){
+        speedModifier = modifier;
+    }
+    public void ScalePlayerVelocity(float scale){
+        MovePlayer();
+        playerVelocity *= scale;
     }
     void At(IState from, IState to, IPredicate condition) => stateMachine.AddTransition(from, to, condition);
     void Any(IState to, IPredicate condition) => stateMachine.AddAnyTransition(to, condition);

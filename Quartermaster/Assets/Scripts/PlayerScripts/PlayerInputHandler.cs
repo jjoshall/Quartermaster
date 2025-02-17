@@ -10,8 +10,8 @@ public class PlayerInputHandler : NetworkBehaviour
     public Vector3 move_vector { get; private set;}
     public Vector2 look_vector { get; private set;}
     public bool jumped {get; private set;}
-    public bool IsSprinting {get; private set;}
-    public bool IsCrouching {get; private set;}
+    public bool isSprinting {get; private set;}
+    public bool isCrouching {get; private set;}
     
 
     void Start(){
@@ -22,7 +22,7 @@ public class PlayerInputHandler : NetworkBehaviour
         move_vector = Vector3.zero;
         look_vector = Vector2.zero;
         jumped = false;
-        IsSprinting = false;
+        isSprinting = false;
         // lock cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -52,21 +52,21 @@ public class PlayerInputHandler : NetworkBehaviour
         if (!IsOwner) return;
 
         if (ctx.performed){
-            IsSprinting = true;
+            isSprinting = true;
         }
         else if (ctx.canceled){
-            IsSprinting = false;
+            isSprinting = false;
         }
     }
 
     public void Crouch(InputAction.CallbackContext ctx){
         if(!IsOwner) return;
 
-        if (ctx.started){
-            IsCrouching = true;
+        if (ctx.performed){
+            isCrouching = true;
         }
         else if (ctx.canceled){
-            IsCrouching = false;
+            isCrouching = false;
         }
     }
 
