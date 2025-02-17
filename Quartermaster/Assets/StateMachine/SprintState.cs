@@ -1,6 +1,3 @@
-using Unity.Services.Lobbies.Models;
-using UnityEngine;
-
 public class SprintState : BaseState {
     public SprintState (PlayerController player) : base(player) {}
 

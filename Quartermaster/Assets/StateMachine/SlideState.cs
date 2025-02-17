@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class SlideState : BaseState {
     public SlideState (PlayerController player) : base(player) {}
 

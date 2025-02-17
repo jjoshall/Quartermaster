@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class CrouchState : BaseState {
     public CrouchState (PlayerController player) : base(player) {}
 

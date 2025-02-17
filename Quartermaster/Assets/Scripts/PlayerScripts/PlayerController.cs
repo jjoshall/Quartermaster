@@ -155,13 +155,17 @@ public class PlayerController : NetworkBehaviour
         // State transitions
         Any(airborneState, new FuncPredicate(() => !IsGrounded));
         At(airborneState, walkState, new FuncPredicate(() => IsGrounded));
+
         At(walkState, sprintState, new FuncPredicate(() => InputHandler.isSprinting));
+        At(walkState, crouchState, new FuncPredicate(() => IsCrouched));
+
         At(sprintState, walkState, new FuncPredicate(() => !InputHandler.isSprinting));
         At(sprintState, slideState, new FuncPredicate(() => IsCrouched));
+
         At(slideState, walkState, new FuncPredicate(() => !IsCrouched));
         At(slideState, crouchState, new FuncPredicate(() => !InputHandler.isCrouching && IsCrouched));
         At(slideState, crouchState, new FuncPredicate(() => playerVelocity.sqrMagnitude < minSlideSpeed));
-        At(walkState, crouchState, new FuncPredicate(() => IsCrouched));
+        
         At(crouchState, walkState, new FuncPredicate(() => !IsCrouched));
 
         // Set initial state
