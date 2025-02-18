@@ -69,7 +69,7 @@ public class EnemySpawner : NetworkBehaviour {
           }
      }
 
-     [ServerRpc]
+     [ServerRpc(RequireOwnership = false)]
      public void destroyEnemyServerRpc(NetworkObjectReference enemy)
      {
           if (!IsServer) { return; }

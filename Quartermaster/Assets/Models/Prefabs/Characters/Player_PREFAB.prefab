@@ -16,6 +16,8 @@ GameObject:
   - component: {fileID: 805575750999914603}
   - component: {fileID: 8772577476377217839}
   - component: {fileID: 3204480622593929652}
+  - component: {fileID: 3304562410642041497}
+  - component: {fileID: 1122604426046764688}
   m_Layer: 0
   m_Name: Player_PREFAB
   m_TagString: Player
@@ -358,6 +360,34 @@ MonoBehaviour:
   jumpForce: 5
   visualTransform: {fileID: 6195205799938994444}
   crouchingSharpness: 10
+--- !u!114 &3304562410642041497
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 533627647367738219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d883c7a47038a490e85a19a4ec5558d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DamageMultiplier: 1
+  SensibilityToSelfdamage: 0.1
+--- !u!114 &1122604426046764688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 533627647367738219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5518635a2dce475cace5f584bfb1fa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxHealth: 100
+  CriticalHealthRatio: 0.3
 --- !u!1 &3428043383610237515
 GameObject:
   m_ObjectHideFlags: 0

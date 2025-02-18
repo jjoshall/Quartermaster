@@ -3,13 +3,14 @@ using System.Collections;
 
 public class EnemyAttack : MonoBehaviour {
     private Coroutine _damageCoroutine;
-    public int damage = 10;
+    public int damage = 1;
     public int attackCooldown = 1;   // wait time between attacks
 
-    public Transform enemy;
+    public GameObject enemy;
 
     void Start() {
         _damageCoroutine = null;
+        if (!enemy) enemy = GetComponentInParent<GameObject>();
     }
 
     private void OnTriggerEnter(Collider other) {
@@ -32,7 +33,7 @@ public class EnemyAttack : MonoBehaviour {
     private IEnumerator DamageInterval(Collider player) {
         while (true) {
             yield return new WaitForSeconds(attackCooldown);
-            player.GetComponent<PlayerHealth>().Damage(damage, enemy.position);
+            player.GetComponent<Damageable>().InflictDamage(damage, false, enemy);
         }
     }
 }

@@ -72,8 +72,8 @@ public class Health : MonoBehaviour
 
     void HandleDeath()
     {
-        if (IsDead)
-            return;
+        /*if (IsDead)
+            return;*/
         
         if (CurrentHealth <= 0f)
         {
