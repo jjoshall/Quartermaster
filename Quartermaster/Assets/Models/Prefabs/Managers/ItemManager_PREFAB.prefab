@@ -45,8 +45,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2604915566
-  InScenePlacedSourceGlobalObjectIdHash: 0
+  GlobalObjectIdHash: 467875514
+  InScenePlacedSourceGlobalObjectIdHash: 3802132392
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
@@ -76,3 +76,5 @@ MonoBehaviour:
     inventoryItemClass: PocketInventoryPortalKey
   - worldPrefab: {fileID: 8519617277999394602, guid: 9a232197192989e4b84c6087f576e7a5, type: 3}
     inventoryItemClass: MedKit
+  - worldPrefab: {fileID: 8519617277999394602, guid: 496ab804939b7014597220b12fe393b2, type: 3}
+    inventoryItemClass: Pistol

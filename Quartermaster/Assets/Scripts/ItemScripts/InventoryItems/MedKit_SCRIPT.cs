@@ -36,6 +36,10 @@ public class MedKit : InventoryItem {
         return 5;
     }
 
+    public override bool IsWeapon() {
+        return false;
+    }
+
     // Item constants
     private const int HEAL_AMOUNT = 50;
 
