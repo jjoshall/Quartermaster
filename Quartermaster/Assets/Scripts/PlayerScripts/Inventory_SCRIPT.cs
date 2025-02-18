@@ -267,6 +267,18 @@ public class Inventory : NetworkBehaviour {
         _currentHeldItems--;
     }
 
+    // True if has weapon. False if does not have weapon. Default attack.
+    public bool FireWeapon(){
+        int weaponSlot = HasWeapon();
+        if (weaponSlot == -1){
+            // Do default attack(?)
+            Debug.Log("Attempting to FireWeapon(). Player has no weapon.")
+            return false;
+        }
+        _inventory[weaponSlot].fire(this.gameObject);
+        return true;
+    }
+
     void DEBUG_PRINT_INVENTORY() {
         string DEBUG_STRING = "DEBUG: Inventory: \n";
         for (int i = 0; i < _inventory.Length; i++) {
