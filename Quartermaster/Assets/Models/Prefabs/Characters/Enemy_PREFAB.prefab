@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 5662184945285433752}
   m_Layer: 0
   m_Name: Enemy_PREFAB
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -177,8 +177,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   enemySpawner: {fileID: 0}
-  agent: {fileID: 0}
-  attackDistance: 2
+  _attackDistance: 2
 --- !u!114 &5662184945285433752
 MonoBehaviour:
   m_ObjectHideFlags: 0

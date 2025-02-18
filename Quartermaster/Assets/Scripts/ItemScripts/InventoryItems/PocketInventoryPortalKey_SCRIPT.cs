@@ -28,6 +28,10 @@ public class PocketInventoryPortalKey : InventoryItem {
         set => _lastUsedTime = value;
     }
 
+    public override bool IsWeapon(){
+        return false;
+    }
+
     // Override methods (used as "static fields" for subclass)
     public override bool IsConsumable() {
         return false;

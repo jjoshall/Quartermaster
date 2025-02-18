@@ -15,5 +15,7 @@ public abstract class InventoryItem {
 
     public abstract bool IsConsumable();
 
+    public abstract bool IsWeapon();
+
     public abstract int StackLimit();
 }
