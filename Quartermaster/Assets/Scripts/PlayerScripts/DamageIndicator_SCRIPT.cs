@@ -1,9 +1,7 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 // This will rotate the damage indicator on the screen towards the direction of damage
-public class DamageIndicator : MonoBehaviour
-{
+public class DamageIndicator : MonoBehaviour {
      public Vector3 damageLocation;
      public Transform playerObj;
      public Transform damageImagePivot;
@@ -12,23 +10,17 @@ public class DamageIndicator : MonoBehaviour
      public float fadeStartTime, fadeTime;
      float maxFadeTime;
 
-     private void Start()
-     {
+     private void Start() {
           maxFadeTime = fadeTime;
      }
 
-     private void Update()
-     {
-          if (fadeStartTime > 0)
-          {
+     private void Update() {
+          if (fadeStartTime > 0) {
                fadeStartTime -= Time.deltaTime;
-          }
-          else
-          {
+          } else {
                fadeTime -= Time.deltaTime;
                damageImageCanvasGroup.alpha = fadeTime / maxFadeTime;
-               if (fadeTime <= 0)
-               {
+               if (fadeTime <= 0) {
                     Destroy(this.gameObject);
                }
           }

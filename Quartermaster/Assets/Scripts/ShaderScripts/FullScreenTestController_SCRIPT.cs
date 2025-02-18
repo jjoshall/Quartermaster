@@ -4,8 +4,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
-public class FullScreenTestController : MonoBehaviour
-{
+public class FullScreenTestController : MonoBehaviour {
      [Header("Time Stats")]
      [SerializeField] private float _hurtDisplayTime = 1.5f;
      [SerializeField] private float _hurtFadeOutTime = 0.5f;
@@ -21,13 +20,11 @@ public class FullScreenTestController : MonoBehaviour
      private int _voronoiIntensity = Shader.PropertyToID("_VoronoiIntensity");
      private int _vignetteIntensity = Shader.PropertyToID("_VignetteIntensity");
 
-     private void Start()
-     {
+     private void Start() {
           _fullScreenDamage.SetActive(false);
      }
 
-     public IEnumerator Hurt()
-     {
+     public IEnumerator Hurt() {
           _fullScreenDamage.SetActive(true);
           _material.SetFloat(_voronoiIntensity, _voronoiIntensityStat);
           _material.SetFloat(_vignetteIntensity, _vignetteIntensityStat);
@@ -35,8 +32,7 @@ public class FullScreenTestController : MonoBehaviour
           yield return new WaitForSeconds(_hurtDisplayTime);
 
           float elapsedTime = 0f;
-          while (elapsedTime < _hurtFadeOutTime)
-          {
+          while (elapsedTime < _hurtFadeOutTime) {
                elapsedTime += Time.deltaTime;
 
                float lerpVoronoi = Mathf.Lerp(_voronoiIntensityStat, 0f, (elapsedTime / _hurtFadeOutTime));

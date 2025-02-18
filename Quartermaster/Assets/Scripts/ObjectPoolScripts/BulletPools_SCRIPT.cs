@@ -1,37 +1,31 @@
 using System.Collections.Generic;
-using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 
-public class BulletPools : MonoBehaviour
-{
+public class BulletPools : MonoBehaviour {
      public static BulletPools instance;
 
      [Header("Pool Settings")]
-     [SerializeField] private TrailRenderer bulletTrailPrefab;
-     [SerializeField] private int initialPoolSize = 10;
+     [SerializeField] private TrailRenderer _bulletTrailPrefab;
+     [SerializeField] private int _initialPoolSize = 10;
 
-     private Queue<TrailRenderer> bulletTrails = new Queue<TrailRenderer>();
+     private Queue<TrailRenderer> _bulletTrails = new Queue<TrailRenderer>();
 
-     private void Awake()
-     {
+     private void Awake() {
           instance = this;
 
           // Pre-populate the pool with the initial size
-          for (int i = 0; i < initialPoolSize; i++)
-          {
-               TrailRenderer trail = Instantiate(bulletTrailPrefab, transform);
+          for (int i = 0; i < _initialPoolSize; i++) {
+               TrailRenderer trail = Instantiate(_bulletTrailPrefab, transform);
                trail.gameObject.SetActive(false);
-               bulletTrails.Enqueue(trail);
+               _bulletTrails.Enqueue(trail);
           }
      }
 
      // Get a bullet trail from the pool (or create a new one if necessary)
-     public TrailRenderer GetBulletTrail()
-     {
+     public TrailRenderer GetBulletTrail() {
           // If we have available objects in the pool
-          if (bulletTrails.Count > 0)
-          {
-               var trail = bulletTrails.Dequeue();
+          if (_bulletTrails.Count > 0) {
+               var trail = _bulletTrails.Dequeue();
                trail.gameObject.SetActive(true);
 
                // It's often useful to clear the trail so old data doesn't linger.
@@ -41,14 +35,13 @@ public class BulletPools : MonoBehaviour
                return trail;
           }
 
-          TrailRenderer newTrail = Instantiate(bulletTrailPrefab, transform);
+          TrailRenderer newTrail = Instantiate(_bulletTrailPrefab, transform);
           return newTrail;
      }
 
      // Return a bullet trail to the pool to be reused
-     public void ReturnBulletTrail(TrailRenderer trail)
-     {
+     public void ReturnBulletTrail(TrailRenderer trail) {
           trail.gameObject.SetActive(false);
-          bulletTrails.Enqueue(trail);
+          _bulletTrails.Enqueue(trail);
      }
 }

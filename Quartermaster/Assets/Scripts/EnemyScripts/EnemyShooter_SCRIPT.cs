@@ -8,27 +8,25 @@ public class EnemyShooter : MonoBehaviour
      public Transform gunPoint;
      public LayerMask layerMask;
      public int damage = 15;
-     private PlayerHealth playerHealth;
+     private PlayerHealth _playerHealth;
 
      [Header("Gun")]
+     [SerializeField] private float shootDelay = 0.5f;
      public Vector3 spread = new Vector3(0.06f, 0.06f, 0.06f);
      public TrailRenderer bulletTrailPrefab;
-     [SerializeField] private float shootDelay = 0.5f;
-     private float lastShootTime;
+     private float _lastShootTime;
 
-     private void Awake()
-     {
-          playerHealth = FindAnyObjectByType<PlayerHealth>();
+     private void Awake() {
+          _playerHealth = FindAnyObjectByType<PlayerHealth>();
      }
 
-     public void Shoot()
-     {
-          if (lastShootTime + shootDelay < Time.time)
-          {
+     public void Shoot() {
+          if (_lastShootTime + shootDelay < Time.time) {
                Vector3 direction = GetDirection();
 
-               if (Physics.Raycast(shootPoint.position, direction, out RaycastHit hit, float.MaxValue, layerMask))
-               {
+               if (Physics.Raycast(shootPoint.position, direction, 
+                                   out RaycastHit hit, float.MaxValue, 
+                                   layerMask)) {
                     //Debug.DrawLine(shootPoint.position, shootPoint.position + direction * 10f, Color.red, 1f);
 
                     // Get a bullet trail from the pool, set its position, and start the coroutine
@@ -36,13 +34,12 @@ public class EnemyShooter : MonoBehaviour
                     trail.transform.position = gunPoint.position;
                     StartCoroutine(SpawnTrail(trail, hit));
 
-                    lastShootTime = Time.time;
+                    _lastShootTime = Time.time;
                }
           }
      }
 
-     private Vector3 GetDirection()
-     {
+     private Vector3 GetDirection() {
           Vector3 direction = transform.forward;
           direction += new Vector3(
                Random.Range(-spread.x, spread.x),
@@ -54,13 +51,11 @@ public class EnemyShooter : MonoBehaviour
           return direction;
      }
 
-     private IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit hit)
-     {
+     private IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit hit) {
           float time = 0f;
           Vector3 startPosition = trail.transform.position;
 
-          while (time < 1f)
-          {
+          while (time < 1f) {
                trail.transform.position = Vector3.Lerp(startPosition, hit.point, time);
                time += Time.deltaTime / trail.time;
 
@@ -68,8 +63,9 @@ public class EnemyShooter : MonoBehaviour
           }
 
           trail.transform.position = hit.point;
+          
           // Deal damage to the player
-          playerHealth.Damage(damage, gunPoint.position);
+          _playerHealth.Damage(damage, gunPoint.position);
 
           // Wait for trail to finish before returning it to the pool
           yield return new WaitForSeconds(trail.time);

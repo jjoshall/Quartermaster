@@ -1,64 +1,63 @@
 using UnityEngine;
 
-public class PocketInventoryPortalKey : InventoryItem
-{
-    // Backing fields
-    private int id = 0;
-    private int pocketInventoryQuantity = 0;
-    private float lastUsedTime = float.MinValue;
-    private static float itemCooldown = 10f;
+public class PocketInventoryPortalKey : InventoryItem {
+    [Header("Backing Fields")]
+    private int _id = 0;
+    private int _pocketInventoryQuantity = 0;
+    private float _lastUsedTime = float.MinValue;
+    private static float _itemCooldown = 10f;
 
-    // Abstract overrides
-    public override float cooldown
-    {
-        get => itemCooldown;
-        set => itemCooldown = value;
+    [Header("Abstract Overrides")]
+    public override float cooldown {
+        get => _itemCooldown;
+        set => _itemCooldown = value;
     }
+
     public override int itemID {
-        get => id;
-        set => id = value;
+        get => _id;
+        set => _id = value;
     }
+
     public override int quantity {
-        get => pocketInventoryQuantity;
-        set => pocketInventoryQuantity = value;
+        get => _pocketInventoryQuantity;
+        set => _pocketInventoryQuantity = value;
     }
 
     public override float lastUsed {
-        get => lastUsedTime;
-        set => lastUsedTime = value;
+        get => _lastUsedTime;
+        set => _lastUsedTime = value;
     }
 
     // Override methods (used as "static fields" for subclass)
-    public override bool IsConsumable()
-    {
+    public override bool IsConsumable() {
         return false;
     }
 
-    public override int StackLimit()
-    {
+    public override int StackLimit() {
         return 1;
     }
 
-    public override void Use(GameObject user)
-    {
+    public override void Use(GameObject user) {
         string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
-        if (lastUsed + cooldown > Time.time){
+        if (lastUsed + cooldown > Time.time) {
             Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
             Debug.Log ("cooldown remaining: " + (lastUsed + cooldown - Time.time));
             return;
         }
+
         Debug.Log(itemStr + " (" + itemID + ") used");
     
-        if (IsConsumable()){
+        if (IsConsumable()) {
             quantity--;
         }
+
         lastUsed = Time.time;
 
         ItemEffect(user);
 
     }
 
-    private void ItemEffect(GameObject user){
+    private void ItemEffect(GameObject user) {
         PocketInventory.instance.TeleportToPocketServerRpc(user);
     }
 

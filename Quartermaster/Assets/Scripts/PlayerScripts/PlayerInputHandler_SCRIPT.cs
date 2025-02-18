@@ -5,17 +5,15 @@ using Unity.Netcode;
 /*
 USE CALLBACKS TO SET VARIABLES, HAVE {GET; PRIVATE SET} FOR DATA VALUES TO BE PASSED TO CONTROLLER WHICH HAS ACTUAL UPDATE()
 */
-public class PlayerInputHandler : NetworkBehaviour
-{
-    public Vector3 move_vector { get; private set;}
-    public Vector2 look_vector { get; private set;}
-    public bool jumped {get; private set;}
-    public bool isSprinting {get; private set;}
-    public bool isCrouching {get; private set;}
+public class PlayerInputHandler : NetworkBehaviour {
+    public Vector3 move_vector { get; private set; }
+    public Vector2 look_vector { get; private set; }
+    public bool jumped { get; private set; }
+    public bool isSprinting { get; private set; }
+    public bool isCrouching { get; private set; }
     
 
-    void Start(){
-
+    void Start() {
         if (!IsOwner) return;
 
         //playerInput = new PlayerControls();
@@ -23,12 +21,13 @@ public class PlayerInputHandler : NetworkBehaviour
         look_vector = Vector2.zero;
         jumped = false;
         isSprinting = false;
+
         // lock cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
-    public void Move(InputAction.CallbackContext ctx){
+    public void Move(InputAction.CallbackContext ctx) {
         if (!IsOwner) return;
 
         Vector2 move_xy = ctx.ReadValue<Vector2>();
@@ -36,51 +35,51 @@ public class PlayerInputHandler : NetworkBehaviour
         move_vector = Vector3.ClampMagnitude(move_vector,1);
     }
 
-    public void Jump(InputAction.CallbackContext ctx){
+    public void Jump(InputAction.CallbackContext ctx) {
         if (!IsOwner) return;
 
         // change to ctx.started to disable continuous jumping via holding button
-        if (ctx.performed){
+        if (ctx.performed) {
             jumped = true;
         }
-        else if (ctx.canceled){
+        else if (ctx.canceled) {
             jumped = false;
         }
     }
 
-    public void Sprint(InputAction.CallbackContext ctx){
+    public void Sprint(InputAction.CallbackContext ctx) {
         if (!IsOwner) return;
 
-        if (ctx.performed){
+        if (ctx.performed) {
             isSprinting = true;
         }
-        else if (ctx.canceled){
+        else if (ctx.canceled) {
             isSprinting = false;
         }
     }
 
-    public void Crouch(InputAction.CallbackContext ctx){
+    public void Crouch(InputAction.CallbackContext ctx) {
         if(!IsOwner) return;
 
-        if (ctx.performed){
+        if (ctx.performed) {
             isCrouching = true;
         }
-        else if (ctx.canceled){
+        else if (ctx.canceled) {
             isCrouching = false;
         }
     }
 
-    public void Look(InputAction.CallbackContext ctx){
+    public void Look(InputAction.CallbackContext ctx) {
         if (!IsOwner) return;
 
         look_vector = ctx.ReadValue<Vector2>();
     }
 
-    public float GetHorizontalLook(){
+    public float GetHorizontalLook() {
         return look_vector.x;
     }
 
-    public float GetVerticalLook(){
+    public float GetVerticalLook() {
         return look_vector.y;
     }
 }
