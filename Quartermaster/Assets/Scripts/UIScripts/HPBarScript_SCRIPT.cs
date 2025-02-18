@@ -1,13 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HPBarScript : MonoBehaviour
-{
+public class HPBarScript : MonoBehaviour {
     public PlayerHealth health;
-    [SerializeField] private Slider slider;
+    [SerializeField] private Slider _slider;
 
-    void Update()
-    {
-        slider.value = (float)health.currentHealth / health.maxHealth;
+    void Update() {
+        _slider.value = (float)health.currentHealth / health.maxHealth;
     }
 }

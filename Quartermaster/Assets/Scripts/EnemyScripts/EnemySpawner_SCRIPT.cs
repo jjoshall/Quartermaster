@@ -4,24 +4,20 @@ using Unity.Netcode;
 using UnityEngine;
 using System.Threading.Tasks;
 
-public class EnemySpawner : NetworkBehaviour
-{
-     [SerializeField] private Transform enemyPrefab;
-     [SerializeField] private int maxEnemyInstanceCount = 20;
-     [SerializeField] private float spawnCooldown = 2f;
+public class EnemySpawner : NetworkBehaviour {
+     [SerializeField] private Transform _enemyPrefab;
+     [SerializeField] private int _maxEnemyInstanceCount = 20;
+     [SerializeField] private float _spawnCooldown = 2f;
 
      public List<Transform> enemyList = new List<Transform>();
      public List<GameObject> playerList;
 
-     //private void Start()
-     //{
+     //private void Start() {
      //     //NetworkManager.Singleton.OnServerStarted += SpawnEnemiesStart; 
      //}
 
-     public override void OnNetworkSpawn()
-     {
-          if (!IsServer)
-          {
+     public override void OnNetworkSpawn() {
+          if (!IsServer) {
                enabled = false;
                return;
           }
@@ -32,62 +28,51 @@ public class EnemySpawner : NetworkBehaviour
           NetworkManager.Singleton.OnClientDisconnectCallback += ClientDisconnected;
      }
 
-     private void ClientConnected(ulong u)
-     {
+     private void ClientConnected(ulong u) {
           playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
      }
 
-     private async void ClientDisconnected(ulong u)
-     {
+     private async void ClientDisconnected(ulong u) {
           await Task.Yield();
           playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
      }
 
-     private Vector3 GetRandomPositionOnMap()
-     {
+     private Vector3 GetRandomPositionOnMap() {
           float x = Random.Range(-50, 50);
           float z = Random.Range(-50, 50);
           return new Vector3(x, 0, z);
      }
 
-     private IEnumerator SpawnOverTime()
-     {
-          while (true)
-          {
-               if (enemyList.Count < maxEnemyInstanceCount)
-               {
-                    Transform enemyTransform = Instantiate(enemyPrefab, GetRandomPositionOnMap(), Quaternion.identity, transform);
+     private IEnumerator SpawnOverTime() {
+          while (true) {
+               if (enemyList.Count < _maxEnemyInstanceCount) {
+                    Transform enemyTransform = Instantiate(_enemyPrefab, GetRandomPositionOnMap(), Quaternion.identity, transform);
                     enemyTransform.GetComponent<EnemyNavScript>().enemySpawner = this;
                     enemyTransform.GetComponent<NetworkObject>().Spawn(true);
                     enemyList.Add(enemyTransform);
 
-                    yield return new WaitForSeconds(spawnCooldown);
+                    yield return new WaitForSeconds(_spawnCooldown);
                }
 
                yield return null;
           }
      }
 
-     //public void SpawnEnemiesStart()
-     //{
+     //public void SpawnEnemiesStart() {
      //     NetworkManager.Singleton.OnServerStarted -= SpawnEnemiesStart;
      //     //NetworkObjectPool.Singleton.InitializePool();
 
-     //     for (int i = 0; i < maxEnemyInstanceCount; i++)
-     //     {
+     //     for (int i = 0; i < maxEnemyInstanceCount; i++) {
      //          SpawnEnemies();
      //     }
 
      //     StartCoroutine(SpawnOverTime());
      //}
 
-     //public void SpawnEnemies()
-     //{
+     //public void SpawnEnemies() {
      //     //NetworkObject obj = NetworkObjectPool.Singleton.GetNetworkObject(enemyPrefab, GetRandomPositionOnMap(), Quaternion.identity);
 
      //     //obj.GetComponent<EnemyNavScript>().enemyPrefab = enemyPrefab;
      //     //obj.Spawn(true);
-
-
      //}
 }

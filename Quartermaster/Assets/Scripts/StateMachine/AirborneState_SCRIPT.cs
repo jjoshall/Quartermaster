@@ -6,7 +6,7 @@ public class AirborneState : BaseState {
         crossfade animator to falling if needed
     }
     */
-    public override void Update(){
+    public override void Update() {
         player.HandleAirMovement();
     }
 }
