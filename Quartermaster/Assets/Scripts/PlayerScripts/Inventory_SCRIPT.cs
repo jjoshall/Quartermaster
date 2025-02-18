@@ -18,6 +18,16 @@ public class Inventory : NetworkBehaviour {
     public KeyCode selectItemThreeKey = KeyCode.Alpha3;
     public KeyCode selectItemFourKey = KeyCode.Alpha4;
 
+
+    private UIManager _uiManager;
+
+    [Header("Item Materials")]
+    [SerializeField] public Material medkitMaterial;
+    [SerializeField] public Material keyMaterial;
+    [SerializeField] public Material pistolMaterial;
+    [SerializeField] public Material emptyMaterial;
+
+
     // public struct InventoryItem
     // {
     //     public InventoryItem item;
@@ -41,6 +51,12 @@ public class Inventory : NetworkBehaviour {
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start() {
+        if (IsOwner) {
+            Debug.Log("Before");
+            _uiManager = GameObject.Find("UI Manager").GetComponent<UIManager>();
+            Debug.Log("After: ", _uiManager);
+        }
+
         _playerObj = this.gameObject;
         _itemAcquisitionRange = _playerObj.GetComponentInChildren<ItemAcquisitionRange>().gameObject;
 
@@ -86,22 +102,25 @@ public class Inventory : NetworkBehaviour {
 
         if (Input.GetKeyDown(selectItemOneKey)) {
             _currentInventoryIndex = 0;
-            // DEBUG_SELECT_SLOT();
+            UpdateSelectedItemUI();
         }
 
         if (Input.GetKeyDown(selectItemTwoKey)) {
             _currentInventoryIndex = 1;
             // DEBUG_SELECT_SLOT();
+            UpdateSelectedItemUI();
         }
 
         if (Input.GetKeyDown(selectItemThreeKey)) {
             _currentInventoryIndex = 2;
             // DEBUG_SELECT_SLOT();
+            UpdateSelectedItemUI();
         }
 
         if (Input.GetKeyDown(selectItemFourKey)) {
             _currentInventoryIndex = 3;
             // DEBUG_SELECT_SLOT();
+            UpdateSelectedItemUI();
         }
     }
 
@@ -197,7 +216,6 @@ public class Inventory : NetworkBehaviour {
             }
         }
     }
-
 
     void DropSelectedItem () { // Active drop. Gives it a velocity.
         // If null, no selected item.
@@ -319,6 +337,36 @@ public class Inventory : NetworkBehaviour {
         }
 
         Debug.Log(DEBUG_STRING);
+    }
+
+    private void UpdateSelectedItemUI() {
+        if (_uiManager == null) { 
+            Debug.Log("nah fuck you");
+            return; }
+
+        InventoryItem selectedItem = _inventory[_currentInventoryIndex];
+        if (selectedItem != null) {
+            // Set the material of the selected item in the UI
+            switch (selectedItem.itemID) {
+                case 0:
+                    _uiManager.SetSelectedItemMaterial(keyMaterial);
+                    break;
+                case 1:
+                    _uiManager.SetSelectedItemMaterial(medkitMaterial);
+                    break;
+                case 2:
+                    _uiManager.SetSelectedItemMaterial(pistolMaterial);
+                    break;
+                default:
+                    _uiManager.SetSelectedItemMaterial(emptyMaterial);
+                    break;
+            }
+            Debug.Log("Selected item: " + selectedItem.itemID);
+            Debug.Log("Updated IU color: " + _uiManager.getSelectedItemMaterial());
+        } else {
+            _uiManager.SetSelectedItemMaterial(null);
+        }
+
     }
 
 }
