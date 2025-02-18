@@ -67,6 +67,7 @@ public class Pistol : IWeapon
             Debug.Log(hit.transform.name);
             if (hit.transform.tag == "Enemy"){
                 Debug.Log ("Enemy hit");
+                hit.transform.GetComponent<EnemyHealth>().DamageEnemyServerRpc(10);
                 return;
                 // hit.transform.GetComponent<Enemy>().Damage(10);
             }
