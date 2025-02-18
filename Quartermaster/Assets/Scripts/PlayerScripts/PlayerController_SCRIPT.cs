@@ -399,15 +399,18 @@ public class PlayerController : NetworkBehaviour {
 
     void OnDie(){
         //Debug.Log("player died");
+        health.Invincible = true;
         playerVelocity = Vector3.zero;
         targetHeight = CapsuleHeightStanding;
         toggleCharacterController();
         transform.position = Vector3.zero;
         toggleCharacterController();
+        health.Heal(1000f);
+        health.Invincible = false;
     }
 
     void OnDamaged(float damage, GameObject damageSource){
-        Debug.Log("took damage");
+        Debug.Log("took damage. " + health.GetRatio() + " hp remaining.");
     }
 
     // HELPER FUNCTIONS
