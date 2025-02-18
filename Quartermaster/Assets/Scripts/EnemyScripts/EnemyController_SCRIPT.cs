@@ -115,8 +115,7 @@ public class EnemyController : NetworkBehaviour {
           return Physics.OverlapSphere(transform.position, _detectionDistance, enemyMask);
      }
 
-     private void MoveTowardsTarget() {
-          
+     private void MoveTowardsTarget() {     
           direction = direction.normalized;
           var combinedDirection = (direction + separationForce).normalized;
           var movement = combinedDirection * _speed * Time.deltaTime;
@@ -131,7 +130,7 @@ public class EnemyController : NetworkBehaviour {
      }
 
      private void StopMove() {
-          // Call the shoot function from the enemy shooter script
+     // Call the shoot function from the enemy shooter script
           enemyShooter.Shoot();
           //movementSpeedBlend = Mathf.Lerp(movementSpeedBlend, 0, Time.deltaTime * speed);
           //animator.SetFloat("Speed", movementSpeedBlend);
