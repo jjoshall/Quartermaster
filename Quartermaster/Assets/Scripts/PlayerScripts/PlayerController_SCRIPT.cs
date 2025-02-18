@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 // Replace MonoBehaviour with NetworkBehaviour
 
-[RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler)/*, typeof(AudioSource)*/)]
+[RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler), typeof(Health)/*, typeof(AudioSource)*/)]
 public class PlayerController : NetworkBehaviour {
     private CharacterController Controller;
     private PlayerInputHandler InputHandler;
@@ -54,6 +54,7 @@ public class PlayerController : NetworkBehaviour {
 
     [Header("State Machine")]
     private StateMachine stateMachine;
+    private Health health;
 
     [Header("Crouching")]
     [SerializeField] private Transform visualTransform;
@@ -130,6 +131,9 @@ public class PlayerController : NetworkBehaviour {
 
         Controller = GetComponent<CharacterController>();
         InputHandler = GetComponent<PlayerInputHandler>();
+        health = GetComponent<Health>();
+        health.OnDie += OnDie;
+        health.OnDamaged += OnDamaged;
         if (!PlayerCamera) {
             Debug.LogError("No Camera detected on player!");
         }
@@ -198,6 +202,9 @@ public class PlayerController : NetworkBehaviour {
             TestClientRpc("test message", new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = new List<ulong> { 1 } } } );
         }
 
+        if (transform.position.y <= -25f){
+            health.Kill();
+        }
 
         GroundCheck();
         // TODO: landing from a fall logic
@@ -388,6 +395,22 @@ public class PlayerController : NetworkBehaviour {
 
         IsCrouched = crouched;
         return true;
+    }
+
+    void OnDie(){
+        //Debug.Log("player died");
+        health.Invincible = true;
+        playerVelocity = Vector3.zero;
+        targetHeight = CapsuleHeightStanding;
+        toggleCharacterController();
+        transform.position = Vector3.zero;
+        toggleCharacterController();
+        health.Heal(1000f);
+        health.Invincible = false;
+    }
+
+    void OnDamaged(float damage, GameObject damageSource){
+        Debug.Log("took damage. " + health.GetRatio() + " hp remaining.");
     }
 
     // HELPER FUNCTIONS
