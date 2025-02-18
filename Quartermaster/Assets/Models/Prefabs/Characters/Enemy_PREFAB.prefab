@@ -16,9 +16,10 @@ GameObject:
   - component: {fileID: 2895127981746352734}
   - component: {fileID: 6136554406852902502}
   - component: {fileID: 5662184945285433752}
+  - component: {fileID: 8809657306959018267}
   m_Layer: 0
   m_Name: Enemy_PREFAB
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -177,8 +178,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   enemySpawner: {fileID: 0}
-  agent: {fileID: 0}
-  attackDistance: 2
+  _attackDistance: 2
 --- !u!114 &5662184945285433752
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -215,6 +215,18 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &8809657306959018267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2675775069118099314}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c244c3f3df27344380f0f1d05e36e0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5884999087697045971
 GameObject:
   m_ObjectHideFlags: 0

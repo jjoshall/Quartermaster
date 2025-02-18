@@ -12,6 +12,8 @@ public class PlayerController : NetworkBehaviour {
     private CharacterController Controller;
     private PlayerInputHandler InputHandler;
 
+    [SerializeField] private Transform spawnLocation;
+
     [Header("Movement")]
     private Vector3 worldspaceMove = Vector3.zero;
     public const float k_GravityForce = 20f;

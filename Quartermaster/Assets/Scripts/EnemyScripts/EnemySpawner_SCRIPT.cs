@@ -16,6 +16,17 @@ public class EnemySpawner : NetworkBehaviour {
      //     //NetworkManager.Singleton.OnServerStarted += SpawnEnemiesStart; 
      //}
 
+     // static 
+     public static EnemySpawner instance;
+
+     void Awake() {
+        if(instance == null) {
+            instance = this;
+        } else {
+            Destroy(this);
+        }
+     }
+
      public override void OnNetworkSpawn() {
           if (!IsServer) {
                enabled = false;
@@ -58,21 +69,14 @@ public class EnemySpawner : NetworkBehaviour {
           }
      }
 
-     //public void SpawnEnemiesStart() {
-     //     NetworkManager.Singleton.OnServerStarted -= SpawnEnemiesStart;
-     //     //NetworkObjectPool.Singleton.InitializePool();
-
-     //     for (int i = 0; i < maxEnemyInstanceCount; i++) {
-     //          SpawnEnemies();
-     //     }
-
-     //     StartCoroutine(SpawnOverTime());
-     //}
-
-     //public void SpawnEnemies() {
-     //     //NetworkObject obj = NetworkObjectPool.Singleton.GetNetworkObject(enemyPrefab, GetRandomPositionOnMap(), Quaternion.identity);
-
-     //     //obj.GetComponent<EnemyNavScript>().enemyPrefab = enemyPrefab;
-     //     //obj.Spawn(true);
-     //}
+     [ServerRpc]
+     public void destroyEnemyServerRpc(NetworkObjectReference enemy)
+     {
+          if (!IsServer) { return; }
+          if (enemy.TryGet(out NetworkObject networkObject))
+          {
+               enemyList.Remove(networkObject.transform);
+               networkObject.Despawn();
+          }
+     }
 }

@@ -75,7 +75,7 @@ public class Inventory : NetworkBehaviour {
         }
 
         if (Input.GetKeyDown(dropItemKey)) {
-            DropItem();
+            DropSelectedItem();
             // DEBUG_PRINT_INVENTORY();
         }
 
@@ -138,12 +138,24 @@ public class Inventory : NetworkBehaviour {
         _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().RemoveItem(pickedUp); // remove the item from the list of items in range
         ItemManager.instance.DestroyWorldItemServerRpc(pickedUp.GetComponent<NetworkObject>());
 
+        Debug.Log("Spawning a new inventoryItem for pickup: " + stringID);
         // spawnInventoryItem uses stringID for lookup. 
         InventoryItem newItem = ItemManager.instance.SpawnInventoryItem(stringID, stackQuantity, lastUsed);
+        
+        
+        // If stackable. Stack.
+        if (TryStackItem (newItem)) { Debug.Log ("Stacked the item"); return; } 
+        if (newItem.quantity <= 0) { return; } // Might be redundant but leave it here in case of 0
 
-        if (TryStackItem (newItem)) { return; } 
-
-        if (newItem.quantity <= 0) { return; }
+        // Weapon check.
+        if (newItem.IsWeapon()){
+            Debug.Log ("newItem.Isweapon() is true");;
+            int weaponSlot = HasWeapon();
+            if (weaponSlot != -1){
+                Debug.Log ("We have a weapon at slot " + weaponSlot + ". Dropping it.");
+                DropItem(weaponSlot);
+            }
+        }
 
         // else add to first empty slot
         if (_currentHeldItems < _maxInventorySize) {
@@ -187,7 +199,7 @@ public class Inventory : NetworkBehaviour {
     }
 
 
-    void DropItem () {
+    void DropSelectedItem () { // Active drop. Gives it a velocity.
         // If null, no selected item.
         if (_inventory[_currentInventoryIndex] == null) {
             return;
@@ -213,6 +225,73 @@ public class Inventory : NetworkBehaviour {
 
         _currentHeldItems--;
     }
+
+    // Don't refactor this into DropSelectedItem. 
+    // Order of events for velocity & spawn is important.
+    void DropItem(int slot){
+
+        // If null, no selected item.
+        if (_inventory[slot] == null) {
+            return;
+        }
+
+        int selectedItemId = _inventory[slot].itemID;
+        string stringID = ItemManager.instance.itemEntries[slot].inventoryItemClass;
+        int stackQuantity = _inventory[slot].quantity;
+        float lastUsed = _inventory[slot].lastUsed;
+        _inventory[slot] = null;
+
+        NetworkObjectReference n_playerObj = _playerObj.GetComponent<NetworkObject>();
+
+        ItemManager.instance.SpawnWorldItemServerRpc(
+                                    selectedItemId, 
+                                    stackQuantity, 
+                                    lastUsed, 
+                                    this.transform.position, 
+                                    new Vector3(0, 0, 0),
+                                    n_playerObj);
+
+        _currentHeldItems--;
+    }
+
+    // True if has weapon. False if does not have weapon. Default attack.
+    public bool FireWeapon(){
+        int weaponSlot = HasWeapon();
+        if (weaponSlot == -1){
+            // Do default attack(?)
+            Debug.Log("Attempting to FireWeapon(). Player has no weapon.");
+            return false;
+        }
+        IWeapon heldWeapon = _inventory[weaponSlot] as IWeapon;
+        heldWeapon.fire(this.gameObject);
+        return true;
+    }
+
+    public bool CanAutoFire(){
+        int weaponSlot = HasWeapon();
+        if (weaponSlot == -1){
+            // Do default attack(?)
+            Debug.Log("Attempting to CanAutoFire(). Player has no weapon.");
+            return false;
+        }
+        // validate that it is a weapon.
+        IWeapon heldWeapon = _inventory[weaponSlot] as IWeapon;
+        return heldWeapon.CanAutoFire();
+    }
+    
+    // Helper function
+    // Return -1 if no weapon. Otherwise return index of weapon.
+    public int HasWeapon(){
+        for (int i = 0; i < _inventory.Length; i++) {
+            if (_inventory[i] != null && _inventory[i].IsWeapon()) {
+                Debug.Log ("Hasweapon(). Found weapon at slot " + i);  
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
 
     void DEBUG_PRINT_INVENTORY() {
         string DEBUG_STRING = "DEBUG: Inventory: \n";
