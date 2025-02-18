@@ -23,7 +23,7 @@ public class PlayerController : NetworkBehaviour
     public float groundSpeed = 5f;
     public float maxAirSpeed = 7.5f;
     public float airAcceleration = 15f;
-    public float minSlideSpeed = 0.1f;
+    public float minSlideSpeed = 0.5f;
     public float slideDeceleration = 5f;
     [Tooltip("Sharpness affects acceleration/deceleration. Low values mean slow acceleration/deceleration and vice versa")]
     public float groundSharpness = 15f;
@@ -34,8 +34,8 @@ public class PlayerController : NetworkBehaviour
     private Vector3 cameraOffset = new Vector3(0f,0f,0.36f);
     [SerializeField] private bool invertVerticalInput;
     [SerializeField] private bool invertHorizontalInput;
-    [SerializeField] private float vertical_sens = 100f;
-    [SerializeField] private float horizontal_sens = 100f;
+    [SerializeField] private float vertical_sens = 2f;
+    [SerializeField] private float horizontal_sens = 2f;
     private float cameraVerticalAngle = 0f;
     private float rotationMultiplier = 1f;
     private float CameraHeightRatio = 0.8f;

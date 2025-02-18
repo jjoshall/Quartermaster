@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 5388706731626316273}
   - component: {fileID: 7293770255552911695}
   - component: {fileID: 510304234241520357}
-  - component: {fileID: 6270068357289197132}
   - component: {fileID: 805575750999914603}
   - component: {fileID: 8772577476377217839}
+  - component: {fileID: 3204480622593929652}
   m_Layer: 0
   m_Name: Player_PREFAB
   m_TagString: Player
@@ -270,36 +270,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
---- !u!114 &6270068357289197132
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 533627647367738219}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e8f8263439054369abb87db38179d0e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  groundSpeed: 5
-  maxAirSpeed: 7.5
-  airAcceleration: 3
-  minSlideSpeed: 0.2
-  slideDeceleration: 2
-  groundSharpness: 50
-  PlayerCamera: {fileID: 7563249083227475095}
-  invertVerticalInput: 1
-  invertHorizontalInput: 0
-  vertical_sens: 2
-  horizontal_sens: 2
-  GroundLayers:
-    serializedVersion: 2
-    m_Bits: 8
-  jumpForce: 7.5
-  visualTransform: {fileID: 6195205799938994444}
-  crouchingSharpness: 10
 --- !u!114 &805575750999914603
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -357,6 +327,36 @@ MonoBehaviour:
   selectItemTwoKey: 50
   selectItemThreeKey: 51
   selectItemFourKey: 52
+--- !u!114 &3204480622593929652
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 533627647367738219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e8f8263439054369abb87db38179d0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  groundSpeed: 5
+  maxAirSpeed: 7.5
+  airAcceleration: 15
+  minSlideSpeed: 0.5
+  slideDeceleration: 5
+  groundSharpness: 15
+  PlayerCamera: {fileID: 7563249083227475095}
+  invertVerticalInput: 1
+  invertHorizontalInput: 0
+  vertical_sens: 2
+  horizontal_sens: 2
+  GroundLayers:
+    serializedVersion: 2
+    m_Bits: 8
+  jumpForce: 5
+  visualTransform: {fileID: 6195205799938994444}
+  crouchingSharpness: 10
 --- !u!1 &3428043383610237515
 GameObject:
   m_ObjectHideFlags: 0
