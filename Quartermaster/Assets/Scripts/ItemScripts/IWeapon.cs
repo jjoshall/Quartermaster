@@ -10,5 +10,7 @@ public abstract class IWeapon : InventoryItem
         return 1;
     }
 
+    public abstract bool CanAutoFire();
+
     public abstract void fire(GameObject user);
 }

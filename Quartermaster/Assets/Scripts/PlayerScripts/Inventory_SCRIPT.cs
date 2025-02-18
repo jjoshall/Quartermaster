@@ -163,19 +163,6 @@ public class Inventory : NetworkBehaviour {
         }
     }
 
-    // Helper function
-    // Return -1 if no weapon. Otherwise return index of weapon.
-    int HasWeapon(){
-        for (int i = 0; i < _inventory.Length; i++) {
-            if (_inventory[i] != null && _inventory[i].IsWeapon()) {
-                Debug.Log ("Hasweapon(). Found weapon at slot " + i);  
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
     // Return true if fully merged into existing stacks.
     bool TryStackItem (InventoryItem newItem) {
         for (int i = 0; i < _inventory.Length; i++){
@@ -278,6 +265,30 @@ public class Inventory : NetworkBehaviour {
         _inventory[weaponSlot].fire(this.gameObject);
         return true;
     }
+
+    public bool CanAutoFire(){
+        int weaponSlot = HasWeapon();
+        if (weaponSlot == -1){
+            // Do default attack(?)
+            Debug.Log("Attempting to CanAutoFire(). Player has no weapon.")
+            return false;
+        }
+        return _inventory[weaponSlot].CanAutoFire();
+    }
+    
+    // Helper function
+    // Return -1 if no weapon. Otherwise return index of weapon.
+    public int HasWeapon(){
+        for (int i = 0; i < _inventory.Length; i++) {
+            if (_inventory[i] != null && _inventory[i].IsWeapon()) {
+                Debug.Log ("Hasweapon(). Found weapon at slot " + i);  
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
 
     void DEBUG_PRINT_INVENTORY() {
         string DEBUG_STRING = "DEBUG: Inventory: \n";

@@ -40,6 +40,10 @@ public class Pistol : IWeapon
         return true;
     }
 
+    public override bool CanAutoFire(){
+        return false;
+    }
+
     public override void Use(GameObject user)
     {
         string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
