@@ -1,7 +1,9 @@
 // Code help from: https://www.youtube.com/watch?v=Srg6GRFspps&ab_channel=Eincode
 using UnityEngine;
+using Unity.Netcode;
 
-public class EnemyController : MonoBehaviour {
+[RequireComponent(typeof(Health))]
+public class EnemyController : NetworkBehaviour {
      [SerializeField] private float _speed = 5f;
      [SerializeField] private float _rotationSpeed = 10f;
      [SerializeField] private float _stoppingDistance = 1.5f;
@@ -24,13 +26,24 @@ public class EnemyController : MonoBehaviour {
 
      private EnemyShooter enemyShooter;
 
+     public Health health;
+
      private void Awake() {
           enemyShooter = GetComponent<EnemyShooter>();
           target = GameObject.FindFirstObjectByType<PlayerController>().transform;
           //animator = GetComponent<Animator>();
      }
 
-     private void Update() {
+    void Start()
+    {
+          if (!health){
+               health = GetComponent<Health>();
+          }
+          health.OnDie += OnDie;
+          health.OnDamaged += OnDamaged;
+    }
+
+    private void Update() {
           if (target != null) {
                FollowTarget();
           }
@@ -122,5 +135,13 @@ public class EnemyController : MonoBehaviour {
           enemyShooter.Shoot();
           //movementSpeedBlend = Mathf.Lerp(movementSpeedBlend, 0, Time.deltaTime * speed);
           //animator.SetFloat("Speed", movementSpeedBlend);
+     }
+
+     void OnDamaged(float damage, GameObject source){
+          Debug.Log("enemy took damage");
+     }
+     
+     void OnDie(){
+          EnemySpawner.instance.destroyEnemyServerRpc(GetComponent<NetworkObject>());
      }
 }
