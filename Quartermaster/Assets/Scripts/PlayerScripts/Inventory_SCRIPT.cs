@@ -257,12 +257,13 @@ public class Inventory : NetworkBehaviour {
     // True if has weapon. False if does not have weapon. Default attack.
     public bool FireWeapon(){
         int weaponSlot = HasWeapon();
-        if (weaponSlot == -1) {
+        if (weaponSlot == -1){
             // Do default attack(?)
             Debug.Log("Attempting to FireWeapon(). Player has no weapon.");
             return false;
         }
-        //_inventory[weaponSlot].fire(this.gameObject);
+        IWeapon heldWeapon = _inventory[weaponSlot] as IWeapon;
+        heldWeapon.fire(this.gameObject);
         return true;
     }
 
@@ -273,8 +274,9 @@ public class Inventory : NetworkBehaviour {
             Debug.Log("Attempting to CanAutoFire(). Player has no weapon.");
             return false;
         }
-        //return _inventory[weaponSlot].CanAutoFire();
-        return false;
+        // validate that it is a weapon.
+        IWeapon heldWeapon = _inventory[weaponSlot] as IWeapon;
+        return heldWeapon.CanAutoFire();
     }
     
     // Helper function
