@@ -8,7 +8,6 @@ public class PauseMenuEvents : MonoBehaviour
      private Button _resumeButton;
      private Button _mainMenuButton;
      private bool _isPaused = false;
-     private PlayerCamera _playerCamera;     // Reference to the PlayerCamera script
 
      private void Awake()
      {
@@ -27,11 +26,11 @@ public class PauseMenuEvents : MonoBehaviour
           _document.rootVisualElement.style.display = DisplayStyle.None;
 
           // Find the camera movement script
-          _playerCamera = Object.FindAnyObjectByType<PlayerCamera>();
 
           // Start listening for input
           StartCoroutine(CheckForPauseInput());
      }
+
 
      private void OnDisable()
      {
@@ -54,10 +53,6 @@ public class PauseMenuEvents : MonoBehaviour
           UnityEngine.Cursor.lockState = _isPaused ? CursorLockMode.None : CursorLockMode.Locked;
 
           // Enable/disable camera movement
-          if (_playerCamera != null)
-          {
-               _playerCamera.enabled = !_isPaused;
-          }
      }
 
      private System.Collections.IEnumerator CheckForPauseInput()

@@ -340,21 +340,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  groundSpeed: 5
+  groundSpeed: 10
   maxAirSpeed: 7.5
   airAcceleration: 15
   minSlideSpeed: 0.5
-  slideDeceleration: 5
+  slideDeceleration: 0.00001
   groundSharpness: 15
   PlayerCamera: {fileID: 7563249083227475095}
   invertVerticalInput: 1
   invertHorizontalInput: 0
-  vertical_sens: 2
-  horizontal_sens: 2
+  vertical_sens: 1
+  horizontal_sens: 1
   GroundLayers:
     serializedVersion: 2
     m_Bits: 8
-  jumpForce: 5
+  jumpForce: 100
   visualTransform: {fileID: 6195205799938994444}
   crouchingSharpness: 10
 --- !u!1 &3428043383610237515
