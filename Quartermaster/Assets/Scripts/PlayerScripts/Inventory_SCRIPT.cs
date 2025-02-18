@@ -138,18 +138,21 @@ public class Inventory : NetworkBehaviour {
         _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().RemoveItem(pickedUp); // remove the item from the list of items in range
         ItemManager.instance.DestroyWorldItemServerRpc(pickedUp.GetComponent<NetworkObject>());
 
+        Debug.Log("Spawning a new inventoryItem for pickup: " + stringID);
         // spawnInventoryItem uses stringID for lookup. 
         InventoryItem newItem = ItemManager.instance.SpawnInventoryItem(stringID, stackQuantity, lastUsed);
         
         
         // If stackable. Stack.
-        if (TryStackItem (newItem)) { return; } 
+        if (TryStackItem (newItem)) { Debug.Log ("Stacked the item"); return; } 
         if (newItem.quantity <= 0) { return; } // Might be redundant but leave it here in case of 0
 
         // Weapon check.
         if (newItem.IsWeapon()){
+            Debug.Log ("newItem.Isweapon() is true");;
             int weaponSlot = HasWeapon();
             if (weaponSlot != -1){
+                Debug.Log ("We have a weapon at slot " + weaponSlot + ". Dropping it.");
                 DropItem(weaponSlot);
             }
         }
@@ -165,6 +168,7 @@ public class Inventory : NetworkBehaviour {
     int HasWeapon(){
         for (int i = 0; i < _inventory.Length; i++) {
             if (_inventory[i] != null && _inventory[i].IsWeapon()) {
+                Debug.Log ("Hasweapon(). Found weapon at slot " + i);  
                 return i;
             }
         }

@@ -6,13 +6,10 @@ public class WorldItem : NetworkBehaviour {
     //             All game space item prefabs will have this script attached.
     //             All other item scripts correspond to inventory items. 
 
-    // DEPRECATED
-    // private int stackQuantity = 1;
-    // private float lastUsed = 0;
 
     // NETWORK VARIABLES
-    private NetworkVariable<int> n_stackQuantity = new NetworkVariable<int>(1);
-    private NetworkVariable<float> n_lastUsed = new NetworkVariable<float>(0);
+    public NetworkVariable<int> n_stackQuantity = new NetworkVariable<int>(1);
+    public NetworkVariable<float> n_lastUsed = new NetworkVariable<float>(0);
 
     [Header("Set ItemID to corresponding index ItemManager's itemEntries")]
     public int itemID; // inherited from ItemManager's list.

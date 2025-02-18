@@ -3,8 +3,10 @@ using UnityEngine;
 public class Pistol : IWeapon
 {
     // Backing fields
-    private int id;
-    private int ammo = 0;
+    private int _id;
+    
+    private int _quantity = 1;
+    private int _ammo = 0;
     private float lastUsedTime = float.MinValue;
     private float lastFiredTime = float.MinValue;
     private static float itemCooldown = 0.05f;
@@ -16,8 +18,13 @@ public class Pistol : IWeapon
         set => itemCooldown = value;
     }
     public override int itemID {
-        get => id;
-        set => id = value;
+        get => _id;
+        set => _id = value;
+    }
+
+    public override int quantity {
+        get => _quantity;
+        set => _quantity = value;
     }
 
     public override float lastUsed {
@@ -27,6 +34,10 @@ public class Pistol : IWeapon
 
     public override int StackLimit(){
         return 1;
+    }
+
+    public override bool IsWeapon(){
+        return true;
     }
 
     public override void Use(GameObject user)

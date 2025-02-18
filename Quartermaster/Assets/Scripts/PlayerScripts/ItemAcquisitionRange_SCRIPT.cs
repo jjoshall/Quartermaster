@@ -6,12 +6,12 @@ public class ItemAcquisitionRange : MonoBehaviour {
     private bool DEBUG_FLAG = true;
     private GameObject _playerObj;
 
-    private List<GameObject> _itemsInRange;
+    private List<GameObject> _itemsInRange = new List<GameObject>();
     private GameObject _closestItem;
 
     void Start() {
         _playerObj = transform.parent.gameObject;
-        _itemsInRange = new List<GameObject>();
+        // _itemsInRange = new List<GameObject>();
     }
 
     void Update() {
