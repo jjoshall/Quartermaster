@@ -387,6 +387,7 @@ public class PlayerController : NetworkBehaviour
                 {
                     if (!c.transform.root.CompareTag("Player"))
                     {
+                        Debug.Log("cannot stand");
                         return false;
                     }
                 }
@@ -407,10 +408,12 @@ public class PlayerController : NetworkBehaviour
         return Vector3.Angle(transform.up, normal) <= Controller.slopeLimit;
     }
     Vector3 GetCapsuleBottomHemisphere(){
-        return transform.position + (-1 * transform.up * Controller.radius);
+        return transform.position + (transform.up * ( Controller.center.y - Mathf.Max(Controller.height/2 , Controller.radius) + Controller.radius));
     }   
     Vector3 GetCapsuleTopHemisphere(float atHeight){
-        return transform.position + (transform.up * (atHeight - Controller.radius));
+        // Controller center changes depending on height, so we make virtual center position based on atHeight given
+        float atCenterY = (atHeight - CapsuleHeightStanding) / CapsuleHeightStanding;
+        return transform.position + (transform.up * ( atCenterY + Mathf.Max(atHeight/2 , Controller.radius) - Controller.radius));
     }
     public void SetSpeedModifier(float modifier){
         speedModifier = modifier;
