@@ -10,14 +10,5 @@ public abstract class IWeapon : InventoryItem
         return 1;
     }
 
-    public override int quantity {
-        get => 1;
-        set {}
-    }
-
-    public override bool IsWeapon(){
-        return true;
-    }
-
     public abstract void fire(GameObject user);
 }
