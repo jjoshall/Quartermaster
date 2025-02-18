@@ -75,7 +75,7 @@ public class Inventory : NetworkBehaviour {
         }
 
         if (Input.GetKeyDown(dropItemKey)) {
-            DropItem();
+            DropSelectedItem();
             // DEBUG_PRINT_INVENTORY();
         }
 
@@ -140,15 +140,36 @@ public class Inventory : NetworkBehaviour {
 
         // spawnInventoryItem uses stringID for lookup. 
         InventoryItem newItem = ItemManager.instance.SpawnInventoryItem(stringID, stackQuantity, lastUsed);
-
+        
+        
+        // If stackable. Stack.
         if (TryStackItem (newItem)) { return; } 
+        if (newItem.quantity <= 0) { return; } // Might be redundant but leave it here in case of 0
 
-        if (newItem.quantity <= 0) { return; }
+        // Weapon check.
+        if (newItem.IsWeapon()){
+            int weaponSlot = HasWeapon();
+            if (weaponSlot != -1){
+                DropItem(weaponSlot);
+            }
+        }
 
         // else add to first empty slot
         if (_currentHeldItems < _maxInventorySize) {
             AddToFirstEmptySlot(newItem); // convert worlditem to inventoryitem
         }
+    }
+
+    // Helper function
+    // Return -1 if no weapon. Otherwise return index of weapon.
+    int HasWeapon(){
+        for (int i = 0; i < _inventory.Length; i++) {
+            if (_inventory[i] != null && _inventory[i].IsWeapon()) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     // Return true if fully merged into existing stacks.
@@ -187,7 +208,7 @@ public class Inventory : NetworkBehaviour {
     }
 
 
-    void DropItem () {
+    void DropSelectedItem () { // Active drop. Gives it a velocity.
         // If null, no selected item.
         if (_inventory[_currentInventoryIndex] == null) {
             return;
@@ -209,6 +230,34 @@ public class Inventory : NetworkBehaviour {
                                     lastUsed, 
                                     this.transform.position, 
                                     initVelocity,
+                                    n_playerObj);
+
+        _currentHeldItems--;
+    }
+
+    // Don't refactor this into DropSelectedItem. 
+    // Order of events for velocity & spawn is important.
+    void DropItem(int slot){
+
+        // If null, no selected item.
+        if (_inventory[slot] == null) {
+            return;
+        }
+
+        int selectedItemId = _inventory[slot].itemID;
+        string stringID = ItemManager.instance.itemEntries[slot].inventoryItemClass;
+        int stackQuantity = _inventory[slot].quantity;
+        float lastUsed = _inventory[slot].lastUsed;
+        _inventory[slot] = null;
+
+        NetworkObjectReference n_playerObj = _playerObj.GetComponent<NetworkObject>();
+
+        ItemManager.instance.SpawnWorldItemServerRpc(
+                                    selectedItemId, 
+                                    stackQuantity, 
+                                    lastUsed, 
+                                    this.transform.position, 
+                                    new Vector3(0, 0, 0),
                                     n_playerObj);
 
         _currentHeldItems--;

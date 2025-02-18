@@ -63,6 +63,7 @@ public class Pistol : IWeapon
             Debug.DrawRay(camera.transform.position, camera.transform.forward * 100, Color.yellow, 2f);
         
         RaycastHit[] hits = Physics.RaycastAll(camera.transform.position, camera.transform.forward, 100);
+        
         foreach (RaycastHit hit in hits){
             Debug.Log(hit.transform.name);
             if (hit.transform.tag == "Enemy"){
