@@ -22,10 +22,10 @@ public class Inventory : NetworkBehaviour {
     private UIManager _uiManager;
 
     [Header("Item Materials")]
-    [SerializeField] public Material medkitMaterial;
-    [SerializeField] public Material keyMaterial;
-    [SerializeField] public Material pistolMaterial;
-    [SerializeField] public Material emptyMaterial;
+    [SerializeField] public Texture medkitMaterial;
+    [SerializeField] public Texture keyMaterial;
+    [SerializeField] public Texture pistolMaterial;
+    [SerializeField] public Texture emptyMaterial;
 
 
     // public struct InventoryItem
@@ -349,22 +349,22 @@ public class Inventory : NetworkBehaviour {
             // Set the material of the selected item in the UI
             switch (selectedItem.itemID) {
                 case 0:
-                    _uiManager.SetSelectedItemMaterial(keyMaterial);
+                    _uiManager.SetSelectedItemTexture(keyMaterial);
                     break;
                 case 1:
-                    _uiManager.SetSelectedItemMaterial(medkitMaterial);
+                    _uiManager.SetSelectedItemTexture(medkitMaterial);
                     break;
                 case 2:
-                    _uiManager.SetSelectedItemMaterial(pistolMaterial);
+                    _uiManager.SetSelectedItemTexture(pistolMaterial);
                     break;
                 default:
-                    _uiManager.SetSelectedItemMaterial(emptyMaterial);
+                    _uiManager.SetSelectedItemTexture(emptyMaterial);
                     break;
             }
             Debug.Log("Selected item: " + selectedItem.itemID);
-            Debug.Log("Updated IU color: " + _uiManager.getSelectedItemMaterial());
+            Debug.Log("Updated IU color: " + _uiManager.GetSelectedItemTexture());
         } else {
-            _uiManager.SetSelectedItemMaterial(null);
+            _uiManager.SetSelectedItemTexture(null);
         }
 
     }

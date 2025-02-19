@@ -2,22 +2,21 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour {
-    [SerializeField] private Image selectedItemImage;
+    [SerializeField] private RawImage selectedItemImage;
 
-    public void SetSelectedItemMaterial(Material mat)
+    public void SetSelectedItemTexture(Texture texture)
     {
         if (selectedItemImage != null)
         {
-            // Assign the material to the Image
-            selectedItemImage.material = mat;
+            selectedItemImage.texture = texture;
         }
     }
 
-    public Material getSelectedItemMaterial()
+    public Texture GetSelectedItemTexture()
     {
         if (selectedItemImage != null)
         {
-            return selectedItemImage.material;
+            return selectedItemImage.texture;
         }
         return null;
     }

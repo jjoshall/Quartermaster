@@ -329,10 +329,10 @@ MonoBehaviour:
   selectItemTwoKey: 50
   selectItemThreeKey: 51
   selectItemFourKey: 52
-  medkitMaterial: {fileID: 2100000, guid: 234a4191931699c4ab6be82e286ac64c, type: 2}
-  keyMaterial: {fileID: 2100000, guid: 2c21d3c5f6349f3489d7ce538bc58f9d, type: 2}
-  pistolMaterial: {fileID: 2100000, guid: bb2f37c6ff442314d999cbfc14392f65, type: 2}
-  emptyMaterial: {fileID: 2100000, guid: b1721c39ebce8114196e326f4d9c9543, type: 2}
+  medkitMaterial: {fileID: 2800000, guid: cd8aad8949b7156478d9e83990dca5c1, type: 3}
+  keyMaterial: {fileID: 2800000, guid: dae4ef23497b2464cadf1c608e169758, type: 3}
+  pistolMaterial: {fileID: 2800000, guid: 9b7a274aeaed6274a85edd6dfb4df442, type: 3}
+  emptyMaterial: {fileID: 2800000, guid: acfbf1bd71e9fab4fa33c5640a937720, type: 3}
 --- !u!114 &3204480622593929652
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -356,12 +356,12 @@ MonoBehaviour:
   PlayerCamera: {fileID: 7563249083227475095}
   invertVerticalInput: 1
   invertHorizontalInput: 0
-  vertical_sens: 1
-  horizontal_sens: 1
+  vertical_sens: 0.1
+  horizontal_sens: 0.1
   GroundLayers:
     serializedVersion: 2
     m_Bits: 8
-  jumpForce: 5
+  jumpForce: 10
   visualTransform: {fileID: 6195205799938994444}
   crouchingSharpness: 10
 --- !u!114 &3304562410642041497
