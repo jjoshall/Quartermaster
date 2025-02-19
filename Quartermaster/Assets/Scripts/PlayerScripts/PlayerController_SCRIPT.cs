@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Netcode;
 using Unity.Collections;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
 
 // Replace MonoBehaviour with NetworkBehaviour
 
@@ -11,6 +12,8 @@ using System.Collections.Generic;
 public class PlayerController : NetworkBehaviour {
     private CharacterController Controller;
     private PlayerInputHandler InputHandler;
+
+    [SerializeField] private PlayerInput playerInput;
 
     [SerializeField] private Transform spawnLocation;
 
@@ -131,6 +134,8 @@ public class PlayerController : NetworkBehaviour {
 
         Controller = GetComponent<CharacterController>();
         InputHandler = GetComponent<PlayerInputHandler>();
+        playerInput = GetComponent<PlayerInput>();
+        playerInput.enabled = true;
         health = GetComponent<Health>();
         health.OnDie += OnDie;
         health.OnDamaged += OnDamaged;

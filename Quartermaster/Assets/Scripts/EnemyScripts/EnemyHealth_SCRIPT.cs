@@ -5,17 +5,17 @@ using Unity.Netcode;
 public class EnemyHealth : NetworkBehaviour
 {
 
-    public Health health;
-    public Renderer renderer;
+    public Health m_health;
+    public Renderer m_renderer;
     void Start(){
-        if (!renderer) renderer = GetComponent<Renderer>();
-        if (!health) health = GetComponent<Health>();
-        health.OnDamaged += OnDamaged;
-        health.OnDie += OnDie;
+        if (!m_renderer) m_renderer = GetComponent<Renderer>();
+        if (!m_health) m_health = GetComponent<Health>();
+        m_health.OnDamaged += OnDamaged;
+        m_health.OnDie += OnDie;
     }
 
     void Update(){
-        renderer.material.color = new Color(health.GetRatio(), 0f, 0f);
+        m_renderer.material.color = new Color(m_health.GetRatio(), 0f, 0f);
     }
     void OnDamaged(float damage, GameObject source){
           Debug.Log("enemy took damage");

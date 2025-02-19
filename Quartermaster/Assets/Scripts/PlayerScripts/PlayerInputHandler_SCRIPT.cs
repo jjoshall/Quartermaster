@@ -108,6 +108,10 @@ public class PlayerInputHandler : NetworkBehaviour {
         }
     }
 
+    public void ScrollItem(InputAction.CallbackContext ctx){
+        
+    }
+
     public void ItemSlot1(InputAction.CallbackContext ctx){
         if (ctx.started){
             inventoryIndex = 0;
