@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 
+[RequireComponent(typeof(PlayerInputHandler))]
 public class Inventory : NetworkBehaviour {
     private const bool DEBUG_FLAG = true;
     private GameObject _playerObj;
@@ -10,6 +11,7 @@ public class Inventory : NetworkBehaviour {
     public Transform orientation;
 
     [Header("Inventory Keybinds")]
+    private PlayerInputHandler _InputHandler;
     public KeyCode pickupKey = KeyCode.E;
     public KeyCode dropItemKey = KeyCode.Q;
     public KeyCode useItemKey = KeyCode.F;
@@ -45,6 +47,7 @@ public class Inventory : NetworkBehaviour {
     private InventoryItem[] _inventory; // List of items in the player's inventory
 
     private int _currentInventoryIndex = 0; // The index of the currently selected item in the inventory
+    private int _oldInventoryIndex = 0;
     private int _currentHeldItems = 0; // The number of items the player is currently holding
     private int _maxInventorySize = 4; // Maximum number of items the player can hold
     private GameObject _selectedItem; // The item that the player has selected to use
@@ -59,6 +62,8 @@ public class Inventory : NetworkBehaviour {
 
         _playerObj = this.gameObject;
         _itemAcquisitionRange = _playerObj.GetComponentInChildren<ItemAcquisitionRange>().gameObject;
+        if (!_InputHandler) _InputHandler = _playerObj.GetComponent<PlayerInputHandler>();
+        Debug.Log("INPUT HANDLER: player jumped: " + _InputHandler.jumped);
 
         // if (orientation == null)
         // {
@@ -80,9 +85,8 @@ public class Inventory : NetworkBehaviour {
 
     void MyInput() {
         if (!IsOwner) return;
-        
 
-        if (Input.GetKeyDown(pickupKey)) {
+        if (_InputHandler.isInteracting) {
             GameObject closestItem = _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().GetClosestItem();
             if (closestItem != null) {
                 PickUpItem(closestItem);
@@ -90,16 +94,22 @@ public class Inventory : NetworkBehaviour {
             }
         }
 
-        if (Input.GetKeyDown(dropItemKey)) {
+        if (_InputHandler.isDropping) {
             DropSelectedItem();
             // DEBUG_PRINT_INVENTORY();
         }
 
-        if (Input.GetKeyDown(useItemKey)) {
+        if (_InputHandler.isUsing) {
             UseItem();
             // DEBUG_PRINT_INVENTORY();
         }
 
+        _currentInventoryIndex = _InputHandler.inventoryIndex % _maxInventorySize;
+        if (_currentInventoryIndex != _oldInventoryIndex){
+            UpdateSelectedItemUI();
+        }
+
+        /*
         if (Input.GetKeyDown(selectItemOneKey)) {
             _currentInventoryIndex = 0;
             UpdateSelectedItemUI();
@@ -122,6 +132,7 @@ public class Inventory : NetworkBehaviour {
             // DEBUG_SELECT_SLOT();
             UpdateSelectedItemUI();
         }
+        */
     }
 
     void UseItem () {

@@ -32,14 +32,6 @@ public class Pistol : IWeapon
         set => lastUsedTime = value;
     }
 
-    public override int StackLimit(){
-        return 1;
-    }
-
-    public override bool IsWeapon(){
-        return true;
-    }
-
     public override bool CanAutoFire(){
         return false;
     }
@@ -75,7 +67,7 @@ public class Pistol : IWeapon
 
         // camera is a child, we do not know which one
         GameObject camera = user.transform.Find("Camera").gameObject;
-            Debug.DrawRay(camera.transform.position, camera.transform.forward * 100, Color.yellow, 2f);
+        Debug.DrawRay(camera.transform.position, camera.transform.forward * 100, Color.yellow, 2f);
         
         RaycastHit[] hits = Physics.RaycastAll(camera.transform.position, camera.transform.forward, 100);
         

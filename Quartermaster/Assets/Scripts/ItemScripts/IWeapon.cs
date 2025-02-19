@@ -10,6 +10,11 @@ public abstract class IWeapon : InventoryItem
         return 1;
     }
 
+    public override bool IsWeapon()
+    {
+        return true;
+    }
+
     public abstract bool CanAutoFire();
 
     public abstract void fire(GameObject user);

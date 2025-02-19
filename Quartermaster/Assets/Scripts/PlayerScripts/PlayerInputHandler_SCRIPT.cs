@@ -6,22 +6,20 @@ using Unity.Netcode;
 USE CALLBACKS TO SET VARIABLES, HAVE {GET; PRIVATE SET} FOR DATA VALUES TO BE PASSED TO CONTROLLER WHICH HAS ACTUAL UPDATE()
 */
 public class PlayerInputHandler : NetworkBehaviour {
-    public Vector3 move_vector { get; private set; }
-    public Vector2 look_vector { get; private set; }
-    public bool jumped { get; private set; }
-    public bool isSprinting { get; private set; }
-    public bool isCrouching { get; private set; }
+    public Vector3 move_vector { get; private set; } = Vector3.zero;
+    public Vector2 look_vector { get; private set; } = Vector2.zero;
+    public bool jumped { get; private set; } = false;
+    public bool isSprinting { get; private set; } = false;
+    public bool isCrouching { get; private set; } = false;
+    public int inventoryIndex {get; private set;} = 0;
+    public bool isInteracting {get; private set;} = false;
+    public bool isDropping {get; private set;} = false;
+    public bool isUsing {get; private set;} = false;
+
     
 
     void Start() {
         if (!IsOwner) return;
-
-        //playerInput = new PlayerControls();
-        move_vector = Vector3.zero;
-        look_vector = Vector2.zero;
-        jumped = false;
-        isSprinting = false;
-
         // lock cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -81,5 +79,56 @@ public class PlayerInputHandler : NetworkBehaviour {
 
     public float GetVerticalLook() {
         return look_vector.y;
+    }
+
+    public void Interact(InputAction.CallbackContext ctx){
+        if (ctx.performed){
+            isInteracting = true;
+        }
+        else if (ctx.canceled){
+            isInteracting = false;
+        }
+    }
+
+    public void DropItem(InputAction.CallbackContext ctx){
+        if (ctx.performed){
+            isDropping = true;
+        }
+        else if (ctx.canceled){
+            isDropping = false;
+        }
+    }
+
+    public void UseItem(InputAction.CallbackContext ctx){
+        if (ctx.performed){
+            isUsing = true;
+        }
+        else if (ctx.canceled){
+            isUsing = false;
+        }
+    }
+
+    public void ItemSlot1(InputAction.CallbackContext ctx){
+        if (ctx.started){
+            inventoryIndex = 0;
+        }
+    }
+
+    public void ItemSlot2(InputAction.CallbackContext ctx){
+        if (ctx.started){
+            inventoryIndex = 1;
+        }
+    }
+
+    public void ItemSlot3(InputAction.CallbackContext ctx){
+        if (ctx.started){
+            inventoryIndex = 2;
+        }
+    }
+
+    public void ItemSlot4(InputAction.CallbackContext ctx){
+        if (ctx.started){
+            inventoryIndex = 3;
+        }
     }
 }
