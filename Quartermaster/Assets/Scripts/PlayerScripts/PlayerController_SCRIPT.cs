@@ -5,6 +5,7 @@ using Unity.Netcode;
 using Unity.Collections;
 using System.Collections.Generic;
 using Unity.Netcode.Components;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler), typeof(Health))]
 public class PlayerController : NetworkBehaviour
@@ -12,6 +13,7 @@ public class PlayerController : NetworkBehaviour
     // -- References to required Components
     private CharacterController Controller;
     private PlayerInputHandler InputHandler;
+    private PlayerInput PlayerInput;
     private Health health;
 
     [SerializeField] private Transform spawnLocation;
@@ -184,14 +186,16 @@ public class PlayerController : NetworkBehaviour
         // -- Assign Components
         Controller = GetComponent<CharacterController>();
         InputHandler = GetComponent<PlayerInputHandler>();
+        PlayerInput = GetComponent<PlayerInput>();
         health = GetComponent<Health>();
 
-        Debug.Log("owner: " + OwnerClientId + "character controller enabled: " + Controller.enabled);
+        //Debug.Log("owner: " + OwnerClientId + "character controller enabled: " + Controller.enabled);
 
 
         // Validate presence
         if (Controller == null) Debug.LogError($"[{Time.time}] ERROR: CharacterController missing on {gameObject.name}!");
         if (InputHandler == null) Debug.LogError($"[{Time.time}] ERROR: PlayerInputHandler missing on {gameObject.name}!");
+        if (PlayerInput == null) Debug.LogError($"[{Time.time}] ERROR: PlayerInput missing on {gameObject.name}!");
         if (health == null) Debug.LogError($"[{Time.time}] ERROR: Health component missing on {gameObject.name}!");
 
         // Enable components if they exist
@@ -245,6 +249,16 @@ public class PlayerController : NetworkBehaviour
             Debug.Log($"[{Time.time}] InputHandler is NULL for {gameObject.name} with owner {OwnerClientId}");
         }
 
+        // Player Input
+        if (PlayerInput != null)
+        {
+            Debug.Log($"[{Time.time}] Enabling PlayerInput for {gameObject.name} with owner {OwnerClientId}");
+            PlayerInput.enabled = true;
+        } else {
+            Debug.Log($"[{Time.time}] PlayerInput is NULL for {gameObject.name} with owner {OwnerClientId}");
+        }
+
+
         Debug.Log($"[{Time.time}] Player controls enabled for {gameObject.name} with owner {OwnerClientId}");
     }
 
@@ -270,6 +284,12 @@ public class PlayerController : NetworkBehaviour
         if (InputHandler != null)
         {
             InputHandler.enabled = false;
+        }
+
+        // Player Input
+        if (PlayerInput != null)
+        {
+            PlayerInput.enabled = false;
         }
 
         Debug.Log($"[{Time.time}] Player controls disabled for {gameObject.name}.");
@@ -324,7 +344,7 @@ public class PlayerController : NetworkBehaviour
         // Only the owner can handle movement and input
         if (!IsOwner) return;
 
-        Debug.Log("owner: " + OwnerClientId + "character controller enabled: " + Controller.enabled);
+        //Debug.Log("owner: " + OwnerClientId + "character controller enabled: " + Controller.enabled);
 
         if (Input.GetKey(KeyCode.F)) {
             playerVelocity = Vector3.forward * 5f;
@@ -436,6 +456,7 @@ public class PlayerController : NetworkBehaviour
 
         // Vertical
         cameraVerticalAngle += InputHandler.GetVerticalLook() * vertical_sens * rotationMultiplier * (invertVerticalInput ? -1 : 1);
+        //Debug.Log("vertical look value is " + InputHandler.GetVerticalLook());
         cameraVerticalAngle = Mathf.Clamp(cameraVerticalAngle, -89f, 89f);
         PlayerCamera.transform.localEulerAngles = new Vector3(cameraVerticalAngle, 0, 0);
         //Debug.Log("Camera angle is " + cameraVerticalAngle + "for client id " + NetworkManager.Singleton.LocalClientId);
