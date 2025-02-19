@@ -231,6 +231,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   health: {fileID: 3664579171111341079}
+  renderer: {fileID: 0}
 --- !u!114 &3664579171111341079
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -243,7 +244,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5518635a2dce475cace5f584bfb1fa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 30
+  MaxHealth: 50
   CriticalHealthRatio: 0.3
 --- !u!114 &-2801791850304661436
 MonoBehaviour:
