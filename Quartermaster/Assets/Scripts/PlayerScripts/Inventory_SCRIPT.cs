@@ -63,7 +63,6 @@ public class Inventory : NetworkBehaviour {
         _playerObj = this.gameObject;
         _itemAcquisitionRange = _playerObj.GetComponentInChildren<ItemAcquisitionRange>().gameObject;
         if (!_InputHandler) _InputHandler = _playerObj.GetComponent<PlayerInputHandler>();
-        Debug.Log("INPUT HANDLER: player jumped: " + _InputHandler.jumped);
 
         // if (orientation == null)
         // {
