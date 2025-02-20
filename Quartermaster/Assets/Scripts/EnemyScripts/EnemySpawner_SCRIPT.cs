@@ -80,9 +80,12 @@ public class EnemySpawner : NetworkBehaviour {
 
     [ServerRpc(RequireOwnership = false)]
     public void destroyEnemyServerRpc(NetworkObjectReference enemy) {
-        if (IsServer)
+        if (!IsServer) { return; }
+
+        if (enemy.TryGet(out NetworkObject networkObject))
         {
-            NetworkObjectPool.Singleton.ReturnNetworkObject(enemy, _enemyPrefab);
+            NetworkObjectPool.Singleton.ReturnNetworkObject(networkObject, _enemyPrefab);
+            enemyList.Remove(networkObject.transform);
         }
     }
 }
