@@ -385,11 +385,11 @@ MonoBehaviour:
   AuthorityMode: 1
   TickSyncChildren: 0
   UseUnreliableDeltas: 0
-  SyncPositionX: 1
-  SyncPositionY: 1
-  SyncPositionZ: 1
+  SyncPositionX: 0
+  SyncPositionY: 0
+  SyncPositionZ: 0
   SyncRotAngleX: 0
-  SyncRotAngleY: 1
+  SyncRotAngleY: 0
   SyncRotAngleZ: 0
   SyncScaleX: 0
   SyncScaleY: 0
@@ -458,9 +458,9 @@ MonoBehaviour:
   GroundLayers:
     serializedVersion: 2
     m_Bits: 8
-  jumpForce: 10
+  jumpForce: 5
   visualTransform: {fileID: 6195205799938994444}
-  crouchingSharpness: 10
+  crouchingSharpness: 5
 --- !u!114 &3304562410642041497
 MonoBehaviour:
   m_ObjectHideFlags: 0
