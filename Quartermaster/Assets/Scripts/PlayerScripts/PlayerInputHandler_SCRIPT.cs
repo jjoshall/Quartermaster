@@ -16,7 +16,6 @@ public class PlayerInputHandler : NetworkBehaviour {
     void Start() {
         if (!IsOwner) return;
 
-        //playerInput = new PlayerControls();
         move_vector = Vector3.zero;
         look_vector = Vector2.zero;
         jumped = false;
@@ -31,8 +30,10 @@ public class PlayerInputHandler : NetworkBehaviour {
         if (!IsOwner) return;
 
         Vector2 move_xy = ctx.ReadValue<Vector2>();
+
         move_vector = new Vector3(move_xy.x, 0f, move_xy.y);
         move_vector = Vector3.ClampMagnitude(move_vector,1);
+
     }
 
     public void Jump(InputAction.CallbackContext ctx) {
@@ -45,6 +46,7 @@ public class PlayerInputHandler : NetworkBehaviour {
         else if (ctx.canceled) {
             jumped = false;
         }
+
     }
 
     public void Sprint(InputAction.CallbackContext ctx) {
