@@ -16,8 +16,7 @@ public class PlayerInputHandler : NetworkBehaviour {
     void Start() {
         if (!IsOwner) return;
 
-        //playerInput = new PlayerControls();
-        move_vector = new Vector3(1f, 0, 1f);
+        move_vector = Vector3.zero;
         look_vector = Vector2.zero;
         jumped = false;
         isSprinting = false;
@@ -32,11 +31,9 @@ public class PlayerInputHandler : NetworkBehaviour {
 
         Vector2 move_xy = ctx.ReadValue<Vector2>();
 
-        
         move_vector = new Vector3(move_xy.x, 0f, move_xy.y);
         move_vector = Vector3.ClampMagnitude(move_vector,1);
 
-        //Debug.Log("Move Vector: " + move_vector);
     }
 
     public void Jump(InputAction.CallbackContext ctx) {
@@ -49,8 +46,6 @@ public class PlayerInputHandler : NetworkBehaviour {
         else if (ctx.canceled) {
             jumped = false;
         }
-
-        //Debug.Log("Jumped: " + jumped);
 
     }
 
@@ -80,8 +75,6 @@ public class PlayerInputHandler : NetworkBehaviour {
         if (!IsOwner) return;
 
         look_vector = ctx.ReadValue<Vector2>();
-
-        //Debug.Log("Look Vector: " + look_vector);
     }
 
     public float GetHorizontalLook() {
