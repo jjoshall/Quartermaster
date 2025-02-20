@@ -9,7 +9,6 @@ public class EnemySpawner : NetworkBehaviour {
     [SerializeField] private int _maxEnemyInstanceCount = 20;
     [SerializeField] private float _spawnCooldown = 2f;
 
-    public List<Transform> enemyList = new List<Transform>();
     public List<GameObject> playerList;
 
     //private void Start() {
@@ -86,7 +85,7 @@ public class EnemySpawner : NetworkBehaviour {
         if (!IsServer) { return; }
 
         NetworkObjectPool.Singleton.ReturnNetworkObject(enemy, _enemyPrefab);
-        NetworkObject.Despawn();
+        NetworkObject.Despawn(false);
 
         //if (enemy.TryGet(out NetworkObject networkObject))
         //{
