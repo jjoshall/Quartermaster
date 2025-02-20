@@ -58,7 +58,7 @@ public class EnemySpawner : NetworkBehaviour {
 
     private IEnumerator SpawnOverTime() {
         while (true) {
-            if (enemyList.Count < _maxEnemyInstanceCount) {
+            if (NetworkObjectPool.Singleton.GetCurrentPrefabCount(_enemyPrefab) < _maxEnemyInstanceCount) {
                 /// BEFORE POOLING, THIS JUST INSTANTIATES
                 //Transform enemyTransform = Instantiate(_enemyPrefab, GetRandomPositionOnMap(), Quaternion.identity, transform);
                 //enemyTransform.GetComponent<EnemyNavScript>().enemySpawner = this;
@@ -68,8 +68,11 @@ public class EnemySpawner : NetworkBehaviour {
                 /// POOLING
                 NetworkObject enemy = NetworkObjectPool.Singleton.GetNetworkObject(_enemyPrefab, GetRandomPositionOnMap(), Quaternion.identity);
                 enemy.GetComponent<EnemyNavScript>().enemySpawner = this;
-                enemy.Spawn(true);
-                enemyList.Add(enemy.transform);
+                if (!enemy.IsSpawned) {
+                    enemy.Spawn(true);
+                }
+                    
+                //enemyList.Add(enemy.transform);
 
                 yield return new WaitForSeconds(_spawnCooldown);
             }
@@ -82,10 +85,13 @@ public class EnemySpawner : NetworkBehaviour {
     public void destroyEnemyServerRpc(NetworkObjectReference enemy) {
         if (!IsServer) { return; }
 
-        if (enemy.TryGet(out NetworkObject networkObject))
-        {
-            NetworkObjectPool.Singleton.ReturnNetworkObject(networkObject, _enemyPrefab);
-            enemyList.Remove(networkObject.transform);
-        }
+        NetworkObjectPool.Singleton.ReturnNetworkObject(enemy, _enemyPrefab);
+        NetworkObject.Despawn();
+
+        //if (enemy.TryGet(out NetworkObject networkObject))
+        //{
+        //    NetworkObjectPool.Singleton.ReturnNetworkObject(networkObject, _enemyPrefab);
+        //    enemyList.Remove(networkObject.transform);
+        //}
     }
 }

@@ -36,8 +36,7 @@ public class EnemyNavScript : NetworkBehaviour {
         //}
 
         foreach (GameObject obj in enemySpawner.playerList) {
-            if (_player == null || Vector3.Distance(transform.position, obj.transform.position) 
-                                < Vector3.Distance(transform.position, _player.position)) {
+            if (_player == null || Vector3.Distance(transform.position, obj.transform.position) < Vector3.Distance(transform.position, _player.position)) {
                 _player = obj.transform;
             }
         }
