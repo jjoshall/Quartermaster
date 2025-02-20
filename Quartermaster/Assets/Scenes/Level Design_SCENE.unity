@@ -4274,10 +4274,10 @@ PrefabInstance:
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: _enemyPrefab
       value: 
-      objectReference: {fileID: 521860666677488949, guid: b09eb5eae34e906439da176aece8901f, type: 3}
+      objectReference: {fileID: 2675775069118099314, guid: b09eb5eae34e906439da176aece8901f, type: 3}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: _maxEnemyInstanceCount
-      value: 20
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6293922688451564986, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: GlobalObjectIdHash
@@ -4289,7 +4289,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6313785063111907376, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: PooledPrefabsList.Array.data[0].PrewarmCount
-      value: 20
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
