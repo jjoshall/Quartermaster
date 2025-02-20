@@ -75,7 +75,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 533627647367738219}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
   m_Name: 
@@ -289,11 +289,11 @@ MonoBehaviour:
   AuthorityMode: 1
   TickSyncChildren: 0
   UseUnreliableDeltas: 0
-  SyncPositionX: 1
-  SyncPositionY: 1
-  SyncPositionZ: 1
+  SyncPositionX: 0
+  SyncPositionY: 0
+  SyncPositionZ: 0
   SyncRotAngleX: 0
-  SyncRotAngleY: 1
+  SyncRotAngleY: 0
   SyncRotAngleZ: 0
   SyncScaleX: 0
   SyncScaleY: 0
@@ -361,9 +361,9 @@ MonoBehaviour:
   GroundLayers:
     serializedVersion: 2
     m_Bits: 8
-  jumpForce: 10
+  jumpForce: 5
   visualTransform: {fileID: 6195205799938994444}
-  crouchingSharpness: 10
+  crouchingSharpness: 5
 --- !u!114 &3304562410642041497
 MonoBehaviour:
   m_ObjectHideFlags: 0
