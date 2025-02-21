@@ -355,9 +355,9 @@ public class PlayerController : NetworkBehaviour {
 
         playerVelocity = Vector3.zero;
         targetHeight = CapsuleHeightStanding;
-        toggleCharacterController();
+        disableCharacterController();
         transform.position = Vector3.zero;
-        toggleCharacterController();
+        enableCharacterController();
 
         if (health != null) {
             health.Heal(1000f);
@@ -372,13 +372,26 @@ public class PlayerController : NetworkBehaviour {
     #endregion
 
     #region Helper Functions
-    public bool toggleCharacterController() {
-        if (Controller != null) {
-            Controller.enabled = !Controller.enabled;
-            return Controller.enabled;
-        }
 
-        return false; // false if null.
+    // public bool toggleCharacterController() {
+    //     if (Controller != null) {
+    //         Controller.enabled = !Controller.enabled;
+    //         return Controller.enabled;
+    //     }
+
+    //     return false; // false if null.
+    // }
+
+    public void disableCharacterController(){
+        if (Controller != null) {
+            Controller.enabled = false;
+        }
+    }
+
+    public void enableCharacterController(){
+        if (Controller != null) {
+            Controller.enabled = true;
+        }
     }
 
     public Vector3 GetDirectionReorientedOnSlope(Vector3 direction, Vector3 slopeNormal) {
