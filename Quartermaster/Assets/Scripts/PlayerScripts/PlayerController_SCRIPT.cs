@@ -2,6 +2,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler), typeof(Health))]
 public class PlayerController : NetworkBehaviour {
@@ -12,6 +13,12 @@ public class PlayerController : NetworkBehaviour {
     private PlayerInputHandler InputHandler;
     private PlayerInput PlayerInput;
     private Health health;
+
+    [Header("Mini Map")]
+    private Canvas miniMapCanvas;
+    private RawImage miniMapRawImage;
+
+
 
     [Header("Player Spawn Settings")]
     [SerializeField] private Transform spawnLocation;
@@ -36,6 +43,7 @@ public class PlayerController : NetworkBehaviour {
 
     [Header("Looking")]
     public Camera PlayerCamera;
+    public Camera MiniMapCamera;
     private Vector3 cameraOffset = new Vector3(0f, 0f, 0.36f);
     [SerializeField] private bool invertVerticalInput;
     [SerializeField] private bool invertHorizontalInput;
@@ -71,15 +79,29 @@ public class PlayerController : NetworkBehaviour {
 
     #region Start Up Functions
     private void EnablePlayerControls() {
-        // Camera and Audio Listener
+        // Main Camera and Audio Listener
         if (PlayerCamera != null) {
             PlayerCamera.gameObject.SetActive(true);
             PlayerCamera.GetComponent<AudioListener>().enabled = true;
         }
 
+
+        // Mini Map Canvas
+        if (miniMapCanvas != null) {
+            RawImage rawImage = miniMapCanvas.GetComponentInChildren<RawImage>();
+            if (rawImage != null) {
+                rawImage.enabled = true;
+            }
+        }
+
+
+        // Mini Map Camera
+        if (MiniMapCamera != null) {
+            MiniMapCamera.gameObject.SetActive(true);
+        }
+
         // Player Input
         if (PlayerInput != null) { PlayerInput.enabled = true; }
-
     }
 
     private void DisablePlayerControls() {
@@ -88,6 +110,21 @@ public class PlayerController : NetworkBehaviour {
             PlayerCamera.gameObject.SetActive(false);
             PlayerCamera.GetComponent<AudioListener>().enabled = false;
         }
+
+
+        // Mini Map Canvas
+        if (miniMapCanvas != null) {
+            RawImage rawImage = miniMapCanvas.GetComponentInChildren<RawImage>();
+            if (rawImage != null) {
+                rawImage.enabled = false;
+            }
+        }
+
+        // Mini Map Camera
+        if (MiniMapCamera != null) {
+            MiniMapCamera.gameObject.SetActive(false);
+        }
+
 
         // Player Input
         if (PlayerInput != null) {
@@ -144,7 +181,11 @@ public class PlayerController : NetworkBehaviour {
         PlayerInput = GetComponent<PlayerInput>();
         health = GetComponent<Health>();
 
+        miniMapCanvas = GetComponentInChildren<Canvas>(true);
+        miniMapRawImage = miniMapCanvas?.GetComponentInChildren<RawImage>();
+
         EnablePlayerControls();
+
 
         if (health != null) {
             health.OnDie += OnDie;
@@ -182,6 +223,13 @@ public class PlayerController : NetworkBehaviour {
     void FixedUpdate() {
         if (!IsOwner) return;
         MovePlayer();
+    }
+
+    #endregion
+
+    #region MiniMap Helpers
+    private Vector2 WorldToMiniMapPosition(Vector3 worldPosition) {
+        return new Vector2(worldPosition.x, worldPosition.z);
     }
 
     #endregion
