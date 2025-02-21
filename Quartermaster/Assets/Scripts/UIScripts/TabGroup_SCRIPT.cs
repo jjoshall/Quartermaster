@@ -58,7 +58,7 @@ public class TabGroup : MonoBehaviour {
 
     void Update() {
         if (Input.GetKeyDown(KeyCode.Tab)) {
-            int direction = Input.GetKey(KeyCode.LeftShift) ? -1 : 1;
+            int direction = Input.GetKey(KeyCode.LeftShift) ? 1 : -1;
             SwitchTab(direction);
         }
     } 
