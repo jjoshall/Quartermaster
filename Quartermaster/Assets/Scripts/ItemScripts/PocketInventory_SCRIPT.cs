@@ -11,6 +11,7 @@ public class PocketInventory : NetworkBehaviour {
 
     // Struct for pairing player netObj with a vector3 return position.
 
+    #region Variables
     public static PocketInventory instance;
 
     // public float timeEnteredPocket;
@@ -27,7 +28,9 @@ public class PocketInventory : NetworkBehaviour {
     private static readonly float MAX_TIME_IN_POCKET = 10.0f;
     private static readonly float RADIUS_OF_POCKET = 10.0f;
     // private GameObject playerInPocket;
+    #endregion
 
+    #region Startup
     void Awake() {
         // Singleton
         if (instance == null) {
@@ -38,13 +41,15 @@ public class PocketInventory : NetworkBehaviour {
         }
     }
 
+    // Start works here because the PocketInventory prefab is placed in the scene by default.
+    // Instead of spawned by the server during runtime. Don't need to move to OnNetworkSpawn()
     void Start() {
         _n_playersInPocket = new NetworkList<NetworkObjectReference>();
         n_timeEnteredPocketNetworkVar.Value = 0;
         _teleportPosition = this.transform.position + new Vector3 (0, 2, 0);
         n_storedKeyObj = new NetworkObjectReference();
     }
-
+    #endregion
     // Update is called once per frame
     void Update() {
         if (_n_playersInPocket.Count > 0) {
@@ -54,10 +59,7 @@ public class PocketInventory : NetworkBehaviour {
         }
     }
 
-    // public GameObject playerInsidePocket(){
-    //     return playerInPocket;
-    // }
-
+    #region Teleport
     [ServerRpc(RequireOwnership = false)]
     public void TeleportToPocketServerRpc(NetworkObjectReference userRef){
 
@@ -70,23 +72,11 @@ public class PocketInventory : NetworkBehaviour {
         if (userRef.TryGet(out NetworkObject user)) {
 
             _playerReturnPositions[userRef] = user.transform.position; // save return spot
-            // debugMsgClientRpc("attempting teleport");
             TeleportUserToPositionClientRpc(userRef, _teleportPosition); // teleport
             _n_playersInPocket.Add(userRef);
             n_timeEnteredPocketNetworkVar.Value = NetworkManager.Singleton.ServerTime.Time;
 
         }
-    }
-    [ClientRpc]
-    private void debugMsgClientRpc (string msg  ){
-        Debug.Log(msg);
-    }
-
-
-    [ServerRpc(RequireOwnership = false)]
-    public void clearDroppedKeyServerRpc() {
-        n_droppedPortalKeyInPocket.Value = false;
-        n_storedKeyObj = new NetworkObjectReference();
     }
 
     [ClientRpc]
@@ -97,13 +87,11 @@ public class PocketInventory : NetworkBehaviour {
 
             // turn off interpolation and char controller temporarily for teleport
             playerObj.GetComponent<NetworkTransform>().Interpolate = false;
-            bool charControllerBool = playerObj.GetComponent<PlayerController>().toggleCharacterController();
-            if (charControllerBool) // if not toggled false for some reason, toggle it again.
-                playerObj.GetComponent<PlayerController>().toggleCharacterController();
+            playerObj.GetComponent<PlayerController>().disableCharacterController();
 
             playerObj.transform.position = position; // teleport player
 
-            playerObj.GetComponent<PlayerController>().toggleCharacterController();
+            playerObj.GetComponent<PlayerController>().enableCharacterController();
             playerObj.GetComponent<NetworkTransform>().Interpolate = true;
         }
     }
@@ -127,13 +115,23 @@ public class PocketInventory : NetworkBehaviour {
         }
     }
 
+    #endregion
+    #region TeleportHelpers
+    [ServerRpc(RequireOwnership = false)]
+    public void clearDroppedKeyServerRpc() {
+        n_droppedPortalKeyInPocket.Value = false;
+        n_storedKeyObj = new NetworkObjectReference();
+    }
+
+
     [ClientRpc]
     public void ReturnAllPlayersClientRpc() {
         foreach (NetworkObjectReference n_player in _n_playersInPocket){
             ReturnToPreviousPositionClientRpc(n_player);
         }
     }
-
+    #endregion
+    #region Helpers
     [ClientRpc]
     public void FindDroppedKeyClientRpc() {
         // physics overlap sphere, find dropped key
@@ -151,8 +149,14 @@ public class PocketInventory : NetworkBehaviour {
         return _n_playersInPocket.Contains(playerRef);
     }
 
+    [ClientRpc]
+    private void debugMsgClientRpc (string msg  ){
+        Debug.Log(msg);
+    }
+
     // public bool PlayerIsInPocket(GameObject user) {
     //     NetworkObject userNetobj = user.GetComponent<NetworkObject>();
     //     return _playersInPocket.Contains(userNetobj);
     // }
-}
+    #endregion
+}   
