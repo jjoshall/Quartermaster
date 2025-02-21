@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 
 public class LobbyManagerUI : MonoBehaviour {
     [SerializeField] private Button createRelayBtn;
+    [SerializeField] private Button quitBtn;
     [SerializeField] private TMP_InputField joinRelayInput;
     [SerializeField] private Canvas lobbyMenuCanvas;
 
@@ -27,7 +28,14 @@ public class LobbyManagerUI : MonoBehaviour {
             }
         });
 
+        quitBtn.onClick.AddListener(() => {
+            //return to main menu scene
+            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu_SCENE");
+        });
+
+
         AddHoverEffect(createRelayBtn);
+        AddHoverEffect(quitBtn);
     }
 
     public IEnumerator HideLobbyUI() {

@@ -12,7 +12,6 @@ public class KeyBindChanger : MonoBehaviour, IPointerClickHandler {
     [Header("Settings")]
     public string currentKeyBinding = "None";
 
-    // This event can be subscribed to by your player settings manager.
     public delegate void OnKeyBindChanged(string newKey);
     public event OnKeyBindChanged keyBindChangedEvent;
 
