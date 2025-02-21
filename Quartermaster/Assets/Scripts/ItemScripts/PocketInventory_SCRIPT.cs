@@ -70,12 +70,22 @@ public class PocketInventory : NetworkBehaviour {
         if (userRef.TryGet(out NetworkObject user)) {
 
             _playerReturnPositions[userRef] = user.transform.position; // save return spot
+            // debugMsgClientRpc("attempting teleport");
             TeleportUserToPositionClientRpc(userRef, _teleportPosition); // teleport
+            // debugMsgClientRpc("adding userRef to _playersInPocket");
             _playersInPocket.Add(userRef);
+            // debugMsgClientRpc("setting timeEntered var");
             timeEnteredPocketNetworkVar.Value = NetworkManager.Singleton.ServerTime.Time;
+            // debugMsgClientRpc("completed teleport attempt teleport");
 
         }
     }
+    [ClientRpc]
+    private void debugMsgClientRpc (string msg  ){
+        Debug.Log(msg);
+    }
+
+
     [ServerRpc(RequireOwnership = false)]
     public void clearDroppedKeyServerRpc() {
         n_droppedPortalKeyInPocket.Value = false;
@@ -90,11 +100,13 @@ public class PocketInventory : NetworkBehaviour {
 
             // turn off interpolation and char controller temporarily for teleport
             playerObj.GetComponent<NetworkTransform>().Interpolate = false;
-            while (playerObj.GetComponent<PlayerController>().toggleCharacterController()){}
+            bool charControllerBool = playerObj.GetComponent<PlayerController>().toggleCharacterController();
+            if (charControllerBool) // if not toggled false for some reason, toggle it again.
+                playerObj.GetComponent<PlayerController>().toggleCharacterController();
 
             playerObj.transform.position = position; // teleport player
 
-            while (!playerObj.GetComponent<PlayerController>().toggleCharacterController()){}
+            playerObj.GetComponent<PlayerController>().toggleCharacterController();
             playerObj.GetComponent<NetworkTransform>().Interpolate = true;
         }
     }

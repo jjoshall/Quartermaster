@@ -54,6 +54,15 @@ public class Inventory : NetworkBehaviour {
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start() {
+    }
+
+    public override void OnNetworkSpawn(){
+        if (!IsOwner){
+            // disable this component
+            this.enabled = false;
+            return;
+        }
+
         if (IsOwner) {
             Debug.Log("Before");
             _uiManager = GameObject.Find("UI Manager").GetComponent<UIManager>();
@@ -141,13 +150,17 @@ public class Inventory : NetworkBehaviour {
     }
 
     void UseItem (bool isHeld) {
+        if (!IsOwner){
+            return;
+        }
         if (_inventory[_currentInventoryIndex] != null) {
             // Use the item effect.
             if (_playerObj == null) {
                 Debug.Log("playerObj is null");
                 _playerObj = transform.parent.gameObject;
             }
-
+            // string debugIsHeld = isHeld ? "true" : "false";
+            // Debug.Log ("UseItem triggered with IsHeld = " + debugIsHeld);
             _inventory[_currentInventoryIndex].AttemptUse(_playerObj, isHeld);
 
             if (_inventory[_currentInventoryIndex].quantity <= 0) {
