@@ -31,6 +31,13 @@ public class PlayerInputHandler : NetworkBehaviour {
         Cursor.visible = false;
     }
 
+    // Update to check for button holding
+    void Update(){
+        if (isUsing){
+            OnUse?.Invoke(true);
+        }
+    }
+
     public void Move(InputAction.CallbackContext ctx) {
         if (!IsOwner) return;
 
@@ -112,23 +119,15 @@ public class PlayerInputHandler : NetworkBehaviour {
 
     public void UseItem(InputAction.CallbackContext ctx){
         if (!IsOwner) return;
-        float value = ctx.ReadValue<float>();
-        Debug.Log("event fired: " + value);
         if (ctx.started){
-            Debug.Log("pressed");
             OnUse?.Invoke(false);
-            isUsing = true;
+            isUsing = false;
         }
-        else if (value > 0){
-            Debug.Log("holding");
-            OnUse?.Invoke(true);
+        else if (ctx.performed){
             isUsing = true;
         }
         else if (ctx.canceled){
             isUsing = false;
-        }
-        if (ctx.performed){
-            Debug.Log("performed");
         }
     }
 
