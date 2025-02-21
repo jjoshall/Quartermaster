@@ -57,7 +57,7 @@ public class PocketInventoryPortalKey : InventoryItem {
 
         lastUsed = Time.time;
 
-        // ItemEffect(user);
+        ItemEffect(user);
 
     }
 

@@ -70,9 +70,9 @@ public class PocketInventory : NetworkBehaviour {
         if (userRef.TryGet(out NetworkObject user)) {
 
             _playerReturnPositions[userRef] = user.transform.position; // save return spot
-            TeleportUserToPositionClientRpc(userRef, _teleportPosition); // teleport
-            _playersInPocket.Add(userRef);
-            timeEnteredPocketNetworkVar.Value = NetworkManager.Singleton.ServerTime.Time;
+            // TeleportUserToPositionClientRpc(userRef, _teleportPosition); // teleport
+            // _playersInPocket.Add(userRef);
+            // timeEnteredPocketNetworkVar.Value = NetworkManager.Singleton.ServerTime.Time;
 
         }
     }
