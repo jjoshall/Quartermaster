@@ -378,7 +378,7 @@ public class PlayerController : NetworkBehaviour {
             return Controller.enabled;
         }
 
-        return false;
+        return false; // false if null.
     }
 
     public Vector3 GetDirectionReorientedOnSlope(Vector3 direction, Vector3 slopeNormal) {
