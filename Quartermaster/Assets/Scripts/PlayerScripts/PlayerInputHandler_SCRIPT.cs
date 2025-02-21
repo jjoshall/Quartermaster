@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
+using UnityEngine.Events;
 
 /*
 USE CALLBACKS TO SET VARIABLES, HAVE {GET; PRIVATE SET} FOR DATA VALUES TO BE PASSED TO CONTROLLER WHICH HAS ACTUAL UPDATE()
@@ -14,7 +15,12 @@ public class PlayerInputHandler : NetworkBehaviour {
     public int inventoryIndex {get; private set;} = 0;
     public bool isInteracting {get; private set;} = false;
     public bool isDropping {get; private set;} = false;
+
+    /*public bool isUsingPressed {get; private set;} = false;
+    public bool isUsingHeld {get; private set;} = false;*/
+
     public bool isUsing {get; private set;} = false;
+    public UnityAction<bool> OnUse;
 
     
 
@@ -85,6 +91,7 @@ public class PlayerInputHandler : NetworkBehaviour {
     }
 
     public void Interact(InputAction.CallbackContext ctx){
+        if (!IsOwner) return;
         if (ctx.performed){
             isInteracting = true;
         }
@@ -94,6 +101,7 @@ public class PlayerInputHandler : NetworkBehaviour {
     }
 
     public void DropItem(InputAction.CallbackContext ctx){
+        if (!IsOwner) return;
         if (ctx.performed){
             isDropping = true;
         }
@@ -103,16 +111,25 @@ public class PlayerInputHandler : NetworkBehaviour {
     }
 
     public void UseItem(InputAction.CallbackContext ctx){
-        if (ctx.performed){
+        if (!IsOwner) return;
+        float value = ctx.ReadValue<float>();
+        Debug.Log("event fired: " + value);
+        if (ctx.started){
+            Debug.Log("pressed");
+            OnUse?.Invoke(false);
+            isUsing = true;
+        }
+        else if (value > 0){
+            Debug.Log("holding");
+            OnUse?.Invoke(true);
             isUsing = true;
         }
         else if (ctx.canceled){
             isUsing = false;
         }
-    }
-
-    public void ScrollItem(InputAction.CallbackContext ctx){
-        
+        if (ctx.performed){
+            Debug.Log("performed");
+        }
     }
 
     public void ItemSlot1(InputAction.CallbackContext ctx){

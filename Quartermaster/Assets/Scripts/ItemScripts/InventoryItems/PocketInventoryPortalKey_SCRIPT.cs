@@ -41,7 +41,7 @@ public class PocketInventoryPortalKey : InventoryItem {
         return 1;
     }
 
-    public override void Use(GameObject user) {
+    public override void Use(GameObject user , bool isHeld) {
         string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
         if (lastUsed + cooldown > Time.time) {
             Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");

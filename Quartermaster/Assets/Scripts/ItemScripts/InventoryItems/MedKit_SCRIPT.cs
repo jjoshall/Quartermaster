@@ -43,7 +43,7 @@ public class MedKit : InventoryItem {
     // Item constants
     private const int HEAL_AMOUNT = 50;
 
-    public override void Use(GameObject user) {
+    public override void Use(GameObject user, bool isHeld) {
         string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
 
         if (lastUsed + cooldown > Time.time) {

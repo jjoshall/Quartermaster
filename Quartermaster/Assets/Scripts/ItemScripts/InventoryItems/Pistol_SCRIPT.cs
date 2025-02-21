@@ -12,6 +12,8 @@ public class Pistol : IWeapon
     private static float itemCooldown = 0.5f;
 
     // Abstract overrides
+
+    public override bool isHoldable { get; set; } = true;
     public override float cooldown
     {
         get => itemCooldown;
@@ -36,7 +38,7 @@ public class Pistol : IWeapon
         return false;
     }
 
-    public override void Use(GameObject user)
+    public override void Use(GameObject user, bool isHeld)
     {
         string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
         if (lastUsed + cooldown > Time.time){

@@ -64,6 +64,7 @@ public class Inventory : NetworkBehaviour {
         _itemAcquisitionRange = _playerObj.GetComponentInChildren<ItemAcquisitionRange>().gameObject;
         if (!_InputHandler) _InputHandler = _playerObj.GetComponent<PlayerInputHandler>();
 
+        _InputHandler.OnUse += UseItem;
         // if (orientation == null)
         // {
         //     orientation = playerObj.transform;
@@ -98,10 +99,15 @@ public class Inventory : NetworkBehaviour {
             // DEBUG_PRINT_INVENTORY();
         }
 
-        if (_InputHandler.isUsing) {
-            UseItem();
-            // DEBUG_PRINT_INVENTORY();
+       /*if (_InputHandler.isUsingPressed) {
+            Debug.Log("pressed");
+            UseItem(false);
         }
+        else if (_InputHandler.isUsingHeld) {
+            Debug.Log("held");
+            UseItem(true);
+            // DEBUG_PRINT_INVENTORY();
+        }*/
 
         _currentInventoryIndex = _InputHandler.inventoryIndex % _maxInventorySize;
         if (_currentInventoryIndex != _oldInventoryIndex){
@@ -134,7 +140,7 @@ public class Inventory : NetworkBehaviour {
         */
     }
 
-    void UseItem () {
+    void UseItem (bool isHeld) {
         if (_inventory[_currentInventoryIndex] != null) {
             // Use the item effect.
             if (_playerObj == null) {
@@ -142,7 +148,7 @@ public class Inventory : NetworkBehaviour {
                 _playerObj = transform.parent.gameObject;
             }
 
-            _inventory[_currentInventoryIndex].Use(_playerObj);
+            _inventory[_currentInventoryIndex].AttemptUse(_playerObj, isHeld);
 
             if (_inventory[_currentInventoryIndex].quantity <= 0) {
                 _inventory[_currentInventoryIndex] = null;
