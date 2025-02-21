@@ -70,12 +70,22 @@ public class PocketInventory : NetworkBehaviour {
         if (userRef.TryGet(out NetworkObject user)) {
 
             _playerReturnPositions[userRef] = user.transform.position; // save return spot
-            // TeleportUserToPositionClientRpc(userRef, _teleportPosition); // teleport
-            // _playersInPocket.Add(userRef);
-            // timeEnteredPocketNetworkVar.Value = NetworkManager.Singleton.ServerTime.Time;
+            debugMsgClientRpc("attempting teleport");
+            TeleportUserToPositionClientRpc(userRef, _teleportPosition); // teleport
+            debugMsgClientRpc("adding userRef to _playersInPocket");
+            _playersInPocket.Add(userRef);
+            debugMsgClientRpc("setting timeEntered var");
+            timeEnteredPocketNetworkVar.Value = NetworkManager.Singleton.ServerTime.Time;
+            debugMsgClientRpc("completed teleport attempt teleport");
 
         }
     }
+    [ClientRpc]
+    private void debugMsgClientRpc (string msg  ){
+        Debug.Log(msg);
+    }
+
+
     [ServerRpc(RequireOwnership = false)]
     public void clearDroppedKeyServerRpc() {
         n_droppedPortalKeyInPocket.Value = false;
