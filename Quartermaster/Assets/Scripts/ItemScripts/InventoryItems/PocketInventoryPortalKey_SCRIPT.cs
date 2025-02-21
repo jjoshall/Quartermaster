@@ -1,6 +1,12 @@
+using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class PocketInventoryPortalKey : InventoryItem {
+    [Header("Item Configuration")]
+    private const float _TELEPORT_RADIUS = 2.0f;
+
+
     [Header("Backing Fields")]
     private int _id = 0;
     private int _pocketInventoryQuantity = 0;
@@ -42,6 +48,12 @@ public class PocketInventoryPortalKey : InventoryItem {
     }
 
     public override void Use(GameObject user , bool isHeld) {
+        NetworkObject n_user = user.GetComponent<NetworkObject>();
+        if (PocketInventory.instance.PlayerIsInPocket(n_user)){
+            PocketInventory.instance.ReturnAllPlayersClientRpc();
+            return;
+        }
+
         string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
         if (lastUsed + cooldown > Time.time) {
             Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
@@ -57,11 +69,29 @@ public class PocketInventoryPortalKey : InventoryItem {
 
         lastUsed = Time.time;
 
-        ItemEffect(user);
+        List<GameObject> nearbyPlayers;
+        // use physics overlap sphere with radius _TELEPORT_RADIUS to grab nearby players
+        nearbyPlayers = GetNearbyPlayers(user, _TELEPORT_RADIUS);
+        foreach (GameObject player in nearbyPlayers) {
+            TeleportPlayer(player);
+        }
+        TeleportPlayer(user);
 
     }
 
-    private void ItemEffect(GameObject user) {
+    private List<GameObject> GetNearbyPlayers (GameObject user, float radius) {
+        List<GameObject> nearbyPlayers = new List<GameObject>();
+        Collider[] colliders = Physics.OverlapSphere(user.transform.position, radius);
+        foreach (Collider col in colliders) {
+            if (col.gameObject.tag == "Player") {
+                Debug.Log ("Player detected: " + col.gameObject);
+                nearbyPlayers.Add(col.gameObject);
+            }
+        }
+        return nearbyPlayers;
+    }
+
+    private void TeleportPlayer(GameObject user) {
         PocketInventory.instance.TeleportToPocketServerRpc(user);
     }
 

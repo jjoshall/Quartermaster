@@ -14,13 +14,13 @@ public class PocketInventory : NetworkBehaviour {
     public static PocketInventory instance;
 
     // public float timeEnteredPocket;
-    public NetworkVariable<double> timeEnteredPocketNetworkVar = new NetworkVariable<double>(0);
+    public NetworkVariable<double> n_timeEnteredPocketNetworkVar = new NetworkVariable<double>(0);
     public NetworkObjectReference n_storedKeyObj; // keep reference to key WorldItem if it's dropped inside the pocket.
     public NetworkVariable<bool> n_droppedPortalKeyInPocket = new NetworkVariable<bool>(false);
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     private Vector3 _teleportPosition; // static. doesn't need to be networked.
-    private NetworkList<NetworkObjectReference> _playersInPocket = new NetworkList<NetworkObjectReference>();
+    private NetworkList<NetworkObjectReference> _n_playersInPocket = new NetworkList<NetworkObjectReference>();
     // dict mapping networkobjectreference to a vector3 return position
     private Dictionary<NetworkObjectReference, Vector3> _playerReturnPositions = new Dictionary<NetworkObjectReference, Vector3>();
 
@@ -39,16 +39,16 @@ public class PocketInventory : NetworkBehaviour {
     }
 
     void Start() {
-        _playersInPocket = new NetworkList<NetworkObjectReference>();
-        timeEnteredPocketNetworkVar.Value = 0;
+        _n_playersInPocket = new NetworkList<NetworkObjectReference>();
+        n_timeEnteredPocketNetworkVar.Value = 0;
         _teleportPosition = this.transform.position + new Vector3 (0, 2, 0);
         n_storedKeyObj = new NetworkObjectReference();
     }
 
     // Update is called once per frame
     void Update() {
-        if (_playersInPocket.Count > 0) {
-            if (NetworkManager.Singleton.ServerTime.Time - timeEnteredPocketNetworkVar.Value > MAX_TIME_IN_POCKET) {
+        if (_n_playersInPocket.Count > 0) {
+            if (NetworkManager.Singleton.ServerTime.Time - n_timeEnteredPocketNetworkVar.Value > MAX_TIME_IN_POCKET) {
                 ReturnAllPlayersClientRpc();
             }
         }
@@ -62,7 +62,7 @@ public class PocketInventory : NetworkBehaviour {
     public void TeleportToPocketServerRpc(NetworkObjectReference userRef){
 
         // if (playerInPocket != null)
-        if (_playersInPocket.Count > 0) {
+        if (_n_playersInPocket.Count > 0) {
             Debug.Log ("already a player in pocket");
             return;
         }
@@ -71,8 +71,8 @@ public class PocketInventory : NetworkBehaviour {
 
             _playerReturnPositions[userRef] = user.transform.position; // save return spot
             TeleportUserToPositionClientRpc(userRef, _teleportPosition); // teleport
-            _playersInPocket.Add(userRef);
-            timeEnteredPocketNetworkVar.Value = NetworkManager.Singleton.ServerTime.Time;
+            _n_playersInPocket.Add(userRef);
+            n_timeEnteredPocketNetworkVar.Value = NetworkManager.Singleton.ServerTime.Time;
 
         }
     }
@@ -113,14 +113,14 @@ public class PocketInventory : NetworkBehaviour {
                 }
             }
 
-            _playersInPocket.Remove(n_playerObjRef);
+            _n_playersInPocket.Remove(n_playerObjRef);
             n_storedKeyObj = new NetworkObjectReference();
         }
     }
 
     [ClientRpc]
     public void ReturnAllPlayersClientRpc() {
-        foreach (NetworkObjectReference n_player in _playersInPocket){
+        foreach (NetworkObjectReference n_player in _n_playersInPocket){
             ReturnToPreviousPositionClientRpc(n_player);
         }
     }
@@ -139,6 +139,11 @@ public class PocketInventory : NetworkBehaviour {
     }
 
     public bool PlayerIsInPocket(NetworkObjectReference playerRef) {
-        return _playersInPocket.Contains(playerRef);
+        return _n_playersInPocket.Contains(playerRef);
     }
+
+    // public bool PlayerIsInPocket(GameObject user) {
+    //     NetworkObject userNetobj = user.GetComponent<NetworkObject>();
+    //     return _playersInPocket.Contains(userNetobj);
+    // }
 }
