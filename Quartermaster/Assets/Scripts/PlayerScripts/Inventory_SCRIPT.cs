@@ -150,6 +150,9 @@ public class Inventory : NetworkBehaviour {
     }
 
     void UseItem (bool isHeld) {
+        if (!IsOwner){
+            return;
+        }
         if (_inventory[_currentInventoryIndex] != null) {
             // Use the item effect.
             if (_playerObj == null) {
