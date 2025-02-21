@@ -11,9 +11,6 @@ public class EnemySpawner : NetworkBehaviour {
 
     public List<GameObject> playerList;
 
-    //private void Start() {
-    //    NetworkManager.Singleton.OnServerStarted += SpawnEnemiesStart;
-    //}
 
     // static
     public static EnemySpawner instance;
@@ -84,13 +81,13 @@ public class EnemySpawner : NetworkBehaviour {
     public void destroyEnemyServerRpc(NetworkObjectReference enemy) {
         if (!IsServer) { return; }
 
-        NetworkObjectPool.Singleton.ReturnNetworkObject(enemy, _enemyPrefab);
-        NetworkObject.Despawn(false);
+        //NetworkObjectPool.Singleton.ReturnNetworkObject(enemy, _enemyPrefab);
+        //NetworkObject.Despawn(false);
 
-        //if (enemy.TryGet(out NetworkObject networkObject))
-        //{
-        //    NetworkObjectPool.Singleton.ReturnNetworkObject(networkObject, _enemyPrefab);
-        //    enemyList.Remove(networkObject.transform);
-        //}
+        if (enemy.TryGet(out NetworkObject networkObject))
+        {
+            NetworkObjectPool.Singleton.ReturnNetworkObject(networkObject, _enemyPrefab);
+            networkObject.Despawn(false);
+        }
     }
 }

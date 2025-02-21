@@ -31,13 +31,12 @@ public class EnemyNavScript : NetworkBehaviour {
     }
 
     private void Update() {
-        //if (!NetworkManager.Singleton.IsServer) {
-        //     return;
-        //}
-
         foreach (GameObject obj in enemySpawner.playerList) {
             if (_player == null || Vector3.Distance(transform.position, obj.transform.position) < Vector3.Distance(transform.position, _player.position)) {
                 _player = obj.transform;
+
+                // Show a debug log on what position the enemy is moving to
+                Debug.Log("Enemy is moving to: " + _player.position);
             }
         }
 
@@ -63,6 +62,9 @@ public class EnemyNavScript : NetworkBehaviour {
         if (Time.time >= _pathUpdateDelay) {
             _pathUpdateDelay = Time.time + Random.Range(0.2f, 0.5f);
             _agent.SetDestination(_player.position);
+
+            // Show a debug line on what position the enemy is moving to
+            Debug.DrawLine(transform.position, _agent.destination, Color.red);
         }
     }
 }
