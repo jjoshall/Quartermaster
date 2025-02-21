@@ -159,8 +159,8 @@ public class Inventory : NetworkBehaviour {
                 Debug.Log("playerObj is null");
                 _playerObj = transform.parent.gameObject;
             }
-            string debugIsHeld = isHeld ? "true" : "false";
-            Debug.Log ("UseItem triggered with IsHeld = " + debugIsHeld);
+            // string debugIsHeld = isHeld ? "true" : "false";
+            // Debug.Log ("UseItem triggered with IsHeld = " + debugIsHeld);
             _inventory[_currentInventoryIndex].AttemptUse(_playerObj, isHeld);
 
             if (_inventory[_currentInventoryIndex].quantity <= 0) {
