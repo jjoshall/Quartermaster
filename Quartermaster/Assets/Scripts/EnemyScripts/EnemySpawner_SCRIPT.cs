@@ -9,8 +9,8 @@ public class EnemySpawner : NetworkBehaviour {
     [SerializeField] private int _maxEnemyInstanceCount = 20;
     [SerializeField] private float _spawnCooldown = 2f;
 
-    public List<GameObject> playerList;
-
+    // This networked list will be used to keep track of all players in the game so enemies can keep track of who they follow
+    public NetworkList<NetworkObjectReference> playerList;
 
     // static
     public static EnemySpawner instance;
@@ -29,21 +29,39 @@ public class EnemySpawner : NetworkBehaviour {
             return;
         }
 
+        // Initialize the player list
+        playerList = new NetworkList<NetworkObjectReference>();
+
         // Initialize the pool
         NetworkObjectPool.Singleton.OnNetworkSpawn();
         StartCoroutine(SpawnOverTime());
 
         NetworkManager.Singleton.OnClientConnectedCallback += ClientConnected;
         NetworkManager.Singleton.OnClientDisconnectCallback += ClientDisconnected;
+
+        UpdatePlayerList();
+    }
+
+    private void UpdatePlayerList()
+    {
+        playerList.Clear();
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Player"))
+        {
+            NetworkObject netObj = obj.GetComponent<NetworkObject>();
+            if (netObj != null)
+            {
+                playerList.Add(netObj);
+            }
+        }
     }
 
     private void ClientConnected(ulong u) {
-        playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
+        UpdatePlayerList();
     }
 
     private async void ClientDisconnected(ulong u) {
         await Task.Yield();
-        playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
+        UpdatePlayerList();
     }
 
     private Vector3 GetRandomPositionOnMap() {
@@ -67,9 +85,7 @@ public class EnemySpawner : NetworkBehaviour {
                 if (!enemy.IsSpawned) {
                     enemy.Spawn(true);
                 }
-                    
-                //enemyList.Add(enemy.transform);
-
+                
                 yield return new WaitForSeconds(_spawnCooldown);
             }
 
@@ -80,9 +96,6 @@ public class EnemySpawner : NetworkBehaviour {
     [ServerRpc(RequireOwnership = false)]
     public void destroyEnemyServerRpc(NetworkObjectReference enemy) {
         if (!IsServer) { return; }
-
-        //NetworkObjectPool.Singleton.ReturnNetworkObject(enemy, _enemyPrefab);
-        //NetworkObject.Despawn(false);
 
         if (enemy.TryGet(out NetworkObject networkObject))
         {
