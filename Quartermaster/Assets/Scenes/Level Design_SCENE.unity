@@ -3523,6 +3523,22 @@ PrefabInstance:
       propertyPath: GlobalObjectIdHash
       value: 2283088156
       objectReference: {fileID: 0}
+    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
+      propertyPath: particleTypesPrefabList.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
+      propertyPath: particleTypesPrefabList.Array.data[2].key
+      value: PistolBarrelFire
+      objectReference: {fileID: 0}
+    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
+      propertyPath: particleTypesPrefabList.Array.data[2].duration
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
+      propertyPath: particleTypesPrefabList.Array.data[2].particlePrefab
+      value: 
+      objectReference: {fileID: 8038196586517577084, guid: af3a2ba58d696b64c93a62c6d51ff326, type: 3}
     - target: {fileID: 5341081937763403480, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
       propertyPath: m_Name
       value: ParticleManager_PREFAB

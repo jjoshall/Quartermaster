@@ -70,11 +70,19 @@ public class Pistol : IWeapon
 
         // camera is a child, we do not know which one
         GameObject camera = user.transform.Find("Camera").gameObject;
+        // spawn the pistol barrel fire in direction of camera look
+        Quaternion attackRotation = Quaternion.LookRotation(camera.transform.forward);
+        ParticleManager.instance.SpawnSelfThenAll("PistolBarrelFire", user.transform.position, attackRotation);
+        
         //Debug.DrawRay(camera.transform.position, camera.transform.forward * 100, Color.yellow, 2f);
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, 100f, -1, QueryTriggerInteraction.Ignore)){
             Debug.Log(hit.transform.name);
             if (hit.transform.root.CompareTag("Enemy")){
-                ParticleManager.instance.SpawnSelfThenAll("Sample", hit.transform.position, Quaternion.identity);
+                // get the rotation based on surface normal of the hit on the enemy
+                Vector3 hitNormal = hit.normal;
+                Quaternion hitRotation = Quaternion.LookRotation(hitNormal);
+
+                ParticleManager.instance.SpawnSelfThenAll("Sample", hit.transform.position, hitRotation);
                 hit.transform.GetComponentInParent<Damageable>()?.InflictDamage(10, false, user);
             }
         }
