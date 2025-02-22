@@ -29,13 +29,14 @@ public class ParticleManager : NetworkBehaviour
 
     [Tooltip("List of particle types prefabs. String is key for object lookup")]
     public List<ParticleType> particleTypesPrefabList;  // Inspector setting.
-                                                        // particletype struct bundles key with prefab
+                                                        // ParticleType struct: key, duration, prefab
     private Dictionary<string, List<GameObject>> particlePool; // separate pool for each type.
                                                                // all pools are local. not networked.
     
     public struct ParticleType
     {
         public string key;
+        public float duration;
         public GameObject particlePrefab;
     }
     
@@ -124,7 +125,8 @@ public class ParticleManager : NetworkBehaviour
             GameObject typePrefab = particleTypesPrefabList.Find(x => x.key == key).particlePrefab;
             particleObj = Instantiate(typePrefab, position, rotation);
             
-            PlayParticle(particleObj);
+            float typeDuration = particleTypesPrefabList.Find(x => x.key == key).duration;
+            PlayParticle(particleObj, key, typeDuration);
         }
         else // else grab from pool.
         {
@@ -135,7 +137,8 @@ public class ParticleManager : NetworkBehaviour
             particleObj.transform.rotation = rotation;
             particleObj.SetActive(true);
 
-            PlayParticle(particleObj);
+            float typeDuration = particleTypesPrefabList.Find(x => x.key == key).duration;
+            PlayParticle(particleObj, key, typeDuration);
         }
     }
 
@@ -152,8 +155,8 @@ public class ParticleManager : NetworkBehaviour
     #endregion
 
     // Reinitialize and do any related logic on the particle obj to get it to animate/play.
-    private void PlayParticle(GameObject particle){
-        // particle.GetComponent<ParticleSystem>().Play();
+    private void PlayParticle(GameObject particle, string key, float duration){
+        particle.GetComponent<ParticleEffect>().InitializeParticle(key, duration);
     }
 
 
