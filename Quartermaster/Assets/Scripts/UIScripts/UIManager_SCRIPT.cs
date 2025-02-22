@@ -1,11 +1,13 @@
+using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour {
     [SerializeField] private RawImage selectedItemImage;
 
-    public void SetSelectedItemTexture(Texture texture)
-    {
+    [SerializeField] private GameObject settingsCanvas;
+
+    public void SetSelectedItemTexture(Texture texture) {
         if (selectedItemImage != null)
         {
             selectedItemImage.texture = texture;
@@ -19,5 +21,18 @@ public class UIManager : MonoBehaviour {
             return selectedItemImage.texture;
         }
         return null;
+    }
+
+    void Update() {
+        // if esc pressed open settings menu
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            if (settingsCanvas != null) {
+                settingsCanvas.SetActive(true);
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            } else {
+                Debug.LogWarning("SettingsCanvas not found.");
+            }
+        }
     }
 }

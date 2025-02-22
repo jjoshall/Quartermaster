@@ -16,8 +16,6 @@ public class PlayerController : NetworkBehaviour {
 
     [Header("Mini Map")]
     private Canvas miniMapCanvas;
-    private RawImage miniMapRawImage;
-
 
 
     [Header("Player Spawn Settings")]
@@ -161,6 +159,18 @@ public class PlayerController : NetworkBehaviour {
         stateMachine.SetState(walkState);
     }
 
+    public void ReloadInputActions() {
+        if (PlayerInput != null) {
+            PlayerInputSetup inputSetup = GetComponent<PlayerInputSetup>();
+            if (inputSetup != null) {
+                inputSetup.ApplySettings(SettingsManager.Instance.currentSettings);
+                Debug.Log("Re/Loaded input actions");
+            } else {
+                Debug.LogWarning("PlayerInputSetup component not found!");
+            }
+        }
+    }
+
     #endregion
 
     #region Unity Functions
@@ -182,9 +192,10 @@ public class PlayerController : NetworkBehaviour {
         health = GetComponent<Health>();
 
         miniMapCanvas = GetComponentInChildren<Canvas>(true);
-        miniMapRawImage = miniMapCanvas?.GetComponentInChildren<RawImage>();
 
         EnablePlayerControls();
+
+        ReloadInputActions();
 
 
         if (health != null) {

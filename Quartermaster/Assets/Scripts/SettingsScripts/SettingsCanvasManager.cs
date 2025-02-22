@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 using Unity.VisualScripting;
+using UnityEngine.SceneManagement;
 
 public class SettingsCanvasManager : MonoBehaviour {
 
@@ -12,8 +13,29 @@ public class SettingsCanvasManager : MonoBehaviour {
         //when button clicked disable canvas
         returnToPrevBtn.onClick.AddListener(() => {
             gameObject.SetActive(false);
+            //if local scene is not main menu, re-enable cursor
+            if (SceneManager.GetActiveScene().name != "MainMenu_SCENE") {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
+
+            PlayerController localPlayer = FindLocalPlayer();
+            if (localPlayer != null) {
+                localPlayer.ReloadInputActions();
+            }
         });
     } 
+
+    private PlayerController FindLocalPlayer() {
+        // Finds the first PlayerController where IsOwner is true.
+        PlayerController[] players = FindObjectsOfType<PlayerController>();
+        foreach(var player in players) {
+            if (player.IsOwner) {
+                return player;
+            }
+        }
+        return null;
+    }
 
     private void AddHoverEffect(Button button) {
         TextMeshProUGUI buttonText = button.GetComponentInChildren<TextMeshProUGUI>();

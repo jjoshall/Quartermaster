@@ -11,6 +11,7 @@ public class KeyBindChanger : MonoBehaviour, IPointerClickHandler {
 
     [Header("Settings")]
     public string currentKeyBinding = "None";
+    public string bindingName;
 
     public delegate void OnKeyBindChanged(string newKey);
     public event OnKeyBindChanged keyBindChangedEvent;
@@ -19,10 +20,18 @@ public class KeyBindChanger : MonoBehaviour, IPointerClickHandler {
 
     private bool isWaitingForKey = false;
 
-    private void Awake() {
-        currentKeyBinding = keyDisplayText.text;
-    }
 
+
+
+
+    private void Awake() {
+        if (SettingsManager.Instance != null) {
+            currentKeyBinding = GetSavedKeyBinding();
+            keyDisplayText.text = currentKeyBinding;
+        } else {
+            Debug.LogWarning("SettingsManager instance not found. Using default key binding.");
+        }
+    }
     // Called when the UI element is clicked.
     public void OnPointerClick(PointerEventData eventData) {
         if (!isWaitingForKey) {
@@ -76,6 +85,8 @@ public class KeyBindChanger : MonoBehaviour, IPointerClickHandler {
 
                         Debug.Log($"New key binding set: {currentKeyBinding}");
 
+                        SettingsManager.Instance.UpdateKeyBinding(bindingName, currentKeyBinding);
+
                         // Call your update method via an event or directly.
                         keyBindChangedEvent?.Invoke(currentKeyBinding);
                         yield break;
@@ -84,5 +95,31 @@ public class KeyBindChanger : MonoBehaviour, IPointerClickHandler {
             }
             yield return null;
         }
+    }
+
+    private string GetSavedKeyBinding() {
+        if (SettingsManager.Instance == null || SettingsManager.Instance.currentSettings == null) {
+            return "None";
+        }
+
+        PlayerSettings settings = SettingsManager.Instance.currentSettings;
+        return bindingName switch {
+            "moveForward" => settings.moveForward,
+            "moveBackward" => settings.moveBackward,
+            "moveLeft" => settings.moveLeft,
+            "moveRight" => settings.moveRight,
+            "sprint" => settings.sprint,
+            "crouch" => settings.crouch,
+            "pickup" => settings.pickup,
+            "drop" => settings.drop,
+            "use" => settings.use,
+            "shoot" => settings.shoot,
+            "itemslot1" => settings.itemslot1,
+            "itemslot2" => settings.itemslot2,
+            "itemslot3" => settings.itemslot3,
+            "itemslot4" => settings.itemslot4,
+            "itemscroll" => settings.itemscroll,
+            _ => "None"
+        };
     }
 }

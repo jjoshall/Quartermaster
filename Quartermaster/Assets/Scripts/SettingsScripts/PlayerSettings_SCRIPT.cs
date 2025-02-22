@@ -11,17 +11,17 @@ public class PlayerSettings {
     // Action Bindings
     public string sprint = "LeftShift";
     public string crouch = "LeftControl";
-    public string pickUp = "E";
+    public string pickup = "E";
     public string drop = "G";
     public string use = "F";
     public string shoot = "Mouse0";
 
     // Inventory Bindings
-    public string inventorySlot1 = "Alpha1";
-    public string inventorySlot2 = "Alpha2";
-    public string inventorySlot3 = "Alpha3";
-    public string inventorySlot4 = "Alpha4";
-    public string inventoryScroll = "Mouse ScrollWheel";
+    public string itemslot1 = "Alpha1";
+    public string itemslot2 = "Alpha2";
+    public string itemslot3 = "Alpha3";
+    public string itemslot4 = "Alpha4";
+    public string itemscroll = "Mouse ScrollWheel";
 
     // Additional Options
     public float mouseSensitivity = 1.0f;
