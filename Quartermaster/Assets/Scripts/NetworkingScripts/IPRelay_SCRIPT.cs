@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System.Collections;
+using System.Threading.Tasks; // Needed for Task.Delay
 
 public class IPRelay : MonoBehaviour {
     [SerializeField] private TMP_Text joinCodeText;
@@ -24,11 +25,15 @@ public class IPRelay : MonoBehaviour {
     }
 
     public async void CreateRelay() {
-        // Activate the loading panel immediately when the button is clicked.
+        // Activate and fade in the loading panel.
         if (loadingPanel != null) {
-            Debug.Log("Activating LoadingPanel");
             loadingPanel.SetActive(true);
-            Debug.Log("LoadingPanel active state after SetActive(true): " + loadingPanel.activeSelf);
+            CanvasGroup cg = loadingPanel.GetComponent<CanvasGroup>();
+            if (cg != null) {
+                Debug.Log("Fading in LoadingPanel");
+                await FadeCanvasGroup(cg, 0f, 1f, 1f); // Fade in over 1 second.
+                Debug.Log("Finished fade in");
+            }
         } else {
             Debug.LogWarning("Loading Panel reference is missing!");
         }
@@ -41,6 +46,20 @@ public class IPRelay : MonoBehaviour {
             Debug.Log("LobbyMenuCanvas enabled state: " + lobbyCanvas.enabled);
         } else {
             Debug.LogWarning("LobbyManagerUI or its Canvas reference is missing!");
+        }
+
+        // Wait 3 seconds to allow the loading panel to be visible.
+        Debug.Log("Waiting 3 seconds before proceeding...");
+        await Task.Delay(3000);
+
+        // Start fade out concurrently with network/scene initialization.
+        Task fadeOutTask = null;
+        if (loadingPanel != null) {
+            CanvasGroup cg = loadingPanel.GetComponent<CanvasGroup>();
+            if (cg != null) {
+                Debug.Log("Starting fade out concurrently with scene initialization");
+                fadeOutTask = FadeCanvasGroup(cg, 1f, 0f, 1f); // Fade out over 1 second concurrently.
+            }
         }
 
         try {
@@ -58,7 +77,7 @@ public class IPRelay : MonoBehaviour {
 
             NetworkManager.Singleton.StartHost();
 
-            // Update UI elements and hide the loading panel after a short delay.
+            // Update UI elements.
             StartCoroutine(DelayedUIEnable(joinCode));
         }
         catch (RelayServiceException e) {
@@ -67,6 +86,12 @@ public class IPRelay : MonoBehaviour {
                 Debug.Log("Disabling LoadingPanel due to error");
                 loadingPanel.SetActive(false);
             }
+        }
+
+        // Optionally, wait for fade out to finish before finishing CreateRelay().
+        if (fadeOutTask != null) {
+            await fadeOutTask;
+            Debug.Log("Finished fade out");
         }
     }
 
@@ -113,4 +138,17 @@ public class IPRelay : MonoBehaviour {
 
         lobbyManagerUI.HideLobbyUI();
     }
+
+    // Async method to fade a CanvasGroup's alpha over a given duration.
+    private async Task FadeCanvasGroup(CanvasGroup cg, float startAlpha, float endAlpha, float duration) {
+        float elapsed = 0f;
+        cg.alpha = startAlpha;
+        while (elapsed < duration) {
+            elapsed += Time.deltaTime;
+            cg.alpha = Mathf.Lerp(startAlpha, endAlpha, elapsed / duration);
+            await Task.Yield();
+        }
+        cg.alpha = endAlpha;
+    }
 }
+
