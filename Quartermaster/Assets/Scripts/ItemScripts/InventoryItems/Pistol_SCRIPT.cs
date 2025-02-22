@@ -71,7 +71,7 @@ public class Pistol : IWeapon
         GameObject camera = user.transform.Find("Camera").gameObject;
         //Debug.DrawRay(camera.transform.position, camera.transform.forward * 100, Color.yellow, 2f);
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, 100f, -1, QueryTriggerInteraction.Ignore)){
-            Debug.Log(hit.transform.name);
+            //Debug.Log(hit.transform.name);
             if (hit.transform.root.CompareTag("Enemy")){
                 hit.transform.GetComponentInParent<Damageable>()?.InflictDamage(10, false, user);
             }

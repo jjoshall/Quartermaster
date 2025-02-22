@@ -5,7 +5,9 @@ using UnityEngine;
 using System.Threading.Tasks;
 
 public class EnemySpawner : NetworkBehaviour {
-    [SerializeField] private Transform _enemyPrefab;
+    [Header("Spawner Settings")]
+    //[SerializeField] private Transform _enemyPrefab;
+    [SerializeField] private List<Transform> _enemyPrefabs;
     [SerializeField] private int _maxEnemyInstanceCount = 20;
     [SerializeField] private float _spawnCooldown = 2f;
 
@@ -53,8 +55,10 @@ public class EnemySpawner : NetworkBehaviour {
     private IEnumerator SpawnOverTime() {
         while (true) {
             if (enemyList.Count < _maxEnemyInstanceCount) {
-                Transform enemyTransform = Instantiate(_enemyPrefab, GetRandomPositionOnMap(), Quaternion.identity, transform);
-                enemyTransform.GetComponent<EnemyNavScript>().enemySpawner = this;
+                Transform enemyPrefab = GetRandomEnemyPrefab();
+                Transform enemyTransform = Instantiate(enemyPrefab, GetRandomPositionOnMap(), Quaternion.identity, transform);
+                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemySpawner = this;
+                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemyType = GetEnemyType(enemyPrefab);
                 enemyTransform.GetComponent<NetworkObject>().Spawn(true);
                 enemyList.Add(enemyTransform);
 
@@ -63,6 +67,19 @@ public class EnemySpawner : NetworkBehaviour {
 
             yield return null;
         }
+    }
+
+    private EnemyType GetEnemyType(Transform enemyPrefab)
+    {
+        if (enemyPrefab.GetComponent<MeleeEnemyInherited_SCRIPT>() != null) return EnemyType.Melee;
+        //if (enemyPrefab.GetComponent<RangedEnemyInherited_SCRIPT>() != null) return EnemyType.Ranged;
+        return EnemyType.Melee;
+    }
+
+    private Transform GetRandomEnemyPrefab()
+    {
+        if (_enemyPrefabs.Count == 0) return null;
+        return _enemyPrefabs[Random.Range(0, _enemyPrefabs.Count)];
     }
 
     [ServerRpc(RequireOwnership = false)]

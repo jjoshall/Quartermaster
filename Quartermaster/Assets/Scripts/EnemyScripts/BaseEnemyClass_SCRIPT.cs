@@ -5,18 +5,21 @@ using Unity.Netcode;
 public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [Header("Enemy Settings")]
     public float attackRange = 2f;
-    public int damage = 1;
+    public int damage = 10;
     public EnemyType enemyType;
+    private float _nextTargetUpdateTime;
 
     protected NavMeshAgent agent;
     protected Transform target;
     protected Health health;
+    public EnemySpawner enemySpawner;
 
     protected virtual void Awake() {
         agent = GetComponent<NavMeshAgent>();
         health = GetComponent<Health>();
 
-        if (health != null) {
+        if (health != null)
+        {
             health.OnDamaged += OnDamaged;
             health.OnDie += OnDie;
         }
@@ -25,19 +28,30 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     public override void OnNetworkSpawn() {
         if (!IsServer) {
             enabled = false;
+            agent.enabled = false;
             return;
         }
 
-        FindNearestPlayer();
-        InvokeRepeating(nameof(UpdateTarget), 0, 0.1f);
+        NetworkManager.Singleton.OnClientDisconnectCallback += ClientDisconnected;
+        enemySpawner = EnemySpawner.instance;
+    }
+
+    private void ClientDisconnected(ulong u)
+    {
+        target = null;
     }
 
     protected virtual void Update() {
-        if (!IsServer || target == null) return;
+        // Update target every .2 seconds
+        if (Time.time >= _nextTargetUpdateTime) {
+            _nextTargetUpdateTime = Time.time + 0.2f;
+            UpdateTarget();
+        }
 
-        float distance = Vector3.Distance(transform.position, target.position);
+        //float distance = Vector3.Distance(transform.position, target.position);
+        bool inRange = Vector3.Distance(transform.position, target.position) <= attackRange;
 
-        if (distance <= attackRange) {
+        if (inRange) {
             Attack();
         }
         else {
@@ -45,22 +59,24 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         }
     }
 
-    protected void FindNearestPlayer() {
-        // CHANGE THIS TO NAVSCRIPT???
+    protected void UpdateTarget()
+    {
+        if (enemySpawner == null || enemySpawner.playerList == null) return;
 
-        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-        if (players.Length == 0) return;
+        GameObject closestPlayer = null;
+        float closestDistance = float.MaxValue;
 
-        target = players[0].transform;
-        foreach (GameObject player in players) {
-            if (Vector3.Distance(transform.position, player.transform.position) < Vector3.Distance(transform.position, target.position)) {
-                target = player.transform;
+        foreach (GameObject obj in enemySpawner.playerList)
+        {
+            float distance = Vector3.Distance(transform.position, obj.transform.position);
+            if (distance < closestDistance)
+            {
+                closestPlayer = obj;
+                closestDistance = distance;
             }
         }
-    }
 
-    protected void UpdateTarget() {
-        FindNearestPlayer();
+        target = closestPlayer != null ? closestPlayer.transform : null;
     }
 
     protected abstract void Attack();
@@ -70,7 +86,10 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     }
 
     protected virtual void OnDie() {
-        EnemySpawner.instance.destroyEnemyServerRpc(GetComponent<NetworkObject>());
+        if (enemySpawner != null)
+        {
+            enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
+        }
     }
 }
 
