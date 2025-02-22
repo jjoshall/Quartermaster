@@ -45,8 +45,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 823819638
-  InScenePlacedSourceGlobalObjectIdHash: 0
+  GlobalObjectIdHash: 2283088156
+  InScenePlacedSourceGlobalObjectIdHash: 823819638
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
@@ -73,5 +73,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   particleTypesPrefabList:
   - key: Sample
-    duration: 1
+    duration: 2
     particlePrefab: {fileID: 8038196586517577084, guid: 20aff5e8ee3c5974cbf0848cfae5da26, type: 3}
+  - key: Healing
+    duration: 2.3
+    particlePrefab: {fileID: 8038196586517577084, guid: f4e6f4a7113f9224b94f62c300e588c5, type: 3}
