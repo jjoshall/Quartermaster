@@ -9,6 +9,7 @@ public class EnemySpawner : NetworkBehaviour {
     //[SerializeField] private Transform _enemyPrefab;
     [SerializeField] private List<Transform> _enemyPrefabs;
     [SerializeField] private int _maxEnemyInstanceCount = 20;
+    public bool isSpawning = true;
     [SerializeField] private float _spawnCooldown = 2f;
 
     public List<Transform> enemyList = new List<Transform>();
@@ -54,7 +55,7 @@ public class EnemySpawner : NetworkBehaviour {
 
     private IEnumerator SpawnOverTime() {
         while (true) {
-            if (enemyList.Count < _maxEnemyInstanceCount) {
+            if (enemyList.Count < _maxEnemyInstanceCount && isSpawning) {
                 Transform enemyPrefab = GetRandomEnemyPrefab();
                 Transform enemyTransform = Instantiate(enemyPrefab, GetRandomPositionOnMap(), Quaternion.identity, transform);
                 enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemySpawner = this;
