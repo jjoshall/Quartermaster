@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Netcode;
 
 public class Pistol : IWeapon
 {
@@ -73,6 +74,7 @@ public class Pistol : IWeapon
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, 100f, -1, QueryTriggerInteraction.Ignore)){
             Debug.Log(hit.transform.name);
             if (hit.transform.root.CompareTag("Enemy")){
+                ParticleManager.instance.SpawnSelfThenAll("Sample", hit.transform.position, Quaternion.identity);
                 hit.transform.GetComponentInParent<Damageable>()?.InflictDamage(10, false, user);
             }
         }

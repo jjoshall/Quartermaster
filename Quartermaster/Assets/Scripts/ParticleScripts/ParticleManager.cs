@@ -28,11 +28,13 @@ public class ParticleManager : NetworkBehaviour
     #region = Variables 
 
     [Tooltip("List of particle types prefabs. String is key for object lookup")]
+    [SerializeField]
     public List<ParticleType> particleTypesPrefabList;  // Inspector setting.
                                                         // ParticleType struct: key, duration, prefab
     private Dictionary<string, List<GameObject>> particlePool; // separate pool for each type.
                                                                // all pools are local. not networked.
     
+    [System.Serializable]
     public struct ParticleType
     {
         public string key;
@@ -48,6 +50,7 @@ public class ParticleManager : NetworkBehaviour
     #region = Initialization
     void Start()
     {
+        particlePool = new Dictionary<string, List<GameObject>>();
         // Initialize an object pool list in the dictionary for each particleType
         foreach (ParticleType particleType in particleTypesPrefabList){
             if (particlePool.ContainsKey(particleType.key)){
@@ -58,13 +61,6 @@ public class ParticleManager : NetworkBehaviour
         }
 
     }
-
-    // Update is called once per frame
-    // void Update()
-    // {
-        
-    // }
-    
     #endregion
 
 
@@ -73,8 +69,9 @@ public class ParticleManager : NetworkBehaviour
     #region = ParticleStuff
 
     // Calls local spawn for self, then calls serverRpc which tells others to local spawn.
-    public void SpawnSelfThenAll(string key, Vector3 position, Quaternion rotation, ulong clientId)
+    public void SpawnSelfThenAll(string key, Vector3 position, Quaternion rotation)
     {
+        ulong localClientId = NetworkManager.Singleton.LocalClientId;
         if (!particlePool.ContainsKey(key))
         {
             Debug.LogError("Particle key not found in ParticleManager: " + key);
@@ -82,10 +79,10 @@ public class ParticleManager : NetworkBehaviour
         }
         SpawnParticleLocal(key, position, rotation);
         // Call SpawnParticleForOtherClientsServerRpc with the calling player's client id
-        SpawnParticleForOthersServerRpc(key, position, rotation, clientId);
+        SpawnParticleForOthersServerRpc(key, position, rotation, localClientId);
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     public void SpawnParticleForOthersServerRpc(string key, Vector3 position, Quaternion rotation, ulong clientId)
     {
         // iterate over each client except clientId
