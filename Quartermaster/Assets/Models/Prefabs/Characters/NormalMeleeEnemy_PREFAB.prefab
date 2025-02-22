@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 7631245261395493158}
   - component: {fileID: 4975842382590010180}
   - component: {fileID: 4520578236394344229}
+  - component: {fileID: -2027645830383652111}
   m_Layer: 0
   m_Name: NormalMeleeEnemy_PREFAB
   m_TagString: Enemy
@@ -72,7 +73,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: ab424d40754e3de40a1b3c8b05150fee, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -233,7 +234,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5518635a2dce475cace5f584bfb1fa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 40
+  MaxHealth: 30
   CriticalHealthRatio: 0.3
 --- !u!114 &4975842382590010180
 MonoBehaviour:
@@ -267,3 +268,18 @@ MonoBehaviour:
   enemyType: 0
   enemySpawner: {fileID: 0}
   attackCooldown: 1
+--- !u!114 &-2027645830383652111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4108908729984213791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c244c3f3df27344380f0f1d05e36e0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  m_health: {fileID: 0}
+  m_renderer: {fileID: 0}

@@ -14,17 +14,6 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected Health health;
     public EnemySpawner enemySpawner;
 
-    protected virtual void Awake() {
-        agent = GetComponent<NavMeshAgent>();
-        health = GetComponent<Health>();
-
-        if (health != null)
-        {
-            health.OnDamaged += OnDamaged;
-            health.OnDie += OnDie;
-        }
-    }
-
     public override void OnNetworkSpawn() {
         if (!IsServer) {
             enabled = false;
@@ -33,6 +22,16 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         }
 
         NetworkManager.Singleton.OnClientDisconnectCallback += ClientDisconnected;
+
+        agent = GetComponent<NavMeshAgent>();
+        health = GetComponent<Health>();
+
+        if (health != null)
+        {
+            health.OnDamaged += OnDamaged;
+            health.OnDie += OnDie;
+        }
+
         enemySpawner = EnemySpawner.instance;
     }
 
@@ -86,10 +85,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     }
 
     protected virtual void OnDie() {
-        if (enemySpawner != null)
-        {
-            enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
-        }
+        enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
     }
 }
 
