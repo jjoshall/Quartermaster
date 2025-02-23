@@ -61,18 +61,10 @@ public class PlayerInputSetup : NetworkBehaviour
             settings.itemscroll);
     }
 
-    /// <summary>
-    /// Finds the binding(s) on the specified action that match the device type inferred from the new binding string,
-    /// removes any existing override, and applies the new override.
-    /// </summary>
-    /// <param name="actions">The InputActionAsset containing the action.</param>
-    /// <param name="actionName">The name of the action to rebind.</param>
-    /// <param name="newBinding">The new binding string (for example, "<Keyboard>/w").</param>
     void RebindAction(InputActionAsset actions, string actionName, string newBinding)
     {
         InputAction action = actions.FindAction(actionName);
-        if (action != null)
-        {
+        if (action != null) {
             // Determine the device type from the new binding string.
             string deviceType = "";
             if (newBinding.StartsWith("<Keyboard>/"))
