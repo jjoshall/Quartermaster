@@ -26,8 +26,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         agent = GetComponent<NavMeshAgent>();
         health = GetComponent<Health>();
 
-        if (health != null)
-        {
+        if (health != null) {
             health.OnDamaged += OnDamaged;
             health.OnDie += OnDie;
         }
@@ -35,8 +34,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         enemySpawner = EnemySpawner.instance;
     }
 
-    private void ClientDisconnected(ulong u)
-    {
+    private void ClientDisconnected(ulong u) {
         target = null;
     }
 
@@ -58,18 +56,15 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         }
     }
 
-    protected void UpdateTarget()
-    {
+    protected void UpdateTarget() {
         if (enemySpawner == null || enemySpawner.playerList == null) return;
 
         GameObject closestPlayer = null;
         float closestDistance = float.MaxValue;
 
-        foreach (GameObject obj in enemySpawner.playerList)
-        {
+        foreach (GameObject obj in enemySpawner.playerList) {
             float distance = Vector3.Distance(transform.position, obj.transform.position);
-            if (distance < closestDistance)
-            {
+            if (distance < closestDistance) {
                 closestPlayer = obj;
                 closestDistance = distance;
             }

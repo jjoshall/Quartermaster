@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections;
+using Unity.Netcode;
+using System;
 
 public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     private bool _canAttack = true;
@@ -9,22 +11,33 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         if (!_canAttack) return;
         _canAttack = false;
 
-        StartCoroutine(AttackRoutine());
+        //StartCoroutine(AttackRoutine());
+        InvokeRepeating(nameof(AttackServerRpc), 0f, attackCooldown);
     }
 
-    private IEnumerator AttackRoutine() {
-        yield return new WaitForSeconds(attackCooldown);
+    [ServerRpc(RequireOwnership = false)]
+    private void AttackServerRpc() {
+        if (!IsServer) return;
 
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRange);
+        // Perform the overlap sphere cast
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1.5f);
 
-        foreach (var hitCollider in hitColliders)
-        {
+        // Loop through all the colliders that were detected within the sphere
+        foreach (var hitCollider in hitColliders) {
+            // Check if the collider has the "Player" tag
             if (hitCollider.CompareTag("Player"))
             {
-                hitCollider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
+                DamagePlayerClientRpc(hitColliders[0].gameObject.GetComponent<NetworkObject>());
             }
         }
 
         _canAttack = true;
+    }
+
+    [ClientRpc]
+    private void DamagePlayerClientRpc(NetworkObjectReference playerRef) {
+        if (playerRef.TryGet(out NetworkObject playerObject)) {
+            playerObject.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
+        }
     }
 }

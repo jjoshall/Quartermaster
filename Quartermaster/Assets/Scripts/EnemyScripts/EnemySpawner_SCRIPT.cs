@@ -70,15 +70,13 @@ public class EnemySpawner : NetworkBehaviour {
         }
     }
 
-    private EnemyType GetEnemyType(Transform enemyPrefab)
-    {
+    private EnemyType GetEnemyType(Transform enemyPrefab) {
         if (enemyPrefab.GetComponent<MeleeEnemyInherited_SCRIPT>() != null) return EnemyType.Melee;
         //if (enemyPrefab.GetComponent<RangedEnemyInherited_SCRIPT>() != null) return EnemyType.Ranged;
         return EnemyType.Melee;
     }
 
-    private Transform GetRandomEnemyPrefab()
-    {
+    private Transform GetRandomEnemyPrefab() {
         if (_enemyPrefabs.Count == 0) return null;
         return _enemyPrefabs[Random.Range(0, _enemyPrefabs.Count)];
     }
