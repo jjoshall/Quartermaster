@@ -38,31 +38,21 @@ public class Health : NetworkBehaviour {
     public void HealServerRpc(float healAmount) {
         if (!IsServer) return;
 
-        Debug.Log("Amount to heal: " + healAmount);
         float healthBefore = CurrentHealth.Value;
         CurrentHealth.Value += healAmount;
         CurrentHealth.Value = Mathf.Clamp(CurrentHealth.Value, 0f, MaxHealth);
-        Debug.Log("Current health after healing: " + CurrentHealth.Value);
-        Debug.Log("Max health should be: " + MaxHealth);
 
         // call OnHeal action
         float trueHealAmount = CurrentHealth.Value - healthBefore;
-        Debug.Log("True heal amount: " + trueHealAmount);
         if (trueHealAmount > 0f) {
-            Debug.Log("Invoking OnHealed");
             OnHealed?.Invoke(trueHealAmount);
-
-            Debug.Log("Calling HealClientRpc with heal amount: " + trueHealAmount);
             HealClientRpc(trueHealAmount);
         }
     }
 
     [ClientRpc]
-    private void HealClientRpc(float trueHealAmount)
-    {
+    private void HealClientRpc(float trueHealAmount) {
         if (IsServer) return;
-
-        Debug.Log("Invoking OnHealed with healAmount: " + trueHealAmount);
         OnHealed?.Invoke(trueHealAmount);
     }
 
@@ -70,9 +60,8 @@ public class Health : NetworkBehaviour {
     public void TakeDamageServerRpc(float damage, NetworkObjectReference damageSourceRef) {
         if (!IsServer || Invincible) return;
 
-        float healthBefore = CurrentHealth.Value;   // healthBefore = 100
-        Debug.Log("Current Health: " + healthBefore);
-        CurrentHealth.Value -= damage;  // Damage = 10, CurrentHealth = 100 - 10 = 90
+        float healthBefore = CurrentHealth.Value;
+        CurrentHealth.Value -= damage;
         CurrentHealth.Value = Mathf.Clamp(CurrentHealth.Value, 0f, MaxHealth);
         GameObject damageSource = null;
 
@@ -81,14 +70,10 @@ public class Health : NetworkBehaviour {
         }
 
         // call OnDamage action
-        float trueDamageAmount = healthBefore - CurrentHealth.Value;    // 100 - 90 = 10
-        Debug.Log("True damage amount: " + trueDamageAmount);   // 10
+        float trueDamageAmount = healthBefore - CurrentHealth.Value;
         if (trueDamageAmount > 0f) {
-            Debug.Log("Invoking OnDamaged");
-            OnDamaged?.Invoke(trueDamageAmount, damageSource);  // 10, enemy
-
-            Debug.Log("Calling UpdateClientHealthClientRpc with CurrentHealth: " + CurrentHealth.Value);
-            UpdateClientHealthClientRpc(trueDamageAmount, damageSourceRef);    // 10, enemy
+            OnDamaged?.Invoke(trueDamageAmount, damageSource);
+            UpdateClientHealthClientRpc(trueDamageAmount, damageSourceRef);
         }
 
         HandleDeath();
@@ -98,15 +83,11 @@ public class Health : NetworkBehaviour {
     private void UpdateClientHealthClientRpc(float trueDamageAmount, NetworkObjectReference damageSourceRef) {
         if (IsServer) return;
 
-        Debug.Log("Calling UpdateClientHealthClientRpc with true damage: " + trueDamageAmount);
-
         GameObject damageSource = null;
         if (damageSourceRef.TryGet(out NetworkObject networkObject)) {
             damageSource = networkObject.gameObject;
-            Debug.Log("Damage source: " + damageSource);
         }
 
-        Debug.Log("Invoking OnDamaged");
         OnDamaged?.Invoke(trueDamageAmount, damageSource);
     }
 
@@ -124,12 +105,9 @@ public class Health : NetworkBehaviour {
         /*if (IsDead)
             return;*/
 
-        
         if (CurrentHealth.Value <= 0f) {
-            Debug.Log("Player died, respawning if host");
             IsDead = true;
             OnDie?.Invoke();
-            Debug.Log("If client, calling ClientRpc to tell client to die/respawn");
             NotifyDeathClientRpc();
         }        
     }
@@ -137,8 +115,6 @@ public class Health : NetworkBehaviour {
     [ClientRpc]
     private void NotifyDeathClientRpc() {
         if (IsServer) return;
-
-        Debug.Log("Client got death noti");
         OnDie?.Invoke();
     }
 }

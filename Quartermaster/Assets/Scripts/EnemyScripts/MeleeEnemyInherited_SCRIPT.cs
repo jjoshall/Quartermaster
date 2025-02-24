@@ -11,8 +11,7 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         if (!_canAttack) return;
         _canAttack = false;
 
-        if (IsServer)
-        {
+        if (IsServer) {
             AttackServerRpc();
         }
 
