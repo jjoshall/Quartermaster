@@ -149,6 +149,7 @@ public class PlayerController : NetworkBehaviour {
         if (health != null) {
             health.OnDie += OnDie;
             health.OnDamaged += OnDamaged;
+            health.OnHealed += OnHealed;
         }
 
         InitializeStateMachine();
@@ -360,13 +361,17 @@ public class PlayerController : NetworkBehaviour {
         enableCharacterController();
 
         if (health != null) {
-            health.Heal(1000f);
+            health.HealServerRpc(1000f);
             health.Invincible = false;
         }
     }
 
     void OnDamaged(float damage, GameObject damageSource) {
         Debug.Log($"[{Time.time}] {gameObject.name} took {damage} damage. Health Ratio: {health.GetRatio()}");
+    }
+
+    void OnHealed(float healAmount) {
+        Debug.Log($"[{Time.time}] {gameObject.name} healed for {healAmount} health. Health Ratio: {health.GetRatio()}");
     }
 
     #endregion

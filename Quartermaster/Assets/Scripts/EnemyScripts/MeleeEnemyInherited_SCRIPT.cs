@@ -11,7 +11,6 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         if (!_canAttack) return;
         _canAttack = false;
 
-        //StartCoroutine(AttackRoutine());
         InvokeRepeating(nameof(AttackServerRpc), 2f, attackCooldown);
     }
 

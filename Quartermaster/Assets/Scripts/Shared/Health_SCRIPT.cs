@@ -34,18 +34,36 @@ public class Health : NetworkBehaviour {
         CurrentHealth.Value = MaxHealth;
     }
 
-    public void Heal(float healAmount) {
+    [ServerRpc(RequireOwnership = false)]
+    public void HealServerRpc(float healAmount) {
         if (!IsServer) return;
-        
+
+        Debug.Log("Amount to heal: " + healAmount);
         float healthBefore = CurrentHealth.Value;
         CurrentHealth.Value += healAmount;
         CurrentHealth.Value = Mathf.Clamp(CurrentHealth.Value, 0f, MaxHealth);
+        Debug.Log("Current health after healing: " + CurrentHealth.Value);
+        Debug.Log("Max health should be: " + MaxHealth);
 
         // call OnHeal action
         float trueHealAmount = CurrentHealth.Value - healthBefore;
+        Debug.Log("True heal amount: " + trueHealAmount);
         if (trueHealAmount > 0f) {
+            Debug.Log("Invoking OnHealed");
             OnHealed?.Invoke(trueHealAmount);
+
+            Debug.Log("Calling HealClientRpc with heal amount: " + trueHealAmount);
+            HealClientRpc(trueHealAmount);
         }
+    }
+
+    [ClientRpc]
+    private void HealClientRpc(float trueHealAmount)
+    {
+        if (IsServer) return;
+
+        Debug.Log("Invoking OnHealed with healAmount: " + trueHealAmount);
+        OnHealed?.Invoke(trueHealAmount);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -53,7 +71,7 @@ public class Health : NetworkBehaviour {
         if (!IsServer || Invincible) return;
 
         float healthBefore = CurrentHealth.Value;   // healthBefore = 100
-        Debug.Log(healthBefore);
+        Debug.Log("Current Health: " + healthBefore);
         CurrentHealth.Value -= damage;  // Damage = 10, CurrentHealth = 100 - 10 = 90
         CurrentHealth.Value = Mathf.Clamp(CurrentHealth.Value, 0f, MaxHealth);
         GameObject damageSource = null;
