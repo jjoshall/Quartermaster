@@ -3,6 +3,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using Unity.Netcode;
+using System;
 
 public class Health : NetworkBehaviour {
     [Tooltip("Maximum amount of health")] 
@@ -51,10 +52,10 @@ public class Health : NetworkBehaviour {
     public void TakeDamageServerRpc(float damage, NetworkObjectReference damageSourceRef) {
         if (!IsServer || Invincible) return;
 
-        float healthBefore = CurrentHealth.Value;
-        CurrentHealth.Value -= damage;
+        float healthBefore = CurrentHealth.Value;   // healthBefore = 100
+        Debug.Log(healthBefore);
+        CurrentHealth.Value -= damage;  // Damage = 10, CurrentHealth = 100 - 10 = 90
         CurrentHealth.Value = Mathf.Clamp(CurrentHealth.Value, 0f, MaxHealth);
-
         GameObject damageSource = null;
 
         if (damageSourceRef.TryGet(out NetworkObject networkObject)) {
@@ -62,12 +63,33 @@ public class Health : NetworkBehaviour {
         }
 
         // call OnDamage action
-        float trueDamageAmount = healthBefore - CurrentHealth.Value;
+        float trueDamageAmount = healthBefore - CurrentHealth.Value;    // 100 - 90 = 10
+        Debug.Log("True damage amount: " + trueDamageAmount);   // 10
         if (trueDamageAmount > 0f) {
-            OnDamaged?.Invoke(trueDamageAmount, damageSource);
+            Debug.Log("Invoking OnDamaged");
+            OnDamaged?.Invoke(trueDamageAmount, damageSource);  // 10, enemy
+
+            Debug.Log("Calling UpdateClientHealthClientRpc with CurrentHealth: " + CurrentHealth.Value);
+            UpdateClientHealthClientRpc(trueDamageAmount, damageSourceRef);    // 10, enemy
         }
 
         HandleDeath();
+    }
+
+    [ClientRpc]
+    private void UpdateClientHealthClientRpc(float trueDamageAmount, NetworkObjectReference damageSourceRef) {
+        if (IsServer) return;
+
+        Debug.Log("Calling UpdateClientHealthClientRpc with true damage: " + trueDamageAmount);
+
+        GameObject damageSource = null;
+        if (damageSourceRef.TryGet(out NetworkObject networkObject)) {
+            damageSource = networkObject.gameObject;
+            Debug.Log("Damage source: " + damageSource);
+        }
+
+        Debug.Log("Invoking OnDamaged");
+        OnDamaged?.Invoke(trueDamageAmount, damageSource);
     }
 
     public void Kill() {
@@ -83,7 +105,7 @@ public class Health : NetworkBehaviour {
     void HandleDeath() {
         /*if (IsDead)
             return;*/
-        
+
         if (CurrentHealth.Value <= 0f) {
             IsDead = true;
             OnDie?.Invoke();

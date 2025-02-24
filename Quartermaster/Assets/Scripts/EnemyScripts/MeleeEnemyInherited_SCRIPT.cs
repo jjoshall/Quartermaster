@@ -5,14 +5,14 @@ using System;
 
 public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     private bool _canAttack = true;
-    public float attackCooldown = 1f;
+    public float attackCooldown = 5f;
 
     protected override void Attack() {
         if (!_canAttack) return;
         _canAttack = false;
 
         //StartCoroutine(AttackRoutine());
-        InvokeRepeating(nameof(AttackServerRpc), 0f, attackCooldown);
+        InvokeRepeating(nameof(AttackServerRpc), 2f, attackCooldown);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -25,19 +25,11 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         // Loop through all the colliders that were detected within the sphere
         foreach (var hitCollider in hitColliders) {
             // Check if the collider has the "Player" tag
-            if (hitCollider.CompareTag("Player"))
-            {
-                DamagePlayerClientRpc(hitColliders[0].gameObject.GetComponent<NetworkObject>());
+            if (hitCollider.CompareTag("Player")) {
+                hitCollider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
             }
         }
 
         _canAttack = true;
-    }
-
-    [ClientRpc]
-    private void DamagePlayerClientRpc(NetworkObjectReference playerRef) {
-        if (playerRef.TryGet(out NetworkObject playerObject)) {
-            playerObject.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
-        }
     }
 }
