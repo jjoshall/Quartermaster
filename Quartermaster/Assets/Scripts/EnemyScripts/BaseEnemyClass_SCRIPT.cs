@@ -5,7 +5,7 @@ using Unity.Netcode;
 public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [Header("Enemy Settings")]
     public float attackRange = 2f;
-    public int damage = 10;
+    public int damage = 1;
     public EnemyType enemyType;
     private float _nextTargetUpdateTime;
 

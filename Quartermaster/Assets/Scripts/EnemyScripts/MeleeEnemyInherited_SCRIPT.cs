@@ -5,13 +5,23 @@ using System;
 
 public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     private bool _canAttack = true;
-    public float attackCooldown = 5f;
+    public float attackCooldown = 2f;
 
     protected override void Attack() {
         if (!_canAttack) return;
         _canAttack = false;
 
-        InvokeRepeating(nameof(AttackServerRpc), 2f, attackCooldown);
+        if (IsServer)
+        {
+            AttackServerRpc();
+        }
+
+        StartCoroutine(ResetAttackCooldown());
+    }
+
+    private IEnumerator ResetAttackCooldown() {
+        yield return new WaitForSeconds(attackCooldown);
+        _canAttack = true;
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -28,7 +38,5 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
                 hitCollider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
             }
         }
-
-        _canAttack = true;
     }
 }
