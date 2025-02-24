@@ -106,9 +106,21 @@ public class Health : NetworkBehaviour {
         /*if (IsDead)
             return;*/
 
+        
         if (CurrentHealth.Value <= 0f) {
+            Debug.Log("Player died, respawning if host");
             IsDead = true;
             OnDie?.Invoke();
-        }
+            Debug.Log("If client, calling ClientRpc to tell client to die/respawn");
+            NotifyDeathClientRpc();
+        }        
+    }
+
+    [ClientRpc]
+    private void NotifyDeathClientRpc() {
+        if (IsServer) return;
+
+        Debug.Log("Client got death noti");
+        OnDie?.Invoke();
     }
 }
