@@ -1,7 +1,7 @@
+using Unity.Netcode;
 using UnityEngine;
 
-public class Damageable : MonoBehaviour
-{
+public class Damageable : MonoBehaviour {
     [Tooltip("Multiplier to apply to the received damage")]
     public float DamageMultiplier = 1f;
 
@@ -10,36 +10,33 @@ public class Damageable : MonoBehaviour
 
     public Health Health { get; private set; }
 
-    void Awake()
-    {
+    void Awake() {
         // find the health component either at the same level, or higher in the hierarchy
         Health = GetComponent<Health>();
-        if (!Health)
-        {
+        if (!Health) {
             Health = GetComponentInParent<Health>();
         }
     }
 
-    public void InflictDamage(float damage, bool isExplosionDamage, GameObject damageSource)
-    {
-        if (Health)
-        {
+    public void InflictDamage(float damage, bool isExplosionDamage, GameObject damageSource) {
+        if (Health) {
             var totalDamage = damage;
 
             // explosive damage does not crit
-            if (!isExplosionDamage)
-            {
+            if (!isExplosionDamage) {
                 totalDamage *= DamageMultiplier;
             }
 
             // self inflicted damage is lowered
-            if (Health.gameObject == damageSource)
-            {
+            if (Health.gameObject == damageSource) {
                 totalDamage *= SensibilityToSelfdamage;
             }
 
             // apply the damages
-            Health.TakeDamage(totalDamage, damageSource);
+            if (damageSource.TryGetComponent(out NetworkObject damageNetworkObject)) {
+                NetworkObjectReference damageSourceRef = damageNetworkObject;
+                Health.TakeDamageServerRpc(totalDamage, damageSourceRef);
+            }
         }
     }
 }

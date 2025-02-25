@@ -76,7 +76,7 @@ public class Pistol : IWeapon
         
         //Debug.DrawRay(camera.transform.position, camera.transform.forward * 100, Color.yellow, 2f);
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, 100f, -1, QueryTriggerInteraction.Ignore)){
-            Debug.Log(hit.transform.name);
+            //Debug.Log(hit.transform.name);
             if (hit.transform.root.CompareTag("Enemy")){
                 // get the rotation based on surface normal of the hit on the enemy
                 Vector3 hitNormal = hit.normal;

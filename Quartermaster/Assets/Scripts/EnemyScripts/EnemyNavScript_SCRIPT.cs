@@ -3,67 +3,63 @@ using UnityEngine;
 using UnityEngine.AI;
 
 public class EnemyNavScript : NetworkBehaviour {
-     [HideInInspector] public EnemySpawner enemySpawner;
-     private Transform _player;
-     private NavMeshAgent _agent;
+    public EnemySpawner enemySpawner;
+    private Transform _player;
+    private NavMeshAgent _agent;
 
-     [Tooltip("Path will update at a random float time between 0.05 - 0.1 seconds so that all enemies don't update at the same time causing performance issues")]
-     [SerializeField] private float _attackDistance = 2;
-     private float _pathUpdateDelay;
+    [SerializeField] private float _attackDistance = 2;
+    
+    [Tooltip("Path will update at a random float time between 0.05 - 0.1 seconds so that all enemies don't update at the same time causing performance issues")]
+    private float _pathUpdateDelay;
 
-     public override void OnNetworkSpawn() {
-          if (!IsServer) {
-               enabled = false;
-               GetComponent<NavMeshAgent>().enabled = false;
-               return;
-          }
+    public override void OnNetworkSpawn() {
+        if (!IsServer) {
+            enabled = false;
+            GetComponent<NavMeshAgent>().enabled = false;
+            return;
+        }
 
-          NetworkManager.Singleton.OnClientDisconnectCallback += ClientDisconnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback += ClientDisconnected;
 
-          _agent = GetComponent<NavMeshAgent>();
-          // animator = GetComponent<Animator>();
+        _agent = GetComponent<NavMeshAgent>();
+        // animator = GetComponent<Animator>();
 
-          _pathUpdateDelay = Random.Range(0.05f, 0.1f);
-     }
+        _pathUpdateDelay = Random.Range(0.05f, 0.1f);
+    }
 
-     private void ClientDisconnected(ulong u) {
-          _player = null;
-     }
+    private void ClientDisconnected(ulong u) {
+        _player = null;
+    }
 
-     private void Update() {
-          //if (!NetworkManager.Singleton.IsServer) {
-          //     return;
-          //}
+    private void Update() {
+        foreach (GameObject obj in enemySpawner.playerList)
+        {
+            if (_player == null || Vector3.Distance(obj.transform.position, transform.position) < Vector3.Distance(_player.transform.position, transform.position))
+            {
+                _player = obj.transform;
+            }
+        }
 
-          foreach (GameObject obj in enemySpawner.playerList) {
-               if (_player == null || Vector3.Distance(transform.position, obj.transform.position) 
-                                   < Vector3.Distance(transform.position, _player.position)) {
-                    _player = obj.transform;
-               }
-          }
+        bool inRange = Vector3.Distance(transform.position, _player.position) <= _attackDistance;
 
-          if (_player != null) {
-               bool inRange = Vector3.Distance(transform.position, _player.position) <= _attackDistance;
+        if (inRange) {
+            LookAtTarget();
+        } else {
+            UpdatePath();
+        }
+    }
 
-               if (inRange) {
-                    LookAtTarget();
-               } else {
-                    UpdatePath();
-               }
-          }
-     }
-
-     private void LookAtTarget() {
-          Vector3 lookPos = _player.position - transform.position;
-          lookPos.y = 0;
-          Quaternion rotation = Quaternion.LookRotation(lookPos);
-          transform.rotation = Quaternion.Slerp(transform.rotation, rotation, 0.2f);
-     }
+    private void LookAtTarget() {
+        Vector3 lookPos = _player.position - transform.position;
+        lookPos.y = 0;
+        Quaternion rotation = Quaternion.LookRotation(lookPos);
+        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, 0.2f);
+    }
      
-     private void UpdatePath() {
-          if (Time.time >= _pathUpdateDelay) {
-               _pathUpdateDelay = Time.time + Random.Range(0.2f, 0.5f);
-               _agent.SetDestination(_player.position);
-          }
-     }
+    private void UpdatePath() {
+        if (Time.time >= _pathUpdateDelay) {
+            _pathUpdateDelay = Time.time + Random.Range(0.01f, 0.2f);
+            _agent.SetDestination(_player.position);
+        }
+    }
 }
