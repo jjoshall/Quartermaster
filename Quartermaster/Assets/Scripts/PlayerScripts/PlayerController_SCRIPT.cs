@@ -190,6 +190,7 @@ public class PlayerController : NetworkBehaviour {
         if (health != null) {
             health.OnDie += OnDie;
             health.OnDamaged += OnDamaged;
+            health.OnHealed += OnHealed;
         }
 
         InitializeStateMachine();
@@ -403,12 +404,12 @@ public class PlayerController : NetworkBehaviour {
 
         playerVelocity = Vector3.zero;
         targetHeight = CapsuleHeightStanding;
-        toggleCharacterController();
+        disableCharacterController();
         transform.position = Vector3.zero;
-        toggleCharacterController();
+        enableCharacterController();
 
         if (health != null) {
-            health.Heal(1000f);
+            health.HealServerRpc(1000f);
             health.Invincible = false;
         }
     }
@@ -417,16 +418,33 @@ public class PlayerController : NetworkBehaviour {
         Debug.Log($"[{Time.time}] {gameObject.name} took {damage} damage. Health Ratio: {health.GetRatio()}");
     }
 
+    void OnHealed(float healAmount) {
+        Debug.Log($"[{Time.time}] {gameObject.name} healed for {healAmount} health. Health Ratio: {health.GetRatio()}");
+    }
+
     #endregion
 
     #region Helper Functions
-    public bool toggleCharacterController() {
-        if (Controller != null) {
-            Controller.enabled = !Controller.enabled;
-            return Controller.enabled;
-        }
 
-        return false;
+    // public bool toggleCharacterController() {
+    //     if (Controller != null) {
+    //         Controller.enabled = !Controller.enabled;
+    //         return Controller.enabled;
+    //     }
+
+    //     return false; // false if null.
+    // }
+
+    public void disableCharacterController(){
+        if (Controller != null) {
+            Controller.enabled = false;
+        }
+    }
+
+    public void enableCharacterController(){
+        if (Controller != null) {
+            Controller.enabled = true;
+        }
     }
 
     public Vector3 GetDirectionReorientedOnSlope(Vector3 direction, Vector3 slopeNormal) {
