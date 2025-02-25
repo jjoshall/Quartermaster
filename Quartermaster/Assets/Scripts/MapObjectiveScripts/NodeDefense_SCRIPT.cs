@@ -6,8 +6,8 @@ using System.Collections.Generic;
 public class NodeDefense : NetworkBehaviour
 {
 
-    public bool defenseCompleted = false; // completed when players successfully complete the defense.
-    private bool _nodeDefenseActive = false; // active with players in range.
+    public NetworkVariable<bool> n_defenseCompleted = new NetworkVariable<bool>(); // completed when players successfully complete the defense.
+    private NetworkVariable<bool> _nodeDefenseActive = new NetworkVariable<bool>(); // active with players in range.
 
     [Tooltip("Duration in seconds to defend the node before it is cleared.")]
     public float nodeDefenseDuration = 60f; // default duration to defend before completed. set in inspector
@@ -32,13 +32,28 @@ public class NodeDefense : NetworkBehaviour
     private float _particleTimer = 0f;
     private float _particleInterval = 2.0f;
 
+    void Start()
+    {
+        n_defenseCompleted.Value = false;
+        _currentDefenseTimer = 0f;
+        _nodeDefenseActive.Value = false;
+        _particleTimer = 0f;
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        n_defenseCompleted.Value = false;
+        _currentDefenseTimer = 0f;
+        _nodeDefenseActive.Value = false;
+        _particleTimer = 0f;
+    }
 
     void Update(){
-        if (defenseCompleted){
+        UpdateParticle();
+        if (n_defenseCompleted.Value){
             return;
         }
         UpdateDefenseTimer();
-        UpdateParticle();
     }
 
     private void UpdateParticle(){
@@ -50,20 +65,22 @@ public class NodeDefense : NetworkBehaviour
     }
 
     private void SpawnParticle(){
-        if (defenseCompleted){
+        if (n_defenseCompleted.Value){
             SpawnCompleteParticle();
-        } else if (_nodeDefenseActive){
+        } else if (_nodeDefenseActive.Value){
             SpawnActiveParticle();
         }
     }
 
     private void SpawnCompleteParticle(){
         _particleTimer = 0.0f;
-        Vector3 lowPosition = new Vector3(this.transform.position.x, this.transform.position.y - 0.2f, this.transform.position.z);
-        Vector3 highPosition = new Vector3(this.transform.position.x, this.transform.position.y + 0.2f, this.transform.position.z);
+        Vector3 lowPosition = this.transform.position;
+        lowPosition.y = lowPosition.y - 0.2f;
+        Vector3 highPosition = this.transform.position;
+        highPosition.y = highPosition.y + 0.2f;
         ParticleManager.instance.SpawnSelfThenAll("RingEmission", lowPosition, Quaternion.Euler(90.0f, 0, 0));
         ParticleManager.instance.SpawnSelfThenAll("RingEmission", highPosition, Quaternion.Euler(90.0f, 0, 0));
-
+        // ParticleManager.instance.SpawnSelfThenAll("RingEmission", this.transform.position, Quaternion.Euler(90.0f, 0, 0));
 
     }
     private void SpawnActiveParticle(){
@@ -74,10 +91,10 @@ public class NodeDefense : NetworkBehaviour
     private void UpdateDefenseTimer(){
         // increment if hasPlayersinRange, decrement if no players in range
         if (_currentDefenseTimer >= nodeDefenseDuration){
-            defenseCompleted = true;
+            n_defenseCompleted.Value = true;
             // _particleInterval = 1000f;
         }
-        if (_nodeDefenseActive){
+        if (_nodeDefenseActive.Value){
             _currentDefenseTimer += Time.deltaTime;
             UpdateRendererColor();
         } else {
@@ -114,7 +131,7 @@ public class NodeDefense : NetworkBehaviour
     void OnTriggerEnter(Collider other){
         if(other.gameObject.tag == "Player"){
             _playersInRange.Add(other.gameObject);
-            _nodeDefenseActive = true;
+            _nodeDefenseActive.Value = true;
         }
     }
 
@@ -122,7 +139,7 @@ public class NodeDefense : NetworkBehaviour
         if(other.gameObject.tag == "Player"){
             _playersInRange.Remove(other.gameObject);
             if(!HasPlayersInRange()){
-                _nodeDefenseActive = false;
+                _nodeDefenseActive.Value = false;
                 _currentDefenseTimer = 0f;
                 _particleTimer = 0f;
             }

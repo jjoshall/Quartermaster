@@ -10,7 +10,7 @@ public class DefendNodeObjective : IObjective
     {
         for (int i = 0; i < nodes.Count; i++)
         {
-            if (nodes[i].GetComponent<NodeDefense>().defenseCompleted == false) 
+            if (nodes[i].GetComponent<NodeDefense>().n_defenseCompleted.Value == false) 
             {
                 return false;
             }
