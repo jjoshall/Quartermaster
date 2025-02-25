@@ -879,6 +879,7 @@ GameObject:
   - component: {fileID: 259108320}
   - component: {fileID: 259108319}
   - component: {fileID: 259108318}
+  - component: {fileID: 259108321}
   m_Layer: 5
   m_Name: CreateLobbyBtn
   m_TagString: Untagged
@@ -988,6 +989,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 259108316}
   m_CullTransparentMesh: 1
+--- !u!114 &259108321
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 259108316}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7b00562b5e3a27448f0ab8969f87b34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  widthIncrease: 20
+  animationSpeed: 10
 --- !u!114 &260563679 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7376044486949864619, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
@@ -1470,6 +1485,8 @@ GameObject:
   - component: {fileID: 450869929}
   - component: {fileID: 450869928}
   - component: {fileID: 450869927}
+  - component: {fileID: 450869931}
+  - component: {fileID: 450869932}
   m_Layer: 5
   m_Name: LoadingCanvas
   m_TagString: Untagged
@@ -1560,6 +1577,40 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &450869931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 450869926}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6896ebafc30bcec4da8aa310351169bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  loadingPanel: {fileID: 791316537}
+  fadeDuration: 1
+--- !u!114 &450869932
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 450869926}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd6ef5de5d1cc454a925c229cb50c64e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  loadingPanel: {fileID: 791316537}
+  loadingCanvasGroup: {fileID: 791316542}
+  joinCodeText: {fileID: 1819111890}
+  playerUICanvas: {fileID: 90319612}
+  lobbyMenuCanvas: {fileID: 1605164099}
+  fadeDuration: 1
+  waitTimeBeforeProceeding: 3
+  delayedUIEnableWait: 0.5
 --- !u!1001 &464187177
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4495,6 +4546,7 @@ GameObject:
   - component: {fileID: 1785513625}
   - component: {fileID: 1785513624}
   - component: {fileID: 1785513623}
+  - component: {fileID: 1785513626}
   m_Layer: 5
   m_Name: BackToMainMenuBtn
   m_TagString: Untagged
@@ -4604,6 +4656,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1785513621}
   m_CullTransparentMesh: 1
+--- !u!114 &1785513626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1785513621}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7b00562b5e3a27448f0ab8969f87b34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  widthIncrease: 20
+  animationSpeed: 10
 --- !u!1 &1797819870
 GameObject:
   m_ObjectHideFlags: 0
@@ -5027,21 +5093,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2012308633554606391, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2012308633554606391, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5127545550403272507, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
       propertyPath: m_Name
       value: Player UI Canvas
-      objectReference: {fileID: 0}
-    - target: {fileID: 5127545550403272507, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8300218833965806601, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
       propertyPath: m_Pivot.x
