@@ -30,7 +30,7 @@ public class ObjectiveManager : NetworkBehaviour {
 
     }
 
-    void OnNetworkSpawn(){
+    public override void OnNetworkSpawn(){
         foreach (GameObject objective in objectivesList){
             NetworkObjectReference thisNetRef = new NetworkObjectReference(objective.GetComponent<NetworkObject>());
             n_IObjectivesList.Add(thisNetRef);

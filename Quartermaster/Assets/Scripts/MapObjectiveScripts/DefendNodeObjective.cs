@@ -4,13 +4,16 @@ using System.Collections;
 
 public class DefendNodeObjective : IObjective
 {
-    private List<GameObject> nodes;
+    public List<GameObject> nodes;
 
     public override bool IsComplete()
     {
         for (int i = 0; i < nodes.Count; i++)
         {
-            return false;
+            if (nodes[i].GetComponent<NodeDefense>().defenseCompleted == false) 
+            {
+                return false;
+            }
         }
         return true;
         // throw new System.NotImplementedException();
