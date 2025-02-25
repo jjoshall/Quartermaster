@@ -67,7 +67,8 @@ public class MedKit : InventoryItem {
     private void ItemEffect(GameObject user) {
         // user.GetComponent<PlayerHealth>().Heal(HEAL_AMOUNT);
         // What handles health now?
-        // PlayerHealth Deprecated.
+        // Generate a quaternion for the particle effect to have no rotation
+        ParticleManager.instance.SpawnSelfThenAll("Healing", user.transform.position, Quaternion.Euler(-90, 0, 0));
     }
 
 }
