@@ -12,8 +12,12 @@ public class EnemySpawner : NetworkBehaviour {
     public bool isSpawning = true;
     [SerializeField] private float _spawnCooldown = 2f;
 
+    [SerializeField] private List<GameObject> _enemySpawnPoints;
+
     public List<Transform> enemyList = new List<Transform>();
     public List<GameObject> playerList;
+
+    
 
     // static 
     public static EnemySpawner instance;
@@ -53,11 +57,21 @@ public class EnemySpawner : NetworkBehaviour {
         return new Vector3(x, 0, z);
     }
 
+
+    private Vector3 GetSpawnPoint(){
+        // GetRandomPositionOnMap(); // Old. Deprecated.
+        if (_enemySpawnPoints.Count == 0) return GetRandomPositionOnMap();
+        float spawnX = _enemySpawnPoints[Random.Range(0, _enemySpawnPoints.Count)].transform.position.x;
+        float spawnY = _enemySpawnPoints[Random.Range(0, _enemySpawnPoints.Count)].transform.position.y + 0.5f;
+        float spawnZ = _enemySpawnPoints[Random.Range(0, _enemySpawnPoints.Count)].transform.position.z;
+        return new Vector3 (spawnX, spawnY, spawnZ);
+
+    }
     private IEnumerator SpawnOverTime() {
         while (true) {
             if (enemyList.Count < _maxEnemyInstanceCount && isSpawning) {
                 Transform enemyPrefab = GetRandomEnemyPrefab();
-                Transform enemyTransform = Instantiate(enemyPrefab, GetRandomPositionOnMap(), Quaternion.identity, transform);
+                Transform enemyTransform = Instantiate(enemyPrefab, GetSpawnPoint(), Quaternion.identity, transform);
                 enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemySpawner = this;
                 enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemyType = GetEnemyType(enemyPrefab);
                 enemyTransform.GetComponent<NetworkObject>().Spawn(true);
