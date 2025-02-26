@@ -43,7 +43,7 @@ public class MedKit : InventoryItem {
     // Item constants
     private const int HEAL_AMOUNT = 50;
 
-    public override void Use(GameObject user) {
+    public override void Use(GameObject user, bool isHeld) {
         string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
 
         if (lastUsed + cooldown > Time.time) {
@@ -67,7 +67,8 @@ public class MedKit : InventoryItem {
     private void ItemEffect(GameObject user) {
         // user.GetComponent<PlayerHealth>().Heal(HEAL_AMOUNT);
         // What handles health now?
-        // PlayerHealth Deprecated.
+        // Generate a quaternion for the particle effect to have no rotation
+        ParticleManager.instance.SpawnSelfThenAll("Healing", user.transform.position, Quaternion.Euler(-90, 0, 0));
     }
 
 }

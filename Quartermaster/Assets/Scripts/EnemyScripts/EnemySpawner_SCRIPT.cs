@@ -5,78 +5,102 @@ using UnityEngine;
 using System.Threading.Tasks;
 
 public class EnemySpawner : NetworkBehaviour {
-     [SerializeField] private Transform _enemyPrefab;
-     [SerializeField] private int _maxEnemyInstanceCount = 20;
-     [SerializeField] private float _spawnCooldown = 2f;
+    [Header("Spawner Settings")]
+    //[SerializeField] private Transform _enemyPrefab;
+    [SerializeField] private List<Transform> _enemyPrefabs;
+    [SerializeField] private int _maxEnemyInstanceCount = 20;
+    public bool isSpawning = true;
+    [SerializeField] private float _spawnCooldown = 2f;
 
-     public List<Transform> enemyList = new List<Transform>();
-     public List<GameObject> playerList;
+    [SerializeField] private List<GameObject> _enemySpawnPoints;
 
-     //private void Start() {
-     //     //NetworkManager.Singleton.OnServerStarted += SpawnEnemiesStart; 
-     //}
+    public List<Transform> enemyList = new List<Transform>();
+    public List<GameObject> playerList;
 
-     // static 
-     public static EnemySpawner instance;
+    
 
-     void Awake() {
-        if(instance == null) {
+    // static 
+    public static EnemySpawner instance;
+
+    void Awake() {
+        if (instance == null) {
             instance = this;
         } else {
             Destroy(this);
         }
-     }
+    }
 
-     public override void OnNetworkSpawn() {
-          if (!IsServer) {
-               enabled = false;
-               return;
-          }
+    public override void OnNetworkSpawn() {
+        if (!IsServer) {
+            enabled = false;
+            return;
+        }
 
-          StartCoroutine(SpawnOverTime());
+        StartCoroutine(SpawnOverTime());
 
-          NetworkManager.Singleton.OnClientConnectedCallback += ClientConnected;
-          NetworkManager.Singleton.OnClientDisconnectCallback += ClientDisconnected;
-     }
+        NetworkManager.Singleton.OnClientConnectedCallback += ClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback += ClientDisconnected;
+    }
 
-     private void ClientConnected(ulong u) {
-          playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
-     }
+    private void ClientConnected(ulong u) {
+        playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
+    }
 
-     private async void ClientDisconnected(ulong u) {
-          await Task.Yield();
-          playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
-     }
+    private async void ClientDisconnected(ulong u) {
+        await Task.Yield();
+        playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
+    }
 
-     private Vector3 GetRandomPositionOnMap() {
-          float x = Random.Range(-50, 50);
-          float z = Random.Range(-50, 50);
-          return new Vector3(x, 0, z);
-     }
+    private Vector3 GetRandomPositionOnMap() {
+        float x = Random.Range(-50, 50);
+        float z = Random.Range(-50, 50);
+        return new Vector3(x, 0, z);
+    }
 
-     private IEnumerator SpawnOverTime() {
-          while (true) {
-               if (enemyList.Count < _maxEnemyInstanceCount) {
-                    Transform enemyTransform = Instantiate(_enemyPrefab, GetRandomPositionOnMap(), Quaternion.identity, transform);
-                    enemyTransform.GetComponent<EnemyNavScript>().enemySpawner = this;
-                    enemyTransform.GetComponent<NetworkObject>().Spawn(true);
-                    enemyList.Add(enemyTransform);
 
-                    yield return new WaitForSeconds(_spawnCooldown);
-               }
+    private Vector3 GetSpawnPoint(){
+        // GetRandomPositionOnMap(); // Old. Deprecated.
+        if (_enemySpawnPoints.Count == 0) return GetRandomPositionOnMap();
+        float spawnX = _enemySpawnPoints[Random.Range(0, _enemySpawnPoints.Count)].transform.position.x;
+        float spawnY = _enemySpawnPoints[Random.Range(0, _enemySpawnPoints.Count)].transform.position.y + 0.5f;
+        float spawnZ = _enemySpawnPoints[Random.Range(0, _enemySpawnPoints.Count)].transform.position.z;
+        return new Vector3 (spawnX, spawnY, spawnZ);
 
-               yield return null;
-          }
-     }
+    }
+    private IEnumerator SpawnOverTime() {
+        while (true) {
+            if (enemyList.Count < _maxEnemyInstanceCount && isSpawning) {
+                Transform enemyPrefab = GetRandomEnemyPrefab();
+                Transform enemyTransform = Instantiate(enemyPrefab, GetSpawnPoint(), Quaternion.identity, transform);
+                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemySpawner = this;
+                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemyType = GetEnemyType(enemyPrefab);
+                enemyTransform.GetComponent<NetworkObject>().Spawn(true);
+                enemyList.Add(enemyTransform);
 
-     [ServerRpc(RequireOwnership = false)]
-     public void destroyEnemyServerRpc(NetworkObjectReference enemy)
-     {
-          if (!IsServer) { return; }
-          if (enemy.TryGet(out NetworkObject networkObject))
-          {
-               enemyList.Remove(networkObject.transform);
-               networkObject.Despawn();
-          }
-     }
+                yield return new WaitForSeconds(_spawnCooldown);
+            }
+
+            yield return null;
+        }
+    }
+
+    private EnemyType GetEnemyType(Transform enemyPrefab) {
+        if (enemyPrefab.GetComponent<MeleeEnemyInherited_SCRIPT>() != null) return EnemyType.Melee;
+        //if (enemyPrefab.GetComponent<RangedEnemyInherited_SCRIPT>() != null) return EnemyType.Ranged;
+        return EnemyType.Melee;
+    }
+
+    private Transform GetRandomEnemyPrefab() {
+        if (_enemyPrefabs.Count == 0) return null;
+        return _enemyPrefabs[Random.Range(0, _enemyPrefabs.Count)];
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void destroyEnemyServerRpc(NetworkObjectReference enemy) {
+        if (!IsServer) { return; }
+        if (enemy.TryGet(out NetworkObject networkObject)) {
+            enemyList.Remove(networkObject.transform);
+            networkObject.Despawn();
+        }
+    }
 }

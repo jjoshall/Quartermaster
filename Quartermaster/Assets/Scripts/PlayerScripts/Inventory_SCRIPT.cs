@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 
+[RequireComponent(typeof(PlayerInputHandler))]
 public class Inventory : NetworkBehaviour {
     private const bool DEBUG_FLAG = true;
     private GameObject _playerObj;
@@ -10,6 +11,7 @@ public class Inventory : NetworkBehaviour {
     public Transform orientation;
 
     [Header("Inventory Keybinds")]
+    private PlayerInputHandler _InputHandler;
     public KeyCode pickupKey = KeyCode.E;
     public KeyCode dropItemKey = KeyCode.Q;
     public KeyCode useItemKey = KeyCode.F;
@@ -45,12 +47,22 @@ public class Inventory : NetworkBehaviour {
     private InventoryItem[] _inventory; // List of items in the player's inventory
 
     private int _currentInventoryIndex = 0; // The index of the currently selected item in the inventory
+    private int _oldInventoryIndex = 0;
     private int _currentHeldItems = 0; // The number of items the player is currently holding
     private int _maxInventorySize = 4; // Maximum number of items the player can hold
     private GameObject _selectedItem; // The item that the player has selected to use
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start() {
+    }
+
+    public override void OnNetworkSpawn(){
+        if (!IsOwner){
+            // disable this component
+            this.enabled = false;
+            return;
+        }
+
         if (IsOwner) {
             Debug.Log("Before");
             _uiManager = GameObject.Find("UI Manager").GetComponent<UIManager>();
@@ -59,7 +71,10 @@ public class Inventory : NetworkBehaviour {
 
         _playerObj = this.gameObject;
         _itemAcquisitionRange = _playerObj.GetComponentInChildren<ItemAcquisitionRange>().gameObject;
+        if (!_InputHandler) _InputHandler = _playerObj.GetComponent<PlayerInputHandler>();
 
+        _InputHandler.OnUse += UseItem;
+        _InputHandler.OnInteract += PickUpClosest;
         // if (orientation == null)
         // {
         //     orientation = playerObj.transform;
@@ -80,26 +95,36 @@ public class Inventory : NetworkBehaviour {
 
     void MyInput() {
         if (!IsOwner) return;
-        
 
-        if (Input.GetKeyDown(pickupKey)) {
-            GameObject closestItem = _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().GetClosestItem();
-            if (closestItem != null) {
-                PickUpItem(closestItem);
-                // DEBUG_PRINT_INVENTORY();
-            }
-        }
+        // if (_InputHandler.isInteracting) {
+        //     // GameObject closestItem = _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().GetClosestItem();
+        //     // if (closestItem != null) {
+        //     //     PickUpItem(closestItem);
+        //     //     // DEBUG_PRINT_INVENTORY();
+        //     // }
+        // }
 
-        if (Input.GetKeyDown(dropItemKey)) {
+        if (_InputHandler.isDropping) {
             DropSelectedItem();
             // DEBUG_PRINT_INVENTORY();
         }
 
-        if (Input.GetKeyDown(useItemKey)) {
-            UseItem();
+       /*if (_InputHandler.isUsingPressed) {
+            Debug.Log("pressed");
+            UseItem(false);
+        }
+        else if (_InputHandler.isUsingHeld) {
+            Debug.Log("held");
+            UseItem(true);
             // DEBUG_PRINT_INVENTORY();
+        }*/
+
+        _currentInventoryIndex = _InputHandler.inventoryIndex % _maxInventorySize;
+        if (_currentInventoryIndex != _oldInventoryIndex){
+            UpdateSelectedItemUI();
         }
 
+        /*
         if (Input.GetKeyDown(selectItemOneKey)) {
             _currentInventoryIndex = 0;
             UpdateSelectedItemUI();
@@ -122,17 +147,22 @@ public class Inventory : NetworkBehaviour {
             // DEBUG_SELECT_SLOT();
             UpdateSelectedItemUI();
         }
+        */
     }
 
-    void UseItem () {
+    void UseItem (bool isHeld) {
+        if (!IsOwner){
+            return;
+        }
         if (_inventory[_currentInventoryIndex] != null) {
             // Use the item effect.
             if (_playerObj == null) {
                 Debug.Log("playerObj is null");
                 _playerObj = transform.parent.gameObject;
             }
-
-            _inventory[_currentInventoryIndex].Use(_playerObj);
+            // string debugIsHeld = isHeld ? "true" : "false";
+            // Debug.Log ("UseItem triggered with IsHeld = " + debugIsHeld);
+            _inventory[_currentInventoryIndex].AttemptUse(_playerObj, isHeld);
 
             if (_inventory[_currentInventoryIndex].quantity <= 0) {
                 _inventory[_currentInventoryIndex] = null;
@@ -141,7 +171,17 @@ public class Inventory : NetworkBehaviour {
         }
     }
 
+    void PickUpClosest(bool discardBool) {
+        if (!IsOwner) return;
+        
+        GameObject closestItem = _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().GetClosestItem();
+        if (closestItem != null) {
+            PickUpItem(closestItem);
+        }
+    }
     void PickUpItem (GameObject pickedUp) {
+        if (!IsOwner) return;
+
         int itemID = pickedUp.GetComponent<WorldItem>().GetItemID();
         string stringID = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
         if (stringID == "PocketInventoryPortalKey") {

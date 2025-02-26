@@ -2,8 +2,10 @@
 
 using UnityEngine;
 using UnityEngine.Events;
-public class Health : MonoBehaviour
-{
+using Unity.Netcode;
+using System;
+
+public class Health : NetworkBehaviour {
     [Tooltip("Maximum amount of health")] 
     public float MaxHealth = 10f;
 
@@ -14,71 +16,105 @@ public class Health : MonoBehaviour
     public UnityAction<float> OnHealed;
     public UnityAction OnDie;
 
-    public float CurrentHealth { get; set; }
+    public NetworkVariable<float> CurrentHealth = new NetworkVariable<float>();
     public bool Invincible { get; set; }
-    public bool CanPickup() => CurrentHealth < MaxHealth;
+    public bool CanPickup() => CurrentHealth.Value < MaxHealth;
 
-    public float GetRatio() => CurrentHealth / MaxHealth;
+    public float GetRatio() => CurrentHealth.Value / MaxHealth;
     public bool IsCritical() => GetRatio() <= CriticalHealthRatio;
 
     bool IsDead;
 
-    void Start()
-    {
-        CurrentHealth = MaxHealth;
+    public override void OnNetworkSpawn() {
+        if (!IsServer) {
+            enabled = false;
+            return;
+        }
+
+        CurrentHealth.Value = MaxHealth;
     }
 
-    public void Heal(float healAmount)
-    {
-        float healthBefore = CurrentHealth;
-        CurrentHealth += healAmount;
-        CurrentHealth = Mathf.Clamp(CurrentHealth, 0f, MaxHealth);
+    [ServerRpc(RequireOwnership = false)]
+    public void HealServerRpc(float healAmount) {
+        if (!IsServer) return;
+
+        float healthBefore = CurrentHealth.Value;
+        CurrentHealth.Value += healAmount;
+        CurrentHealth.Value = Mathf.Clamp(CurrentHealth.Value, 0f, MaxHealth);
 
         // call OnHeal action
-        float trueHealAmount = CurrentHealth - healthBefore;
-        if (trueHealAmount > 0f)
-        {
+        float trueHealAmount = CurrentHealth.Value - healthBefore;
+        if (trueHealAmount > 0f) {
             OnHealed?.Invoke(trueHealAmount);
+            HealClientRpc(trueHealAmount);
         }
     }
 
-    public void TakeDamage(float damage, GameObject damageSource)
-    {
-        if (Invincible)
-            return;
+    [ClientRpc]
+    private void HealClientRpc(float trueHealAmount) {
+        if (IsServer) return;
+        OnHealed?.Invoke(trueHealAmount);
+    }
 
-        float healthBefore = CurrentHealth;
-        CurrentHealth -= damage;
-        CurrentHealth = Mathf.Clamp(CurrentHealth, 0f, MaxHealth);
+    [ServerRpc(RequireOwnership = false)]
+    public void TakeDamageServerRpc(float damage, NetworkObjectReference damageSourceRef) {
+        if (!IsServer || Invincible) return;
+
+        float healthBefore = CurrentHealth.Value;
+        CurrentHealth.Value -= damage;
+        CurrentHealth.Value = Mathf.Clamp(CurrentHealth.Value, 0f, MaxHealth);
+        GameObject damageSource = null;
+
+        if (damageSourceRef.TryGet(out NetworkObject networkObject)) {
+            damageSource = networkObject.gameObject;
+        }
 
         // call OnDamage action
-        float trueDamageAmount = healthBefore - CurrentHealth;
-        if (trueDamageAmount > 0f)
-        {
+        float trueDamageAmount = healthBefore - CurrentHealth.Value;
+        if (trueDamageAmount > 0f) {
             OnDamaged?.Invoke(trueDamageAmount, damageSource);
+            UpdateClientHealthClientRpc(trueDamageAmount, damageSourceRef);
         }
 
         HandleDeath();
     }
 
-    public void Kill()
-    {
-        CurrentHealth = 0f;
+    [ClientRpc]
+    private void UpdateClientHealthClientRpc(float trueDamageAmount, NetworkObjectReference damageSourceRef) {
+        if (IsServer) return;
+
+        GameObject damageSource = null;
+        if (damageSourceRef.TryGet(out NetworkObject networkObject)) {
+            damageSource = networkObject.gameObject;
+        }
+
+        OnDamaged?.Invoke(trueDamageAmount, damageSource);
+    }
+
+    public void Kill() {
+        if (!IsServer) return;
+
+        CurrentHealth.Value = 0f;
 
         OnDamaged?.Invoke(MaxHealth, null);
 
         HandleDeath();
     }
 
-    void HandleDeath()
-    {
+    void HandleDeath() {
         /*if (IsDead)
             return;*/
-        
-        if (CurrentHealth <= 0f)
-        {
+
+        if (CurrentHealth.Value <= 0f) {
             IsDead = true;
             OnDie?.Invoke();
-        }
+            NotifyDeathClientRpc();
+        }        
+    }
+
+    [ClientRpc]
+    private void NotifyDeathClientRpc() {
+        if (IsServer) return;
+        OnDie?.Invoke();
     }
 }

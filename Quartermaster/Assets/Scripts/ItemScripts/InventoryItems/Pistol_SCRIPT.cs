@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Netcode;
 
 public class Pistol : IWeapon
 {
@@ -9,9 +10,11 @@ public class Pistol : IWeapon
     private int _ammo = 0;
     private float lastUsedTime = float.MinValue;
     private float lastFiredTime = float.MinValue;
-    private static float itemCooldown = 0.05f;
+    private static float itemCooldown = 0.5f;
 
     // Abstract overrides
+
+    public override bool isHoldable { get; set; } = true;
     public override float cooldown
     {
         get => itemCooldown;
@@ -32,27 +35,19 @@ public class Pistol : IWeapon
         set => lastUsedTime = value;
     }
 
-    public override int StackLimit(){
-        return 1;
-    }
-
-    public override bool IsWeapon(){
-        return true;
-    }
-
     public override bool CanAutoFire(){
         return false;
     }
 
-    public override void Use(GameObject user)
+    public override void Use(GameObject user, bool isHeld)
     {
         string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
         if (lastUsed + cooldown > Time.time){
-            Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
-            Debug.Log ("cooldown remaining: " + (lastUsed + cooldown - Time.time));
+            //Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
+            //Debug.Log ("cooldown remaining: " + (lastUsed + cooldown - Time.time));
             return;
         }
-        Debug.Log(itemStr + " (" + itemID + ") used");
+        //Debug.Log(itemStr + " (" + itemID + ") used");
     
         if (IsConsumable()){
             quantity--;
@@ -75,25 +70,20 @@ public class Pistol : IWeapon
 
         // camera is a child, we do not know which one
         GameObject camera = user.transform.Find("Camera").gameObject;
-            Debug.DrawRay(camera.transform.position, camera.transform.forward * 100, Color.yellow, 2f);
+        // spawn the pistol barrel fire in direction of camera look
+        Quaternion attackRotation = Quaternion.LookRotation(camera.transform.forward);
+        ParticleManager.instance.SpawnSelfThenAll("PistolBarrelFire", user.transform.position, attackRotation);
         
-        RaycastHit[] hits = Physics.RaycastAll(camera.transform.position, camera.transform.forward, 100);
-        
-        foreach (RaycastHit hit in hits){
-            Debug.Log(hit.transform.name);
-            if (hit.transform.tag == "Enemy"){
-                Debug.Log ("Enemy hit");
-                hit.transform.GetComponent<Damageable>()?.InflictDamage(10, false, user);
-                return;
-                // hit.transform.GetComponent<Enemy>().Damage(10);
-            }
-            if (hit.transform.tag == "Wall"){
-                Debug.Log ("Pistol hit wall");
-                return;
-            }
-            if (hit.transform.tag == "Player"){
-                Debug.Log ("Pistol hit Player");
-                return;
+        //Debug.DrawRay(camera.transform.position, camera.transform.forward * 100, Color.yellow, 2f);
+        if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, 100f, -1, QueryTriggerInteraction.Ignore)){
+            //Debug.Log(hit.transform.name);
+            if (hit.transform.root.CompareTag("Enemy")){
+                // get the rotation based on surface normal of the hit on the enemy
+                Vector3 hitNormal = hit.normal;
+                Quaternion hitRotation = Quaternion.LookRotation(hitNormal);
+
+                ParticleManager.instance.SpawnSelfThenAll("Sample", hit.transform.position, hitRotation);
+                hit.transform.GetComponentInParent<Damageable>()?.InflictDamage(10, false, user);
             }
         }
         
