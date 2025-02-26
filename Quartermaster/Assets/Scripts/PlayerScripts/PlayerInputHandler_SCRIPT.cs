@@ -21,6 +21,7 @@ public class PlayerInputHandler : NetworkBehaviour {
 
     public bool isUsing {get; private set;} = false;
     public UnityAction<bool> OnUse;
+    public UnityAction<bool> OnInteract;
 
     
 
@@ -99,6 +100,9 @@ public class PlayerInputHandler : NetworkBehaviour {
 
     public void Interact(InputAction.CallbackContext ctx){
         if (!IsOwner) return;
+        if (ctx.started){
+            OnInteract?.Invoke(true);
+        }
         if (ctx.performed){
             isInteracting = true;
         }

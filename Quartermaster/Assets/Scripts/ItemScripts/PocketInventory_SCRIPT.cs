@@ -26,7 +26,7 @@ public class PocketInventory : NetworkBehaviour {
     private Dictionary<NetworkObjectReference, Vector3> _playerReturnPositions = new Dictionary<NetworkObjectReference, Vector3>();
 
     private static readonly float MAX_TIME_IN_POCKET = 10.0f;
-    private static readonly float RADIUS_OF_POCKET = 10.0f;
+    private static readonly float RADIUS_OF_POCKET_DETECTION = 20.0f;
     // private GameObject playerInPocket;
     #endregion
 
@@ -132,7 +132,7 @@ public class PocketInventory : NetworkBehaviour {
     [ClientRpc]
     public void FindDroppedKeyClientRpc() {
         // physics overlap sphere, find dropped key
-        Collider[] colliders = Physics.OverlapSphere(_teleportPosition, RADIUS_OF_POCKET);
+        Collider[] colliders = Physics.OverlapSphere(_teleportPosition, RADIUS_OF_POCKET_DETECTION);
         foreach (Collider col in colliders) {
             if (col.gameObject.GetComponent<PocketInventoryPortalKey>() != null) {
                 n_storedKeyObj = col.gameObject.GetComponent<NetworkObject>().GetComponent<NetworkObjectReference>();
