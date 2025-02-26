@@ -76,14 +76,26 @@ public class Pistol : IWeapon
         
         //Debug.DrawRay(camera.transform.position, camera.transform.forward * 100, Color.yellow, 2f);
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, 100f, -1, QueryTriggerInteraction.Ignore)){
-            //Debug.Log(hit.transform.name);
-            if (hit.transform.root.CompareTag("Enemy")){
+
+            // Loop through parents in case enemies have child objs blocking raycast.
+            Transform enemyRootObj = hit.transform;
+            while (enemyRootObj.parent != null && !enemyRootObj.CompareTag("Enemy")){
+                enemyRootObj = enemyRootObj.parent;
+            }
+
+            if (enemyRootObj.CompareTag("Enemy")){
                 // get the rotation based on surface normal of the hit on the enemy
                 Vector3 hitNormal = hit.normal;
                 Quaternion hitRotation = Quaternion.LookRotation(hitNormal);
 
-                ParticleManager.instance.SpawnSelfThenAll("Sample", hit.transform.position, hitRotation);
-                hit.transform.GetComponentInParent<Damageable>()?.InflictDamage(10, false, user);
+                ParticleManager.instance.SpawnSelfThenAll("Sample", enemyRootObj.position, hitRotation);
+                
+                Damageable damageable = enemyRootObj.GetComponent<Damageable>();
+                if (damageable == null){
+                    Debug.LogError ("Raycast hit enemy without damageable component.");
+                } else {
+                    damageable?.InflictDamage(10, false, user);
+                }
             }
         }
         

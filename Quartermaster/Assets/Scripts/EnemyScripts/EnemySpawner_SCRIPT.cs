@@ -16,7 +16,6 @@ public class EnemySpawner : NetworkBehaviour {
 
     public List<Transform> enemyList = new List<Transform>();
     public List<GameObject> playerList;
-
     
 
     // static 
@@ -86,7 +85,7 @@ public class EnemySpawner : NetworkBehaviour {
                 enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemyType = GetEnemyType(enemyPrefab);
                 enemyTransform.GetComponent<NetworkObject>().Spawn(true);
                 enemyList.Add(enemyTransform);
-
+                enemyTransform.SetParent(this.gameObject.transform);
                 yield return new WaitForSeconds(_spawnCooldown);
             }
 

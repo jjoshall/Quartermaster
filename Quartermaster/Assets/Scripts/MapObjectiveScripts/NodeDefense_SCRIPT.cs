@@ -6,16 +6,14 @@ using System.Collections.Generic;
 public class NodeDefense : NetworkBehaviour
 {
 
+    #region = Variables
     public NetworkVariable<bool> n_defenseCompleted = new NetworkVariable<bool>(); // completed when players successfully complete the defense.
     private NetworkVariable<bool> n_nodeDefenseActive = new NetworkVariable<bool>(); // active with players in range.
 
     [Tooltip("Duration in seconds to defend the node before it is cleared.")]
-    public float nodeDefenseDuration = 60f; // default duration to defend before completed. set in inspector
-
+    public float nodeDefenseDuration = 60f; // time until node complete.
     private float _currentDefenseTimer = 0f;
-
     private List<GameObject> _playersInRange = new List<GameObject>();
-
     public Renderer this_renderer; // set in inspector
     // slider serializable
     [SerializeField, Range(0, 1)]
@@ -31,6 +29,10 @@ public class NodeDefense : NetworkBehaviour
 
     private float _particleTimer = 0f;
     private float _particleInterval = 2.0f;
+
+    #endregion 
+
+    #region = Setup
 
     void Start()
     {
@@ -56,6 +58,10 @@ public class NodeDefense : NetworkBehaviour
         }
         UpdateDefenseTimer();
     }
+
+    #endregion 
+
+    #region = VFX
 
     private void UpdateParticle(){
         if (_particleTimer >= _particleInterval){
@@ -88,6 +94,13 @@ public class NodeDefense : NetworkBehaviour
         _particleTimer = 0.0f;
         ParticleManager.instance.SpawnSelfThenAll("RingEmission", this.transform.position, Quaternion.Euler(90.0f, 0, 0));
     }
+    private void UpdateRendererColor(){
+        this_renderer.material.color = new Color(_red * GetRatio(), _green * GetRatio(), _blue * GetRatio());
+    }
+
+    #endregion 
+
+    #region = Logic
 
     private void UpdateDefenseTimer(){
         // increment if hasPlayersinRange, decrement if no players in range
@@ -108,26 +121,7 @@ public class NodeDefense : NetworkBehaviour
         }
     }
 
-    private void UpdateRendererColor(){
-        this_renderer.material.color = new Color(_red * GetRatio(), _green * GetRatio(), _blue * GetRatio());
-        // float ratio = GetRatio(); // 0 to 1
-        // Color baseColor = new Color(_red * ratio, _green * ratio, _blue * ratio); // Adjust RGB brightness
 
-        // // Ensure the material supports emission
-        // this_renderer.material.EnableKeyword("_EMISSION");
-
-        // // Set emission color with intensity (multiply color for glow effect)
-        // this_renderer.material.SetColor("_EmissionColor", baseColor * Mathf.Lerp(0.2f, 5.0f, ratio));
-
-    }
-
-    private float GetRatio(){
-        return _currentDefenseTimer / nodeDefenseDuration;
-    }
-
-    bool HasPlayersInRange(){
-        return _playersInRange.Count > 0;
-    }
 
     void OnTriggerEnter(Collider other){
         if(other.gameObject.tag == "Player"){
@@ -146,5 +140,18 @@ public class NodeDefense : NetworkBehaviour
             }
         }
     }
+
+    #endregion
+
+    #region = Helpers
+    private float GetRatio(){
+        return _currentDefenseTimer / nodeDefenseDuration;
+    }
+
+    bool HasPlayersInRange(){
+        return _playersInRange.Count > 0;
+    }
+
+    #endregion
 
 }
