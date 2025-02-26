@@ -81,7 +81,7 @@ public class EnemySpawner : NetworkBehaviour {
         while (true) {
             if (enemyList.Count < _maxEnemyInstanceCount && isSpawning) {
                 Transform enemyPrefab = GetRandomEnemyPrefab();
-                Transform enemyTransform = Instantiate(enemyPrefab, GetSpawnPoint(), Quaternion.identity, transform);
+                Transform enemyTransform = Instantiate(enemyPrefab, GetSpawnPoint(), Quaternion.identity);
                 enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemySpawner = this;
                 enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemyType = GetEnemyType(enemyPrefab);
                 enemyTransform.GetComponent<NetworkObject>().Spawn(true);
