@@ -4,20 +4,23 @@ using Unity.Netcode;
 
 public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [Header("Enemy Settings")]
-    public float attackRange = 2f;
-    public int damage = 1;
+    protected virtual float attackCooldown { get; } = 2f;
+    protected virtual float attackRange { get; } = 2f;
+    protected virtual int damage { get; } = 10;
     public EnemyType enemyType;
     private float _nextTargetUpdateTime;
 
     protected NavMeshAgent agent;
     protected Transform target;
     protected Health health;
+    protected Renderer renderer;
     public EnemySpawner enemySpawner;
 
+    // All enemies will use this
     public override void OnNetworkSpawn() {
         if (!IsServer) {
             enabled = false;
-            if (agent != null) agent.enabled = false;
+            agent.enabled = false;
             return;
         }
 
@@ -25,6 +28,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
         agent = GetComponent<NavMeshAgent>();
         health = GetComponent<Health>();
+        renderer = GetComponent<Renderer>();
 
         if (health != null) {
             health.OnDamaged += OnDamaged;
@@ -39,15 +43,12 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     }
 
     protected virtual void Update() {
-        // Update target every .2 seconds
+        // Update target every .15 seconds
         if (Time.time >= _nextTargetUpdateTime) {
-            _nextTargetUpdateTime = Time.time + 0.2f;
+            _nextTargetUpdateTime = Time.time + 0.15f;
             UpdateTarget();
         }
 
-        if (target == null) return;
-
-        //float distance = Vector3.Distance(transform.position, target.position);
         bool inRange = Vector3.Distance(transform.position, target.position) <= attackRange;
 
         if (inRange) {
@@ -58,22 +59,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         }
     }
 
-    protected void UpdateTarget() {
-        if (enemySpawner == null || enemySpawner.playerList == null) return;
-
-        GameObject closestPlayer = null;
-        float closestDistance = float.MaxValue;
-
-        foreach (GameObject obj in enemySpawner.playerList) {
-            float distance = Vector3.Distance(transform.position, obj.transform.position);
-            if (distance < closestDistance) {
-                closestPlayer = obj;
-                closestDistance = distance;
-            }
-        }
-
-        target = closestPlayer != null ? closestPlayer.transform : null;
-    }
+    protected abstract void UpdateTarget();
 
     protected abstract void Attack();
 

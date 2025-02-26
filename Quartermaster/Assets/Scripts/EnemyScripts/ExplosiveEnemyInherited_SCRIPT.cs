@@ -1,12 +1,13 @@
-using UnityEngine;
-using System.Collections;
 using Unity.Netcode;
+using System.Collections;
+using UnityEngine;
 
-public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
-    private bool _canAttack = true;
+public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     protected override float attackCooldown { get; } = 2f;
-    protected override float attackRange { get; } = 2f;
-    protected override int damage { get; } = 10;
+    protected override float attackRange { get; } = 3f;
+    protected override int damage { get; } = 45;
+
+    private bool _isExploding = false;
 
     protected override void UpdateTarget() {
         if (enemySpawner == null || enemySpawner.playerList == null) return;
@@ -26,19 +27,18 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     }
 
     protected override void Attack() {
-        if (!_canAttack) return;
-        _canAttack = false;
+        if (!IsServer || _isExploding) return;
 
-        if (IsServer) {
-            AttackServerRpc();
-        }
+        _isExploding = true;
+        Debug.Log("Exploding in 2 seconds...");
 
-        StartCoroutine(ResetAttackCooldown());
+        StartCoroutine(ExplodeAfterDelay());
     }
 
-    private IEnumerator ResetAttackCooldown() {
+    private IEnumerator ExplodeAfterDelay() {
         yield return new WaitForSeconds(attackCooldown);
-        _canAttack = true;
+
+        AttackServerRpc();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -52,7 +52,11 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         foreach (var hitCollider in hitColliders) {
             if (hitCollider.CompareTag("Player")) {
                 hitCollider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
+                Debug.Log("EXPLODE");
             }
         }
+
+        // Delete the enemy
+        enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
     }
 }
