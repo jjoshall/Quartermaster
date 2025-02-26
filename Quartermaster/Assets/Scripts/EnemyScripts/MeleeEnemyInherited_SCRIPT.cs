@@ -6,7 +6,7 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     private bool _canAttack = true;
     protected override float attackCooldown { get; } = 2f;
     protected override float attackRange { get; } = 2f;
-    protected override int damage { get; } = 10;
+    protected override int damage { get; } = 20;
 
     protected override void UpdateTarget() {
         if (enemySpawner == null || enemySpawner.playerList == null) return;

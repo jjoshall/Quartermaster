@@ -2685,7 +2685,7 @@ PrefabInstance:
       objectReference: {fileID: 521860666677488949, guid: b09eb5eae34e906439da176aece8901f, type: 3}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: _maxEnemyInstanceCount
-      value: 300
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: _enemyPrefabs.Array.size
@@ -2882,70 +2882,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6279143240490528680, guid: 8cd58260aa9cb1a4a8eddf6a46374eac, type: 3}
   m_PrefabInstance: {fileID: 2063886650}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &2083844126
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2083844128}
-  - component: {fileID: 2083844127}
-  m_Layer: 0
-  m_Name: ExplosiveEnemyNavmesh
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &2083844127
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2083844126}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SerializedVersion: 0
-  m_AgentTypeID: -334000983
-  m_CollectObjects: 0
-  m_Size: {x: 10, y: 10, z: 10}
-  m_Center: {x: 0, y: 2, z: 0}
-  m_LayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_UseGeometry: 0
-  m_DefaultArea: 0
-  m_GenerateLinks: 0
-  m_IgnoreNavMeshAgent: 1
-  m_IgnoreNavMeshObstacle: 1
-  m_OverrideTileSize: 0
-  m_TileSize: 256
-  m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.36666667
-  m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: 845812eb03b679249871d359d54c9d26, type: 2}
-  m_BuildHeightMesh: 0
---- !u!4 &2083844128
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2083844126}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 40.250557, y: 31.115095, z: -57.223194}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2091593734
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3286,7 +3222,6 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 567444502}
-  - {fileID: 2083844128}
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 2091593734}
