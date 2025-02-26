@@ -344,7 +344,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3810027483
+  GlobalObjectIdHash: 1163012933
   InScenePlacedSourceGlobalObjectIdHash: 2396964407
   DeferredDespawnTick: 0
   Ownership: 1
@@ -489,8 +489,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5518635a2dce475cace5f584bfb1fa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   MaxHealth: 100
   CriticalHealthRatio: 0.3
+  CurrentHealth:
+    m_InternalValue: 0
 --- !u!1 &3428043383610237515
 GameObject:
   m_ObjectHideFlags: 0
@@ -906,7 +909,7 @@ GameObject:
   - component: {fileID: 6912990487037761207}
   - component: {fileID: 8306505824133433833}
   - component: {fileID: 8447213867911874605}
-  m_Layer: 8
+  m_Layer: 12
   m_Name: ItemAcquisitionRange
   m_TagString: Untagged
   m_Icon: {fileID: 0}
