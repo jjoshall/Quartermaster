@@ -74,6 +74,7 @@ public class Inventory : NetworkBehaviour {
         if (!_InputHandler) _InputHandler = _playerObj.GetComponent<PlayerInputHandler>();
 
         _InputHandler.OnUse += UseItem;
+        _InputHandler.OnInteract += PickUpClosest;
         // if (orientation == null)
         // {
         //     orientation = playerObj.transform;
@@ -95,13 +96,13 @@ public class Inventory : NetworkBehaviour {
     void MyInput() {
         if (!IsOwner) return;
 
-        if (_InputHandler.isInteracting) {
-            GameObject closestItem = _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().GetClosestItem();
-            if (closestItem != null) {
-                PickUpItem(closestItem);
-                // DEBUG_PRINT_INVENTORY();
-            }
-        }
+        // if (_InputHandler.isInteracting) {
+        //     // GameObject closestItem = _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().GetClosestItem();
+        //     // if (closestItem != null) {
+        //     //     PickUpItem(closestItem);
+        //     //     // DEBUG_PRINT_INVENTORY();
+        //     // }
+        // }
 
         if (_InputHandler.isDropping) {
             DropSelectedItem();
@@ -170,7 +171,17 @@ public class Inventory : NetworkBehaviour {
         }
     }
 
+    void PickUpClosest(bool discardBool) {
+        if (!IsOwner) return;
+        
+        GameObject closestItem = _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().GetClosestItem();
+        if (closestItem != null) {
+            PickUpItem(closestItem);
+        }
+    }
     void PickUpItem (GameObject pickedUp) {
+        if (!IsOwner) return;
+
         int itemID = pickedUp.GetComponent<WorldItem>().GetItemID();
         string stringID = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
         if (stringID == "PocketInventoryPortalKey") {

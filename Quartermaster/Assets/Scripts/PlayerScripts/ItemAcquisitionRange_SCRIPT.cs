@@ -27,7 +27,10 @@ public class ItemAcquisitionRange : MonoBehaviour {
     public void AddItem(GameObject item) {
         if (_itemsInRange.Contains(item)) { return; }
         _itemsInRange.Add(item);
+
+        string stringID = ItemManager.instance.itemEntries[item.GetComponent<WorldItem>().GetItemID()].inventoryItemClass;
         // Debug_print_items_in_range();
+        Debug_print_items_in_range(); 
     }
 
     void OnTriggerExit(Collider other) {
