@@ -60,12 +60,22 @@ public class EnemySpawner : NetworkBehaviour {
 
     private Vector3 GetSpawnPoint(){
         // GetRandomPositionOnMap(); // Old. Deprecated.
-        if (_enemySpawnPoints.Count == 0) return GetRandomPositionOnMap();
+        if (_enemySpawnPoints.Count == 0) {
+            Debug.LogError("No spawn points found.");
+            serverDebugMsgServerRpc("No spawn points found.");
+            return Vector3.zero;
+        }
         float spawnX = _enemySpawnPoints[Random.Range(0, _enemySpawnPoints.Count)].transform.position.x;
         float spawnY = _enemySpawnPoints[Random.Range(0, _enemySpawnPoints.Count)].transform.position.y + 0.5f;
         float spawnZ = _enemySpawnPoints[Random.Range(0, _enemySpawnPoints.Count)].transform.position.z;
         return new Vector3 (spawnX, spawnY, spawnZ);
 
+    }
+
+    [ServerRpc]
+    private void serverDebugMsgServerRpc(string msg){
+        if (!IsServer) { return; }
+        Debug.Log(msg);
     }
     private IEnumerator SpawnOverTime() {
         while (true) {

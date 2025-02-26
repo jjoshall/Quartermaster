@@ -7,7 +7,7 @@ public class NodeDefense : NetworkBehaviour
 {
 
     public NetworkVariable<bool> n_defenseCompleted = new NetworkVariable<bool>(); // completed when players successfully complete the defense.
-    private NetworkVariable<bool> _nodeDefenseActive = new NetworkVariable<bool>(); // active with players in range.
+    private NetworkVariable<bool> n_nodeDefenseActive = new NetworkVariable<bool>(); // active with players in range.
 
     [Tooltip("Duration in seconds to defend the node before it is cleared.")]
     public float nodeDefenseDuration = 60f; // default duration to defend before completed. set in inspector
@@ -36,15 +36,16 @@ public class NodeDefense : NetworkBehaviour
     {
         n_defenseCompleted.Value = false;
         _currentDefenseTimer = 0f;
-        _nodeDefenseActive.Value = false;
+        n_nodeDefenseActive.Value = false;
         _particleTimer = 0f;
     }
 
     public override void OnNetworkSpawn()
     {
+        if (!IsServer) return;
         n_defenseCompleted.Value = false;
         _currentDefenseTimer = 0f;
-        _nodeDefenseActive.Value = false;
+        n_nodeDefenseActive.Value = false;
         _particleTimer = 0f;
     }
 
@@ -67,7 +68,7 @@ public class NodeDefense : NetworkBehaviour
     private void SpawnParticle(){
         if (n_defenseCompleted.Value){
             SpawnCompleteParticle();
-        } else if (_nodeDefenseActive.Value){
+        } else if (n_nodeDefenseActive.Value){
             SpawnActiveParticle();
         }
     }
@@ -94,7 +95,7 @@ public class NodeDefense : NetworkBehaviour
             n_defenseCompleted.Value = true;
             // _particleInterval = 1000f;
         }
-        if (_nodeDefenseActive.Value){
+        if (n_nodeDefenseActive.Value){
             _currentDefenseTimer += Time.deltaTime;
             UpdateRendererColor();
         } else {
@@ -131,7 +132,7 @@ public class NodeDefense : NetworkBehaviour
     void OnTriggerEnter(Collider other){
         if(other.gameObject.tag == "Player"){
             _playersInRange.Add(other.gameObject);
-            _nodeDefenseActive.Value = true;
+            n_nodeDefenseActive.Value = true;
         }
     }
 
@@ -139,7 +140,7 @@ public class NodeDefense : NetworkBehaviour
         if(other.gameObject.tag == "Player"){
             _playersInRange.Remove(other.gameObject);
             if(!HasPlayersInRange()){
-                _nodeDefenseActive.Value = false;
+                n_nodeDefenseActive.Value = false;
                 _currentDefenseTimer = 0f;
                 _particleTimer = 0f;
             }
