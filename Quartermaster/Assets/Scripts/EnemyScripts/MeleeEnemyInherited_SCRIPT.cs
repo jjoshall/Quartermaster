@@ -1,11 +1,29 @@
 using UnityEngine;
 using System.Collections;
 using Unity.Netcode;
-using System;
 
 public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     private bool _canAttack = true;
-    public float attackCooldown = 2f;
+    protected override float attackCooldown { get; } = 2f;
+    protected override float attackRange { get; } = 2f;
+    protected override int damage { get; } = 20;
+
+    protected override void UpdateTarget() {
+        if (enemySpawner == null || enemySpawner.playerList == null) return;
+
+        GameObject closestPlayer = null;
+        float closestDistance = float.MaxValue;
+
+        foreach (GameObject obj in enemySpawner.playerList) {
+            float distance = Vector3.Distance(transform.position, obj.transform.position);
+            if (distance < closestDistance) {
+                closestPlayer = obj;
+                closestDistance = distance;
+            }
+        }
+
+        target = closestPlayer != null ? closestPlayer.transform : null;
+    }
 
     protected override void Attack() {
         if (!_canAttack) return;
@@ -32,7 +50,6 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
         // Loop through all the colliders that were detected within the sphere
         foreach (var hitCollider in hitColliders) {
-            // Check if the collider has the "Player" tag
             if (hitCollider.CompareTag("Player")) {
                 hitCollider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
             }
