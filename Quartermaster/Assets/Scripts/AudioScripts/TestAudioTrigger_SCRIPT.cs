@@ -9,11 +9,11 @@ public class TestAudioTrigger : NetworkBehaviour {
             return;
             
         if (Input.GetKeyDown(KeyCode.K)) {
-            AudioLibrary.GetClipAsync(soundAddressableKey, (clip) => {
-                if (clip != null && AudioManager.Instance != null) {
-                    AudioManager.Instance.PlaySoundAtPosition(clip, transform.position);
-                }
-            });
+            // AudioLibrary.GetClipAsync(soundAddressableKey, (clip) => {
+            //     if (clip != null && AudioManager.Instance != null) {
+            //         AudioManager.Instance.PlaySoundAtPosition(clip, transform.position);
+            //     }
+            // });
 
             GetComponent<NetworkAudio>().RequestSoundServerRpc(soundAddressableKey, transform.position);
         }
