@@ -2,16 +2,18 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
-using Unity.VisualScripting;
 
 public class SettingsCanvasManager : MonoBehaviour {
 
     [SerializeField] private Button returnToPrevBtn;
 
     private void Awake() {
+
         //when button clicked disable canvas
         returnToPrevBtn.onClick.AddListener(() => {
             gameObject.SetActive(false);
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         });
     } 
 

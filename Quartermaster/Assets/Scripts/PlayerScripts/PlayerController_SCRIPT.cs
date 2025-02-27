@@ -82,7 +82,7 @@ public class PlayerController : NetworkBehaviour {
         // Main Camera and Audio Listener
         if (PlayerCamera != null) {
             PlayerCamera.gameObject.SetActive(true);
-            PlayerCamera.GetComponent<AudioListener>().enabled = true;
+            //PlayerCamera.GetComponent<AudioListener>().enabled = true;
         }
 
 
@@ -108,7 +108,7 @@ public class PlayerController : NetworkBehaviour {
         // Camera and Audio Listener
         if (PlayerCamera != null) {
             PlayerCamera.gameObject.SetActive(false);
-            PlayerCamera.GetComponent<AudioListener>().enabled = false;
+            GetComponent<AudioListener>().enabled = false;
         }
 
 
@@ -175,6 +175,9 @@ public class PlayerController : NetworkBehaviour {
             DisablePlayerControls();
             return;
         }
+
+        AudioManager.Instance.playerTransform = transform;
+        GetComponent<AudioListener>().enabled = true;
 
         Controller = GetComponent<CharacterController>();
         InputHandler = GetComponent<PlayerInputHandler>();
