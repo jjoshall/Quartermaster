@@ -4,9 +4,64 @@ using UnityEngine;
 using Unity.Netcode;
 
 public class ItemManager : NetworkBehaviour {
-    // Singleton
-    public static ItemManager instance;
+
+    #region Setup
+    public static ItemManager instance; //singleton
+
+    // itemClassMap
     private Dictionary<string, Func<InventoryItem>> _itemClassMap = new Dictionary<string, Func<InventoryItem>>();
+
+    [Serializable]
+    public struct itemStruct {
+        public GameObject worldPrefab; // assign in inspector
+        public string inventoryItemClass; // string key that should match a InventoryItem class name
+    }
+
+    [Serializable]
+    public struct DropEntry {
+        public int itemID; // index in itemEntries
+        public int quantity; // stack count when dropped. automatically capped to stackLimit of item
+        public float dropChance; // 0-1
+    }
+    #endregion 
+
+
+
+    #region InspectorVars
+    // Constant during runtime.
+    [SerializeField, Range(0, 1), Tooltip("Base drop chance")]
+    public float burstDrop_baseRate;
+    public float burstDrop_dropRateIncrement;
+    public float burstDrop_dropCount;
+    public float burstdrop_targetEnemiesPerItem;    
+
+    // Used for lookup during worlditem & inventoryitem spawn.
+    public List<itemStruct> itemEntries = new List<itemStruct>(); 
+    // When burstdrop triggered, chooses entries from this list.
+    public List<DropEntry> dropEntries = new List<DropEntry>();
+    #endregion
+
+
+
+    #region RuntimeVars
+    // Killcount based drop rate modifier.
+    private int _burstdrop_totalEnemiesKilled = 0;
+    private float _burstdrop_moddedRate = 0.0f;
+    private List<DropEntry> _modifiedDropRates = new List<DropEntry>();
+
+    private float _sinceLast_damageTaken = 0.0;
+    private float _sinceLast_healingValue = 0.0f;
+    // Drama. healingValue - damageTaken < 0
+
+    private float _sincelast_totalSpawnedEnemyHp = 0;
+    // Drama. totalSpawnedEnemyHp > teamDps
+    #endregion
+
+
+
+
+    #region Initialization
+
     void Awake() {
         if(instance == null) {
             instance = this;
@@ -25,17 +80,12 @@ public class ItemManager : NetworkBehaviour {
             _itemClassMap[item.inventoryItemClass] = () => (InventoryItem)Activator.CreateInstance(itemType);
         }
     }
-
-    [Serializable]
-    // This is the struct for each item in the ItemManager's list
-    public struct itemStruct {
-        public GameObject worldPrefab; // assign in inspector
-        public string inventoryItemClass; // Fully qualified class name (e.g., "HealthPotionItem")
-    }
+    #endregion 
+    
 
 
-    public List<itemStruct> itemEntries = new List<itemStruct>();
 
+    #region Item Functions
 
     [ServerRpc(RequireOwnership = false)]
     public void SpawnWorldItemServerRpc(int id, 
@@ -77,7 +127,7 @@ public class ItemManager : NetworkBehaviour {
         
     }
 
-
+    // Used as a lookup, and returns an instance of InventoryItem
     public InventoryItem SpawnInventoryItem (string id, int stackQuantity, float timeLastUsed) {
         InventoryItem newInventoryItem = _itemClassMap[id]();
         newInventoryItem.itemID = itemEntries.FindIndex(item => item.inventoryItemClass == id);
@@ -95,4 +145,57 @@ public class ItemManager : NetworkBehaviour {
             // Destroy(worldItem.gameObject);
         }
     }
+
+    #endregion 
+
+
+
+
+    #region Item Drop
+    // AttemptBurstDrop() should be called when an enemy dies.
+    // Failing a burst drop roll should increment some value that increases the rate.
+    // The rate should be reset when a burst drop occurs.
+    public void AttemptBurstDrop(){
+        // roll to determine if it should burst drop
+        if (UnityEngine.Random.value < _burstdrop_moddedRate){
+            // roll to determine how many items to drop
+            int dropCount = UnityEngine.Random.Range(1, (int)burstDrop_dropCount);
+            for (int i = 0; i < dropCount; i++){
+                // roll to determine which item to drop
+                float dropRoll = UnityEngine.Random.value;
+                float dropAccumulator = 0.0f;
+                foreach (DropEntry entry in _modifiedDropRates){
+                    dropAccumulator += entry.dropChance;
+                    if (dropRoll < dropAccumulator){
+                        // drop this item
+                        SpawnWorldItemServerRpc(entry.itemID, entry.quantity, Time.time, new Vector3(0, 0, 0), new Vector3(0, 0, 0), new NetworkObjectReference());
+                        break;
+                    }
+                }
+            }
+            _burstdrop_totalEnemiesKilled = 0;
+            _burstdrop_moddedRate = burstDrop_baseRate;
+        } else {
+            _burstdrop_totalEnemiesKilled++;
+            _burstdrop_moddedRate += burstDrop_dropRateIncrement;
+        }
+
+    }
+
+    // Call on enemy death.
+    [ServerRpc(RequireOwnership = false)]
+    public void IncrementEnemiesKilledServerRpc(){
+        if (!IsServer) { return; }
+        _burstdrop_totalEnemiesKilled++;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void IncrementTotalDamageTakenServerRpc(float damage){
+        if (!IsServer) { return; }
+        _sinceLast_damageTaken += damage;
+    }
+
+
+
+    #endregion
 }
