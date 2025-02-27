@@ -41,7 +41,6 @@ public class ParticleManager : NetworkBehaviour
         public float duration;
         public GameObject particlePrefab;
     }
-    
     #endregion
 
 
@@ -121,7 +120,7 @@ public class ParticleManager : NetworkBehaviour
         {
             GameObject typePrefab = particleTypesPrefabList.Find(x => x.key == key).particlePrefab;
             particleObj = Instantiate(typePrefab, position, rotation);
-            
+            particleObj.transform.SetParent(this.gameObject.transform);
             float typeDuration = particleTypesPrefabList.Find(x => x.key == key).duration;
             PlayParticle(particleObj, key, typeDuration);
         }

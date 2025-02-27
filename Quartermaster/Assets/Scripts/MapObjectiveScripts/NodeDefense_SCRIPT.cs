@@ -6,16 +6,14 @@ using System.Collections.Generic;
 public class NodeDefense : NetworkBehaviour
 {
 
+    #region = Variables
     public NetworkVariable<bool> n_defenseCompleted = new NetworkVariable<bool>(); // completed when players successfully complete the defense.
-    private NetworkVariable<bool> _nodeDefenseActive = new NetworkVariable<bool>(); // active with players in range.
+    private NetworkVariable<bool> n_nodeDefenseActive = new NetworkVariable<bool>(); // active with players in range.
 
     [Tooltip("Duration in seconds to defend the node before it is cleared.")]
-    public float nodeDefenseDuration = 60f; // default duration to defend before completed. set in inspector
-
+    public float nodeDefenseDuration = 60f; // time until node complete.
     private float _currentDefenseTimer = 0f;
-
     private List<GameObject> _playersInRange = new List<GameObject>();
-
     public Renderer this_renderer; // set in inspector
     // slider serializable
     [SerializeField, Range(0, 1)]
@@ -32,19 +30,24 @@ public class NodeDefense : NetworkBehaviour
     private float _particleTimer = 0f;
     private float _particleInterval = 2.0f;
 
+    #endregion 
+
+    #region = Setup
+
     void Start()
     {
         n_defenseCompleted.Value = false;
         _currentDefenseTimer = 0f;
-        _nodeDefenseActive.Value = false;
+        n_nodeDefenseActive.Value = false;
         _particleTimer = 0f;
     }
 
     public override void OnNetworkSpawn()
     {
+        if (!IsServer) return;
         n_defenseCompleted.Value = false;
         _currentDefenseTimer = 0f;
-        _nodeDefenseActive.Value = false;
+        n_nodeDefenseActive.Value = false;
         _particleTimer = 0f;
     }
 
@@ -55,6 +58,10 @@ public class NodeDefense : NetworkBehaviour
         }
         UpdateDefenseTimer();
     }
+
+    #endregion 
+
+    #region = VFX
 
     private void UpdateParticle(){
         if (_particleTimer >= _particleInterval){
@@ -67,7 +74,7 @@ public class NodeDefense : NetworkBehaviour
     private void SpawnParticle(){
         if (n_defenseCompleted.Value){
             SpawnCompleteParticle();
-        } else if (_nodeDefenseActive.Value){
+        } else if (n_nodeDefenseActive.Value){
             SpawnActiveParticle();
         }
     }
@@ -87,6 +94,13 @@ public class NodeDefense : NetworkBehaviour
         _particleTimer = 0.0f;
         ParticleManager.instance.SpawnSelfThenAll("RingEmission", this.transform.position, Quaternion.Euler(90.0f, 0, 0));
     }
+    private void UpdateRendererColor(){
+        this_renderer.material.color = new Color(_red * GetRatio(), _green * GetRatio(), _blue * GetRatio());
+    }
+
+    #endregion 
+
+    #region = Logic
 
     private void UpdateDefenseTimer(){
         // increment if hasPlayersinRange, decrement if no players in range
@@ -94,7 +108,7 @@ public class NodeDefense : NetworkBehaviour
             n_defenseCompleted.Value = true;
             // _particleInterval = 1000f;
         }
-        if (_nodeDefenseActive.Value){
+        if (n_nodeDefenseActive.Value){
             _currentDefenseTimer += Time.deltaTime;
             UpdateRendererColor();
         } else {
@@ -107,19 +121,29 @@ public class NodeDefense : NetworkBehaviour
         }
     }
 
-    private void UpdateRendererColor(){
-        this_renderer.material.color = new Color(_red * GetRatio(), _green * GetRatio(), _blue * GetRatio());
-        // float ratio = GetRatio(); // 0 to 1
-        // Color baseColor = new Color(_red * ratio, _green * ratio, _blue * ratio); // Adjust RGB brightness
 
-        // // Ensure the material supports emission
-        // this_renderer.material.EnableKeyword("_EMISSION");
 
-        // // Set emission color with intensity (multiply color for glow effect)
-        // this_renderer.material.SetColor("_EmissionColor", baseColor * Mathf.Lerp(0.2f, 5.0f, ratio));
-
+    void OnTriggerEnter(Collider other){
+        if(other.gameObject.tag == "Player"){
+            _playersInRange.Add(other.gameObject);
+            n_nodeDefenseActive.Value = true;
+        }
     }
 
+    void OnTriggerExit(Collider other){
+        if(other.gameObject.tag == "Player"){
+            _playersInRange.Remove(other.gameObject);
+            if(!HasPlayersInRange()){
+                n_nodeDefenseActive.Value = false;
+                _currentDefenseTimer = 0f;
+                _particleTimer = 0f;
+            }
+        }
+    }
+
+    #endregion
+
+    #region = Helpers
     private float GetRatio(){
         return _currentDefenseTimer / nodeDefenseDuration;
     }
@@ -128,22 +152,6 @@ public class NodeDefense : NetworkBehaviour
         return _playersInRange.Count > 0;
     }
 
-    void OnTriggerEnter(Collider other){
-        if(other.gameObject.tag == "Player"){
-            _playersInRange.Add(other.gameObject);
-            _nodeDefenseActive.Value = true;
-        }
-    }
-
-    void OnTriggerExit(Collider other){
-        if(other.gameObject.tag == "Player"){
-            _playersInRange.Remove(other.gameObject);
-            if(!HasPlayersInRange()){
-                _nodeDefenseActive.Value = false;
-                _currentDefenseTimer = 0f;
-                _particleTimer = 0f;
-            }
-        }
-    }
+    #endregion
 
 }

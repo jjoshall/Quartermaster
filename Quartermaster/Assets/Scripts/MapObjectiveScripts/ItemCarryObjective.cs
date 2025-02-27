@@ -11,7 +11,7 @@ public class ItemCarryObjective : IObjective
     {
         for (int i = 0; i < destinations.Count; i++)
         {
-            if (destinations[i].GetComponent<ItemCarryTriggerVolume>().getItemsToDeliver() != 0)
+            if (destinations[i].GetComponent<ItemCarryTriggerVolume>().GetItemsToDeliver() != 0)
             {
                 return false;
             }

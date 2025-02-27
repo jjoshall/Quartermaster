@@ -36,6 +36,7 @@ public class ItemManager : NetworkBehaviour {
 
     public List<itemStruct> itemEntries = new List<itemStruct>();
 
+
     [ServerRpc(RequireOwnership = false)]
     public void SpawnWorldItemServerRpc(int id, 
                                         int quantity, 
@@ -61,6 +62,7 @@ public class ItemManager : NetworkBehaviour {
         netObj.transform.position = spawnLoc;
         netObj.GetComponent<Rigidbody>().linearVelocity = initialVelocity;
         netObj.Spawn(true);
+        newWorldItem.transform.SetParent(this.gameObject.transform);
         newWorldItem.GetComponent<WorldItem>().InitializeItem(id, quantity, lastUsed);
 
         // map id number to its stringID
