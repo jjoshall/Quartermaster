@@ -3,7 +3,6 @@ using Unity.Netcode;
 
 [RequireComponent(typeof(PlayerInputHandler))]
 public class Inventory : NetworkBehaviour {
-    private const bool DEBUG_FLAG = true;
     private GameObject _playerObj;
     private GameObject _itemAcquisitionRange;
 
@@ -20,7 +19,6 @@ public class Inventory : NetworkBehaviour {
     public KeyCode selectItemThreeKey = KeyCode.Alpha3;
     public KeyCode selectItemFourKey = KeyCode.Alpha4;
 
-
     private UIManager _uiManager;
 
     [Header("Item Materials")]
@@ -28,164 +26,93 @@ public class Inventory : NetworkBehaviour {
     [SerializeField] public Texture keyMaterial;
     [SerializeField] public Texture pistolMaterial;
     [SerializeField] public Texture emptyMaterial;
+    [SerializeField] public Texture railgunMaterial;
+    [SerializeField] public Texture flamethrowerMaterial;
 
-
-    // public struct InventoryItem
-    // {
-    //     public InventoryItem item;
-    //     public int quantity;
-    //     public float last_used;
-
-    //     public InventoryItem(InventoryItem item, int quantity, float last_used)
-    //     {
-    //         this.item = item;
-    //         this.quantity = quantity;
-    //         this.last_used = last_used;
-    //     }
-    // }
-
-    private InventoryItem[] _inventory; // List of items in the player's inventory
-
-    private int _currentInventoryIndex = 0; // The index of the currently selected item in the inventory
+    private InventoryItem[] _inventory;  // Inventory array
+    private int _currentInventoryIndex = 0; // Currently selected slot (0-based)
     private int _oldInventoryIndex = 0;
-    private int _currentHeldItems = 0; // The number of items the player is currently holding
-    private int _maxInventorySize = 4; // Maximum number of items the player can hold
-    private GameObject _selectedItem; // The item that the player has selected to use
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start() {
-    }
+    private int _currentHeldItems = 0;
+    private int _maxInventorySize = 4;
 
     public override void OnNetworkSpawn(){
-        if (!IsOwner){
-            // disable this component
+        if (!IsOwner) {
             this.enabled = false;
             return;
         }
-
-        if (IsOwner) {
-            Debug.Log("Before");
-            _uiManager = GameObject.Find("UI Manager").GetComponent<UIManager>();
-            Debug.Log("After: ", _uiManager);
-        }
-
+        
+        _uiManager = GameObject.Find("UI Manager").GetComponent<UIManager>();
         _playerObj = this.gameObject;
         _itemAcquisitionRange = _playerObj.GetComponentInChildren<ItemAcquisitionRange>().gameObject;
         if (!_InputHandler) _InputHandler = _playerObj.GetComponent<PlayerInputHandler>();
 
         _InputHandler.OnUse += UseItem;
         _InputHandler.OnInteract += PickUpClosest;
-        // if (orientation == null)
-        // {
-        //     orientation = playerObj.transform;
-        // }
 
+        // Initialize inventory array
         _inventory = new InventoryItem[_maxInventorySize];
         for (int i = 0; i < _maxInventorySize; i++) {
-            // InventoryItem newSlot = new InventoryItem(null, 0, 0);
             _inventory[i] = null;
         }
+
+        UpdateAllInventoryUI();
     }
 
-    // Update is called once per frame
     void Update() {
         MyInput();
     }
 
-
     void MyInput() {
         if (!IsOwner) return;
 
-        // if (_InputHandler.isInteracting) {
-        //     // GameObject closestItem = _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().GetClosestItem();
-        //     // if (closestItem != null) {
-        //     //     PickUpItem(closestItem);
-        //     //     // DEBUG_PRINT_INVENTORY();
-        //     // }
-        // }
-
         if (_InputHandler.isDropping) {
             DropSelectedItem();
-            // DEBUG_PRINT_INVENTORY();
         }
+        // Use the inventory index directly (assumed 0-based now)
+        _currentInventoryIndex = Mathf.Clamp(_InputHandler.inventoryIndex, 0, _maxInventorySize - 1);
+        Debug.Log("Mapped _currentInventoryIndex: " + _currentInventoryIndex);
 
-       /*if (_InputHandler.isUsingPressed) {
-            Debug.Log("pressed");
-            UseItem(false);
+        if (_currentInventoryIndex != _oldInventoryIndex) {
+            UpdateAllInventoryUI();
+            _oldInventoryIndex = _currentInventoryIndex;
         }
-        else if (_InputHandler.isUsingHeld) {
-            Debug.Log("held");
-            UseItem(true);
-            // DEBUG_PRINT_INVENTORY();
-        }*/
-
-        _currentInventoryIndex = _InputHandler.inventoryIndex % _maxInventorySize;
-        if (_currentInventoryIndex != _oldInventoryIndex){
-            UpdateSelectedItemUI();
-        }
-
-        /*
-        if (Input.GetKeyDown(selectItemOneKey)) {
-            _currentInventoryIndex = 0;
-            UpdateSelectedItemUI();
-        }
-
-        if (Input.GetKeyDown(selectItemTwoKey)) {
-            _currentInventoryIndex = 1;
-            // DEBUG_SELECT_SLOT();
-            UpdateSelectedItemUI();
-        }
-
-        if (Input.GetKeyDown(selectItemThreeKey)) {
-            _currentInventoryIndex = 2;
-            // DEBUG_SELECT_SLOT();
-            UpdateSelectedItemUI();
-        }
-
-        if (Input.GetKeyDown(selectItemFourKey)) {
-            _currentInventoryIndex = 3;
-            // DEBUG_SELECT_SLOT();
-            UpdateSelectedItemUI();
-        }
-        */
+        Debug.Log("Raw inventoryIndex from input handler: " + _InputHandler.inventoryIndex);
+        _uiManager.HighlightSlot(_currentInventoryIndex);
     }
 
-    void UseItem (bool isHeld) {
-        if (!IsOwner){
+    void UseItem(bool isHeld) {
+        if (!IsOwner) return;
+        if (_currentInventoryIndex < 0 || _currentInventoryIndex >= _inventory.Length) {
+            Debug.LogError("Invalid inventory index: " + _currentInventoryIndex);
             return;
         }
         if (_inventory[_currentInventoryIndex] != null) {
-            // Use the item effect.
             if (_playerObj == null) {
-                Debug.Log("playerObj is null");
                 _playerObj = transform.parent.gameObject;
             }
-            // string debugIsHeld = isHeld ? "true" : "false";
-            // Debug.Log ("UseItem triggered with IsHeld = " + debugIsHeld);
             _inventory[_currentInventoryIndex].AttemptUse(_playerObj, isHeld);
-
             if (_inventory[_currentInventoryIndex].quantity <= 0) {
                 _inventory[_currentInventoryIndex] = null;
                 _currentHeldItems--;
+                UpdateAllInventoryUI();
             }
         }
     }
 
     void PickUpClosest(bool discardBool) {
         if (!IsOwner) return;
-        
         GameObject closestItem = _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().GetClosestItem();
         if (closestItem != null) {
             PickUpItem(closestItem);
         }
     }
-    void PickUpItem (GameObject pickedUp) {
+
+    void PickUpItem(GameObject pickedUp) {
         if (!IsOwner) return;
 
         int itemID = pickedUp.GetComponent<WorldItem>().GetItemID();
         string stringID = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
         if (stringID == "PocketInventoryPortalKey") {
-            // if (this.gameObject == PocketInventory.instance.playerInsidePocket()){
             if (PocketInventory.instance.PlayerIsInPocket(_playerObj.GetComponent<NetworkObject>())) {
                 PocketInventory.instance.clearDroppedKeyServerRpc();
             }
@@ -194,129 +121,119 @@ public class Inventory : NetworkBehaviour {
         int stackQuantity = pickedUp.GetComponent<WorldItem>().GetStackQuantity();
         float lastUsed = pickedUp.GetComponent<WorldItem>().GetLastUsed();
 
-        _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().RemoveItem(pickedUp); // remove the item from the list of items in range
+        _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().RemoveItem(pickedUp);
         ItemManager.instance.DestroyWorldItemServerRpc(pickedUp.GetComponent<NetworkObject>());
 
         Debug.Log("Spawning a new inventoryItem for pickup: " + stringID);
-        // spawnInventoryItem uses stringID for lookup. 
         InventoryItem newItem = ItemManager.instance.SpawnInventoryItem(stringID, stackQuantity, lastUsed);
-        
-        
-        // If stackable. Stack.
-        if (TryStackItem (newItem)) { Debug.Log ("Stacked the item"); return; } 
-        if (newItem.quantity <= 0) { return; } // Might be redundant but leave it here in case of 0
 
-        // Weapon check.
+        // If stackable, try to stack.
+        if (TryStackItem(newItem)) {
+            Debug.Log("Stacked the item");
+            return;
+        }
+        if (newItem.quantity <= 0) return;
+
+        // If it's a weapon, check if one already exists.
         if (newItem.IsWeapon()){
-            Debug.Log ("newItem.Isweapon() is true");;
             int weaponSlot = HasWeapon();
-            if (weaponSlot != -1){
-                Debug.Log ("We have a weapon at slot " + weaponSlot + ". Dropping it.");
+            if (weaponSlot != -1) {
+                Debug.Log("We have a weapon at slot " + weaponSlot + ". Dropping it.");
                 DropItem(weaponSlot);
             }
         }
 
-        // else add to first empty slot
+        // Add to the first empty slot.
         if (_currentHeldItems < _maxInventorySize) {
-            AddToFirstEmptySlot(newItem); // convert worlditem to inventoryitem
+            AddToFirstEmptySlot(newItem);
+            UpdateAllInventoryUI();
         }
     }
 
-    // Return true if fully merged into existing stacks.
-    bool TryStackItem (InventoryItem newItem) {
+    // Tries to stack newItem onto an existing stack. Returns true if stacked.
+    bool TryStackItem(InventoryItem newItem) {
         for (int i = 0; i < _inventory.Length; i++){
-            if (_inventory[i] == null) {
-                continue;
-            }
-
+            if (_inventory[i] == null) continue;
             if (_inventory[i].itemID == newItem.itemID) {
                 _inventory[i].quantity += newItem.quantity;
                 if (_inventory[i].quantity > _inventory[i].StackLimit()) {
-                    newItem.quantity = _inventory[i].quantity - _inventory[i].StackLimit(); // left over quantity
-                    _inventory[i].quantity = _inventory[i].StackLimit(); // cap curr item to stackLimit
-
+                    newItem.quantity = _inventory[i].quantity - _inventory[i].StackLimit();
+                    _inventory[i].quantity = _inventory[i].StackLimit();
                 } else {
-                    // same item as curr index and total quantity under stack limit.
-                    // aka, we stacked into an existing stack with non left over.
-                    
                     return true;
                 }
             }
         }
-
         return false;
     }
 
-    void AddToFirstEmptySlot (InventoryItem item) {
+    void AddToFirstEmptySlot(InventoryItem item) {
         for (int i = 0; i < _inventory.Length; i++) {
             if (_inventory[i] == null) {
                 _inventory[i] = item;
                 _currentHeldItems++;
+                Debug.Log($"Item {item.GetType().Name} added to slot {i}");
                 return;
             }
         }
     }
 
-    void DropSelectedItem () { // Active drop. Gives it a velocity.
-        // If null, no selected item.
-        if (_inventory[_currentInventoryIndex] == null) {
-            return;
-        }
-
+    void DropSelectedItem() {
+        if (_inventory[_currentInventoryIndex] == null) return;
         int selectedItemId = _inventory[_currentInventoryIndex].itemID;
         string stringID = ItemManager.instance.itemEntries[selectedItemId].inventoryItemClass;
         int stackQuantity = _inventory[_currentInventoryIndex].quantity;
         float lastUsed = _inventory[_currentInventoryIndex].lastUsed;
         _inventory[_currentInventoryIndex] = null;
-
         Vector3 initVelocity = orientation.forward * 10;
-
         NetworkObjectReference n_playerObj = _playerObj.GetComponent<NetworkObject>();
 
         ItemManager.instance.SpawnWorldItemServerRpc(
-                                    selectedItemId, 
-                                    stackQuantity, 
-                                    lastUsed, 
-                                    this.transform.position, 
-                                    initVelocity,
-                                    n_playerObj);
+            selectedItemId,
+            stackQuantity,
+            lastUsed,
+            this.transform.position,
+            initVelocity,
+            n_playerObj);
 
         _currentHeldItems--;
+        UpdateAllInventoryUI();
     }
 
-    // Don't refactor this into DropSelectedItem. 
-    // Order of events for velocity & spawn is important.
-    void DropItem(int slot){
-
-        // If null, no selected item.
-        if (_inventory[slot] == null) {
-            return;
-        }
-
+    void DropItem(int slot) {
+        if (_inventory[slot] == null) return;
         int selectedItemId = _inventory[slot].itemID;
         string stringID = ItemManager.instance.itemEntries[slot].inventoryItemClass;
         int stackQuantity = _inventory[slot].quantity;
         float lastUsed = _inventory[slot].lastUsed;
         _inventory[slot] = null;
-
         NetworkObjectReference n_playerObj = _playerObj.GetComponent<NetworkObject>();
 
         ItemManager.instance.SpawnWorldItemServerRpc(
-                                    selectedItemId, 
-                                    stackQuantity, 
-                                    lastUsed, 
-                                    this.transform.position, 
-                                    new Vector3(0, 0, 0),
-                                    n_playerObj);
+            selectedItemId,
+            stackQuantity,
+            lastUsed,
+            this.transform.position,
+            Vector3.zero,
+            n_playerObj);
 
         _currentHeldItems--;
+        UpdateAllInventoryUI();
     }
 
-    // True if has weapon. False if does not have weapon. Default attack.
-    public bool FireWeapon(){
+    public int HasWeapon() {
+        for (int i = 0; i < _inventory.Length; i++) {
+            if (_inventory[i] != null && _inventory[i].IsWeapon()) {
+                Debug.Log("HasWeapon(): Found weapon at slot " + i);
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public bool FireWeapon() {
         int weaponSlot = HasWeapon();
-        if (weaponSlot == -1){
-            // Do default attack(?)
+        if (weaponSlot == -1) {
             Debug.Log("Attempting to FireWeapon(). Player has no weapon.");
             return false;
         }
@@ -325,88 +242,44 @@ public class Inventory : NetworkBehaviour {
         return true;
     }
 
-    public bool CanAutoFire(){
+    public bool CanAutoFire() {
         int weaponSlot = HasWeapon();
-        if (weaponSlot == -1){
-            // Do default attack(?)
+        if (weaponSlot == -1) {
             Debug.Log("Attempting to CanAutoFire(). Player has no weapon.");
             return false;
         }
-        // validate that it is a weapon.
         IWeapon heldWeapon = _inventory[weaponSlot] as IWeapon;
         return heldWeapon.CanAutoFire();
     }
-    
-    // Helper function
-    // Return -1 if no weapon. Otherwise return index of weapon.
-    public int HasWeapon(){
-        for (int i = 0; i < _inventory.Length; i++) {
-            if (_inventory[i] != null && _inventory[i].IsWeapon()) {
-                Debug.Log ("Hasweapon(). Found weapon at slot " + i);  
-                return i;
-            }
-        }
 
-        return -1;
-    }
-
-
-    void DEBUG_PRINT_INVENTORY() {
-        string DEBUG_STRING = "DEBUG: Inventory: \n";
-        for (int i = 0; i < _inventory.Length; i++) {
+    // Updates all inventory UI slots by looping through the inventory array.
+    private void UpdateAllInventoryUI() {
+        for (int i = 0; i < _maxInventorySize; i++) {
+            Texture textureToSet = emptyMaterial;
             InventoryItem item = _inventory[i];
             if (item != null) {
-                string itemString = ItemManager.instance.itemEntries[item.itemID].inventoryItemClass;
-                DEBUG_STRING += "Slot " + (i+1) + ": " + itemString + "(" + item.itemID + "): " + item.quantity + "x, ";
+                switch (item.itemID) {
+                    case 0:
+                        textureToSet = keyMaterial;
+                        break;
+                    case 1:
+                        textureToSet = medkitMaterial;
+                        break;
+                    case 2:
+                        textureToSet = pistolMaterial;
+                        break;
+                    case 3:
+                        textureToSet = railgunMaterial;
+                        break;
+                    case 4:
+                        textureToSet = flamethrowerMaterial;
+                        break;
+                    default:
+                        textureToSet = emptyMaterial;
+                        break;
+                }
             }
+            _uiManager.SetInventorySlotTexture(i, textureToSet);
         }
-
-        Debug.Log(DEBUG_STRING);
     }
-
-    void DEBUG_SELECT_SLOT() {
-        string DEBUG_STRING = "DEBUG: Selected: \n";
-        DEBUG_STRING += "Current Index: " + (_currentInventoryIndex+1) + ", ";
-        DEBUG_STRING += "Item: ";
-        if (_inventory[_currentInventoryIndex] != null) {
-            int itemID = _inventory[_currentInventoryIndex].itemID;
-            string itemString = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
-            DEBUG_STRING += itemString + "(" + itemID + "): " + _inventory[_currentInventoryIndex].quantity + "x";
-        } else {
-            DEBUG_STRING += "none";
-        }
-
-        Debug.Log(DEBUG_STRING);
-    }
-
-    private void UpdateSelectedItemUI() {
-        if (_uiManager == null) { 
-            Debug.Log("nah fuck you");
-            return; }
-
-        InventoryItem selectedItem = _inventory[_currentInventoryIndex];
-        if (selectedItem != null) {
-            // Set the material of the selected item in the UI
-            switch (selectedItem.itemID) {
-                case 0:
-                    _uiManager.SetSelectedItemTexture(keyMaterial);
-                    break;
-                case 1:
-                    _uiManager.SetSelectedItemTexture(medkitMaterial);
-                    break;
-                case 2:
-                    _uiManager.SetSelectedItemTexture(pistolMaterial);
-                    break;
-                default:
-                    _uiManager.SetSelectedItemTexture(emptyMaterial);
-                    break;
-            }
-            Debug.Log("Selected item: " + selectedItem.itemID);
-            Debug.Log("Updated IU color: " + _uiManager.GetSelectedItemTexture());
-        } else {
-            _uiManager.SetSelectedItemTexture(null);
-        }
-
-    }
-
 }
