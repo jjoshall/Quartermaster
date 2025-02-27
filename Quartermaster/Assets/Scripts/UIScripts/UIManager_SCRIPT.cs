@@ -5,6 +5,20 @@ public class UIManager : MonoBehaviour {
     [SerializeField] private RawImage selectedItemImage;
     private bool isPaused = false;
 
+    public Slider musicSlider;
+    public Slider sfxSlider;
+
+    public Slider masterVolSlider;
+
+
+    private void Start() {
+        musicSlider.onValueChanged.AddListener((value) => AudioManager.Instance.SetMusicVolume(value));
+        sfxSlider.onValueChanged.AddListener((value) => AudioManager.Instance.SetSFXVolume(value));
+
+        masterVolSlider.onValueChanged.AddListener((value) => AudioManager.Instance.SetMasterVolume(value));
+    }
+
+
     [SerializeField] private Canvas settingsCanvas;
 
     public void SetSelectedItemTexture(Texture texture) {
