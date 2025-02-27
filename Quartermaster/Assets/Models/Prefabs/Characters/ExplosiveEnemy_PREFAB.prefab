@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 4758602529008843252}
   - component: {fileID: 6073005085154520232}
   - component: {fileID: -8060667617129677652}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: ExplosiveEnemy_PREFAB
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -244,6 +244,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  attackRadius: 2
   enemyType: 0
   enemySpawner: {fileID: 0}
   blinkSpeed: 5

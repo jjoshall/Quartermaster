@@ -7,6 +7,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected virtual float attackCooldown { get; } = 2f;
     protected virtual float attackRange { get; } = 2f;
     protected virtual int damage { get; } = 10;
+    [SerializeField] protected float attackRadius = 2f;
     public EnemyType enemyType;
     private float _nextTargetUpdateTime;
     protected NavMeshAgent agent;
@@ -19,27 +20,6 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     private NetworkVariable<float> healthRatio = new NetworkVariable<float>(1f,
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
-
-    //public override void OnNetworkSpawn() {
-    //    if (!IsServer) {
-    //        enabled = false;
-    //        agent.enabled = false;
-    //        return;
-    //    }
-
-    //    NetworkManager.Singleton.OnClientDisconnectCallback += ClientDisconnected;
-
-    //    agent = GetComponent<NavMeshAgent>();
-    //    health = GetComponent<Health>();
-    //    renderer = GetComponent<Renderer>();
-
-    //    if (health != null) {
-    //        health.OnDamaged += OnDamaged;
-    //        health.OnDie += OnDie;
-    //    }
-
-    //    enemySpawner = EnemySpawner.instance;
-    //}
 
     public override void OnNetworkSpawn() {
         agent = GetComponent<NavMeshAgent>();
@@ -102,6 +82,23 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     // IMPLEMENT THESE TWO METHODS FOR NEW ENEMIES
     protected abstract void UpdateTarget();
     protected abstract void Attack();
+
+    [ServerRpc(RequireOwnership = false)]
+    protected void AttackServerRpc(bool destroyAfterAttack = false)  {
+        if (!IsServer) return;
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
+
+        foreach (var hitCollider in hitColliders) {
+            if (hitCollider.CompareTag("Player")) {
+                hitCollider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
+            }
+        }
+
+        if (destroyAfterAttack)
+        {
+            enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
+        }
+    }
 
     protected virtual void OnDamaged(float damage, GameObject damageSource) {
         Debug.Log(enemyType + " took " + damage + " damage!");

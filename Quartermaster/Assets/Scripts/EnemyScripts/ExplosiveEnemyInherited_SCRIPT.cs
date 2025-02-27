@@ -89,7 +89,6 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
         _isExploding = true;
         isBlinking.Value = true;
-        Debug.Log("Exploding in 2 seconds...");
 
         StartCoroutine(ExplodeAfterDelay());
     }
@@ -97,26 +96,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     private IEnumerator ExplodeAfterDelay() {
         yield return new WaitForSeconds(attackCooldown);
 
-        AttackServerRpc();
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void AttackServerRpc() {
-        if (!IsServer) return;
-
-        // Perform the overlap sphere cast
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 1.5f);
-
-        // Loop through all the colliders that were detected within the sphere
-        foreach (var hitCollider in hitColliders) {
-            if (hitCollider.CompareTag("Player")) {
-                hitCollider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
-                Debug.Log("EXPLODE");
-            }
-        }
-
-        // Delete the enemy
-        enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
+        AttackServerRpc(true);
     }
 
     public override void OnNetworkDespawn()
