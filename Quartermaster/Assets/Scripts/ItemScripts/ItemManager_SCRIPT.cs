@@ -45,16 +45,24 @@ public class ItemManager : NetworkBehaviour {
 
     #region RuntimeVars
     // Killcount based drop rate modifier.
-    private int _burstdrop_totalEnemiesKilled = 0;
     private float _burstdrop_moddedRate = 0.0f;
     private List<DropEntry> _modifiedDropRates = new List<DropEntry>();
 
+
+
+    private int _burstdrop_totalEnemiesKilled = 0;
+
+    // Heuristic input.
     private float _sinceLast_damageTaken = 0.0;
     private float _sinceLast_healingValue = 0.0f;
-    // Drama. healingValue - damageTaken < 0
+                        // Drama. healingValue - damageTaken < 0
+    private float _sinceLast_totalSpawnedFlyingHp = 0; // single target damage
+    private float _sinceLast_totalSpawnedMeleeHp = 0; // aoe damage
+                        // Drama up when: totalSpawnedEnemyHp > teamDps
 
-    private float _sincelast_totalSpawnedEnemyHp = 0;
-    // Drama. totalSpawnedEnemyHp > teamDps
+    // calculate based on current player inventory.
+    private float _playerAoeDps = 0.0f;
+    private float _playerSingleTargetDps = 0.0f;
     #endregion
 
 
