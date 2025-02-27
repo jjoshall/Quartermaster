@@ -28,8 +28,7 @@ public class Inventory : NetworkBehaviour {
     [SerializeField] public Texture keyMaterial;
     [SerializeField] public Texture pistolMaterial;
     [SerializeField] public Texture emptyMaterial;
-
-
+    [SerializeField] public Texture defaultSelectedTexture;
     // public struct InventoryItem
     // {
     //     public InventoryItem item;
@@ -108,7 +107,7 @@ public class Inventory : NetworkBehaviour {
             DropSelectedItem();
             // DEBUG_PRINT_INVENTORY();
         }
-
+        Debug.Log("InputHandler.inventoryIndex: " + _InputHandler.inventoryIndex);
        /*if (_InputHandler.isUsingPressed) {
             Debug.Log("pressed");
             UseItem(false);
@@ -119,10 +118,17 @@ public class Inventory : NetworkBehaviour {
             // DEBUG_PRINT_INVENTORY();
         }*/
 
-        _currentInventoryIndex = _InputHandler.inventoryIndex % _maxInventorySize;
-        if (_currentInventoryIndex != _oldInventoryIndex){
+        // If your input is 1-based, convert it to 0-based.
+        _currentInventoryIndex = Mathf.Clamp(_InputHandler.inventoryIndex, 0, _maxInventorySize - 1);
+
+        // Log the mapped inventory index.
+        Debug.Log("Mapped _currentInventoryIndex: " + _currentInventoryIndex);
+
+        if (_currentInventoryIndex != _oldInventoryIndex) {
             UpdateSelectedItemUI();
+            _oldInventoryIndex = _currentInventoryIndex;
         }
+        Debug.Log("Raw inventoryIndex from input handler: " + _InputHandler.inventoryIndex);
 
         /*
         if (Input.GetKeyDown(selectItemOneKey)) {
@@ -154,19 +160,22 @@ public class Inventory : NetworkBehaviour {
         if (!IsOwner){
             return;
         }
+        if (_currentInventoryIndex < 0 || _currentInventoryIndex >= _inventory.Length) {
+            Debug.LogError("Invalid inventory index: " + _currentInventoryIndex);
+            return;
+        }
+
         if (_inventory[_currentInventoryIndex] != null) {
-            // Use the item effect.
             if (_playerObj == null) {
                 Debug.Log("playerObj is null");
                 _playerObj = transform.parent.gameObject;
             }
-            // string debugIsHeld = isHeld ? "true" : "false";
-            // Debug.Log ("UseItem triggered with IsHeld = " + debugIsHeld);
             _inventory[_currentInventoryIndex].AttemptUse(_playerObj, isHeld);
 
             if (_inventory[_currentInventoryIndex].quantity <= 0) {
                 _inventory[_currentInventoryIndex] = null;
                 _currentHeldItems--;
+                UpdateSelectedItemUI();
             }
         }
     }
@@ -218,7 +227,12 @@ public class Inventory : NetworkBehaviour {
 
         // else add to first empty slot
         if (_currentHeldItems < _maxInventorySize) {
-            AddToFirstEmptySlot(newItem); // convert worlditem to inventoryitem
+            AddToFirstEmptySlot(newItem);
+            // If the new item was added to the currently selected slot,
+            // force an immediate UI update.
+            if (_inventory[_currentInventoryIndex] == newItem) {
+                UpdateSelectedItemUI();
+            }
         }
     }
 
@@ -246,12 +260,12 @@ public class Inventory : NetworkBehaviour {
 
         return false;
     }
-
-    void AddToFirstEmptySlot (InventoryItem item) {
+    void AddToFirstEmptySlot(InventoryItem item) {
         for (int i = 0; i < _inventory.Length; i++) {
             if (_inventory[i] == null) {
                 _inventory[i] = item;
                 _currentHeldItems++;
+                Debug.Log($"Item {item.GetType().Name} added to slot {i}");
                 return;
             }
         }
@@ -282,6 +296,8 @@ public class Inventory : NetworkBehaviour {
                                     n_playerObj);
 
         _currentHeldItems--;
+
+        UpdateSelectedItemUI();
     }
 
     // Don't refactor this into DropSelectedItem. 
@@ -380,13 +396,13 @@ public class Inventory : NetworkBehaviour {
     }
 
     private void UpdateSelectedItemUI() {
-        if (_uiManager == null) { 
-            Debug.Log("nah fuck you");
-            return; }
+        if (_uiManager == null) {
+            Debug.Log("UI Manager is null");
+            return;
+        }
 
         InventoryItem selectedItem = _inventory[_currentInventoryIndex];
         if (selectedItem != null) {
-            // Set the material of the selected item in the UI
             switch (selectedItem.itemID) {
                 case 0:
                     _uiManager.SetSelectedItemTexture(keyMaterial);
@@ -401,12 +417,12 @@ public class Inventory : NetworkBehaviour {
                     _uiManager.SetSelectedItemTexture(emptyMaterial);
                     break;
             }
-            Debug.Log("Selected item: " + selectedItem.itemID);
-            Debug.Log("Updated IU color: " + _uiManager.GetSelectedItemTexture());
+            Debug.Log("Slot " + _currentInventoryIndex + " has itemID: " + selectedItem.itemID);
         } else {
-            _uiManager.SetSelectedItemTexture(null);
+            // Show default red circle (or null sprite) when no item is present
+            _uiManager.SetSelectedItemTexture(defaultSelectedTexture);
+            Debug.Log("Slot " + _currentInventoryIndex + " is empty.");
         }
-
     }
 
 }

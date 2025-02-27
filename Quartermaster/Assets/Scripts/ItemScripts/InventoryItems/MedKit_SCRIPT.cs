@@ -65,10 +65,19 @@ public class MedKit : InventoryItem {
     }
 
     private void ItemEffect(GameObject user) {
-        // user.GetComponent<PlayerHealth>().Heal(HEAL_AMOUNT);
-        // What handles health now?
-        // Generate a quaternion for the particle effect to have no rotation
+        // Get the Health component from the user (player)
+        Health health = user.GetComponent<Health>();
+        if (health != null) {
+            // Call the healing method on the server to update the player's health.
+            health.HealServerRpc(HEAL_AMOUNT);
+        }
+        else {
+            Debug.LogError("No Health component found on user.");
+        }
+
+        // Spawn the healing particle effect
         ParticleManager.instance.SpawnSelfThenAll("Healing", user.transform.position, Quaternion.Euler(-90, 0, 0));
     }
+
 
 }

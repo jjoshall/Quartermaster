@@ -44,7 +44,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             _nextTargetUpdateTime = Time.time + 0.2f;
             UpdateTarget();
         }
-
+        if (target == null) return;
         //float distance = Vector3.Distance(transform.position, target.position);
         bool inRange = Vector3.Distance(transform.position, target.position) <= attackRange;
 
