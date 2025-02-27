@@ -3,22 +3,32 @@ using Unity.Netcode;
 
 public class Pistol : IWeapon
 {
-    // Backing fields
-    private int _id;
+    #region DesignSettings
+    private static float _itemCooldown = 0.5f;
+    private static float _pistolDamage = 10.0f;
+    public override bool isHoldable { get; set; } = true;
+
+    // ParticleManager spawned prefabs. Make an effect string = "" to disable spawning an effect.
+    private static string _enemyHitEffect = "Sample"; // effect spawned on center of every enemy hit.
+    private static string _barrelFireEffect = "PistolBarrelFire"; // effect at player
     
+    #endregion
+    #region Variables
+    private int _id;
+    // Backing fields
     private int _quantity = 1;
     private int _ammo = 0;
     private float lastUsedTime = float.MinValue;
     private float lastFiredTime = float.MinValue;
-    private static float itemCooldown = 0.5f;
 
+    #endregion
+    #region Basics
     // Abstract overrides
 
-    public override bool isHoldable { get; set; } = true;
     public override float cooldown
     {
-        get => itemCooldown;
-        set => itemCooldown = value;
+        get => _itemCooldown;
+        set => _itemCooldown = value;
     }
     public override int itemID {
         get => _id;
@@ -35,6 +45,7 @@ public class Pistol : IWeapon
         set => lastUsedTime = value;
     }
 
+    // Deprecated. Use IsHoldable instead.
     public override bool CanAutoFire(){
         return false;
     }
@@ -63,17 +74,15 @@ public class Pistol : IWeapon
         fire(user);
     }
 
+    #endregion
+    #region PistolFire()
     public override void fire(GameObject user){
-        // raycast in direction camera is facing
-
-        // int layerMask = layerMask.GetMask("Enemy", "Wall");
-
-        // camera is a child, we do not know which one
         GameObject camera = user.transform.Find("Camera").gameObject;
         // spawn the pistol barrel fire in direction of camera look
         Quaternion attackRotation = Quaternion.LookRotation(camera.transform.forward);
-        ParticleManager.instance.SpawnSelfThenAll("PistolBarrelFire", user.transform.position, attackRotation);
-        
+        if (_barrelFireEffect != ""){
+            ParticleManager.instance.SpawnSelfThenAll(_barrelFireEffect, user.transform.position, attackRotation);
+        }
         //Debug.DrawRay(camera.transform.position, camera.transform.forward * 100, Color.yellow, 2f);
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, 100f, -1, QueryTriggerInteraction.Ignore)){
 
@@ -88,17 +97,19 @@ public class Pistol : IWeapon
                 Vector3 hitNormal = hit.normal;
                 Quaternion hitRotation = Quaternion.LookRotation(hitNormal);
 
-                ParticleManager.instance.SpawnSelfThenAll("Sample", enemyRootObj.position, hitRotation);
-                
+                if (_enemyHitEffect != ""){
+                    ParticleManager.instance.SpawnSelfThenAll(_enemyHitEffect, enemyRootObj.position, hitRotation);
+                }
                 Damageable damageable = enemyRootObj.GetComponent<Damageable>();
                 if (damageable == null){
                     Debug.LogError ("Raycast hit enemy without damageable component.");
                 } else {
-                    damageable?.InflictDamage(10, false, user);
+                    damageable?.InflictDamage(_pistolDamage, false, user);
                 }
             }
         }
         
     }
+    #endregion
 
 }
