@@ -23,8 +23,17 @@ public class PocketInventory : NetworkBehaviour {
     private Vector3 _teleportPosition; // static. doesn't need to be networked.
     private List<NetworkObjectReference> _playersInPocket = new List<NetworkObjectReference>();
     // dict mapping networkobjectreference to a vector3 return position
-    private Dictionary<NetworkObjectReference, Vector3> _playerReturnPositions = new Dictionary<NetworkObjectReference, Vector3>();
+    private Dictionary<NetworkObjectReference, PlayerPosition> _playerReturnPositions = new Dictionary<NetworkObjectReference, PlayerPosition>();
 
+    private struct PlayerPosition : INetworkSerializable {
+        public Vector3 position;
+        public Quaternion rotation;    
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref position);
+            serializer.SerializeValue(ref rotation);
+        }
+    }
     private static readonly float MAX_TIME_IN_POCKET = 10.0f;
     private static readonly float RADIUS_OF_POCKET_DETECTION = 20.0f;
     // private GameObject playerInPocket;
@@ -65,8 +74,16 @@ public class PocketInventory : NetworkBehaviour {
 
         if (userRef.TryGet(out NetworkObject user)) {
 
-            _playerReturnPositions[userRef] = user.transform.position; // save return spot
-            TeleportUserToPositionClientRpc(userRef, _teleportPosition); // teleport
+            PlayerPosition savePos = new PlayerPosition();
+            savePos.position = user.transform.position;
+            savePos.rotation = user.transform.rotation;
+            _playerReturnPositions[userRef] = savePos; // save return spot
+
+            PlayerPosition teleportSpot = new PlayerPosition();
+            teleportSpot.position = _teleportPosition;
+            teleportSpot.rotation = user.transform.rotation;
+
+            TeleportUserToPositionClientRpc(userRef, teleportSpot); // teleport
             _playersInPocket.Add(userRef);
             n_timeEnteredPocketNetworkVar.Value = NetworkManager.Singleton.ServerTime.Time;
 
@@ -74,7 +91,7 @@ public class PocketInventory : NetworkBehaviour {
     }
 
     [ClientRpc]
-    private void TeleportUserToPositionClientRpc(NetworkObjectReference userRef, Vector3 position) {
+    private void TeleportUserToPositionClientRpc(NetworkObjectReference userRef, PlayerPosition teleportPosition) {
         if (userRef.TryGet(out NetworkObject user)) {
             GameObject playerObj = user.gameObject;
             if (playerObj == null) return;
@@ -83,7 +100,8 @@ public class PocketInventory : NetworkBehaviour {
             playerObj.GetComponent<NetworkTransform>().Interpolate = false;
             playerObj.GetComponent<PlayerController>().disableCharacterController();
 
-            playerObj.transform.position = position; // teleport player
+            playerObj.transform.position = teleportPosition.position; // teleport player
+            playerObj.transform.rotation = teleportPosition.rotation;
 
             playerObj.GetComponent<PlayerController>().enableCharacterController();
             playerObj.GetComponent<NetworkTransform>().Interpolate = true;
@@ -93,14 +111,15 @@ public class PocketInventory : NetworkBehaviour {
     [ClientRpc]
     public void ReturnToPreviousPositionClientRpc(NetworkObjectReference n_playerObjRef) {
         // Grab return position from dictionary playerReturnPositions
-        if (_playerReturnPositions.TryGetValue(n_playerObjRef, out Vector3 playerReturnPosition)) {
+        if (_playerReturnPositions.TryGetValue(n_playerObjRef, out PlayerPosition playerReturnPosition)) {
+            
             TeleportUserToPositionClientRpc(n_playerObjRef, playerReturnPosition);
 
             // Return dropped portal key if exists.
             if (n_droppedPortalKeyInPocket.Value) {
                 if (n_storedKeyObj.TryGet(out NetworkObject keyObj)) {
                     Debug.Log("dropped key returned at user's position");
-                    keyObj.transform.position = playerReturnPosition;
+                    keyObj.transform.position = playerReturnPosition.position;
                 }
             }
 
