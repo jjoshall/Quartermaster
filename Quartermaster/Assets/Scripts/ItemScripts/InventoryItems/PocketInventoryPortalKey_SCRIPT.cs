@@ -49,10 +49,8 @@ public class PocketInventoryPortalKey : InventoryItem {
 
     public override void Use(GameObject user , bool isHeld) {
         NetworkObject n_user = user.GetComponent<NetworkObject>();
-        if (PocketInventory.instance.PlayerIsInPocket(n_user)){
-            PocketInventory.instance.ReturnAllPlayersClientRpc();
-            return;
-        }
+        
+        PocketInventory.instance.ReturnIfInPocketServerRpc(n_user); // bypass cooldown. async.
 
         string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
         if (lastUsed + cooldown > Time.time) {
