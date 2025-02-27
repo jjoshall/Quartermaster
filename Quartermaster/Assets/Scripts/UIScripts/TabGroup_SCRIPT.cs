@@ -3,41 +3,41 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class TabGroup : MonoBehaviour {
-    public List<TabButton> tabButtons;
+    public List<CustomTabButton> customTabButtons;
 
     public Color tabIdleColor;
     public Color tabHoverColor;
     public Color tabActiveColor;
 
-    public TabButton selectedTabRef;
+    public CustomTabButton selectedTabRef;
     public List<GameObject> objectsToSwap;
 
     void Start() {
         OnTabSelected(selectedTabRef);
     }
 
-    public void Subscribe(TabButton button) {
-        if (tabButtons == null) {
-            tabButtons = new List<TabButton>();
+    public void Subscribe(CustomTabButton button) {
+        if (customTabButtons == null) {
+            customTabButtons = new List<CustomTabButton>();
         }
 
-        tabButtons.Add(button);
+        customTabButtons.Add(button);
         button.background.color = tabIdleColor;
     }
 
-    public void OnTabEnter(TabButton button) {
+    public void OnTabEnter(CustomTabButton button) {
         if (selectedTabRef == null || button != selectedTabRef) {
             button.background.color = tabHoverColor;
         }
     }
 
-    public void OnTabExit(TabButton button) {
+    public void OnTabExit(CustomTabButton button) {
         if (selectedTabRef == null || button != selectedTabRef) {
             button.background.color = tabIdleColor;
         }
     }
 
-    public void OnTabSelected(TabButton button) {
+    public void OnTabSelected(CustomTabButton button) {
         selectedTabRef = button;
         ResetTabs();
         button.background.color = tabActiveColor;
@@ -49,7 +49,7 @@ public class TabGroup : MonoBehaviour {
     }
 
     public void ResetTabs() {
-        foreach (TabButton button in tabButtons) {
+        foreach (CustomTabButton button in customTabButtons) {
             if (selectedTabRef != null && button == selectedTabRef) { continue; }
 
             button.background.color = tabIdleColor;
@@ -64,11 +64,11 @@ public class TabGroup : MonoBehaviour {
     } 
 
     private void SwitchTab(int direction) {
-        if (tabButtons.Count == 0) return;
+        if (customTabButtons.Count == 0) return;
 
-        int currIndex = selectedTabRef != null ? tabButtons.IndexOf(selectedTabRef) : -1;
-        int nextIndex = (currIndex + direction + tabButtons.Count) % tabButtons.Count;
-        OnTabSelected(tabButtons[nextIndex]);
+        int currIndex = selectedTabRef != null ? customTabButtons.IndexOf(selectedTabRef) : -1;
+        int nextIndex = (currIndex + direction + customTabButtons.Count) % customTabButtons.Count;
+        OnTabSelected(customTabButtons[nextIndex]);
     }
 
 }
