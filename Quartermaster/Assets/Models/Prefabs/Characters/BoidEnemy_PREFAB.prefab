@@ -101,9 +101,10 @@ GameObject:
   - component: {fileID: -8325517055752307870}
   - component: {fileID: -3986134978630611849}
   - component: {fileID: 7310366883129202278}
+  - component: {fileID: 625416124937769146}
   m_Layer: 7
   m_Name: BoidEnemy_PREFAB
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -241,13 +242,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8a6f31e8a59ae543b85e260c5db69a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
-  rotationSpeed: 10
-  stoppingDistance: 4
-  detectionDistance: 1
-  separationWeight: 0.5
-  alignmentWeight: 1
-  cohesionWeight: 1
+  ShowTopMostFoldoutHeaderGroup: 1
+  _speed: 5
+  _rotationSpeed: 10
+  _stoppingDistance: 1.5
+  _detectionDistance: 1
+  _separationWeight: 1
+  _alignmentWeight: 1
+  _cohesionWeight: 1
+  health: {fileID: 0}
 --- !u!114 &7310366883129202278
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -266,8 +269,26 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   damage: 15
+  shootDelay: 0.5
   spread: {x: 0.06, y: 0.06, z: 0.06}
   bulletTrailPrefab: {fileID: 3492294749685168360, guid: 97d3b70fbea7c2b418e4753da8bd372e, type: 3}
+--- !u!114 &625416124937769146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1656816831642735696}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5518635a2dce475cace5f584bfb1fa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  MaxHealth: 10
+  CriticalHealthRatio: 0.3
+  CurrentHealth:
+    m_InternalValue: 0
 --- !u!1 &3136336727180567746
 GameObject:
   m_ObjectHideFlags: 0
