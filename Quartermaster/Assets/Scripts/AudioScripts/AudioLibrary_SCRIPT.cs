@@ -1,22 +1,18 @@
 using UnityEngine;
-using System.Collections.Generic;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using System;
 
 public static class AudioLibrary {
-    private static Dictionary<string, AudioClip> audioClips;
-
-    public static void Initialize() {
-        audioClips = new Dictionary<string, AudioClip>();
-        AudioClip[] clips = Resources.LoadAll<AudioClip>("Audio");
-        foreach (AudioClip clip in clips) {
-            audioClips[clip.name] = clip;
-        }
-    }
-
-    public static AudioClip GetClip(string clipName) {
-        if (audioClips == null) {
-            Initialize();
-        }
-        audioClips.TryGetValue(clipName, out AudioClip clip);
-        return clip;
+    // Asynchronously load an AudioClip via Addressables.
+    public static void GetClipAsync(string audioKey, Action<AudioClip> callback) {
+        Addressables.LoadAssetAsync<AudioClip>(audioKey).Completed += (AsyncOperationHandle<AudioClip> handle) => {
+            if (handle.Status == AsyncOperationStatus.Succeeded) {
+                callback(handle.Result);
+            } else {
+                Debug.LogError("Failed to load AudioClip from Addressables: " + audioKey);
+                callback(null);
+            }
+        };
     }
 }

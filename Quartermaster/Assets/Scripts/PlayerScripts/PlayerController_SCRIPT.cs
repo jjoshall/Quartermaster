@@ -108,6 +108,7 @@ public class PlayerController : NetworkBehaviour {
         // Camera and Audio Listener
         if (PlayerCamera != null) {
             PlayerCamera.gameObject.SetActive(false);
+            GetComponent<AudioListener>().enabled = false;
         }
 
 

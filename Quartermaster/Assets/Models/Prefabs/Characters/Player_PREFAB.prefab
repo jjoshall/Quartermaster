@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 4524087294722314718}
   - component: {fileID: 7595196884806960159}
   - component: {fileID: 3459918479299022771}
+  - component: {fileID: -1596647786455328852}
   m_Layer: 8
   m_Name: Player_PREFAB
   m_TagString: Player
@@ -348,7 +349,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 4021717468
+  GlobalObjectIdHash: 2396964407
   InScenePlacedSourceGlobalObjectIdHash: 2396964407
   DeferredDespawnTick: 0
   Ownership: 1
@@ -713,6 +714,20 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-1596647786455328852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 533627647367738219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9c0972425a7a894eb8e94a3b87606fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  soundAddressableKey: Audio/pew.ogg
 --- !u!1 &3428043383610237515
 GameObject:
   m_ObjectHideFlags: 0

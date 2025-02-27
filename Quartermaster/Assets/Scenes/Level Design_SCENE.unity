@@ -400,6 +400,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 204779394}
   m_CullTransparentMesh: 1
+--- !u!114 &223869469 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 971702591158440945, guid: f4479c4258c40684a806298bb7d5ec3e, type: 3}
+  m_PrefabInstance: {fileID: 1433145958}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &260563677
 GameObject:
   m_ObjectHideFlags: 0
@@ -866,6 +877,17 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 1
+--- !u!114 &415759485 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8924657841463819746, guid: f4479c4258c40684a806298bb7d5ec3e, type: 3}
+  m_PrefabInstance: {fileID: 1433145958}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &437171864
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1551,6 +1573,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &840328786 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3851859343108953025, guid: f4479c4258c40684a806298bb7d5ec3e, type: 3}
+  m_PrefabInstance: {fileID: 1433145958}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &841191384
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2238,9 +2271,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   selectedItemImage: {fileID: 260563679}
-  musicSlider: {fileID: 0}
-  sfxSlider: {fileID: 0}
-  masterVolSlider: {fileID: 0}
+  musicSlider: {fileID: 415759485}
+  sfxSlider: {fileID: 840328786}
+  masterVolSlider: {fileID: 223869469}
   settingsCanvas: {fileID: 842116189}
 --- !u!4 &1228006887
 Transform:
@@ -2476,41 +2509,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 121054995250494644, guid: f4479c4258c40684a806298bb7d5ec3e, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 129975721467283145, guid: f4479c4258c40684a806298bb7d5ec3e, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 2640272419688640469, guid: f4479c4258c40684a806298bb7d5ec3e, type: 3}
       propertyPath: m_Name
       value: SettingsCanvas
-      objectReference: {fileID: 0}
-    - target: {fileID: 2640272419688640469, guid: f4479c4258c40684a806298bb7d5ec3e, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3337602414516240891, guid: f4479c4258c40684a806298bb7d5ec3e, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4145143077836098450, guid: f4479c4258c40684a806298bb7d5ec3e, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5161577694813536562, guid: f4479c4258c40684a806298bb7d5ec3e, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5407636782637482901, guid: f4479c4258c40684a806298bb7d5ec3e, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5868656734986496123, guid: f4479c4258c40684a806298bb7d5ec3e, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6935815990682162945, guid: f4479c4258c40684a806298bb7d5ec3e, type: 3}
       propertyPath: m_Pivot.x
@@ -2591,10 +2592,6 @@ PrefabInstance:
     - target: {fileID: 6935815990682162945, guid: f4479c4258c40684a806298bb7d5ec3e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7950414040302459897, guid: f4479c4258c40684a806298bb7d5ec3e, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
