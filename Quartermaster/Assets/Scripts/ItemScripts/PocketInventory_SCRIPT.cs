@@ -165,6 +165,14 @@ public class PocketInventory : NetworkBehaviour {
         return _playersInPocket.Contains(playerRef);
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void ReturnIfInPocketServerRpc (NetworkObjectReference user) {
+        // if the player is in the pocket, returnallplayers
+        if (PlayerIsInPocket(user)) {
+            ReturnAllPlayersClientRpc();
+        }
+    }
+
     [ClientRpc]
     private void debugMsgClientRpc (string msg  ){
         Debug.Log(msg);
