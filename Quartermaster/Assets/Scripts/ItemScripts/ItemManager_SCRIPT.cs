@@ -31,8 +31,10 @@ public class ItemManager : NetworkBehaviour {
     // Constant during runtime.
     [SerializeField, Range(0, 1), Tooltip("Base drop chance")]
     public float burstDrop_baseRate;
+    [SerializeField, Range(0, 0.5f), Tooltip("Increment per kill without a drop")]
     public float burstDrop_dropRateIncrement;
-    public float burstDrop_dropCount;
+    [SerializeField, Range(0, 10), Tooltip("Max Drop Count")]
+    public int burstDrop_dropCount;
     public float burstdrop_targetEnemiesPerItem;    
 
     // Used for lookup during worlditem & inventoryitem spawn.
@@ -47,22 +49,21 @@ public class ItemManager : NetworkBehaviour {
     // Killcount based drop rate modifier.
     private float _burstdrop_moddedRate = 0.0f;
     private List<DropEntry> _modifiedDropRates = new List<DropEntry>();
-
-
-
     private int _burstdrop_totalEnemiesKilled = 0;
 
-    // Heuristic input.
-    private float _sinceLast_damageTaken = 0.0;
+    // Placeholder variables for potential heuristic input:
+    private float _sinceLast_damageTaken = 0.0f;
     private float _sinceLast_healingValue = 0.0f;
                         // Drama. healingValue - damageTaken < 0
-    private float _sinceLast_totalSpawnedFlyingHp = 0; // single target damage
-    private float _sinceLast_totalSpawnedMeleeHp = 0; // aoe damage
+    private float _sinceLast_totalSingleTargetHp = 0; // single target damage
+    private float _sinceLast_totalAoeHp = 0; // melee + explosive enemy hp
                         // Drama up when: totalSpawnedEnemyHp > teamDps
 
     // calculate based on current player inventory.
     private float _playerAoeDps = 0.0f;
     private float _playerSingleTargetDps = 0.0f;
+
+
     #endregion
 
 
@@ -135,6 +136,32 @@ public class ItemManager : NetworkBehaviour {
         
     }
 
+    // Duplicate of spawnWorldItem without pocketinventory check, for use in enemy drops.
+    [ServerRpc(RequireOwnership = false)]
+    private void EnemyDropServerRpc(int id, 
+                                        int quantity, 
+                                        float lastUsed, 
+                                        Vector3 spawnLoc, 
+                                        Vector3 initialVelocity) {
+        if (!IsServer) { return; }
+
+        GameObject newWorldItem = Instantiate(itemEntries[id].worldPrefab);
+        NetworkObject netObj = newWorldItem.GetComponent<NetworkObject>();
+
+        if (netObj == null) {
+            Debug.LogError("SpawnWorldItemServerRpc: The spawned object is missing a NetworkObject component!");
+            Destroy(newWorldItem);  // Prevent stray objects in the scene
+            return;
+        }
+
+        netObj.transform.position = spawnLoc;
+        netObj.GetComponent<Rigidbody>().linearVelocity = initialVelocity;
+        netObj.Spawn(true);
+        newWorldItem.transform.SetParent(this.gameObject.transform);
+        newWorldItem.GetComponent<WorldItem>().InitializeItem(id, quantity, lastUsed);
+        
+    }
+
     // Used as a lookup, and returns an instance of InventoryItem
     public InventoryItem SpawnInventoryItem (string id, int stackQuantity, float timeLastUsed) {
         InventoryItem newInventoryItem = _itemClassMap[id]();
@@ -160,36 +187,62 @@ public class ItemManager : NetworkBehaviour {
 
 
     #region Item Drop
+    // Rolls for burst drop.
+    // Then roll each dropEntry until no more entries or dropCount is exceeded.
+    // Problem: early entries are more likely to be dropped.
+    public void SimpleBurstDrop(Vector3 dropLocation){
+        if (dropEntries.Count == 0){
+            Debug.Log("No drop entries found.");
+            return;
+        }
+        if (UnityEngine.Random.value < burstDrop_baseRate){
+            int dropCount = 0;
+            foreach (DropEntry entry in dropEntries){
+                if (UnityEngine.Random.value < entry.dropChance){
+                    dropCount++;
+                    Vector3 randomDirection = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0, UnityEngine.Random.Range(-1f, 1f));
+                    randomDirection.Normalize();
+                    EnemyDropServerRpc(entry.itemID, entry.quantity, 0.0f, dropLocation, randomDirection);
+                }
+                if (dropCount >= burstDrop_dropCount){
+                    break;
+                }
+            }
+        }
+    }
+
     // AttemptBurstDrop() should be called when an enemy dies.
     // Failing a burst drop roll should increment some value that increases the rate.
     // The rate should be reset when a burst drop occurs.
-    public void AttemptBurstDrop(){
-        // roll to determine if it should burst drop
-        if (UnityEngine.Random.value < _burstdrop_moddedRate){
-            // roll to determine how many items to drop
-            int dropCount = UnityEngine.Random.Range(1, (int)burstDrop_dropCount);
-            for (int i = 0; i < dropCount; i++){
-                // roll to determine which item to drop
-                float dropRoll = UnityEngine.Random.value;
-                float dropAccumulator = 0.0f;
-                foreach (DropEntry entry in _modifiedDropRates){
-                    dropAccumulator += entry.dropChance;
-                    if (dropRoll < dropAccumulator){
-                        // drop this item
-                        SpawnWorldItemServerRpc(entry.itemID, entry.quantity, Time.time, new Vector3(0, 0, 0), new Vector3(0, 0, 0), new NetworkObjectReference());
-                        break;
-                    }
-                }
-            }
-            _burstdrop_totalEnemiesKilled = 0;
-            _burstdrop_moddedRate = burstDrop_baseRate;
-        } else {
-            _burstdrop_totalEnemiesKilled++;
-            _burstdrop_moddedRate += burstDrop_dropRateIncrement;
-        }
 
-    }
+    // AI Implementation. Switching to this eventually.
+    // public void AttemptBurstDrop(){
+    //     // roll to determine if it should burst drop
+    //     if (UnityEngine.Random.value < _burstdrop_moddedRate){
+    //         // roll to determine how many items to drop
+    //         int dropCount = UnityEngine.Random.Range(1, (int)burstDrop_dropCount);
+    //         foreach (DropEntry entry in _modifiedDropRates){
+    //             dropAccumulator += entry.dropChance;
+    //             if (dropRoll < dropAccumulator){
+    //                 // drop this item
+    //                 SpawnWorldItemServerRpc(entry.itemID, entry.quantity, Time.time, new Vector3(0, 0, 0), new Vector3(0, 0, 0), new NetworkObjectReference());
+    //                 break;
+    //             }
+    //         }
+        
+    //         _burstdrop_moddedRate = burstDrop_baseRate;
+    //     } else {
+    //         _burstdrop_moddedRate += burstDrop_dropRateIncrement;
+    //     }
 
+    // }
+
+
+    #endregion 
+
+
+
+    #region HeuristicInput
     // Call on enemy death.
     [ServerRpc(RequireOwnership = false)]
     public void IncrementEnemiesKilledServerRpc(){
@@ -202,8 +255,5 @@ public class ItemManager : NetworkBehaviour {
         if (!IsServer) { return; }
         _sinceLast_damageTaken += damage;
     }
-
-
-
     #endregion
 }

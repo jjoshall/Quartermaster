@@ -529,8 +529,36 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
+      propertyPath: burstDrop_baseRate
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
+      propertyPath: burstDrop_dropCount
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
+      propertyPath: dropEntries.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
       propertyPath: itemEntries.Array.size
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
+      propertyPath: burstDrop_dropRateIncrement
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
+      propertyPath: dropEntries.Array.data[0].itemID
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
+      propertyPath: dropEntries.Array.data[0].quantity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
+      propertyPath: dropEntries.Array.data[0].dropChance
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
       propertyPath: itemEntries.Array.data[3].worldPrefab
@@ -541,12 +569,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 551546558645201435, guid: 3cf82fa85ec8d834098e8e4bf97648b6, type: 3}
     - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
+      propertyPath: itemEntries.Array.data[5].worldPrefab
+      value: 
+      objectReference: {fileID: 3874856704361242138, guid: a0f050a8cd807a842ba698798cbee8f1, type: 3}
+    - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
       propertyPath: itemEntries.Array.data[3].inventoryItemClass
       value: Railgun
       objectReference: {fileID: 0}
     - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
       propertyPath: itemEntries.Array.data[4].inventoryItemClass
       value: Flamethrower
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
+      propertyPath: itemEntries.Array.data[5].inventoryItemClass
+      value: DeliverableQuestItem
       objectReference: {fileID: 0}
     - target: {fileID: 6946468540148778774, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
       propertyPath: GlobalObjectIdHash
