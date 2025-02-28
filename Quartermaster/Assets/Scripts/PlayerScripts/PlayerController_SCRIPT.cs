@@ -3,6 +3,7 @@ using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using System;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler), typeof(Health))]
 public class PlayerController : NetworkBehaviour {
@@ -14,11 +15,13 @@ public class PlayerController : NetworkBehaviour {
     private PlayerInput PlayerInput;
     private Health health;
 
+    [Header("Damage Indicator")]
+    private Canvas playerHUDCanvas;
+    private GameObject damageIndicatorPrefab;
+
     [Header("Mini Map")]
     private Canvas miniMapCanvas;
     private RawImage miniMapRawImage;
-
-
 
     [Header("Player Spawn Settings")]
     [SerializeField] private Transform spawnLocation;
@@ -198,6 +201,12 @@ public class PlayerController : NetworkBehaviour {
 
         InitializeStateMachine();
         UpdateHeight(true);
+
+        playerHUDCanvas = GameObject.FindWithTag("DamageIndicatorCanvas")?.GetComponent<Canvas>();
+        if (playerHUDCanvas != null)
+        {
+            damageIndicatorPrefab = playerHUDCanvas.transform.Find("DamageIndicator")?.gameObject;
+        }
     }
 
     void Update() {
@@ -418,7 +427,27 @@ public class PlayerController : NetworkBehaviour {
     }
 
     void OnDamaged(float damage, GameObject damageSource) {
+        // For directional damage indicators
+        if (IsOwner) {
+            Vector3 damagePos = damageSource.transform.position;
+            ShowDamageIndicatorClientRpc(damagePos);
+        }
+
         Debug.Log($"[{Time.time}] {gameObject.name} took {damage} damage. Health Ratio: {health.GetRatio()}");
+    }
+
+    [ClientRpc]
+    void ShowDamageIndicatorClientRpc(Vector3 damagePos, ClientRpcParams rpcParams = default)
+    {
+        if (!IsOwner || damageIndicatorPrefab ==  null) return;
+
+        // Create damage indicator
+        GameObject go = Instantiate(damageIndicatorPrefab, damageIndicatorPrefab.transform.parent);
+        DamageIndicator indicator = go.GetComponent<DamageIndicator>();
+
+        indicator.damageLocation = damagePos;
+        indicator.playerObj = transform;
+        go.SetActive(true);
     }
 
     void OnHealed(float healAmount) {
