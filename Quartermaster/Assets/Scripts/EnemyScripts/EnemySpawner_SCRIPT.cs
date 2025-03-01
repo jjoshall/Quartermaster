@@ -15,14 +15,14 @@ public class EnemySpawner : NetworkBehaviour {
 
     public List<Transform> enemyList = new List<Transform>();
     public List<GameObject> playerList;
-    
+
     // static 
     public static EnemySpawner instance;
 
     void Awake() {
         if (instance == null) {
             instance = this;
-        } 
+        }
         else {
             Destroy(this);
         }
@@ -60,9 +60,9 @@ public class EnemySpawner : NetworkBehaviour {
         GameObject spawnPoint = _enemySpawnPoints[Random.Range(0, _enemySpawnPoints.Count)];
 
         float spawnX = spawnPoint.transform.position.x;
-        float spawnY = 1f;
+        float spawnY = 5f;
         float spawnZ = spawnPoint.transform.position.z;
-        return new Vector3 (spawnX, spawnY, spawnZ);
+        return new Vector3(spawnX, spawnY, spawnZ);
     }
 
     [ServerRpc]
@@ -91,7 +91,7 @@ public class EnemySpawner : NetworkBehaviour {
     private EnemyType GetEnemyType(Transform enemyPrefab) {
         if (enemyPrefab.GetComponent<MeleeEnemyInherited_SCRIPT>() != null) return EnemyType.Melee;
         if (enemyPrefab.GetComponent<ExplosiveMeleeEnemyInherited_SCRIPT>() != null) return EnemyType.Melee;
-        //if (enemyPrefab.GetComponent<RangedEnemyInherited_SCRIPT>() != null) return EnemyType.Ranged;
+        if (enemyPrefab.GetComponent<RangedEnemyInherited_SCRIPT>() != null) return EnemyType.Ranged;
         return EnemyType.Melee;
     }
 

@@ -8,16 +8,16 @@ using System;
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler), typeof(Health))]
 public class PlayerController : NetworkBehaviour {
     #region Variables
-    
+
     [Header("Required Components")]
     private CharacterController Controller;
     private PlayerInputHandler InputHandler;
     private PlayerInput PlayerInput;
     private Health health;
 
-    [Header("Damage Indicator")]
-    private Canvas playerHUDCanvas;
-    public GameObject damageIndicatorPrefab;
+    //[Header("Damage Indicator")]
+    //private Canvas playerHUDCanvas;
+    //public GameObject damageIndicatorPrefab;
 
     [Header("Mini Map")]
     private Canvas miniMapCanvas;
@@ -202,11 +202,11 @@ public class PlayerController : NetworkBehaviour {
         InitializeStateMachine();
         UpdateHeight(true);
 
-        playerHUDCanvas = GameObject.FindWithTag("DamageIndicatorCanvas")?.GetComponent<Canvas>();
-        if (playerHUDCanvas != null)
-        {
-            damageIndicatorPrefab = playerHUDCanvas.transform.Find("DamageIndicator")?.gameObject;
-        }
+        //playerHUDCanvas = GameObject.FindWithTag("DamageIndicatorCanvas")?.GetComponent<Canvas>();
+        //if (playerHUDCanvas != null)
+        //{
+        //    damageIndicatorPrefab = playerHUDCanvas.transform.Find("DamageIndicator")?.gameObject;
+        //}
     }
 
     void Update() {
@@ -302,8 +302,7 @@ public class PlayerController : NetworkBehaviour {
         lastImpactSpeed = Vector3.zero;
         if (Physics.CapsuleCast(capsuleBottomBeforeMove, capsuleTopBeforeMove, Controller.radius,
             playerVelocity.normalized, out RaycastHit hit, playerVelocity.magnitude * Time.deltaTime, -1,
-            QueryTriggerInteraction.Ignore))
-        {
+            QueryTriggerInteraction.Ignore)) {
             // We remember the last impact speed because the fall damage logic might need it
             lastImpactSpeed = playerVelocity;
 
@@ -336,8 +335,7 @@ public class PlayerController : NetworkBehaviour {
             // if we're grounded, collect info about the ground normal with a downward capsule cast
             if (Physics.CapsuleCast(GetCapsuleBottomHemisphere(), GetCapsuleTopHemisphere(Controller.height),
                                     Controller.radius, Vector3.down, out RaycastHit hit, chosenGroundCheckDistance,
-                                    GroundLayers, QueryTriggerInteraction.Ignore))
-            {
+                                    GroundLayers, QueryTriggerInteraction.Ignore)) {
                 GroundNormal = hit.normal;
                 // Only consider valid ground if the normal is mostly up and slope angle is lower than limit
                 if (Vector3.Dot(hit.normal, transform.up) > 0f && IsNormalUnderSlopeLimit(GroundNormal)) {
@@ -361,7 +359,8 @@ public class PlayerController : NetworkBehaviour {
             PlayerCamera.transform.localPosition = cameraOffset + Vector3.up * ((targetHeight * CameraHeightRatio) - 1);
             visualTransform.localPosition = Controller.center;
             visualTransform.localScale = new Vector3(1f, Controller.height / CapsuleHeightStanding, 1f);
-        } else if (Controller.height != targetHeight) {
+        }
+        else if (Controller.height != targetHeight) {
             if (Mathf.Abs(Controller.height - targetHeight) < 0.0001f) {
                 UpdateHeight(true);
                 return;
@@ -385,7 +384,8 @@ public class PlayerController : NetworkBehaviour {
 
         if (crouched) {
             targetHeight = CapsuleHeightCrouching;
-        } else {
+        }
+        else {
             if (!ignoreObstructions) {
                 Collider[] standingOverlaps = Physics.OverlapCapsule(
                     GetCapsuleBottomHemisphere(),
@@ -427,25 +427,24 @@ public class PlayerController : NetworkBehaviour {
     }
 
     void OnDamaged(float damage, GameObject damageSource) {
-        Debug.Log("In OnDamaged for player");
-        // For directional damage indicators
-        if (IsOwner) {
-            Debug.Log("In IsOwner if statement.");
-            Vector3 damagePos = damageSource.transform.position;
-            Debug.Log($"Damage Position: {damagePos}, and calling ClientRpc");
+        //Debug.Log("In OnDamaged for player");
+        //// For directional damage indicators
+        //if (IsOwner) {
+        //    Debug.Log("In IsOwner if statement.");
+        //    Vector3 damagePos = damageSource.transform.position;
+        //    Debug.Log($"Damage Position: {damagePos}, and calling ClientRpc");
 
-            Debug.Log("Creating damage indicator");
-            // Create damage indicator
-            GameObject go = Instantiate(damageIndicatorPrefab, damageIndicatorPrefab.transform.parent);
-            DamageIndicator indicator = go.GetComponent<DamageIndicator>();
+        //    Debug.Log("Creating damage indicator");
+        //    // Create damage indicator
+        //    GameObject go = Instantiate(damageIndicatorPrefab, damageIndicatorPrefab.transform.parent);
+        //    DamageIndicator indicator = go.GetComponent<DamageIndicator>();
 
-            indicator.damageLocation = damagePos;
-            indicator.playerObj = transform;
-            go.SetActive(true);
-            Debug.Log("Damage indicator on screen");
+        //    indicator.damageLocation = damagePos;
+        //    indicator.playerObj = transform;
+        //    go.SetActive(true);
+        //    Debug.Log("Damage indicator on screen");
 
-            Debug.Log("ClientRpc called.");
-        }
+        //}
 
         Debug.Log($"[{Time.time}] {gameObject.name} took {damage} damage. Health Ratio: {health.GetRatio()}");
     }
@@ -484,13 +483,13 @@ public class PlayerController : NetworkBehaviour {
     //     return false; // false if null.
     // }
 
-    public void disableCharacterController(){
+    public void disableCharacterController() {
         if (Controller != null) {
             Controller.enabled = false;
         }
     }
 
-    public void enableCharacterController(){
+    public void enableCharacterController() {
         if (Controller != null) {
             Controller.enabled = true;
         }
@@ -533,6 +532,6 @@ public class PlayerController : NetworkBehaviour {
     #region State Machine Utility Functions
     void At(IState from, IState to, IPredicate condition) => stateMachine.AddTransition(from, to, condition);
     void Any(IState to, IPredicate condition) => stateMachine.AddAnyTransition(to, condition);
-    
+
     #endregion
 }
