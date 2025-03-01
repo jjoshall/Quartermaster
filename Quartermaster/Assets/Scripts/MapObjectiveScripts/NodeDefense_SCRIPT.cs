@@ -5,8 +5,12 @@ using System.Collections.Generic;
 
 public class NodeDefense : NetworkBehaviour
 {
+    #region Inspector
+    [SerializeField] private GameObject objectiveRing;
 
-    #region = Variables
+    #endregion
+
+    #region Variables
     public NetworkVariable<bool> n_defenseCompleted = new NetworkVariable<bool>(); // completed when players successfully complete the defense.
     private NetworkVariable<bool> n_nodeDefenseActive = new NetworkVariable<bool>(); // active with players in range.
 
@@ -14,14 +18,6 @@ public class NodeDefense : NetworkBehaviour
     public float nodeDefenseDuration = 60f; // time until node complete.
     private float _currentDefenseTimer = 0f;
     private List<GameObject> _playersInRange = new List<GameObject>();
-    public Renderer this_renderer; // set in inspector
-    // slider serializable
-    [SerializeField, Range(0, 1)]
-    private float _red;
-    [SerializeField, Range(0, 1)]
-    private float _green;
-    [SerializeField, Range(0, 1)]
-    private float _blue;
 
     // STRETCH GOAL: Additional node defense constraints.
     //               - Keep track of player. Each player has to contribute to the inRange condition.
@@ -52,7 +48,6 @@ public class NodeDefense : NetworkBehaviour
     }
 
     void Update(){
-        UpdateParticle();
         if (n_defenseCompleted.Value){
             return;
         }
@@ -61,44 +56,6 @@ public class NodeDefense : NetworkBehaviour
 
     #endregion 
 
-    #region = VFX
-
-    private void UpdateParticle(){
-        if (_particleTimer >= _particleInterval){
-            SpawnParticle();
-        } else {
-            _particleTimer += Time.deltaTime;
-        }
-    }
-
-    private void SpawnParticle(){
-        if (n_defenseCompleted.Value){
-            SpawnCompleteParticle();
-        } else if (n_nodeDefenseActive.Value){
-            SpawnActiveParticle();
-        }
-    }
-
-    private void SpawnCompleteParticle(){
-        _particleTimer = 0.0f;
-        Vector3 lowPosition = this.transform.position;
-        lowPosition.y = lowPosition.y - 0.2f;
-        Vector3 highPosition = this.transform.position;
-        highPosition.y = highPosition.y + 0.2f;
-        ParticleManager.instance.SpawnSelfThenAll("RingEmission", lowPosition, Quaternion.Euler(90.0f, 0, 0));
-        ParticleManager.instance.SpawnSelfThenAll("RingEmission", highPosition, Quaternion.Euler(90.0f, 0, 0));
-        // ParticleManager.instance.SpawnSelfThenAll("RingEmission", this.transform.position, Quaternion.Euler(90.0f, 0, 0));
-
-    }
-    private void SpawnActiveParticle(){
-        _particleTimer = 0.0f;
-        ParticleManager.instance.SpawnSelfThenAll("RingEmission", this.transform.position, Quaternion.Euler(90.0f, 0, 0));
-    }
-    private void UpdateRendererColor(){
-        this_renderer.material.color = new Color(_red * GetRatio(), _green * GetRatio(), _blue * GetRatio());
-    }
-
-    #endregion 
 
     #region = Logic
 
@@ -110,11 +67,9 @@ public class NodeDefense : NetworkBehaviour
         }
         if (n_nodeDefenseActive.Value){
             _currentDefenseTimer += Time.deltaTime;
-            UpdateRendererColor();
         } else {
             if (_currentDefenseTimer >= 0){
                 _currentDefenseTimer -= Time.deltaTime;
-                UpdateRendererColor();
             } else {
                 _currentDefenseTimer = 0;
             }
@@ -122,15 +77,15 @@ public class NodeDefense : NetworkBehaviour
     }
 
 
-
-    void OnTriggerEnter(Collider other){
-        if(other.gameObject.tag == "Player"){
+    // Using ObjectiveRing's trigger instead.
+    public void PublicTriggerEnter (Collider other){
+        if (other.gameObject.tag == "Player"){
             _playersInRange.Add(other.gameObject);
             n_nodeDefenseActive.Value = true;
         }
     }
 
-    void OnTriggerExit(Collider other){
+    public void PublicTriggerExit (Collider other){
         if(other.gameObject.tag == "Player"){
             _playersInRange.Remove(other.gameObject);
             if(!HasPlayersInRange()){

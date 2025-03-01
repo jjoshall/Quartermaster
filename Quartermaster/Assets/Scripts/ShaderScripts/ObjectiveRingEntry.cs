@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 
 public class ObjectiveRingEntry : MonoBehaviour {
+    [SerializeField] private GameObject nodeDefense;
+
     [SerializeField] private Renderer subChildRenderer;
     [SerializeField] private Renderer objectRenderer;
     [SerializeField] private float fadeTime = 1;
@@ -34,6 +36,7 @@ public class ObjectiveRingEntry : MonoBehaviour {
             if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
             fadeCoroutine = StartCoroutine(FadeOpacity(1.2f, fadeTime));
         }
+        nodeDefense.GetComponent<NodeDefense>().PublicTriggerEnter(other);
     }
 
     private void OnTriggerExit(Collider other) {
@@ -41,6 +44,7 @@ public class ObjectiveRingEntry : MonoBehaviour {
             if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
             fadeCoroutine = StartCoroutine(FadeOpacity(0f, fadeTime));
         }
+        nodeDefense.GetComponent<NodeDefense>().PublicTriggerExit(other);
     }
 
     private IEnumerator FadeOpacity(float targetOpacity, float duration) {
