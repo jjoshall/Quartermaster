@@ -19,7 +19,7 @@ public class ItemManager : NetworkBehaviour {
 
     [Serializable]
     public struct DropEntry {
-        public int itemID; // index in itemEntries
+        public string stringID;
         public int quantity; // stack count when dropped. automatically capped to stackLimit of item
         public float dropChance; // 0-1
     }
@@ -47,7 +47,7 @@ public class ItemManager : NetworkBehaviour {
 
     #region RuntimeVars
     // Killcount based drop rate modifier.
-    private float _burstdrop_moddedRate = 0.0f;
+    private float _burstDrop_moddedRate = 0.0f;
     private List<DropEntry> _modifiedDropRates = new List<DropEntry>();
     private int _burstdrop_totalEnemiesKilled = 0;
 
@@ -186,7 +186,7 @@ public class ItemManager : NetworkBehaviour {
 
 
 
-    #region Item Drop
+    #region SimpleDrop()
     // Rolls for burst drop.
     // Then roll each dropEntry until no more entries or dropCount is exceeded.
     // Problem: early entries are more likely to be dropped.
@@ -195,47 +195,69 @@ public class ItemManager : NetworkBehaviour {
             Debug.Log("No drop entries found.");
             return;
         }
+        int itemsToDrop = (int) UnityEngine.Random.Range(burstDrop_dropCount / 2, burstDrop_dropCount);
+
         if (UnityEngine.Random.value < burstDrop_baseRate){
-            int dropCount = 0;
+            int dropped = 0;
+
+            // Use a SortedList to maintain a sorted order of drop chances
+            SortedList<float, DropEntry> weightedRandom = new SortedList<float, DropEntry>();
             foreach (DropEntry entry in dropEntries){
-                if (UnityEngine.Random.value < entry.dropChance){
-                    dropCount++;
-                    Vector3 randomDirection = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0, UnityEngine.Random.Range(-1f, 1f));
-                    randomDirection.Normalize();
-                    EnemyDropServerRpc(entry.itemID, entry.quantity, 0.0f, dropLocation, randomDirection);
-                }
-                if (dropCount >= burstDrop_dropCount){
+                float random = UnityEngine.Random.value; // float 0-1
+                float weightedDropChance = entry.dropChance * random;
+                weightedRandom.Add(weightedDropChance, entry);
+            }
+
+            // Iterate through the sorted list in reverse order to get the highest drop chances first
+            for (int i = weightedRandom.Count - 1; i >= 0; i--){
+                DropEntry currEntry = weightedRandom.Values[i];
+                dropped++;
+                Vector3 randomDirection = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0, UnityEngine.Random.Range(-1f, 1f));
+                randomDirection.Normalize();
+
+                string stringID = currEntry.stringID;
+                int itemID = itemEntries.FindIndex(item => item.inventoryItemClass == stringID);
+                EnemyDropServerRpc(itemID, currEntry.quantity, 0.0f, dropLocation, randomDirection);
+
+                if (dropped >= itemsToDrop){
                     break;
                 }
             }
         }
     }
 
-    // AttemptBurstDrop() should be called when an enemy dies.
-    // Failing a burst drop roll should increment some value that increases the rate.
-    // The rate should be reset when a burst drop occurs.
+    #endregion
 
-    // AI Implementation. Switching to this eventually.
-    // public void AttemptBurstDrop(){
-    //     // roll to determine if it should burst drop
-    //     if (UnityEngine.Random.value < _burstdrop_moddedRate){
-    //         // roll to determine how many items to drop
-    //         int dropCount = UnityEngine.Random.Range(1, (int)burstDrop_dropCount);
-    //         foreach (DropEntry entry in _modifiedDropRates){
-    //             dropAccumulator += entry.dropChance;
-    //             if (dropRoll < dropAccumulator){
-    //                 // drop this item
-    //                 SpawnWorldItemServerRpc(entry.itemID, entry.quantity, Time.time, new Vector3(0, 0, 0), new Vector3(0, 0, 0), new NetworkObjectReference());
-    //                 break;
-    //             }
-    //         }
-        
-    //         _burstdrop_moddedRate = burstDrop_baseRate;
-    //     } else {
-    //         _burstdrop_moddedRate += burstDrop_dropRateIncrement;
-    //     }
 
-    // }
+    #region ThresholdDrop
+    // Rolls a multiplier. All drop entries are multiplied by this value.
+    // If 
+    public void ThresholdBurstDrop(Vector3 position){
+        // roll for burst drop against modded rate.
+        float dropChanceMultiplier = UnityEngine.Random.Range(0.0f, 1.0f);
+        if (dropChanceMultiplier < _burstDrop_moddedRate){
+            DropItems(position);
+            _burstDrop_moddedRate = burstDrop_baseRate;
+        } else {
+            _burstDrop_moddedRate += burstDrop_dropRateIncrement;
+        }
+    }
+
+    private void DropItems(Vector3 position){
+        float countMultiplier = _burstDrop_moddedRate / burstDrop_baseRate;
+        foreach (DropEntry entry in dropEntries){
+            // roll for each item
+            float itemRoll = UnityEngine.Random.Range(0.0f, 1.0f);
+            if (itemRoll * countMultiplier > 1 - entry.dropChance){
+                Vector3 randomDirection = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0, UnityEngine.Random.Range(-1f, 1f));
+                randomDirection.Normalize();
+
+                string stringID = entry.stringID;
+                int itemID = itemEntries.FindIndex(item => item.inventoryItemClass == stringID);
+                EnemyDropServerRpc(itemID, entry.quantity, 0.0f, position, randomDirection);
+            }
+        }
+    }
 
 
     #endregion 
