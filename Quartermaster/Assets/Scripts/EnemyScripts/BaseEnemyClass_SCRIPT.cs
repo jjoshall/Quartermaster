@@ -105,6 +105,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     }
 
     protected virtual void OnDie() {
+        ItemManager.instance.SimpleBurstDrop(transform.position);
         enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
     }
 
