@@ -8,9 +8,9 @@ public class Railgun : IWeapon
     #region DesignSettings
     // Change these to adjust weapon stats.
     
-    private static float _itemCooldown = 2.0f;
+    private static float _itemCooldown = 1.0f;
     private static float _railgunDamage = 10.0f;
-    private static float _explosionRadius = 5.0f;
+    private static float _explosionRadius = 10.0f;
     public override bool isHoldable { get; set; } = false;
 
     // Make an effect string = "" to disable spawning an effect.

@@ -9,8 +9,8 @@ public class Flamethrower : IWeapon
     // Change these to adjust weapon stats.
     
     private static float _itemCooldown = 0.2f;
-    private static float _flamethrowerDamage = 3.0f;
-    private static float _capsuleRadius = 2.0f;
+    private static float _flamethrowerDamage = 6.0f;
+    private static float _capsuleRadius = 4.0f;
     private static float _maxRange = 10.0f;
     public override bool isHoldable { get; set; } = true;
 

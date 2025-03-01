@@ -4,9 +4,9 @@ using Unity.Netcode;
 public class Pistol : IWeapon
 {
     #region DesignSettings
-    private static float _itemCooldown = 0.5f;
+    private static float _itemCooldown = 0.25f;
     private static float _pistolDamage = 10.0f;
-    public override bool isHoldable { get; set; } = true;
+    public override bool isHoldable { get; set; } = false;
 
     // ParticleManager spawned prefabs. Make an effect string = "" to disable spawning an effect.
     private static string _enemyHitEffect = "Sample"; // effect spawned on center of every enemy hit.
