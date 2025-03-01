@@ -5,6 +5,7 @@ using UnityEngine;
 public class ItemAcquisitionRange : MonoBehaviour {
     private bool DEBUG_FLAG = true;
     private GameObject _playerObj;
+    public GameObject _playerCam;
 
     private List<GameObject> _itemsInRange = new List<GameObject>();
     private GameObject _closestItem;
@@ -52,6 +53,16 @@ public class ItemAcquisitionRange : MonoBehaviour {
         if (_itemsInRange.Count == 0) {
             _closestItem = null;
             return;
+        }
+        // Prioritize raycast over closest.
+        Physics.Raycast(_playerCam.transform.position, _playerCam.transform.forward, out RaycastHit hit, Mathf.Infinity);
+        if (hit.collider != null) {
+            if (hit.collider.gameObject.CompareTag("Item")) {
+                if (_itemsInRange.Contains(hit.collider.gameObject)) {
+                    _closestItem = hit.collider.gameObject;
+                    return;
+                }
+            }
         }
 
         GameObject localClosest = null;

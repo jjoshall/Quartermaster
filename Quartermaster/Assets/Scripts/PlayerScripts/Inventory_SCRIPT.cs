@@ -145,6 +145,12 @@ public class Inventory : NetworkBehaviour {
 
         // Add to the first empty slot.
         if (_currentHeldItems < _maxInventorySize) {
+            if (_inventory[_currentInventoryIndex] == null) {
+                _inventory[_currentInventoryIndex] = newItem;
+                _currentHeldItems++;
+                UpdateAllInventoryUI();
+                return;
+            }
             AddToFirstEmptySlot(newItem);
             UpdateAllInventoryUI();
         }
