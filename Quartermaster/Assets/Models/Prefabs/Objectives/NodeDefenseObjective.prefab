@@ -174,7 +174,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  defenseCompleted: 0
+  n_defenseCompleted:
+    m_InternalValue: 0
   nodeDefenseDuration: 60
   this_renderer: {fileID: 3433223691268935904}
   _red: 0
@@ -191,6 +192,7 @@ GameObject:
   - component: {fileID: 7051751660726492499}
   - component: {fileID: 9163449026887716693}
   - component: {fileID: 146208490506117070}
+  - component: {fileID: 3325286732709450222}
   m_Layer: 0
   m_Name: NodeDefenseObjective
   m_TagString: Untagged
@@ -226,7 +228,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 398942082
+  GlobalObjectIdHash: 2684579423
   InScenePlacedSourceGlobalObjectIdHash: 3952417343
   DeferredDespawnTick: 0
   Ownership: 1
@@ -254,3 +256,23 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   nodes:
   - {fileID: 6460934114876256253}
+--- !u!114 &3325286732709450222
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7850845871219590944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedVersion: 0
+  m_OverrideArea: 0
+  m_Area: 0
+  m_OverrideGenerateLinks: 0
+  m_GenerateLinks: 0
+  m_IgnoreFromBuild: 1
+  m_ApplyToChildren: 1
+  m_AffectedAgents: ffffffff
