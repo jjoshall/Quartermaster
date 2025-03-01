@@ -17,7 +17,7 @@ public class PlayerController : NetworkBehaviour {
 
     [Header("Damage Indicator")]
     private Canvas playerHUDCanvas;
-    private GameObject damageIndicatorPrefab;
+    public GameObject damageIndicatorPrefab;
 
     [Header("Mini Map")]
     private Canvas miniMapCanvas;
@@ -31,7 +31,7 @@ public class PlayerController : NetworkBehaviour {
     public const float k_GravityForce = 20f;
 
     [Tooltip("Speed multiplier when holding sprint key")]
-    public const float k_SprintSpeedModifier = 2f;
+    public const float k_SprintSpeedModifier = 1.5f;
     public const float k_CrouchSpeedModifier = 0.5f;
     private float speedModifier = 1f;
     public float groundSpeed = 5f;
@@ -427,28 +427,45 @@ public class PlayerController : NetworkBehaviour {
     }
 
     void OnDamaged(float damage, GameObject damageSource) {
+        Debug.Log("In OnDamaged for player");
         // For directional damage indicators
         if (IsOwner) {
+            Debug.Log("In IsOwner if statement.");
             Vector3 damagePos = damageSource.transform.position;
-            ShowDamageIndicatorClientRpc(damagePos);
+            Debug.Log($"Damage Position: {damagePos}, and calling ClientRpc");
+
+            Debug.Log("Creating damage indicator");
+            // Create damage indicator
+            GameObject go = Instantiate(damageIndicatorPrefab, damageIndicatorPrefab.transform.parent);
+            DamageIndicator indicator = go.GetComponent<DamageIndicator>();
+
+            indicator.damageLocation = damagePos;
+            indicator.playerObj = transform;
+            go.SetActive(true);
+            Debug.Log("Damage indicator on screen");
+
+            Debug.Log("ClientRpc called.");
         }
 
         Debug.Log($"[{Time.time}] {gameObject.name} took {damage} damage. Health Ratio: {health.GetRatio()}");
     }
 
-    [ClientRpc]
-    void ShowDamageIndicatorClientRpc(Vector3 damagePos, ClientRpcParams rpcParams = default)
-    {
-        if (!IsOwner || damageIndicatorPrefab ==  null) return;
+    //[ClientRpc]
+    //void ShowDamageIndicatorClientRpc(Vector3 damagePos)
+    //{
+    //    Debug.Log("In ShowDamageIndicatorClientRpc");
+    //    if (!IsOwner || damageIndicatorPrefab ==  null) return;
 
-        // Create damage indicator
-        GameObject go = Instantiate(damageIndicatorPrefab, damageIndicatorPrefab.transform.parent);
-        DamageIndicator indicator = go.GetComponent<DamageIndicator>();
+    //    Debug.Log("Creating damage indicator");
+    //    // Create damage indicator
+    //    GameObject go = Instantiate(damageIndicatorPrefab, damageIndicatorPrefab.transform.parent);
+    //    DamageIndicator indicator = go.GetComponent<DamageIndicator>();
 
-        indicator.damageLocation = damagePos;
-        indicator.playerObj = transform;
-        go.SetActive(true);
-    }
+    //    indicator.damageLocation = damagePos;
+    //    indicator.playerObj = transform;
+    //    go.SetActive(true);
+    //    Debug.Log("Damage indicator on screen");
+    //}
 
     void OnHealed(float healAmount) {
         Debug.Log($"[{Time.time}] {gameObject.name} healed for {healAmount} health. Health Ratio: {health.GetRatio()}");
