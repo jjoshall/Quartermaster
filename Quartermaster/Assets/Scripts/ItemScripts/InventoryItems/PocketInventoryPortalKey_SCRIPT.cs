@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PocketInventoryPortalKey : InventoryItem {
     [Header("Item Configuration")]
-    private const float _TELEPORT_RADIUS = 3.0f;
+    private const float _TELEPORT_RADIUS = 20.0f;
 
 
     [Header("Backing Fields")]
