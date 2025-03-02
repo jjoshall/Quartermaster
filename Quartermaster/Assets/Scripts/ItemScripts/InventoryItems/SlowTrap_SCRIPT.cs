@@ -1,11 +1,11 @@
 using UnityEngine;
 
-public class MedKit : InventoryItem {
+public class SlowTrap : InventoryItem {
     // Backing fields
     private int _id = 0;
-    private int _medkitQuantity = 0;
+    private int _slowtrapQuantity = 0;
     private float _lastUsedTime = float.MinValue;
-    private static float _itemCooldown = 0.1f;
+    private static float _itemCooldown = 10f;
 
     // Abstract overrides
     public override float cooldown {
@@ -18,8 +18,8 @@ public class MedKit : InventoryItem {
     }
 
     public override int quantity {
-        get => _medkitQuantity;
-        set => _medkitQuantity = value;
+        get => _slowtrapQuantity;
+        set => _slowtrapQuantity = value;
     }
 
     public override float lastUsed {
@@ -33,15 +33,13 @@ public class MedKit : InventoryItem {
     }
 
     public override int StackLimit() {
-        return 5;
+        return 2;
     }
 
     public override bool IsWeapon() {
         return false;
     }
 
-    // Item constants
-    private const int HEAL_AMOUNT = 50;
 
     public override void Use(GameObject user, bool isHeld) {
         string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
@@ -65,16 +63,7 @@ public class MedKit : InventoryItem {
     }
 
     private void ItemEffect(GameObject user) {
-        // user.GetComponent<PlayerHealth>().Heal(HEAL_AMOUNT);
-        // What handles health now?
-        // Generate a quaternion for the particle effect to have no rotation
-        Health hp = user.GetComponent<Health>();
-        if (hp == null) {
-            Debug.LogError("MedKit: ItemEffect: No Health component found on user.");
-            return;
-        }
-        hp.HealServerRpc(HEAL_AMOUNT);
-        ParticleManager.instance.SpawnSelfThenAll("Healing", user.transform.position, Quaternion.Euler(-90, 0, 0));
+        
     }
 
 }
