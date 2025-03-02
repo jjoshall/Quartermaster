@@ -39,6 +39,7 @@ public class PlayerController : NetworkBehaviour {
     public float airAcceleration = 15f;
     public float minSlideSpeed = 0.5f;
     public float slideDeceleration = 5f;
+    public float backwardsMovementPenalty = 0.75f;
 
     [Tooltip("Sharpness affects acceleration/deceleration. Low values mean slow acceleration/deceleration and vice versa")]
     public float groundSharpness = 15f;
@@ -296,6 +297,8 @@ public class PlayerController : NetworkBehaviour {
         Vector3 capsuleBottomBeforeMove = GetCapsuleBottomHemisphere();
         Vector3 capsuleTopBeforeMove = GetCapsuleTopHemisphere(Controller.height);
 
+        PenalizeBackwardsMovement();
+
         Controller.Move(playerVelocity * Time.deltaTime);
 
         // detect obstructions to adjust velocity accordingly
@@ -308,6 +311,15 @@ public class PlayerController : NetworkBehaviour {
 
             // Project our velocity on the plane defined by the hit normal
             playerVelocity = Vector3.ProjectOnPlane(playerVelocity, hit.normal);
+        }
+    }
+
+    void PenalizeBackwardsMovement(){
+                // Check if the player is moving backwards
+        if (playerVelocity != Vector3.zero && Vector3.Dot(transform.forward, playerVelocity.normalized) < 0)
+        {
+            // Apply a 50% penalty on the movement speed when moving backwards.
+            playerVelocity *= backwardsMovementPenalty; // backwardsMovementPenalty is 0.5f
         }
     }
 
