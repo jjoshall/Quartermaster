@@ -6,7 +6,6 @@ using System.Collections;
 public class ProjectileManager : NetworkBehaviour
 {
     #region Variables
-
     #endregion 
 
 
@@ -15,6 +14,9 @@ public class ProjectileManager : NetworkBehaviour
 
 
     #region Inspector
+    [SerializeField]
+    private GameObject _lineRendererPrefab;
+    private GameObject _localLineRenderer; // stores the local line renderer. should not be more than one.
     [SerializeField]
     public List<ProjectileType> projectileTypes;    
     private Dictionary<string, List<GameObject>> projectilePool; // separate pool for each type.
@@ -54,8 +56,45 @@ public class ProjectileManager : NetworkBehaviour
     #endregion
 
 
+// ==============================================================================================
+    #region LineRenderer
+    public void SpawnLineRenderer(Vector3 position, Vector3 direction, float velocity){
+
+        if (_localLineRenderer != null){
+            Debug.LogError("Local line renderer already exists. Destroying it first.");
+            Destroy(_localLineRenderer);
+        }
+
+        GameObject lr = Instantiate(_lineRendererPrefab, position, Quaternion.identity);
+        lr.transform.SetParent(this.gameObject.transform);
+
+        UpdateLineRenderer(position, direction, velocity);
+        _localLineRenderer = lr;
+
+    }
+
+    public void UpdateLineRenderer(Vector3 position, Vector3 direction, float velocity){
+        // Get component
+        ArcLineRenderer alr = _localLineRenderer.GetComponent<ArcLineRenderer>();
+
+        // Update variables.
+        alr.velocity = velocity;
+        alr.launchDirection = direction;
+        _localLineRenderer.transform.position = position;
+
+        // Call renderer update.
+        alr.UpdateArc();
+    }
+
+    public void DestroyLineRenderer(){
+        Destroy(_localLineRenderer);
+        _localLineRenderer = null;
+    }
 
 
+
+
+    #endregion
 // ==============================================================================================
     #region = Projectiles
 

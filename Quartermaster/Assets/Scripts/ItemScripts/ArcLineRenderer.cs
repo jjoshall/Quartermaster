@@ -26,9 +26,7 @@ public class ArcLineRenderer : MonoBehaviour
     // Editor-only function. Reloads arc when values changed in editor.
     void OnValidate(){
         // check that lr is not null and that the game is playing
-        if (lr != null && Application.isPlaying){
-            RenderArc();
-        }
+        UpdateArc();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -37,7 +35,11 @@ public class ArcLineRenderer : MonoBehaviour
         RenderArc();
     }
 
-
+    public void UpdateArc(){
+        if (lr != null && Application.isPlaying){
+            RenderArc();
+        }
+    }
 
     void RenderArc(){
         launchDirection = this.transform.forward;

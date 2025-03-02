@@ -22,6 +22,7 @@ public class PlayerInputHandler : NetworkBehaviour {
     public bool isUsing {get; private set;} = false;
     public UnityAction<bool> OnUse;
     public UnityAction<bool> OnInteract;
+    public UnityAction<bool> OnRelease;
 
     
 
@@ -131,6 +132,7 @@ public class PlayerInputHandler : NetworkBehaviour {
             isUsing = true;
         }
         else if (ctx.canceled){
+            OnRelease?.Invoke(false);
             isUsing = false;
         }
     }
