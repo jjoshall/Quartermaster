@@ -70,13 +70,13 @@ public class Inventory : NetworkBehaviour {
         }
         // Use the inventory index directly (assumed 0-based now)
         _currentInventoryIndex = Mathf.Clamp(_InputHandler.inventoryIndex, 0, _maxInventorySize - 1);
-        Debug.Log("Mapped _currentInventoryIndex: " + _currentInventoryIndex);
+        //Debug.Log("Mapped _currentInventoryIndex: " + _currentInventoryIndex);
 
         if (_currentInventoryIndex != _oldInventoryIndex) {
             UpdateAllInventoryUI();
             _oldInventoryIndex = _currentInventoryIndex;
         }
-        Debug.Log("Raw inventoryIndex from input handler: " + _InputHandler.inventoryIndex);
+        //Debug.Log("Raw inventoryIndex from input handler: " + _InputHandler.inventoryIndex);
         _uiManager.HighlightSlot(_currentInventoryIndex);
     }
 
