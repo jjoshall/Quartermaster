@@ -439,25 +439,6 @@ public class PlayerController : NetworkBehaviour {
     }
 
     void OnDamaged(float damage, GameObject damageSource) {
-        //Debug.Log("In OnDamaged for player");
-        //// For directional damage indicators
-        //if (IsOwner) {
-        //    Debug.Log("In IsOwner if statement.");
-        //    Vector3 damagePos = damageSource.transform.position;
-        //    Debug.Log($"Damage Position: {damagePos}, and calling ClientRpc");
-
-        //    Debug.Log("Creating damage indicator");
-        //    // Create damage indicator
-        //    GameObject go = Instantiate(damageIndicatorPrefab, damageIndicatorPrefab.transform.parent);
-        //    DamageIndicator indicator = go.GetComponent<DamageIndicator>();
-
-        //    indicator.damageLocation = damagePos;
-        //    indicator.playerObj = transform;
-        //    go.SetActive(true);
-        //    Debug.Log("Damage indicator on screen");
-
-        //}
-
         Debug.Log($"[{Time.time}] {gameObject.name} took {damage} damage. Health Ratio: {health.GetRatio()}");
     }
 
