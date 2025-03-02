@@ -44,8 +44,8 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         healthRatio.OnValueChanged += OnHealthRatioChanged;
     }
 
-    private void OnHealthRatioChanged (float previousValue, float newValue) {
-        if (renderer != null) { 
+    private void OnHealthRatioChanged(float previousValue, float newValue) {
+        if (renderer != null) {
             renderer.material.color = new Color(newValue, 0f, 0f);
         }
     }
@@ -61,9 +61,9 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             healthRatio.Value = health.GetRatio();
         }
 
-        // Update target every .15 seconds
+        // Update target every .05 seconds
         if (Time.time >= _nextTargetUpdateTime) {
-            _nextTargetUpdateTime = Time.time + 0.15f;
+            _nextTargetUpdateTime = Time.time + 0.05f;
             UpdateTarget();
         }
 
@@ -84,7 +84,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected abstract void Attack();
 
     [ServerRpc(RequireOwnership = false)]
-    protected void AttackServerRpc(bool destroyAfterAttack = false)  {
+    protected void AttackServerRpc(bool destroyAfterAttack = false) {
         if (!IsServer) return;
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
 
@@ -94,8 +94,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             }
         }
 
-        if (destroyAfterAttack)
-        {
+        if (destroyAfterAttack) {
             enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
         }
     }
