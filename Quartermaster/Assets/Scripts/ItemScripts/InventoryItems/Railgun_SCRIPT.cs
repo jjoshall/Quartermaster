@@ -82,7 +82,10 @@ public class Railgun : IWeapon
     #region Fire()
     public override void fire(GameObject user){
         GameObject camera = user.transform.Find("Camera").gameObject;
-        
+        int enemyLayer = LayerMask.GetMask("Enemy");
+        int buildingLayer = LayerMask.GetMask("Building");
+        int combinedLayerMask = enemyLayer | buildingLayer;
+
         // particle on player
         Quaternion attackRotation = Quaternion.LookRotation(camera.transform.forward);
         if (_barrelLaserEffect != ""){
@@ -91,7 +94,7 @@ public class Railgun : IWeapon
         // piercing raycast
         List<Transform> targetsHit = new List<Transform>();
 
-        LineAoe(user, camera, targetsHit); // calls explosion if environment hit.
+        LineAoe(user, camera, targetsHit, combinedLayerMask); // calls explosion if environment hit.
         DamageTargets(user, targetsHit);
         
     }
@@ -99,14 +102,20 @@ public class Railgun : IWeapon
 
     #region LineAoE()
 
-    private void LineAoe(GameObject user, GameObject camera, List<Transform> targetsHit){
+    private void LineAoe(GameObject user, GameObject camera, List<Transform> targetsHit, int combinedLayerMask){
         RaycastHit[] hits;
-        hits = Physics.RaycastAll(camera.transform.position, camera.transform.forward, 100.0F);
+        hits = Physics.RaycastAll(camera.transform.position, camera.transform.forward, 100.0f, combinedLayerMask);
         // hits order undefined, so we sort.
         System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
 
         if (hits.Length > 0){
             foreach (RaycastHit hit in hits){
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Building"))
+                {
+                    SpawnExplosion(hit.point, _explosionRadius, targetsHit);
+                    break;
+                }
+
                 if (!hit.collider.CompareTag("Enemy") && !hit.collider.CompareTag("Player")){
                     SpawnExplosion(hit.point, _explosionRadius, targetsHit);
                     break;
