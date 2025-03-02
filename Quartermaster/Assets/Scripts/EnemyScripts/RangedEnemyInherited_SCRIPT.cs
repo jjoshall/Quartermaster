@@ -5,8 +5,8 @@ using System.Collections;
 public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     [Header("Ranged Attack Settings")]
     [SerializeField] private float _projectileSpeed = 30f;
-    [SerializeField] private float _maxAttackDistance = 20f;
-    [SerializeField] private float _minAttackDistance = 8f; // Minimum distance to maintain from player
+    [SerializeField] private float _maxAttackDistance = 10f;
+    [SerializeField] private float _minAttackDistance = 4f; // Minimum distance to maintain from player
     [SerializeField] private float _hoveredHeight = 3f; // Height above ground level
     [SerializeField] private Transform _firePoint; // Where projectiles originate from
     [SerializeField] private TrailRenderer _bulletTrailPrefab;
@@ -21,7 +21,7 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     private bool _canAttack = true;
 
     protected override float attackCooldown { get; } = 2f;
-    protected override float attackRange { get; } = 20f;
+    protected override float attackRange { get; } = 10f;
     protected override int damage { get; } = 8;
 
     public override void OnNetworkSpawn() {
@@ -43,6 +43,10 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         base.Update();
 
         if (!IsServer) return;
+
+        Vector3 lookPosition = target.position;
+        lookPosition.y = transform.position.y;
+        transform.LookAt(lookPosition);
 
         ApplyHovering();
     }
@@ -76,10 +80,6 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         _canAttack = false;
 
         //RotateTowardsTarget();
-        // Look at target
-        Vector3 direction = (target.position - transform.position).normalized;
-        Quaternion targetRotation = Quaternion.LookRotation(direction);
-        transform.rotation = targetRotation;
 
         if (IsServer) {
             FireBulletServerRpc(target.GetComponent<NetworkObject>().NetworkObjectId);
@@ -112,7 +112,6 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
         RaycastHit hit;
         if (Physics.Raycast(_firePoint.position, targetDirection, out hit, _maxAttackDistance, playerLayerMask)) {
-            Debug.Log("Hit something: " + hit.collider.name);
             CreateVisualEffectClientRpc(_firePoint.position, hit.point);
 
             if (hit.collider.CompareTag("Player")) {
@@ -120,7 +119,6 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             }
         }
         else {
-            Debug.Log("Hit nothing.");
             Vector3 endPoint = _firePoint.position + targetDirection * _maxAttackDistance;
             CreateVisualEffectClientRpc(_firePoint.position, endPoint);
         }
