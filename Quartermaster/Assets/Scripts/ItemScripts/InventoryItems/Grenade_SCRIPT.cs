@@ -78,7 +78,7 @@ public class Grenade : InventoryItem {
         Vector3 position = user.transform.position;
         Transform camera = user.GetComponent<Inventory>().orientation;
         Vector3 direction = camera.forward;
-        ProjectileManager.instance.SpawnLineRenderer(position, direction, _grenadeVelocity);
+        ProjectileManager.instance.SpawnLineRenderer(camera, _grenadeVelocity);
     }
 
     private void Charging (GameObject user){
@@ -94,15 +94,20 @@ public class Grenade : InventoryItem {
         Vector3 position = user.transform.position;
         Transform camera = user.GetComponent<Inventory>().orientation;
         Vector3 direction = camera.forward;
-        ProjectileManager.instance.UpdateLineRenderer(position, direction, _grenadeVelocity);
+        ProjectileManager.instance.UpdateLineRenderer(camera, _grenadeVelocity);
     }
 
     public override void Release (GameObject user){
         Debug.Log ("release grenade called");
+        Transform camera = user.GetComponent<Inventory>().orientation;
+        Vector3 direction = camera.forward;
         // Throw the grenade.
+        ProjectileManager.instance.SpawnSelfThenAll("Grenade", user.transform.position, user.transform.rotation, direction, _grenadeVelocity);
         quantity--;
         lastUsed = Time.time;
         ProjectileManager.instance.DestroyLineRenderer();
+        _grenadeVelocity = grenadeBaseVelocity;
+        _grenadeIsCharging = false;
     }
 
     // Note: Do collision 
