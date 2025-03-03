@@ -24,12 +24,10 @@ public class EnemyController : NetworkBehaviour {
      private float movementSpeedBlend;
      private Vector3 separationForce;
 
-     private EnemyShooter enemyShooter;
 
      public Health health;
 
      private void Awake() {
-          enemyShooter = GetComponent<EnemyShooter>();
           target = GameObject.FindFirstObjectByType<PlayerController>().transform;
           //animator = GetComponent<Animator>();
      }
@@ -65,8 +63,6 @@ public class EnemyController : NetworkBehaviour {
 
           if (distance > _stoppingDistance) {
                MoveTowardsTarget();
-          } else {
-               StopMove();
           }
 
           RotateTowardsTarget();
@@ -127,13 +123,6 @@ public class EnemyController : NetworkBehaviour {
      private void RotateTowardsTarget() {
           targetRotation = Quaternion.LookRotation(direction);
           transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, _rotationSpeed * Time.deltaTime);
-     }
-
-     private void StopMove() {
-     // Call the shoot function from the enemy shooter script
-          enemyShooter.Shoot();
-          //movementSpeedBlend = Mathf.Lerp(movementSpeedBlend, 0, Time.deltaTime * speed);
-          //animator.SetFloat("Speed", movementSpeedBlend);
      }
 
      void OnDamaged(float damage, GameObject source){
