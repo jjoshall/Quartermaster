@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2871604621
+  GlobalObjectIdHash: 3611473908
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -70,3 +70,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7efd668e5d65df4880f37212957cde5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  _lineRendererPrefab: {fileID: 6469001899465850458, guid: 6e58fe72f919bd543a4d214d898254ea, type: 3}
+  projectileTypes:
+  - key: Grenade
+    projectile: {fileID: 8519617277999394602, guid: 9a1a2bdc5ef2d0141818bc35c60de60c, type: 3}
+    networkDummy: {fileID: 8519617277999394602, guid: 93ba7abc64dc0aa4aa5686515831ff5c, type: 3}

@@ -9,12 +9,12 @@ public class ArcLineRenderer : MonoBehaviour
     LineRenderer lr;
 
     public float velocity;
-    public float angle;
+    public float verticalAngle;
     public int resolution = 10;
     public Vector3 launchDirection = Vector3.forward;
 
     float g; // force of gravity on the y axis
-    float radianAngle;
+    private float _radianAngle; // x axis rotation.
 
 
     void Awake(){
@@ -26,9 +26,7 @@ public class ArcLineRenderer : MonoBehaviour
     // Editor-only function. Reloads arc when values changed in editor.
     void OnValidate(){
         // check that lr is not null and that the game is playing
-        if (lr != null && Application.isPlaying){
-            RenderArc();
-        }
+        UpdateArc();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -37,19 +35,26 @@ public class ArcLineRenderer : MonoBehaviour
         RenderArc();
     }
 
+    public void UpdateArc(){
+        if (lr != null && Application.isPlaying){
+            RenderArc();
+        }
+    }
 
 
     void RenderArc(){
-        launchDirection = this.transform.forward;
+        // launchDirection = this.transform.forward;
         launchDirection = launchDirection.normalized;
         lr.positionCount = resolution + 1;
         lr.SetPositions(CalculateArcArray());
     }
 
     Vector3[] CalculateArcArray(){
+        
         Vector3[] arcArray = new Vector3[resolution + 1];
-        radianAngle = Mathf.Deg2Rad * angle;
-        float maxDistance = (velocity * velocity * Mathf.Sin(2 * radianAngle)) / g;
+        _radianAngle = Mathf.Deg2Rad * verticalAngle; // assumes passed in angle. deprecated
+
+        float maxDistance = (velocity * velocity * Mathf.Abs(Mathf.Sin(2 * _radianAngle))) / g;
 
         for (int i = 0; i <= resolution; i++){
             float t = (float) i / (float) resolution;
@@ -60,18 +65,26 @@ public class ArcLineRenderer : MonoBehaviour
     }
 
     Vector3 CalculateArcPoint(float t, float maxDistance){
-        // Horizontal distance along the launch direction.
+        // Horizontal distance along the trajectory.
         float horizontalDistance = t * maxDistance;
         
         // Calculate the vertical offset using the projectile motion formula.
-        float verticalOffset = horizontalDistance * Mathf.Tan(radianAngle) -
+        float verticalOffset = horizontalDistance * Mathf.Tan(_radianAngle) -
             ((g * horizontalDistance * horizontalDistance) /
-            (2 * velocity * velocity * Mathf.Cos(radianAngle) * Mathf.Cos(radianAngle)));
+            (2 * velocity * velocity * Mathf.Cos(_radianAngle) * Mathf.Cos(_radianAngle)));
         
-        // Combine the horizontal and vertical components.
-        // Assuming the arc starts at the object's position.
-        return transform.position + (launchDirection * horizontalDistance) + (Vector3.up * verticalOffset);
+        // Create a horizontal version of the launch direction by zeroing out its vertical component.
+        Vector3 horizontalDirection = launchDirection;
+        horizontalDirection.y = 0;
+        horizontalDirection.Normalize();
+        
+        // Combine the horizontal displacement and the physics-calculated vertical offset.
+        return transform.position + (horizontalDirection * horizontalDistance) + (Vector3.up * verticalOffset);
     }
 
+    public void ClearArc(){
+        lr.SetPositions(new Vector3[0]);
+        lr.positionCount = 0;
+    }
 
 }
