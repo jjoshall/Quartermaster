@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(PlayerInputHandler))]
 public class Inventory : NetworkBehaviour {
@@ -61,6 +62,7 @@ public class Inventory : NetworkBehaviour {
 
     void Update() {
         MyInput();
+        UpdateWeaponCooldownUI();
     }
 
     void MyInput() {
@@ -262,6 +264,33 @@ public class Inventory : NetworkBehaviour {
         return heldWeapon.CanAutoFire();
     }
 
+    void UpdateWeaponCooldownUI() {
+        if (!IsOwner || _uiManager == null) return;
+
+        InventoryItem selectedItem = _inventory[_currentInventoryIndex];
+
+        if (selectedItem == null || !selectedItem.IsWeapon()) {
+            _uiManager.weaponCooldownRadial.gameObject.SetActive(false);
+            return;
+        }
+
+        IWeapon heldWeapon = selectedItem as IWeapon;
+        if (heldWeapon != null) {
+            float cooldownRemaining = heldWeapon.GetCooldownRemaining();
+            float cooldownMax = heldWeapon.GetMaxCooldown();
+
+            if (cooldownMax > 0) {
+                _uiManager.weaponCooldownRadial.gameObject.SetActive(true);
+                float cooldownRatio = Mathf.Clamp01(1 - (cooldownRemaining / cooldownMax));
+                _uiManager.weaponCooldownRadial.fillAmount = Mathf.Lerp(0f, 0.25f, cooldownRatio);
+            } else {
+                _uiManager.weaponCooldownRadial.gameObject.SetActive(false);
+            }
+        }
+    }
+
+
+
     // Updates all inventory UI slots by looping through the inventory array.
     private void UpdateAllInventoryUI() {
         for (int i = 0; i < _maxInventorySize; i++) {
@@ -289,6 +318,7 @@ public class Inventory : NetworkBehaviour {
                         break;
                 }
             }
+            UpdateWeaponCooldownUI();
             _uiManager.SetInventorySlotTexture(i, textureToSet);
         }
     }
