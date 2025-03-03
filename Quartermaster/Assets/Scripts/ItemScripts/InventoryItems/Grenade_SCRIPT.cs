@@ -7,6 +7,8 @@ public class Grenade : InventoryItem {
     private float _lastUsedTime = float.MinValue;
     private static float _itemCooldown = 2f;
 
+    public override bool isHoldable { get; set; } = true;
+
     private GameObject _lineRenderer;
 
     // Abstract overrides
@@ -59,7 +61,7 @@ public class Grenade : InventoryItem {
             return;
         }
 
-        if (isHeld == false && _grenadeIsCharging == false){ // This is our KeyDown event.
+        if (isHeld == false){ // This is our KeyDown event.
             StartCharging(user);
         }
         else {
@@ -73,10 +75,14 @@ public class Grenade : InventoryItem {
         _grenadeIsCharging = true;
         _grenadeVelocity = grenadeBaseVelocity;
         // Initialize the line renderer.
-        UpdateLineRenderer(user);
+        Vector3 position = user.transform.position;
+        Transform camera = user.GetComponent<Inventory>().orientation;
+        Vector3 direction = camera.forward;
+        ProjectileManager.instance.SpawnLineRenderer(position, direction, _grenadeVelocity);
     }
 
     private void Charging (GameObject user){
+        Debug.Log ("charging grenade called");
         // Continue charging the grenade.
         // Update the line renderer.
         // Update the velocity if not maxed.

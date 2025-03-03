@@ -85,7 +85,7 @@ public class Inventory : NetworkBehaviour {
     void UseItem(bool isHeld) {
         if (!IsOwner) return;
         if (!ValidIndexCheck()) return;
-        Debug.Log ("attempting to use item: " + _inventory[_currentInventoryIndex].GetType().Name);
+        // Debug.Log ("attempting to use item: " + _inventory[_currentInventoryIndex].GetType().Name);
         _inventory[_currentInventoryIndex].AttemptUse(_playerObj, isHeld);
         if (_inventory[_currentInventoryIndex].quantity <= 0) {
             _inventory[_currentInventoryIndex] = null;

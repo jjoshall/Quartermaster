@@ -68,8 +68,8 @@ public class ProjectileManager : NetworkBehaviour
         GameObject lr = Instantiate(_lineRendererPrefab, position, Quaternion.identity);
         lr.transform.SetParent(this.gameObject.transform);
 
-        UpdateLineRenderer(position, direction, velocity);
         _localLineRenderer = lr;
+        UpdateLineRenderer(position, direction, velocity);
 
     }
 
