@@ -1,16 +1,32 @@
 using UnityEngine;
 
-public class GrenadeProjectile_SCRIPT : MonoBehaviour
+public class GrenadeProjectile : IProjectile
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [SerializeField] private float _explosionRadius;
+    [SerializeField] private float _explosionDamage;
+
+    protected override void Expire()
     {
-        
+        Explode();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+    void Explode(){
+        LayerMask enemyMask = LayerMask.GetMask("Enemy");
+        Collider[] colliders = Physics.OverlapSphere(transform.position, _explosionRadius, enemyMask);
+        foreach (Collider nearbyObject in colliders){
+            if (nearbyObject.CompareTag("Enemy")){
+                Damageable d = nearbyObject.GetComponent<Damageable>();
+                if (d != null){
+                    d.InflictDamage(_explosionDamage, true, sourcePlayer);
+                    ParticleManager.instance.SpawnSelfThenAll("Sample", nearbyObject.transform.position, Quaternion.identity);
+                } else {
+                    Debug.LogError("GrenadeProjectile.Explode() - enemy tag without damageable component: " + nearbyObject.name);
+                }
+            }
+        }
+
+        // ParticleManager.instance.
+        Destroy(this.gameObject);
     }
+
 }
