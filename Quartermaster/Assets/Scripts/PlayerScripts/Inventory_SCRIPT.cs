@@ -47,6 +47,7 @@ public class Inventory : NetworkBehaviour {
         if (!_InputHandler) _InputHandler = _playerObj.GetComponent<PlayerInputHandler>();
 
         _InputHandler.OnUse += UseItem;
+        _InputHandler.OnRelease += ReleaseItem;
         _InputHandler.OnInteract += PickUpClosest;
 
         // Initialize inventory array
@@ -80,25 +81,33 @@ public class Inventory : NetworkBehaviour {
         _uiManager.HighlightSlot(_currentInventoryIndex);
     }
 
+    #region UseEvents
     void UseItem(bool isHeld) {
         if (!IsOwner) return;
-        if (_currentInventoryIndex < 0 || _currentInventoryIndex >= _inventory.Length) {
-            Debug.LogError("Invalid inventory index: " + _currentInventoryIndex);
-            return;
-        }
-        if (_inventory[_currentInventoryIndex] != null) {
-            if (_playerObj == null) {
-                _playerObj = transform.parent.gameObject;
-            }
-            _inventory[_currentInventoryIndex].AttemptUse(_playerObj, isHeld);
-            if (_inventory[_currentInventoryIndex].quantity <= 0) {
-                _inventory[_currentInventoryIndex] = null;
-                _currentHeldItems--;
-                UpdateAllInventoryUI();
-            }
+        if (!ValidIndexCheck()) return;
+        // Debug.Log ("attempting to use item: " + _inventory[_currentInventoryIndex].GetType().Name);
+        _inventory[_currentInventoryIndex].AttemptUse(_playerObj, isHeld);
+        if (_inventory[_currentInventoryIndex].quantity <= 0) {
+            _inventory[_currentInventoryIndex] = null;
+            _currentHeldItems--;
+            UpdateAllInventoryUI();
         }
     }
 
+    void ReleaseItem(bool b){
+        if (!IsOwner) return;
+        if (!ValidIndexCheck()) return;
+        _inventory[_currentInventoryIndex].Release(_playerObj);
+        if (_inventory[_currentInventoryIndex].quantity <= 0) {
+            _inventory[_currentInventoryIndex] = null;
+            _currentHeldItems--;
+            UpdateAllInventoryUI();
+        }
+        
+    }
+
+    #endregion
+    #region PickUpEvents
     void PickUpClosest(bool discardBool) {
         if (!IsOwner) return;
         GameObject closestItem = _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().GetClosestItem();
@@ -155,7 +164,8 @@ public class Inventory : NetworkBehaviour {
             UpdateAllInventoryUI();
         }
     }
-
+    #endregion
+    #region PickupHelpers
     // Tries to stack newItem onto an existing stack. Returns true if stacked.
     bool TryStackItem(InventoryItem newItem) {
         for (int i = 0; i < _inventory.Length; i++){
@@ -183,7 +193,9 @@ public class Inventory : NetworkBehaviour {
             }
         }
     }
+    #endregion
 
+    #region DropEvents
     void DropSelectedItem() {
         if (_inventory[_currentInventoryIndex] == null) return;
         int selectedItemId = _inventory[_currentInventoryIndex].itemID;
@@ -226,17 +238,9 @@ public class Inventory : NetworkBehaviour {
         _currentHeldItems--;
         UpdateAllInventoryUI();
     }
+    #endregion
 
-    public int HasWeapon() {
-        for (int i = 0; i < _inventory.Length; i++) {
-            if (_inventory[i] != null && _inventory[i].IsWeapon()) {
-                Debug.Log("HasWeapon(): Found weapon at slot " + i);
-                return i;
-            }
-        }
-        return -1;
-    }
-
+    // When is this used?
     public bool FireWeapon() {
         int weaponSlot = HasWeapon();
         if (weaponSlot == -1) {
@@ -288,4 +292,37 @@ public class Inventory : NetworkBehaviour {
             _uiManager.SetInventorySlotTexture(i, textureToSet);
         }
     }
+
+    #region Helpers
+
+    bool ValidIndexCheck(){
+        if (_currentInventoryIndex < 0 || _currentInventoryIndex >= _inventory.Length) {
+            Debug.LogError("Invalid inventory index: " + _currentInventoryIndex);
+            return false;
+        }
+        if (_inventory[_currentInventoryIndex] == null) {
+            Debug.Log("No item in inventory slot " + _currentInventoryIndex);
+            return false;
+        }
+        if (_playerObj == null) {
+            _playerObj = transform.parent.gameObject;
+        }
+        if (_playerObj == null) {
+            Debug.LogError("No player object found.");
+            return false;
+        }
+        return true;
+
+    }
+    public int HasWeapon() {
+        for (int i = 0; i < _inventory.Length; i++) {
+            if (_inventory[i] != null && _inventory[i].IsWeapon()) {
+                Debug.Log("HasWeapon(): Found weapon at slot " + i);
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    #endregion
 }

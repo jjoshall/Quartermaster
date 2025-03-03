@@ -83,17 +83,32 @@ public class ParticleManager : NetworkBehaviour
 
     [ServerRpc(RequireOwnership = false)]
     public void SpawnParticleForOthersServerRpc(string key, Vector3 position, Quaternion rotation, ulong clientId)
-    {
-        // iterate over each client except clientId
-        foreach (NetworkClient client in NetworkManager.Singleton.ConnectedClients.Values)
+    {        
+        List<ulong> targetClients = new List<ulong>();
+        foreach (ulong id in NetworkManager.Singleton.ConnectedClientsIds)
         {
-            if (client.ClientId == clientId) continue;
-            SpawnParticleClientRpc(key, position, rotation);
+            if (id != clientId) // Exclude the given clientId
+            {
+                targetClients.Add(id);
+            }
         }
+        ClientRpcParams clientRpcParams = new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = targetClients.ToArray()
+            }
+        };
+        // iterate over each client except clientId
+        // foreach (NetworkClient client in NetworkManager.Singleton.ConnectedClients.Values)
+        // {
+        //     if (client.ClientId == clientId) continue;
+        // }
+        SpawnParticleClientRpc(key, position, rotation, clientRpcParams);
     }
 
     [ClientRpc]
-    public void SpawnParticleClientRpc(string key, Vector3 position, Quaternion rotation)
+    public void SpawnParticleClientRpc(string key, Vector3 position, Quaternion rotation, ClientRpcParams clientRpcParams = default)
     {
         // call local spawnparticle for this client
         SpawnParticleLocal(key, position, rotation);

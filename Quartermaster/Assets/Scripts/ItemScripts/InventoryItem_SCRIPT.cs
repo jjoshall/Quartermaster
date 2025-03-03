@@ -12,6 +12,10 @@ public abstract class InventoryItem {
     // class static cooldown. defined by inherited class
     public abstract float cooldown { get; set; }
 
+    // Current PlayerInputHandler fires event to which UseItem() is subscribed every update
+    //                         with bool isHeld == true.
+    //               Fires event for UseItem() with bool isHeld == false when initially pressed.
+    // UseItem() checks attemptuse. If item isn't "holdable", it won't auto-fire.
     public void AttemptUse(GameObject user, bool isHeld){
         if (isHeld && !isHoldable){
             return;
@@ -21,6 +25,10 @@ public abstract class InventoryItem {
     }
 
     public abstract void Use(GameObject user, bool isHeld);
+
+    public virtual void Release(GameObject user){
+        // Do nothing by default.
+    }
 
     public abstract bool IsConsumable();
 
