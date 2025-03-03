@@ -160,7 +160,7 @@ public class ProjectileManager : NetworkBehaviour
                                     Vector3 direction, float velocity, ClientRpcParams clientRpcParams = default)
     {
         // call local spawnProjectile for this client
-        SpawnProjectileLocal(key, position, rotation, direction, velocity);
+        SpawnDummyLocal(key, position, rotation, direction, velocity);
     }
 
     #endregion
@@ -196,8 +196,12 @@ public class ProjectileManager : NetworkBehaviour
             projectileObj.transform.rotation = rotation;
             projectileObj.SetActive(true);
         }
+
+        Rigidbody rb = projectileObj.GetComponent<Rigidbody>();
+        rb.linearVelocity = direction * velocity;
     }
-    public void SpawnDummyLocal(string key, Vector3 position, Quaternion rotation)
+    public void SpawnDummyLocal(string key, Vector3 position, Quaternion rotation,
+                                Vector3 direction, float velocity)
     {
         if (!projectilePool.ContainsKey(key))
         {
@@ -224,6 +228,9 @@ public class ProjectileManager : NetworkBehaviour
             projectileObj.SetActive(true);
 
         }
+        
+        Rigidbody rb = projectileObj.GetComponent<Rigidbody>();
+        rb.linearVelocity = direction * velocity;
     }
 
     public void DespawnProjectileLocal(string key, GameObject projectileObj)
