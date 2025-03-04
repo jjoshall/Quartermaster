@@ -11,6 +11,9 @@ public class WorldItem : NetworkBehaviour {
     public NetworkVariable<int> n_stackQuantity = new NetworkVariable<int>(1);
     public NetworkVariable<float> n_lastUsed = new NetworkVariable<float>(0);
 
+    public float selfDestructTimer = 10.0f; // Doesn't need network. Destroy will propagate from server.
+    public bool selfDestructActivated = false;
+
     [Header("Set ItemID to corresponding index ItemManager's itemEntries")]
     public int itemID; // inherited from ItemManager's list.
                         // or for manually placed prefabs, set it in inspector
@@ -37,6 +40,13 @@ public class WorldItem : NetworkBehaviour {
 
     void Update() {
         FloatyAnimation();
+        if (selfDestructActivated) {
+            selfDestructTimer -= Time.deltaTime;
+            if (selfDestructTimer <= 0) {
+                NetworkObject n_thisItem = this.gameObject.GetComponent<NetworkObject>();
+                ItemManager.instance.DestroyWorldItemServerRpc(n_thisItem);
+            }
+        }
     }
 
     void FloatyAnimation() {
