@@ -448,14 +448,20 @@ public class PlayerController : NetworkBehaviour {
             health.HealServerRpc(1000f);
             health.Invincible = false;
         }
+
+        HealthBarUI.instance.UpdateHealthBar(health);
     }
 
     void OnDamaged(float damage, GameObject damageSource) {
         Debug.Log($"[{Time.time}] {gameObject.name} took {damage} damage. Health Ratio: {health.GetRatio()}");
+
+        HealthBarUI.instance.UpdateHealthBar(health);
     }
 
     void OnHealed(float healAmount) {
         Debug.Log($"[{Time.time}] {gameObject.name} healed for {healAmount} health. Health Ratio: {health.GetRatio()}");
+    
+        HealthBarUI.instance.UpdateHealthBar(health);
     }
 
     #endregion

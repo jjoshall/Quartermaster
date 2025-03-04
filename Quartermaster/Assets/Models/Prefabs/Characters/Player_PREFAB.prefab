@@ -84,7 +84,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 533627647367738219}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
   m_Name: 
@@ -440,6 +440,7 @@ MonoBehaviour:
   emptyMaterial: {fileID: 2800000, guid: 22641cf7c6dd62d4a9bc6abe83714ec7, type: 3}
   railgunMaterial: {fileID: 2800000, guid: 2a980c474bcfc804c8c1714aa1ac5659, type: 3}
   flamethrowerMaterial: {fileID: 2800000, guid: c6b290b5717566144b7f057edceadffc, type: 3}
+  grenadeMaterial: {fileID: 2800000, guid: bf1ed58d660f427479999ac377cbb09a, type: 3}
   weaponSlot: {fileID: 5079399718664646750}
   holdablePrefabs:
   - {fileID: 8350377457489554618, guid: 83d9e3b59728a384e92d02a0f6f67371, type: 3}
@@ -447,7 +448,6 @@ MonoBehaviour:
   - {fileID: 8214988673966322452, guid: 98896561af7a3ee46953905c5a2055e3, type: 3}
   - {fileID: 670930991722643377, guid: 0369d2544b8a67447a02a2f182b83760, type: 3}
   - {fileID: 7575857999763451099, guid: 36c2adef9b87b974a8d2165862a3159e, type: 3}
-  grenadeMaterial: {fileID: 2800000, guid: bf1ed58d660f427479999ac377cbb09a, type: 3}
 --- !u!114 &3204480622593929652
 MonoBehaviour:
   m_ObjectHideFlags: 0
