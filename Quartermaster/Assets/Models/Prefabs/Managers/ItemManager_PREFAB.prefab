@@ -71,6 +71,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  burstDrop_baseRate: 0.059
+  burstDrop_dropRateIncrement: 0.035
+  burstDrop_dropCount: 5
+  droppedItemDuration: 20.3
+  burstDrop_cooldown: 21.3
+  burstdrop_targetEnemiesPerItem: 0
   itemEntries:
   - worldPrefab: {fileID: 7727275518780203837, guid: d62d04855d8c11d4a8a181d3886a4f13, type: 3}
     inventoryItemClass: PocketInventoryPortalKey
@@ -78,7 +84,34 @@ MonoBehaviour:
     inventoryItemClass: MedKit
   - worldPrefab: {fileID: 8519617277999394602, guid: 496ab804939b7014597220b12fe393b2, type: 3}
     inventoryItemClass: Pistol
-  - worldPrefab: {fileID: 0}
+  - worldPrefab: {fileID: 6213748935702998764, guid: 99f56c5ffdbfecc4c819374036a00357, type: 3}
     inventoryItemClass: Railgun
-  - worldPrefab: {fileID: 0}
+  - worldPrefab: {fileID: 2182478556217154093, guid: d3dd66e98cc107f48a60ff888a290bbe, type: 3}
     inventoryItemClass: Flamethrower
+  - worldPrefab: {fileID: 3874856704361242138, guid: a0f050a8cd807a842ba698798cbee8f1, type: 3}
+    inventoryItemClass: DeliverableQuestItem
+  - worldPrefab: {fileID: 8519617277999394602, guid: b6be9667976644b4ca949a569cdb5b8d, type: 3}
+    inventoryItemClass: Grenade
+  - worldPrefab: {fileID: 8519617277999394602, guid: 9b898f39b26fc0d49914d00f4fc53b40, type: 3}
+    inventoryItemClass: SlowTrap
+  - worldPrefab: {fileID: 8519617277999394602, guid: 70aec5c8417023c46b813500f0ce3f65, type: 3}
+    inventoryItemClass: StimPack
+  dropEntries:
+  - stringID: MedKit
+    quantity: 5
+    dropChance: 0.5
+  - stringID: DeliverableQuestItem
+    quantity: 1
+    dropChance: 0.2
+  - stringID: Pistol
+    quantity: 1
+    dropChance: 0.001
+  - stringID: Railgun
+    quantity: 1
+    dropChance: 0.001
+  - stringID: Flamethrower
+    quantity: 1
+    dropChance: 0.001
+  - stringID: Grenade
+    quantity: 5
+    dropChance: 0.4

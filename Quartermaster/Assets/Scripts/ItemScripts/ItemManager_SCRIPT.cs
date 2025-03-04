@@ -38,6 +38,9 @@ public class ItemManager : NetworkBehaviour {
     public int burstDrop_dropCount;
     [SerializeField, Range(0, 60.0f), Tooltip("Duration of dropped items")]
     private float droppedItemDuration;
+    [SerializeField, Range(0, 60.0f), Tooltip("Burst Drop Cooldown")]
+    private float burstDrop_cooldown;
+    private float burstDrop_timer = float.MaxValue;
     public float burstdrop_targetEnemiesPerItem;    
 
     // Used for lookup during worlditem & inventoryitem spawn.
@@ -94,9 +97,13 @@ public class ItemManager : NetworkBehaviour {
 
         _burstDrop_moddedRate = burstDrop_baseRate;
     }
-    #endregion 
-    
+    #endregion
 
+
+    void Update()
+    {
+        burstDrop_timer += Time.deltaTime;
+    }
 
 
     #region Item Functions
@@ -141,7 +148,7 @@ public class ItemManager : NetworkBehaviour {
         
     }
 
-    // Duplicate of spawnWorldItem without pocketinventory check, for use in enemy drops.
+    // Base enemy drop function. Called by Enemy OnDie() -> ThresholdBurstDrop() -> DropItems()
     [ServerRpc(RequireOwnership = false)]
     private void EnemyDropServerRpc(int id, 
                                         int quantity, 
@@ -151,7 +158,9 @@ public class ItemManager : NetworkBehaviour {
         if (!IsServer) { return; }
 
         GameObject newWorldItem = Instantiate(itemEntries[id].worldPrefab);
-        StartCoroutine(DestroyItemAfterTime(newWorldItem, droppedItemDuration));
+        newWorldItem.GetComponent<WorldItem>().selfDestructTimer = droppedItemDuration;
+        newWorldItem.GetComponent<WorldItem>().selfDestructActivated = true;
+
         NetworkObject netObj = newWorldItem.GetComponent<NetworkObject>();
 
         if (netObj == null) {
@@ -193,6 +202,10 @@ public class ItemManager : NetworkBehaviour {
     // Rolls a multiplier. All drop entries are multiplied by this value.
     // If 
     public void ThresholdBurstDrop(Vector3 position){
+        if (burstDrop_timer < burstDrop_cooldown){
+            return;
+        }
+        burstDrop_timer = 0.0f;
         // roll for burst drop against modded rate.
         float dropChanceMultiplier = UnityEngine.Random.Range(0.0f, 1.0f);
         if (dropChanceMultiplier < _burstDrop_moddedRate){
@@ -206,11 +219,11 @@ public class ItemManager : NetworkBehaviour {
     }
 
     private void DropItems(Vector3 position){
-        float countMultiplier = _burstDrop_moddedRate / burstDrop_baseRate;
+        float countMultiplier = 1.0f; //_burstDrop_moddedRate / burstDrop_baseRate; // >1 multiplier.
         foreach (DropEntry entry in dropEntries){
             // roll for each item
-            float itemRoll = UnityEngine.Random.Range(0.0f, 1.0f);
-            if (itemRoll * countMultiplier > 1 - entry.dropChance){
+            float itemRoll = UnityEngine.Random.Range(0.0f, 1.0f); // 0-1.
+            if (itemRoll * countMultiplier > ( 1 - entry.dropChance )){
                 Vector3 randomDirection = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0, UnityEngine.Random.Range(-1f, 1f));
                 randomDirection.Normalize();
 

@@ -4,7 +4,6 @@ using System.Collections;
 
 public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     [Header("Ranged Attack Settings")]
-    [SerializeField] private float _projectileSpeed = 30f;
     [SerializeField] private float _maxAttackDistance = 10f;
     [SerializeField] private float _minAttackDistance = 4f; // Minimum distance to maintain from player
     [SerializeField] private float _hoveredHeight = 3f; // Height above ground level
@@ -79,25 +78,12 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         if (target == null) return;
         _canAttack = false;
 
-        //RotateTowardsTarget();
-
         if (IsServer) {
             FireBulletServerRpc(target.GetComponent<NetworkObject>().NetworkObjectId);
         }
 
         StartCoroutine(ResetAttackCooldown());
     }
-
-    //private void RotateTowardsTarget() {
-    //    Debug.Log("Rotating towards target");
-    //    Vector3 direction = (target.position - transform.position).normalized;
-    //    Debug.Log("Direction: " + direction);
-    //    Quaternion targetRotation = Quaternion.LookRotation(direction);
-    //    Debug.Log("Starting rotation to Target Rotation: " + targetRotation);
-
-    //    transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 10f * Time.deltaTime);
-    //    Debug.Log("Ending rotation: " + transform.rotation);
-    //}
 
     [ServerRpc(RequireOwnership = false)]
     private void FireBulletServerRpc(ulong targetNetworkId) {
@@ -109,12 +95,18 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         Transform targetTransform = targetNetworkObject.transform;
         Vector3 targetDirection = (targetTransform.position - _firePoint.position).normalized;
         int playerLayerMask = LayerMask.GetMask("Player");
+        int buildingLayerMask = LayerMask.GetMask("Building");
+        int combinedLayerMask = playerLayerMask | buildingLayerMask;
 
         RaycastHit hit;
-        if (Physics.Raycast(_firePoint.position, targetDirection, out hit, _maxAttackDistance, playerLayerMask)) {
+        if (Physics.Raycast(_firePoint.position, targetDirection, out hit, _maxAttackDistance, combinedLayerMask)) {
             CreateVisualEffectClientRpc(_firePoint.position, hit.point);
 
-            if (hit.collider.CompareTag("Player")) {
+            if (hit.collider.gameObject.layer == buildingLayerMask) {
+                Debug.Log("Ranged enemy hit building layer.");
+                return;
+            }
+            else if (hit.collider.CompareTag("Player")) {
                 hit.collider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
             }
         }

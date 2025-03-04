@@ -101,7 +101,7 @@ public class Pistol : IWeapon
         // spawn the pistol barrel fire in direction of camera look
         Quaternion attackRotation = Quaternion.LookRotation(camera.transform.forward);
         if (_barrelFireEffect != ""){
-            ParticleManager.instance.SpawnSelfThenAll(_barrelFireEffect, user.transform.position, attackRotation);
+            ParticleManager.instance.SpawnSelfThenAll(_barrelFireEffect, camera.transform.position, attackRotation);
         }
         //Debug.DrawRay(camera.transform.position, camera.transform.forward * 100, Color.yellow, 2f);
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, 100f, combinedLayerMask, QueryTriggerInteraction.Ignore)){

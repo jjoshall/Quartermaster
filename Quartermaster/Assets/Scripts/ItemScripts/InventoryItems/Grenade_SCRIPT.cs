@@ -4,8 +4,8 @@ public class Grenade : InventoryItem {
 
     // Adjustable fields.
     private float _grenadeBaseVelocity = 5f;
-    private float _grenadeMaxVelocity = 20f;
-    private float _grenadeMaxChargeTime = 2.5f;
+    private float _grenadeMaxVelocity = 30f;
+    private float _grenadeMaxChargeTime = 1.0f;
 
     // Runtime field. DONT CHANGE.
     private bool _grenadeIsCharging = false;
@@ -99,15 +99,6 @@ public class Grenade : InventoryItem {
         UpdateLineRenderer(user);
     }
 
-    // private void Charging (GameObject user){
-    //     Debug.Log ("charging grenade called");
-    //     // Continue charging the grenade.
-    //     // Update the line renderer.
-    //     // Update the velocity if not maxed.
-    //     _grenadeVelocity = Mathf.Min(_grenadeVelocity + Time.deltaTime * 1, grenadeMaxVelocity);
-    //     UpdateLineRenderer(user);
-    // }
-
     private void UpdateLineRenderer (GameObject user){
         Transform camera = user.GetComponent<Inventory>().orientation;
         ProjectileManager.instance.UpdateLineRenderer(camera, _grenadeVelocity);
@@ -118,7 +109,7 @@ public class Grenade : InventoryItem {
         Transform camera = user.GetComponent<Inventory>().orientation;
         Vector3 direction = camera.forward;
         // Throw the grenade.
-        ProjectileManager.instance.SpawnSelfThenAll("Grenade", user.transform.position, user.transform.rotation, direction, _grenadeVelocity, user);
+        ProjectileManager.instance.SpawnSelfThenAll("Grenade", camera.transform.position + camera.right * 0.1f, camera.transform.rotation, direction, _grenadeVelocity, user);
         _grenadeQuantity--;
         lastUsed = Time.time;
         ProjectileManager.instance.DestroyLineRenderer();
