@@ -90,8 +90,17 @@ public class Flamethrower : IWeapon
 
     #region Fire()
     public override void fire(GameObject user){
+        GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
+        GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
+        GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
+
+
         GameObject camera = user.transform.Find("Camera").gameObject;
-        
+
+        //get player camera forward + max range + capsule radius
+        Vector3 shotEnd = camera.transform.position + camera.transform.forward * (_maxRange + _capsuleRadius);
+
+
         // particle on player
         Quaternion attackRotation = Quaternion.LookRotation(camera.transform.forward);
         if (_barrelLaserEffect != ""){
@@ -99,6 +108,11 @@ public class Flamethrower : IWeapon
         }
         // piercing raycast
         List<Transform> targetsHit = new List<Transform>();
+
+        
+        Debug.DrawRay(shotOrigin.transform.position, shotEnd, Color.red, 2f);
+
+
 
         CapsuleAoe(user, camera, targetsHit); // calls explosion if environment hit.
         DamageTargets(user, targetsHit);

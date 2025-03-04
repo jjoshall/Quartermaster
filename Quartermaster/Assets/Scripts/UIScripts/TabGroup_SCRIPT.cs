@@ -12,7 +12,7 @@ public class TabGroup : MonoBehaviour {
     public CustomTabButton selectedTabRef;
     public List<GameObject> objectsToSwap;
 
-    void Start() {
+    void OnAwake() {
         OnTabSelected(selectedTabRef);
     }
 

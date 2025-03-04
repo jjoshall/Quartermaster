@@ -91,6 +91,7 @@ public class Railgun : IWeapon
 
     #region Fire()
     public override void fire(GameObject user){
+
         GameObject camera = user.transform.Find("Camera").gameObject;
         int enemyLayer = LayerMask.GetMask("Enemy");
         int buildingLayer = LayerMask.GetMask("Building");
@@ -115,12 +116,23 @@ public class Railgun : IWeapon
     #region LineAoE()
 
     private void LineAoe(GameObject user, GameObject camera, List<Transform> targetsHit, int combinedLayerMask){
+        GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
+        GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
+        GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
+
+        
         RaycastHit[] hits;
         hits = Physics.RaycastAll(camera.transform.position, camera.transform.forward, 100.0f, combinedLayerMask);
         // hits order undefined, so we sort.
         System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
 
         if (hits.Length > 0){
+
+            // draw a ray from the shotOrigin to the hit point
+            Debug.DrawRay(shotOrigin.transform.position, hits[0].point - shotOrigin.transform.position, Color.blue, 2f);
+
+
+
             foreach (RaycastHit hit in hits){
                 if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Building"))
                 {

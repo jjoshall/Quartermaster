@@ -89,6 +89,11 @@ public class Pistol : IWeapon
 
     #region PistolFire()
     public override void fire(GameObject user){
+        GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
+        GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
+        GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
+
+
         GameObject camera = user.transform.Find("Camera").gameObject;
         int enemyLayer = LayerMask.GetMask("Enemy");
         int buildingLayer = LayerMask.GetMask("Building");
@@ -101,6 +106,11 @@ public class Pistol : IWeapon
         //Debug.DrawRay(camera.transform.position, camera.transform.forward * 100, Color.yellow, 2f);
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, 100f, combinedLayerMask, QueryTriggerInteraction.Ignore)){
             Debug.Log("Pistol hit something: " + hit.collider.name + "on layer: " + hit.collider.gameObject.layer);
+
+            // draw a ray from the shotOrigin to the hit point
+            Debug.DrawRay(shotOrigin.transform.position, hit.point - shotOrigin.transform.position, Color.green, 2f);
+
+
 
             // Check if the hit object is a building
             if (hit.collider.gameObject.layer == buildingLayer) {
