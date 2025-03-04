@@ -1,16 +1,25 @@
 using UnityEngine;
 
-public class KnifeProjectile_SCRIPT : MonoBehaviour
-{
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
+public class KnifeProjectile : IProjectile
+{    
+    
+    protected virtual void OnCollisionEnter(Collision collision){
+        // if the grenade hits a player, it should explode.
+        if (collision.gameObject.CompareTag("Enemy")){
+            
+            // WIP. DO DAMAGE HERE. 
+
+            
+            Expire();
+        }
+        else {
+            _projectileCollided = true;
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+
+    protected override void Expire()
     {
-        
+        // Destroy self. Spawn knife worlditem.
     }
 }

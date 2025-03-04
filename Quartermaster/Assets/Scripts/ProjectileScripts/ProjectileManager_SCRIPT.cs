@@ -67,6 +67,10 @@ public class ProjectileManager : NetworkBehaviour
             }
             projectilePool.Add(projectileType.key, new List<GameObject>());
         }
+        
+        _localLineRenderer = Instantiate(_lineRendererPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        _localLineRenderer.SetActive(false);
+        
 
     }
     #endregion
@@ -74,20 +78,27 @@ public class ProjectileManager : NetworkBehaviour
 // ==============================================================================================
     #region LineRenderer
     public void SpawnLineRenderer(Transform camera, float velocity){
-        if (_localLineRenderer != null){
-            Debug.LogError("Local line renderer already exists. Destroying it first.");
-            Destroy(_localLineRenderer);
+        if (_localLineRenderer == null){
+            _localLineRenderer = Instantiate(_lineRendererPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        } else {
+            _localLineRenderer.SetActive(true);
         }
 
-        GameObject lr = Instantiate(_lineRendererPrefab, camera.position, Quaternion.identity);
-        lr.transform.SetParent(this.gameObject.transform);
+        // GameObject lr = Instantiate(_lineRendererPrefab, camera.position, Quaternion.identity);
+        // lr.transform.SetParent(this.gameObject.transform);
 
-        _localLineRenderer = lr;
+        // _localLineRenderer = lr;
+        _localLineRenderer.GetComponent<LineRenderer>().SetPositions(new Vector3[0]);
         UpdateLineRenderer(camera, velocity);
 
     }
 
     public void UpdateLineRenderer(Transform camera, float velocity){
+        if (_localLineRenderer == null){
+            _localLineRenderer = Instantiate(_lineRendererPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        } else {
+            _localLineRenderer.SetActive(true);
+        }
         // Get component
         ArcLineRenderer alr = _localLineRenderer.GetComponent<ArcLineRenderer>();
 
@@ -106,8 +117,8 @@ public class ProjectileManager : NetworkBehaviour
     }
 
     public void DestroyLineRenderer(){
-        Destroy(_localLineRenderer);
-        _localLineRenderer = null;
+        _localLineRenderer.GetComponent<ArcLineRenderer>().ClearArc();
+        _localLineRenderer.SetActive(false);
     }
 
 
@@ -119,7 +130,7 @@ public class ProjectileManager : NetworkBehaviour
 
     // Calls local spawn for self, then calls serverRpc which tells others to local spawn.
     public void SpawnSelfThenAll(string key, Vector3 position, Quaternion rotation, 
-                                 Vector3 direction, float velocity)
+                                 Vector3 direction, float velocity, GameObject user)
     {
         ulong localClientId = NetworkManager.Singleton.LocalClientId;
         if (!projectilePool.ContainsKey(key))
@@ -127,7 +138,7 @@ public class ProjectileManager : NetworkBehaviour
             Debug.LogError("Projectile key not found in ProjectileManager: " + key);
             return;
         }
-        SpawnProjectileLocal(key, position, rotation, direction, velocity);
+        SpawnProjectileLocal(key, position, rotation, direction, velocity, user);
         // Call SpawnDummyForOtherClientsServerRpc with the calling player's client id
         SpawnDummyForOthersServerRpc(key, position, rotation, direction, velocity, localClientId);
     }
@@ -170,7 +181,7 @@ public class ProjectileManager : NetworkBehaviour
     // ==============================================================================================
     #region = PoolingHelpers
     public void SpawnProjectileLocal(string key, Vector3 position, Quaternion rotation, 
-                                     Vector3 direction, float velocity)
+                                     Vector3 direction, float velocity, GameObject user)
     {
         if (!projectilePool.ContainsKey(key))
         {
@@ -196,6 +207,8 @@ public class ProjectileManager : NetworkBehaviour
             projectileObj.transform.rotation = rotation;
             projectileObj.SetActive(true);
         }
+
+        projectileObj.GetComponent<IProjectile>().sourcePlayer = user;
 
         Rigidbody rb = projectileObj.GetComponent<Rigidbody>();
         rb.linearVelocity = direction * velocity;

@@ -54,20 +54,6 @@ public class ArcLineRenderer : MonoBehaviour
         Vector3[] arcArray = new Vector3[resolution + 1];
         _radianAngle = Mathf.Deg2Rad * verticalAngle; // assumes passed in angle. deprecated
 
-        Debug.Log("Radians: " + _radianAngle); 
-        Debug.Log("Degrees: " + verticalAngle);
-
-        // SOLUTION 2: CALCULATE WITH ATAN2 FROM LAUNCHDIRECTION.NORMALIZED.
-            // // Calculate the pitch angle in radians
-            // float pitchRadians = Mathf.Atan2(launchDirection.y, new Vector2(launchDirection.x, launchDirection.z).magnitude);
-
-            // // Convert radians to degrees
-            // float pitchDegrees = pitchRadians * Mathf.Rad2Deg;
-
-            // // Assign the calculated pitch to verticalAngle
-            // verticalAngle = pitchDegrees;
-            // _radianAngle = pitchRadians;
-
         float maxDistance = (velocity * velocity * Mathf.Abs(Mathf.Sin(2 * _radianAngle))) / g;
 
         for (int i = 0; i <= resolution; i++){
@@ -79,7 +65,7 @@ public class ArcLineRenderer : MonoBehaviour
     }
 
     Vector3 CalculateArcPoint(float t, float maxDistance){
-        // Horizontal distance along the launch direction.
+        // Horizontal distance along the trajectory.
         float horizontalDistance = t * maxDistance;
         
         // Calculate the vertical offset using the projectile motion formula.
@@ -87,10 +73,18 @@ public class ArcLineRenderer : MonoBehaviour
             ((g * horizontalDistance * horizontalDistance) /
             (2 * velocity * velocity * Mathf.Cos(_radianAngle) * Mathf.Cos(_radianAngle)));
         
-        // Combine the horizontal and vertical components.
-        // Assuming the arc starts at the object's position.
-        return transform.position + (launchDirection * horizontalDistance) + (Vector3.up * verticalOffset);
+        // Create a horizontal version of the launch direction by zeroing out its vertical component.
+        Vector3 horizontalDirection = launchDirection;
+        horizontalDirection.y = 0;
+        horizontalDirection.Normalize();
+        
+        // Combine the horizontal displacement and the physics-calculated vertical offset.
+        return transform.position + (horizontalDirection * horizontalDistance) + (Vector3.up * verticalOffset);
     }
 
+    public void ClearArc(){
+        lr.SetPositions(new Vector3[0]);
+        lr.positionCount = 0;
+    }
 
 }

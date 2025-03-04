@@ -2,18 +2,34 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public abstract class IProjectile_SCRIPT : MonoBehaviour
+public abstract class IProjectile : MonoBehaviour
 {
-    
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
+    public GameObject sourcePlayer { get; set; } = null;
+
+    protected virtual float _expireTimer { get; set; } = 3f;
+
+    protected bool _projectileCollided = false;
+
+    protected virtual void OnCollisionEnter(Collision collision){
+        // if the grenade hits a player, it should explode.
+        if (collision.gameObject.CompareTag("Enemy")){
+            Expire();
+        } else {
+            _projectileCollided = true;
+        }
+
     }
 
-    // Update is called once per frame
-    void Update()
-    {
+    protected virtual void Update(){
         
+        if (_projectileCollided){
+            _expireTimer -= Time.deltaTime;
+            if (_expireTimer <= 0){
+                Expire();
+            }
+        }
     }
+
+
+    protected abstract void Expire();
 }
