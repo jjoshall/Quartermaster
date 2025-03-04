@@ -4,8 +4,8 @@ public class Grenade : InventoryItem {
 
     // Adjustable fields.
     private float _grenadeBaseVelocity = 5f;
-    private float _grenadeMaxVelocity = 20f;
-    private float _grenadeMaxChargeTime = 2.5f;
+    private float _grenadeMaxVelocity = 30f;
+    private float _grenadeMaxChargeTime = 1.0f;
 
     // Runtime field. DONT CHANGE.
     private bool _grenadeIsCharging = false;

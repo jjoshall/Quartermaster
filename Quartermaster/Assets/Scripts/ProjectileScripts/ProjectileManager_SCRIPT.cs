@@ -14,6 +14,8 @@ public class ProjectileManager : NetworkBehaviour
 
 
     #region Inspector
+    [SerializeField, Range(-1.0f, 1.0f)] private float _offsetLineRight = 0.1f;
+    [SerializeField, Range(-1.0f, 1.0f)] private float _offsetLineUp = 0.1f;
     [SerializeField]
     private GameObject _lineRendererPrefab;
     private GameObject _localLineRenderer; // stores the local line renderer. should not be more than one.
@@ -106,7 +108,11 @@ public class ProjectileManager : NetworkBehaviour
         alr.velocity = velocity;
         alr.launchDirection = camera.forward;
         alr.verticalAngle = ConvertVerticalAngle(camera.rotation.eulerAngles.x);
-        _localLineRenderer.transform.position = camera.position + camera.right * 0.1f;
+        // Vector3 cameraUp = camera.down;
+        _localLineRenderer.transform.position = 
+                    camera.position + 
+                    camera.right * _offsetLineRight + 
+                    camera.up * _offsetLineUp;
 
         // Call renderer update.
         alr.UpdateArc();
