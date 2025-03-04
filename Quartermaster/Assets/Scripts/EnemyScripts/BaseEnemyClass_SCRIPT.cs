@@ -10,6 +10,8 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [SerializeField] protected float attackRadius = 2f;
     public EnemyType enemyType;
     private float _nextTargetUpdateTime;
+    [SerializeField] private float _separationRadius = 10f;
+    [SerializeField] private float _separationStrength = 3f;
     protected NavMeshAgent agent;
     protected Transform target;
     protected Health health;
@@ -74,7 +76,9 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
                 Attack();
             }
             else {
-                agent.SetDestination(target.position);
+                Vector3 separationOffset = CalculateSeparationOffset();
+                Vector3 adjustedDestination = target.position + separationOffset;
+                agent.SetDestination(adjustedDestination);
             }
         }
     }
@@ -97,6 +101,29 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         if (destroyAfterAttack) {
             enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
         }
+    }
+
+    private Vector3 CalculateSeparationOffset() {
+        Vector3 separationForce = Vector3.zero;
+        int count = 0;
+
+        foreach (var otherEnemy in enemySpawner.enemyList) {
+            if (otherEnemy == this) continue;
+
+            var dir = otherEnemy.transform.position - transform.position;
+            var distance = dir.magnitude;
+            if (distance < _separationRadius && distance > 0.1f) {
+                var away = -dir.normalized;
+                separationForce += (away / distance) * _separationStrength;
+                count++;
+            }
+        }
+
+        if (count > 0) {
+            separationForce /= count;
+        }
+
+        return separationForce;
     }
 
     protected virtual void OnDamaged(float damage, GameObject damageSource) {

@@ -4,7 +4,6 @@ using System.Collections;
 
 public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     [Header("Ranged Attack Settings")]
-    [SerializeField] private float _projectileSpeed = 30f;
     [SerializeField] private float _maxAttackDistance = 10f;
     [SerializeField] private float _minAttackDistance = 4f; // Minimum distance to maintain from player
     [SerializeField] private float _hoveredHeight = 3f; // Height above ground level
