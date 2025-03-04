@@ -79,6 +79,16 @@ public class Railgun : IWeapon
     }
     #endregion
 
+    public override float GetCooldownRemaining() {
+        return Mathf.Max(0, (lastUsed + _itemCooldown) - Time.time);
+    }
+
+    public override float GetMaxCooldown() {
+        return _itemCooldown;
+    }
+
+
+
     #region Fire()
     public override void fire(GameObject user){
         GameObject camera = user.transform.Find("Camera").gameObject;
@@ -91,6 +101,8 @@ public class Railgun : IWeapon
         if (_barrelLaserEffect != ""){
             ParticleManager.instance.SpawnSelfThenAll(_barrelLaserEffect, user.transform.position, attackRotation);
         }
+
+
         // piercing raycast
         List<Transform> targetsHit = new List<Transform>();
 

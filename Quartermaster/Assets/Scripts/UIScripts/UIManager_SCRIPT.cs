@@ -6,6 +6,8 @@ public class UIManager : MonoBehaviour {
     [SerializeField] private float highlightScale = 1.5f;      // Scale multiplier for the highlighted slot
     [SerializeField] private Canvas settingsCanvas;
 
+    [SerializeField] public Image weaponCooldownRadial;
+
 
 
     public Slider musicSlider;
