@@ -4,10 +4,14 @@ using Unity.Netcode;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using System;
+using UnityEngine.Localization.SmartFormat.Utilities;
+using Unity.VisualScripting;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler), typeof(Health))]
 public class PlayerController : NetworkBehaviour {
     #region Variables
+
+    [SerializeField] private LayerMask playerCollision;
 
     [Header("Required Components")]
     private CharacterController Controller;
@@ -222,6 +226,7 @@ public class PlayerController : NetworkBehaviour {
 
         if (InputHandler != null) {
             worldspaceMove = transform.TransformVector(InputHandler.move_vector);
+            PenalizeBackwardsMovement();
             SetCrouchingState(InputHandler.isCrouching, false);
         }
 
@@ -297,15 +302,19 @@ public class PlayerController : NetworkBehaviour {
         Vector3 capsuleBottomBeforeMove = GetCapsuleBottomHemisphere();
         Vector3 capsuleTopBeforeMove = GetCapsuleTopHemisphere(Controller.height);
 
-        PenalizeBackwardsMovement();
-
         Controller.Move(playerVelocity * Time.deltaTime);
 
         // detect obstructions to adjust velocity accordingly
         lastImpactSpeed = Vector3.zero;
+
         if (Physics.CapsuleCast(capsuleBottomBeforeMove, capsuleTopBeforeMove, Controller.radius,
-            playerVelocity.normalized, out RaycastHit hit, playerVelocity.magnitude * Time.deltaTime, -1,
+            playerVelocity.normalized, out RaycastHit hit, playerVelocity.magnitude * Time.deltaTime, playerCollision,
             QueryTriggerInteraction.Ignore)) {
+            // get the name of the object in the raycasthit hit
+            GameObject objHit = hit.collider.gameObject;    
+            Debug.Log ("moveplayer detected plane: " + objHit.name);    
+            Debug.Log("Hit object layer: " + LayerMask.LayerToName(objHit.layer));
+   
             // We remember the last impact speed because the fall damage logic might need it
             lastImpactSpeed = playerVelocity;
 
@@ -315,11 +324,9 @@ public class PlayerController : NetworkBehaviour {
     }
 
     void PenalizeBackwardsMovement(){
-                // Check if the player is moving backwards
-        if (playerVelocity != Vector3.zero && Vector3.Dot(transform.forward, playerVelocity.normalized) < 0)
-        {
-            // Apply a 50% penalty on the movement speed when moving backwards.
-            playerVelocity *= backwardsMovementPenalty; // backwardsMovementPenalty is 0.5f
+        // if InputHandler.move_vector is moving backwards on the z-axis, then set worldspaceMove *= backwardsMovementPenalty
+        if (InputHandler.move_vector.z < 0){
+            worldspaceMove *= backwardsMovementPenalty;
         }
     }
 
@@ -403,7 +410,7 @@ public class PlayerController : NetworkBehaviour {
                     GetCapsuleBottomHemisphere(),
                     GetCapsuleTopHemisphere(CapsuleHeightStanding),
                     Controller.radius,
-                    -1,
+                    playerCollision,
                     QueryTriggerInteraction.Ignore
                 );
 
