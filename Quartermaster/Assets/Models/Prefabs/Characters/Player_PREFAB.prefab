@@ -62,11 +62,11 @@ CharacterController:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
+    m_Bits: 30790
+  m_LayerOverridePriority: 64
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -440,6 +440,7 @@ MonoBehaviour:
   emptyMaterial: {fileID: 2800000, guid: 22641cf7c6dd62d4a9bc6abe83714ec7, type: 3}
   railgunMaterial: {fileID: 2800000, guid: 2a980c474bcfc804c8c1714aa1ac5659, type: 3}
   flamethrowerMaterial: {fileID: 2800000, guid: c6b290b5717566144b7f057edceadffc, type: 3}
+  grenadeMaterial: {fileID: 2800000, guid: bf1ed58d660f427479999ac377cbb09a, type: 3}
   weaponSlot: {fileID: 5079399718664646750}
   holdablePrefabs:
   - {fileID: 8350377457489554618, guid: 83d9e3b59728a384e92d02a0f6f67371, type: 3}
@@ -447,7 +448,6 @@ MonoBehaviour:
   - {fileID: 8214988673966322452, guid: 98896561af7a3ee46953905c5a2055e3, type: 3}
   - {fileID: 670930991722643377, guid: 0369d2544b8a67447a02a2f182b83760, type: 3}
   - {fileID: 7575857999763451099, guid: 36c2adef9b87b974a8d2165862a3159e, type: 3}
-  grenadeMaterial: {fileID: 2800000, guid: bf1ed58d660f427479999ac377cbb09a, type: 3}
 --- !u!114 &3204480622593929652
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -461,6 +461,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  playerCollision:
+    serializedVersion: 2
+    m_Bits: 1417
+  localRenderersToTurnOff:
+  - {fileID: 3870561826843129333}
+  - {fileID: 313669229880681147}
   spawnLocation: {fileID: 0}
   groundSpeed: 4
   maxAirSpeed: 5
@@ -1161,7 +1167,6 @@ GameObject:
   - component: {fileID: 6280115901386303100}
   - component: {fileID: 91544796314471965}
   - component: {fileID: 3870561826843129333}
-  - component: {fileID: 6528619680529092778}
   m_Layer: 8
   m_Name: Cube
   m_TagString: Untagged
@@ -1237,27 +1242,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &6528619680529092778
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6069712773202572352}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6192920883758183146
 GameObject:
   m_ObjectHideFlags: 0

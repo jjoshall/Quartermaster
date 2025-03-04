@@ -13,6 +13,8 @@ public class ArcLineRenderer : MonoBehaviour
     public int resolution = 10;
     public Vector3 launchDirection = Vector3.forward;
 
+    public float floorHeight;
+
     float g; // force of gravity on the y axis
     private float _radianAngle; // x axis rotation.
 
@@ -54,7 +56,9 @@ public class ArcLineRenderer : MonoBehaviour
         Vector3[] arcArray = new Vector3[resolution + 1];
         _radianAngle = Mathf.Deg2Rad * verticalAngle; // assumes passed in angle. deprecated
 
-        float maxDistance = (velocity * velocity * Mathf.Abs(Mathf.Sin(2 * _radianAngle))) / g;
+        // float maxDistance = (velocity * velocity * Mathf.Abs(Mathf.Sin(2 * _radianAngle))) / g;
+
+        float maxDistance = GetMaxDistance(velocity, verticalAngle, transform.position.y);
 
         for (int i = 0; i <= resolution; i++){
             float t = (float) i / (float) resolution;
@@ -64,14 +68,32 @@ public class ArcLineRenderer : MonoBehaviour
         return arcArray;
     }
 
+    float GetMaxDistance(float velocity, float angle, float initialHeight)
+{
+        float radianAngle = angle * Mathf.Deg2Rad;
+        
+        float cosAngle = Mathf.Cos(radianAngle);
+        float tanAngle = Mathf.Tan(radianAngle);
+        
+        float termUnderSqrt = tanAngle * tanAngle + (2 * g * initialHeight) / (velocity * velocity * cosAngle * cosAngle);
+        
+        if (termUnderSqrt < 0)
+            return 0f; // If the value under sqrt is negative, there's no real solution.
+
+        float maxDistance = (velocity * velocity * cosAngle * cosAngle / g) * 
+                            (tanAngle + Mathf.Sqrt(termUnderSqrt));
+
+        return maxDistance;
+    }
+
     Vector3 CalculateArcPoint(float t, float maxDistance){
         // Horizontal distance along the trajectory.
-        float horizontalDistance = t * maxDistance;
+        float horizontalDistance = t * maxDistance; // this is x.  in y = f(x)
         
         // Calculate the vertical offset using the projectile motion formula.
-        float verticalOffset = horizontalDistance * Mathf.Tan(_radianAngle) -
-            ((g * horizontalDistance * horizontalDistance) /
-            (2 * velocity * velocity * Mathf.Cos(_radianAngle) * Mathf.Cos(_radianAngle)));
+        float verticalOffset = horizontalDistance * Mathf.Tan(_radianAngle) - 
+           (   (g * horizontalDistance * horizontalDistance) /
+               (2 * velocity * velocity * Mathf.Cos(_radianAngle) * Mathf.Cos(_radianAngle))   );
         
         // Create a horizontal version of the launch direction by zeroing out its vertical component.
         Vector3 horizontalDirection = launchDirection;
