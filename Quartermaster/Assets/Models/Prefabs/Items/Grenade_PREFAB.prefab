@@ -617,7 +617,7 @@ GameObject:
   - component: {fileID: 8989734153770821658}
   - component: {fileID: -241234100000356255}
   - component: {fileID: 3598719706095241124}
-  - component: {fileID: 2513261692834705169}
+  - component: {fileID: 9026761743595690768}
   m_Layer: 6
   m_Name: Grenade_PREFAB
   m_TagString: Item
@@ -781,8 +781,8 @@ MonoBehaviour:
   m_IgnoreFromBuild: 1
   m_ApplyToChildren: 1
   m_AffectedAgents: ffffffff
---- !u!135 &2513261692834705169
-SphereCollider:
+--- !u!65 &9026761743595690768
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -800,5 +800,5 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.25
+  m_Size: {x: 0.4, y: 0.4, z: 0.4}
   m_Center: {x: 0, y: 0, z: 0}
