@@ -6,12 +6,14 @@ using UnityEngine.UI;
 using System;
 using UnityEngine.Localization.SmartFormat.Utilities;
 using Unity.VisualScripting;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler), typeof(Health))]
 public class PlayerController : NetworkBehaviour {
     #region Variables
 
     [SerializeField] private LayerMask playerCollision;
+    [SerializeField] private List<Renderer> localRenderersToTurnOff;
 
     [Header("Required Components")]
     private CharacterController Controller;
@@ -182,6 +184,9 @@ public class PlayerController : NetworkBehaviour {
         if (!IsOwner) {
             DisablePlayerControls();
             return;
+        }
+        foreach (Renderer r in localRenderersToTurnOff) {
+            r.enabled = false;
         }
 
         AudioManager.Instance.playerTransform = transform;
