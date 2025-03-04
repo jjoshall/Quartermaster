@@ -12,6 +12,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     private float _nextTargetUpdateTime;
     [SerializeField] private float _separationRadius = 10f;
     [SerializeField] private float _separationStrength = 3f;
+    private Vector3 enemySeparationVector;
     protected NavMeshAgent agent;
     protected Transform target;
     protected Health health;
@@ -64,10 +65,12 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         }
 
         // Update target every .05 seconds
-        if (Time.time >= _nextTargetUpdateTime) {
-            _nextTargetUpdateTime = Time.time + 0.05f;
-            UpdateTarget();
-        }
+        //if (Time.time >= _nextTargetUpdateTime) {
+        //    _nextTargetUpdateTime = Time.time + 0.05f;
+        //    UpdateTarget();
+        //}
+
+        UpdateTarget();
 
         if (target != null) {
             bool inRange = Vector3.Distance(transform.position, target.position) <= attackRange;
@@ -76,9 +79,10 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
                 Attack();
             }
             else {
-                Vector3 separationOffset = CalculateSeparationOffset();
-                Vector3 adjustedDestination = target.position + separationOffset;
-                agent.SetDestination(adjustedDestination);
+                CalculateSeparationOffset();
+                agent.SetDestination(target.position);
+
+                this.gameObject.transform.position += enemySeparationVector * Time.deltaTime;
             }
         }
     }
@@ -103,14 +107,17 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         }
     }
 
-    private Vector3 CalculateSeparationOffset() {
+    private void CalculateSeparationOffset() {
         Vector3 separationForce = Vector3.zero;
         int count = 0;
+        int enemyLayer = LayerMask.NameToLayer("Enemy");
 
-        foreach (var otherEnemy in enemySpawner.enemyList) {
-            if (otherEnemy == this) continue;
+        Collider[] neighbors = Physics.OverlapSphere(transform.position, _separationRadius, enemyLayer);
 
-            var dir = otherEnemy.transform.position - transform.position;
+        foreach (var neighbor in neighbors) {
+            if (neighbor.gameObject == gameObject) continue;
+
+            var dir = neighbor.transform.position - transform.position;
             var distance = dir.magnitude;
             if (distance < _separationRadius && distance > 0.1f) {
                 var away = -dir.normalized;
@@ -123,7 +130,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             separationForce /= count;
         }
 
-        return separationForce;
+        enemySeparationVector = separationForce;
     }
 
     protected virtual void OnDamaged(float damage, GameObject damageSource) {
