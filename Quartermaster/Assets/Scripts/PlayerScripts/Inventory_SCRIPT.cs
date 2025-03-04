@@ -28,6 +28,7 @@ public class Inventory : NetworkBehaviour {
     [SerializeField] public Texture emptyMaterial;
     [SerializeField] public Texture railgunMaterial;
     [SerializeField] public Texture flamethrowerMaterial;
+    [SerializeField] public Texture grenadeMaterial;
 
     private InventoryItem[] _inventory;  // Inventory array
     private int _currentInventoryIndex = 0; // Currently selected slot (0-based)
@@ -284,6 +285,9 @@ public class Inventory : NetworkBehaviour {
                     case 4:
                         textureToSet = flamethrowerMaterial;
                         break;
+                    case 6:
+                        textureToSet = grenadeMaterial;
+                        break;  
                     default:
                         textureToSet = emptyMaterial;
                         break;

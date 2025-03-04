@@ -17,7 +17,7 @@ public class Grenade : InventoryItem {
     private int _id = 0;
     private int _grenadeQuantity = 0;
     private float _lastUsedTime = float.MinValue;
-    private static float _itemCooldown = 2f;
+    private static float _itemCooldown = 3f;
     public override bool isHoldable { get; set; } = true;
 
     // Abstract overrides

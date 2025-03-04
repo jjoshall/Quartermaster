@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
@@ -35,6 +36,8 @@ public class ItemManager : NetworkBehaviour {
     public float burstDrop_dropRateIncrement;
     [SerializeField, Range(0, 10), Tooltip("Max Drop Count")]
     public int burstDrop_dropCount;
+    [SerializeField, Range(0, 60.0f), Tooltip("Duration of dropped items")]
+    private float droppedItemDuration;
     public float burstdrop_targetEnemiesPerItem;    
 
     // Used for lookup during worlditem & inventoryitem spawn.
@@ -148,6 +151,7 @@ public class ItemManager : NetworkBehaviour {
         if (!IsServer) { return; }
 
         GameObject newWorldItem = Instantiate(itemEntries[id].worldPrefab);
+        StartCoroutine(DestroyItemAfterTime(newWorldItem, droppedItemDuration));
         NetworkObject netObj = newWorldItem.GetComponent<NetworkObject>();
 
         if (netObj == null) {
@@ -214,6 +218,16 @@ public class ItemManager : NetworkBehaviour {
                 int itemID = itemEntries.FindIndex(item => item.inventoryItemClass == stringID);
                 EnemyDropServerRpc(itemID, entry.quantity, 0.0f, position, randomDirection);
             }
+        }
+    }
+
+    private IEnumerator DestroyItemAfterTime(GameObject expiringDrop, float time){
+        Debug.Log ("destroying itemDrop after time: " + time);
+        yield return new WaitForSeconds(time);
+        if (expiringDrop != null){
+            Debug.Log ("destroying itemDrop after waiting time");
+            NetworkObject netObj = expiringDrop.GetComponent<NetworkObject>();
+            DestroyWorldItemServerRpc(netObj);
         }
     }
 
