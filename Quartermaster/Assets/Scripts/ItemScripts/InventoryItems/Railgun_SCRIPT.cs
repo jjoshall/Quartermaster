@@ -99,7 +99,7 @@ public class Railgun : IWeapon
         // particle on player
         Quaternion attackRotation = Quaternion.LookRotation(camera.transform.forward);
         if (_barrelLaserEffect != ""){
-            ParticleManager.instance.SpawnSelfThenAll(_barrelLaserEffect, user.transform.position, attackRotation);
+            ParticleManager.instance.SpawnSelfThenAll(_barrelLaserEffect, camera.transform.position, attackRotation);
         }
 
 
