@@ -30,6 +30,11 @@ public class Inventory : NetworkBehaviour {
     [SerializeField] public Texture railgunMaterial;
     [SerializeField] public Texture flamethrowerMaterial;
 
+    [Header("Weapon Holdable Setup")]
+    public GameObject weaponSlot;
+    public GameObject[] holdablePrefabs;
+    private GameObject currentHoldable;
+
     private InventoryItem[] _inventory;  // Inventory array
     private int _currentInventoryIndex = 0; // Currently selected slot (0-based)
     private int _oldInventoryIndex = 0;
@@ -58,11 +63,13 @@ public class Inventory : NetworkBehaviour {
         }
 
         UpdateAllInventoryUI();
+        UpdateHeldItem(); // Ensure the weapon display is updated on spawn.
     }
 
     void Update() {
         MyInput();
         UpdateWeaponCooldownUI();
+        UpdateHeldItem(); // Continuously update based on current selection.
     }
 
     void MyInput() {
@@ -71,15 +78,13 @@ public class Inventory : NetworkBehaviour {
         if (_InputHandler.isDropping) {
             DropSelectedItem();
         }
-        // Use the inventory index directly (assumed 0-based now)
+        // Map the raw input index to a valid inventory index.
         _currentInventoryIndex = Mathf.Clamp(_InputHandler.inventoryIndex, 0, _maxInventorySize - 1);
-        //Debug.Log("Mapped _currentInventoryIndex: " + _currentInventoryIndex);
 
         if (_currentInventoryIndex != _oldInventoryIndex) {
             UpdateAllInventoryUI();
             _oldInventoryIndex = _currentInventoryIndex;
         }
-        //Debug.Log("Raw inventoryIndex from input handler: " + _InputHandler.inventoryIndex);
         _uiManager.HighlightSlot(_currentInventoryIndex);
     }
 
@@ -87,7 +92,6 @@ public class Inventory : NetworkBehaviour {
     void UseItem(bool isHeld) {
         if (!IsOwner) return;
         if (!ValidIndexCheck()) return;
-        // Debug.Log ("attempting to use item: " + _inventory[_currentInventoryIndex].GetType().Name);
         _inventory[_currentInventoryIndex].AttemptUse(_playerObj, isHeld);
         if (_inventory[_currentInventoryIndex].quantity <= 0) {
             _inventory[_currentInventoryIndex] = null;
@@ -105,10 +109,9 @@ public class Inventory : NetworkBehaviour {
             _currentHeldItems--;
             UpdateAllInventoryUI();
         }
-        
     }
-
     #endregion
+
     #region PickUpEvents
     void PickUpClosest(bool discardBool) {
         if (!IsOwner) return;
@@ -147,10 +150,10 @@ public class Inventory : NetworkBehaviour {
 
         // If it's a weapon, check if one already exists.
         if (newItem.IsWeapon()){
-            int weaponSlot = HasWeapon();
-            if (weaponSlot != -1) {
-                Debug.Log("We have a weapon at slot " + weaponSlot + ". Dropping it.");
-                DropItem(weaponSlot);
+            int weaponSlotIndex = HasWeapon();
+            if (weaponSlotIndex != -1) {
+                Debug.Log("We have a weapon at slot " + weaponSlotIndex + ". Dropping it.");
+                DropItem(weaponSlotIndex);
             }
         }
 
@@ -167,8 +170,9 @@ public class Inventory : NetworkBehaviour {
         }
     }
     #endregion
+
     #region PickupHelpers
-    // Tries to stack newItem onto an existing stack. Returns true if stacked.
+    // Tries to stack newItem onto an existing stack. Returns true if successful.
     bool TryStackItem(InventoryItem newItem) {
         for (int i = 0; i < _inventory.Length; i++){
             if (_inventory[i] == null) continue;
@@ -223,7 +227,7 @@ public class Inventory : NetworkBehaviour {
     void DropItem(int slot) {
         if (_inventory[slot] == null) return;
         int selectedItemId = _inventory[slot].itemID;
-        string stringID = ItemManager.instance.itemEntries[slot].inventoryItemClass;
+        string stringID = ItemManager.instance.itemEntries[selectedItemId].inventoryItemClass;
         int stackQuantity = _inventory[slot].quantity;
         float lastUsed = _inventory[slot].lastUsed;
         _inventory[slot] = null;
@@ -244,23 +248,23 @@ public class Inventory : NetworkBehaviour {
 
     // When is this used?
     public bool FireWeapon() {
-        int weaponSlot = HasWeapon();
-        if (weaponSlot == -1) {
+        int weaponSlotIndex = HasWeapon();
+        if (weaponSlotIndex == -1) {
             Debug.Log("Attempting to FireWeapon(). Player has no weapon.");
             return false;
         }
-        IWeapon heldWeapon = _inventory[weaponSlot] as IWeapon;
+        IWeapon heldWeapon = _inventory[weaponSlotIndex] as IWeapon;
         heldWeapon.fire(this.gameObject);
         return true;
     }
 
     public bool CanAutoFire() {
-        int weaponSlot = HasWeapon();
-        if (weaponSlot == -1) {
+        int weaponSlotIndex = HasWeapon();
+        if (weaponSlotIndex == -1) {
             Debug.Log("Attempting to CanAutoFire(). Player has no weapon.");
             return false;
         }
-        IWeapon heldWeapon = _inventory[weaponSlot] as IWeapon;
+        IWeapon heldWeapon = _inventory[weaponSlotIndex] as IWeapon;
         return heldWeapon.CanAutoFire();
     }
 
@@ -289,9 +293,43 @@ public class Inventory : NetworkBehaviour {
         }
     }
 
+    void UpdateHeldItem() {
+        InventoryItem selectedItem = _inventory[_currentInventoryIndex];
 
+        if (selectedItem != null) {
+            // If a holdable is already spawned, check if it matches the current item.
+            if (currentHoldable != null) {
+                WeaponIdentifier identifier = currentHoldable.GetComponent<WeaponIdentifier>();
+                if (identifier != null && identifier.itemID == selectedItem.itemID) {
+                    return; // Correct item already displayed.
+                } else {
+                    Destroy(currentHoldable);
+                    currentHoldable = null;
+                }
+            }
+            
+            // Instantiate the corresponding prefab if it exists.
+            if (selectedItem.itemID < holdablePrefabs.Length && holdablePrefabs[selectedItem.itemID] != null) {
+                currentHoldable = Instantiate(holdablePrefabs[selectedItem.itemID], weaponSlot.transform);
+                currentHoldable.transform.localPosition = Vector3.zero;
+                currentHoldable.transform.localRotation = Quaternion.identity;
+                
+                // Optionally assign the itemID to the spawned holdable.
+                WeaponIdentifier identifier = currentHoldable.GetComponent<WeaponIdentifier>();
+                if (identifier != null) {
+                    identifier.itemID = selectedItem.itemID;
+                }
+            }
+        } else {
+            // No item selected: remove any spawned holdable.
+            if (currentHoldable != null) {
+                Destroy(currentHoldable);
+                currentHoldable = null;
+            }
+        }
+    }
 
-    // Updates all inventory UI slots by looping through the inventory array.
+    // Updates all inventory UI slots.
     private void UpdateAllInventoryUI() {
         for (int i = 0; i < _maxInventorySize; i++) {
             Texture textureToSet = emptyMaterial;
@@ -318,13 +356,11 @@ public class Inventory : NetworkBehaviour {
                         break;
                 }
             }
-            UpdateWeaponCooldownUI();
             _uiManager.SetInventorySlotTexture(i, textureToSet);
         }
     }
 
     #region Helpers
-
     bool ValidIndexCheck(){
         if (_currentInventoryIndex < 0 || _currentInventoryIndex >= _inventory.Length) {
             Debug.LogError("Invalid inventory index: " + _currentInventoryIndex);
@@ -342,7 +378,6 @@ public class Inventory : NetworkBehaviour {
             return false;
         }
         return true;
-
     }
     public int HasWeapon() {
         for (int i = 0; i < _inventory.Length; i++) {
@@ -353,6 +388,5 @@ public class Inventory : NetworkBehaviour {
         }
         return -1;
     }
-
     #endregion
 }
