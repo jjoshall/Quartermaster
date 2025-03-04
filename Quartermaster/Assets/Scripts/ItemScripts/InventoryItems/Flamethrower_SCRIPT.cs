@@ -79,6 +79,15 @@ public class Flamethrower : IWeapon
     }
     #endregion
 
+    public override float GetCooldownRemaining() {
+        return Mathf.Max(0, (lastUsed + _itemCooldown) - Time.time);
+    }
+
+    public override float GetMaxCooldown() {
+        return _itemCooldown;
+    }
+
+
     #region Fire()
     public override void fire(GameObject user){
         GameObject camera = user.transform.Find("Camera").gameObject;
