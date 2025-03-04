@@ -17,5 +17,9 @@ public class TestAudioTrigger : NetworkBehaviour {
 
             GetComponent<NetworkAudio>().RequestSoundServerRpc(soundAddressableKey, transform.position);
         }
+
+        if (Input.GetKeyDown(KeyCode.Y)) {
+            TooltipManager.SendTooltip("testing tooltip");
+        }
     }
 }
