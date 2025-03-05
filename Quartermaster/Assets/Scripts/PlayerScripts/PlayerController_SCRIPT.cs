@@ -21,9 +21,9 @@ public class PlayerController : NetworkBehaviour {
     private PlayerInput PlayerInput;
     private Health health;
 
-    //[Header("Damage Indicator")]
-    //private Canvas playerHUDCanvas;
-    //public GameObject damageIndicatorPrefab;
+    [Header("Damage Indicator")]
+    public Canvas playerHUDCanvas;
+    public GameObject damageIndicatorPrefab;
 
     [Header("Mini Map")]
     private Canvas miniMapCanvas;
@@ -456,6 +456,17 @@ public class PlayerController : NetworkBehaviour {
         Debug.Log($"[{Time.time}] {gameObject.name} took {damage} damage. Health Ratio: {health.GetRatio()}");
 
         HealthBarUI.instance.UpdateHealthBar(health);
+
+        Vector3 directionToDamage = (damageSource.transform.position - transform.position).normalized;
+        directionToDamage.y = 0f;
+
+        float angle = Vector3.SignedAngle(directionToDamage, transform.forward, Vector3.up);
+
+        GameObject damageIndicator = Instantiate(
+            damageIndicatorPrefab, playerHUDCanvas.transform
+        );
+
+        damageIndicator.transform.localEulerAngles = new Vector3(0, 0, angle);
     }
 
     void OnHealed(float healAmount) {
