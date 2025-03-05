@@ -39,7 +39,6 @@ public class DeliverableQuestItem : InventoryItem
         return false;
     }
 
-
     public override void Use(GameObject user, bool isHeld) {
         string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
 

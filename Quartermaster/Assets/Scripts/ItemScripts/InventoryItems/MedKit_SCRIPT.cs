@@ -27,6 +27,11 @@ public class MedKit : InventoryItem {
         set => _lastUsedTime = value;
     }
 
+    public override void InitializeFromGameManager()
+    {
+        _itemCooldown = GameManager.instance.MedKit_Cooldown;
+    }
+
     // Override methods (used as "static fields" for subclass)
     public override bool IsConsumable() {
         return true;

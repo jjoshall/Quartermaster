@@ -2,10 +2,19 @@ using UnityEngine;
 
 public class Grenade : InventoryItem {
 
-    // Adjustable fields.
-    private float _grenadeBaseVelocity = 5f;
-    private float _grenadeMaxVelocity = 30f;
-    private float _grenadeMaxChargeTime = 1.0f;
+        // Adjustable fields. INITIAL VALUES DEPRECATED
+        private float _grenadeBaseVelocity = 5f;
+        private float _grenadeMaxVelocity = 30f;
+        private float _grenadeMaxChargeTime = 1.0f;
+        private int _grenadeStackLimit = 5;
+    public override void InitializeFromGameManager()
+    {
+        _grenadeBaseVelocity = GameManager.instance.Grenade_MinVelocity;
+        _grenadeMaxVelocity = GameManager.instance.Grenade_MaxVelocity;
+        _grenadeMaxChargeTime = GameManager.instance.Grenade_ChargeTime;
+        _itemCooldown = GameManager.instance.Grenade_Cooldown;
+        _grenadeStackLimit = GameManager.instance.Grenade_StackLimit;
+    }
 
     // Runtime field. DONT CHANGE.
     private bool _grenadeIsCharging = false;
@@ -47,7 +56,7 @@ public class Grenade : InventoryItem {
     }
 
     public override int StackLimit() {
-        return 5;
+        return _grenadeStackLimit;
     }
 
     public override bool IsWeapon() {

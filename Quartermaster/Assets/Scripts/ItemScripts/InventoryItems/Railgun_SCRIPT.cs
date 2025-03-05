@@ -134,13 +134,17 @@ public class Railgun : IWeapon
 
 
             foreach (RaycastHit hit in hits){
-                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Building"))
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Building") ||
+                    hit.collider.gameObject.layer == LayerMask.NameToLayer("whatIsGround"))
                 {
+                    Debug.Log ("railgun hit building/whatisground");
                     SpawnExplosion(hit.point, _explosionRadius, targetsHit);
                     break;
                 }
 
                 if (!hit.collider.CompareTag("Enemy") && !hit.collider.CompareTag("Player")){
+                    
+                    Debug.Log ("railgun hit non-enemy && non-player");
                     SpawnExplosion(hit.point, _explosionRadius, targetsHit);
                     break;
                 }

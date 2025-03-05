@@ -12,6 +12,10 @@ public abstract class InventoryItem {
     // class static cooldown. defined by inherited class
     public abstract float cooldown { get; set; }
 
+    public virtual void InitializeFromGameManager(){
+        // Do nothing by default.
+    }
+
     // Current PlayerInputHandler fires event to which UseItem() is subscribed every update
     //                         with bool isHeld == true.
     //               Fires event for UseItem() with bool isHeld == false when initially pressed.

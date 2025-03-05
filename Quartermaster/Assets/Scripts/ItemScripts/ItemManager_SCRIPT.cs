@@ -183,6 +183,7 @@ public class ItemManager : NetworkBehaviour {
         newInventoryItem.itemID = itemEntries.FindIndex(item => item.inventoryItemClass == id);
         newInventoryItem.quantity = stackQuantity;
         newInventoryItem.lastUsed = timeLastUsed;
+        newInventoryItem.InitializeFromGameManager();
         return newInventoryItem;
     }
 
@@ -223,7 +224,7 @@ public class ItemManager : NetworkBehaviour {
         foreach (DropEntry entry in dropEntries){
             // roll for each item
             float itemRoll = UnityEngine.Random.Range(0.0f, 1.0f); // 0-1.
-            if (itemRoll * countMultiplier > ( 1 - entry.dropChance )){
+            if (itemRoll * countMultiplier > ( 1 - entry.dropChance )   ){
                 Vector3 randomDirection = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0, UnityEngine.Random.Range(-1f, 1f));
                 randomDirection.Normalize();
 
