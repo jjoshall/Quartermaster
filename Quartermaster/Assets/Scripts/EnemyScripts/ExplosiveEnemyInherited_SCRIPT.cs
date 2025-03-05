@@ -4,9 +4,10 @@ using UnityEngine;
 using Unity.Services.Matchmaker.Models;
 
 public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
-    protected override float attackCooldown { get; } = 2f;
-    protected override float attackRange { get; } = 3f;
-    protected override int damage { get; } = 45;
+    protected override float attackCooldown => 2f;
+    protected override float attackRange => 3f;
+    protected override int damage => 45;
+    protected override float attackRadius => 3.5f;
 
     private bool _isExploding = false;
 
@@ -18,7 +19,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     private Color originalColor;
     [SerializeField] private float blinkSpeed = 5f;
     [SerializeField] private float normalSpeed = 5f;
-    [SerializeField] private float blinkingSpeed = 10f;
+    [SerializeField] private float blinkingSpeed = 8f;
 
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
@@ -84,17 +85,16 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         target = closestPlayer != null ? closestPlayer.transform : null;
     }
 
-    protected override void Attack() {
-        if (!IsServer || _isExploding) return;
-
-        _isExploding = true;
+    protected override IEnumerator DelayAttack() {
         isBlinking.Value = true;
 
-        StartCoroutine(ExplodeAfterDelay());
+        yield return new WaitForSeconds(attackCooldown);
+        Attack();
     }
 
-    private IEnumerator ExplodeAfterDelay() {
-        yield return new WaitForSeconds(attackCooldown);
+    protected override void Attack() {
+        if (!IsServer || _isExploding) return;
+        _isExploding = true;
 
         AttackServerRpc(true);
     }

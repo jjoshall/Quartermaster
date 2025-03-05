@@ -15,13 +15,12 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     [SerializeField] private float _hoverAmplitude = 0.5f;
     [SerializeField] private float _hoverFrequency = 1f;
     private float _hoverOffset;
-    private Vector3 _targetPosition;
 
     private bool _canAttack = true;
 
-    protected override float attackCooldown { get; } = 2f;
-    protected override float attackRange { get; } = 10f;
-    protected override int damage { get; } = 8;
+    protected override float attackCooldown => 3f;
+    protected override float attackRange => 10f;
+    protected override int damage => 8;
 
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
@@ -139,6 +138,7 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     }
 
     private IEnumerator ResetAttackCooldown() {
+        Debug.Log("Waiting " + attackCooldown + " seconds before attacking in RangedEnemyInherited_SCRIPT");
         yield return new WaitForSeconds(attackCooldown);
         _canAttack = true;
     }
