@@ -52,6 +52,13 @@ public class Railgun : IWeapon
         set => lastUsedTime = value;
     }
 
+    public override void InitializeFromGameManager()
+    {
+        _itemCooldown = GameManager.instance.Railgun_Cooldown;
+        _railgunDamage = GameManager.instance.Railgun_Damage;
+        _explosionRadius = GameManager.instance.Railgun_AoeRadius;
+    }
+
     public override bool CanAutoFire(){
         return false;
     }
@@ -96,6 +103,8 @@ public class Railgun : IWeapon
         int enemyLayer = LayerMask.GetMask("Enemy");
         int buildingLayer = LayerMask.GetMask("Building");
         int combinedLayerMask = enemyLayer | buildingLayer;
+        int groundLayer = LayerMask.GetMask("whatIsGround");
+        combinedLayerMask = combinedLayerMask | groundLayer;
 
         // particle on player
         Quaternion attackRotation = Quaternion.LookRotation(camera.transform.forward);
@@ -134,13 +143,17 @@ public class Railgun : IWeapon
 
 
             foreach (RaycastHit hit in hits){
-                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Building"))
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Building") ||
+                    hit.collider.gameObject.layer == LayerMask.NameToLayer("whatIsGround"))
                 {
+                    Debug.Log ("railgun hit building/whatisground");
                     SpawnExplosion(hit.point, _explosionRadius, targetsHit);
                     break;
                 }
 
                 if (!hit.collider.CompareTag("Enemy") && !hit.collider.CompareTag("Player")){
+                    
+                    Debug.Log ("railgun hit non-enemy && non-player");
                     SpawnExplosion(hit.point, _explosionRadius, targetsHit);
                     break;
                 }

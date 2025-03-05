@@ -4,8 +4,10 @@ using Unity.Netcode;
 public class Pistol : IWeapon
 {
     #region DesignSettings
-    private static float _itemCooldown = 0.25f;
-    private static float _pistolDamage = 10.0f;
+    // Deprecated. Use values in gamemanager instead.
+    private static float _itemCooldown = 0.0f;
+    private static float _pistolDamage = 0.0f;
+
     public override bool isHoldable { get; set; } = false;
 
     // ParticleManager spawned prefabs. Make an effect string = "" to disable spawning an effect.
@@ -43,6 +45,12 @@ public class Pistol : IWeapon
     public override float lastUsed {
         get => lastUsedTime;
         set => lastUsedTime = value;
+    }
+
+    public override void InitializeFromGameManager()
+    {
+        _pistolDamage = GameManager.instance.Pistol_Damage;
+        _itemCooldown = GameManager.instance.Pistol_Cooldown;
     }
 
     // Deprecated. Use IsHoldable instead.
