@@ -6,6 +6,8 @@ public class DeliverableQuestItem : InventoryItem
     private int _quantity = 0;
     private float _cooldown = 0;
     private float _lastUsedTime = 0;
+    private int _stackLimit = 1;
+
     // Abstract overrides
     public override float cooldown {
         get => _cooldown;
@@ -26,13 +28,18 @@ public class DeliverableQuestItem : InventoryItem
         set => _lastUsedTime = value;
     }
 
+    public override void InitializeFromGameManager()
+    {
+        _stackLimit = GameManager.instance.QuestItem_StackLimit;
+    }
+
     // Override methods (used as "static fields" for subclass)
     public override bool IsConsumable() {
         return false;
     }
 
     public override int StackLimit() {
-        return 1;
+        return _stackLimit;
     }
 
     public override bool IsWeapon() {

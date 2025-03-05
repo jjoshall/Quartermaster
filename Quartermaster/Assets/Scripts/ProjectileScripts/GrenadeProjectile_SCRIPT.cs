@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class GrenadeProjectile : IProjectile
 {
+    protected override float _expireTimer { get; set; } = GameManager.instance.Grenade_ExpireTimer;
 
     protected override void Expire()
     {

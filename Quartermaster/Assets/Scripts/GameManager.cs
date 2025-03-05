@@ -35,9 +35,10 @@ public class GameManager : NetworkBehaviour
     [SerializeField] private float grenade_MinVelocity;
     [SerializeField] private float grenade_MaxVelocity;
     [SerializeField] private float grenade_Cooldown;
+    [SerializeField] private float grenade_ExpireTimer;
     [SerializeField] private int grenade_StackLimit;
 
-    [SerializeField] private float slowTrap_Multiplier;// give enemy a debuff flag. enemy checks for debuff then accesses this value to adjust their own speed.
+    [SerializeField] private float slowTrap_SlowByPct;// give enemy a debuff flag. enemy checks for debuff then accesses this value to adjust their own speed.
     [SerializeField] private float slowTrap_Duration;   // duration of the trap itself. 
     [SerializeField] private float slowTrap_Cooldown;
     [SerializeField] private int slowTrap_StackLimit;
@@ -90,14 +91,17 @@ public class GameManager : NetworkBehaviour
     public float Grenade_MinVelocity => grenade_MinVelocity;
     public float Grenade_MaxVelocity => grenade_MaxVelocity;
     public float Grenade_Cooldown => grenade_Cooldown;
+    public float Grenade_ExpireTimer => Grenade_ExpireTimer;
     public int Grenade_StackLimit => grenade_StackLimit;
 
-    public float SlowTrap_Multiplier => slowTrap_Multiplier;
+    public float SlowTrap_SlowByPct => slowTrap_SlowByPct;
     public float SlowTrap_Duration => slowTrap_Duration;
     public float SlowTrap_Cooldown => slowTrap_Cooldown;
+    public int SlowTrap_StackLimit => slowTrap_StackLimit;
 
     public float MedKit_HealAmount => medKit_HealAmount;
     public float MedKit_Cooldown => medKit_Cooldown;
+    public int MedKit_StackLimit => medKit_StackLimit;
 
     public int QuestItem_StackLimit => questItem_StackLimit;
 

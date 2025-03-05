@@ -52,6 +52,13 @@ public class Railgun : IWeapon
         set => lastUsedTime = value;
     }
 
+    public override void InitializeFromGameManager()
+    {
+        _itemCooldown = GameManager.instance.Railgun_Cooldown;
+        _railgunDamage = GameManager.instance.Railgun_Damage;
+        _explosionRadius = GameManager.instance.Railgun_AoeRadius;
+    }
+
     public override bool CanAutoFire(){
         return false;
     }
@@ -96,6 +103,8 @@ public class Railgun : IWeapon
         int enemyLayer = LayerMask.GetMask("Enemy");
         int buildingLayer = LayerMask.GetMask("Building");
         int combinedLayerMask = enemyLayer | buildingLayer;
+        int groundLayer = LayerMask.GetMask("whatIsGround");
+        combinedLayerMask = combinedLayerMask | groundLayer;
 
         // particle on player
         Quaternion attackRotation = Quaternion.LookRotation(camera.transform.forward);
