@@ -1,15 +1,16 @@
 using UnityEngine;
 using UnityEngine.AI;
 using Unity.Netcode;
+using System.Collections;
 
 public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [Header("Enemy Settings")]
-    protected virtual float attackCooldown { get; } = 2f;
-    protected virtual float attackRange { get; } = 2f;
-    protected virtual int damage { get; } = 10;
-    [SerializeField] protected float attackRadius = 2f;
+    protected virtual float attackCooldown => 2f;
+    protected virtual float attackRange => 2f;
+    protected virtual int damage => 2;
+    protected virtual float attackRadius => 2f;
     public EnemyType enemyType;
-    private float _nextTargetUpdateTime;
+    private bool _isAttacking = false;
     [SerializeField] private float _separationRadius = 10f;
     [SerializeField] private float _separationStrength = 3f;
     private Vector3 enemySeparationVector;
@@ -64,19 +65,14 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             healthRatio.Value = health.GetRatio();
         }
 
-        // Update target every .05 seconds
-        //if (Time.time >= _nextTargetUpdateTime) {
-        //    _nextTargetUpdateTime = Time.time + 0.05f;
-        //    UpdateTarget();
-        //}
-
         UpdateTarget();
 
         if (target != null) {
             bool inRange = Vector3.Distance(transform.position, target.position) <= attackRange;
 
-            if (inRange) {
-                Attack();
+            if (inRange && !_isAttacking) {
+                // Add a delay before attacking
+                StartCoroutine(DelayAttack());
             }
             else {
                 CalculateSeparationOffset();
@@ -91,8 +87,15 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected abstract void UpdateTarget();
     protected abstract void Attack();
 
+    protected virtual IEnumerator DelayAttack() {
+        _isAttacking = true;
+        yield return new WaitForSeconds(attackCooldown);
+        Attack();
+        _isAttacking = false;
+    }
+
     [ServerRpc(RequireOwnership = false)]
-    protected void AttackServerRpc(bool destroyAfterAttack = false) {
+    protected virtual void AttackServerRpc(bool destroyAfterAttack = false) {
         if (!IsServer) return;
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
 

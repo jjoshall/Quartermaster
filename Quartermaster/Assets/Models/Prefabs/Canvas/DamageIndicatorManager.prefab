@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &5450315323175696233
+--- !u!1 &6759900571765479070
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,44 +8,44 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4047212869337174527}
-  - component: {fileID: 2828975723718611920}
-  - component: {fileID: 1121280690104685183}
+  - component: {fileID: 4710035738236954130}
+  - component: {fileID: 1826444861360859957}
+  - component: {fileID: 3675465090754293406}
   m_Layer: 0
-  m_Name: GameManager
+  m_Name: DamageIndicatorManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4047212869337174527
+--- !u!4 &4710035738236954130
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5450315323175696233}
+  m_GameObject: {fileID: 6759900571765479070}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.53, y: -0.47999996, z: 6.1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2828975723718611920
+--- !u!114 &1826444861360859957
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5450315323175696233}
+  m_GameObject: {fileID: 6759900571765479070}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1810372612
+  GlobalObjectIdHash: 775311475
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -58,57 +58,20 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &1121280690104685183
+--- !u!114 &3675465090754293406
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5450315323175696233}
+  m_GameObject: {fileID: 6759900571765479070}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb8912f570462cd488e367bb601269ea, type: 3}
+  m_Script: {fileID: 11500000, guid: 877960344b4de69468fdf6f226fb6dc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  flame_Damage: 0
-  flame_Range: 0
-  flame_EndRadius: 0
-  flame_Cooldown: 0
-  flame_EnemyHitEffect: Sample
-  flame_BarrelEffect: PistolBarrelFire
-  railgun_Damage: 0
-  railgun_AoeRadius: 0
-  railgun_Cooldown: 0
-  pistol_Damage: 0
-  pistol_Cooldown: 0
-  portalKey_Cooldown: 0
-  grenade_Damage: 0
-  grenade_AoeRadius: 0
-  grenade_ChargeTime: 0
-  grenade_MinVelocity: 0
-  grenade_MaxVelocity: 0
-  grenade_Cooldown: 0
-  grenade_ExpireTimer: 0
-  grenade_StackLimit: 0
-  slowTrap_SlowByPct: 0
-  slowTrap_Duration: 0
-  slowTrap_Cooldown: 0
-  slowTrap_StackLimit: 0
-  medKit_HealAmount: 0
-  medKit_Cooldown: 0
-  medKit_StackLimit: 0
-  questItem_StackLimit: 0
-  _playersToEnemyHpMultiplier:
-  - 0.1
-  - 1
-  - 1.5
-  - 2
-  - 2.25
-  - 2.5
-  - 2.675
-  - 2.75
-  - 2.875
-  - 3
-  burstDropRate: 0
-  _dramaOverTimeCoefficient: 0.1
+  damageIndicators:
+  - {fileID: 3320835814768843203, guid: 4b72260a463abdc42b1ddad9bb4fe9ea, type: 3}
+  - {fileID: 3320835814768843203, guid: 4b72260a463abdc42b1ddad9bb4fe9ea, type: 3}
+  - {fileID: 3320835814768843203, guid: 4b72260a463abdc42b1ddad9bb4fe9ea, type: 3}

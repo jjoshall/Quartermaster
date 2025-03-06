@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 public class EnemySpawner : NetworkBehaviour {
     [Header("Spawner Settings")]
-    [SerializeField] private List<Transform> _enemyPrefabs;
+    [SerializeField] private List<EnemySpawnData> _enemySpawnData = new List<EnemySpawnData>();
     [SerializeField] private int _maxEnemyInstanceCount = 20;
     public bool isSpawning = true;
     [SerializeField] private float _spawnCooldown = 2f;
+    private float _totalWeight = 0f;
 
     [SerializeField] private List<GameObject> _enemySpawnPoints;
 
@@ -18,6 +19,12 @@ public class EnemySpawner : NetworkBehaviour {
 
     // static 
     public static EnemySpawner instance;
+
+    [System.Serializable]
+    public class EnemySpawnData {
+        public Transform enemyPrefab;
+        public float spawnWeight = 1f;
+    }
 
     void Awake() {
         if (instance == null) {
@@ -34,6 +41,7 @@ public class EnemySpawner : NetworkBehaviour {
             return;
         }
 
+        CalculateTotalWeight();
         StartCoroutine(SpawnOverTime());
 
         NetworkManager.Singleton.OnClientConnectedCallback += ClientConnected;
@@ -47,6 +55,20 @@ public class EnemySpawner : NetworkBehaviour {
     private async void ClientDisconnected(ulong u) {
         await Task.Yield();
         playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
+    }
+
+    private void CalculateTotalWeight() {
+        _totalWeight = 0f;
+
+        foreach (var data in _enemySpawnData) {
+            _totalWeight += data.spawnWeight;
+        }
+
+        if (_totalWeight <= 0f)
+        {
+            Debug.LogError("Total weight is less than or equal to 0.");
+            serverDebugMsgServerRpc("Total weight is less than or equal to 0.");
+        }
     }
 
     private Vector3 GetSpawnPoint() {
@@ -74,14 +96,17 @@ public class EnemySpawner : NetworkBehaviour {
     private IEnumerator SpawnOverTime() {
         while (true) {
             if (enemyList.Count < _maxEnemyInstanceCount && isSpawning) {
-                Transform enemyPrefab = GetRandomEnemyPrefab();
-                Transform enemyTransform = Instantiate(enemyPrefab, GetSpawnPoint(), Quaternion.identity);
-                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemySpawner = this;
-                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemyType = GetEnemyType(enemyPrefab);
-                enemyTransform.GetComponent<NetworkObject>().Spawn(true);
-                enemyList.Add(enemyTransform);
-                enemyTransform.SetParent(this.gameObject.transform);
-                yield return new WaitForSeconds(_spawnCooldown);
+                Transform enemyPrefab = GetWeightedRandomEnemyPrefab();
+                if (enemyPrefab != null)
+                {
+                    Transform enemyTransform = Instantiate(enemyPrefab, GetSpawnPoint(), Quaternion.identity);
+                    enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemySpawner = this;
+                    enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemyType = GetEnemyType(enemyPrefab);
+                    enemyTransform.GetComponent<NetworkObject>().Spawn(true);
+                    enemyList.Add(enemyTransform);
+                    enemyTransform.SetParent(this.gameObject.transform);
+                    yield return new WaitForSeconds(_spawnCooldown);
+                }
             }
 
             yield return null;
@@ -95,9 +120,21 @@ public class EnemySpawner : NetworkBehaviour {
         return EnemyType.Melee;
     }
 
-    private Transform GetRandomEnemyPrefab() {
-        if (_enemyPrefabs.Count == 0) return null;
-        return _enemyPrefabs[Random.Range(0, _enemyPrefabs.Count)];
+    private Transform GetWeightedRandomEnemyPrefab() {
+        if (_enemySpawnData.Count == 0) return null;
+        if (_totalWeight <= 0f) return null;
+
+        float randomValue = Random.Range(0f, _totalWeight);
+        float weightSum = 0f;
+
+        foreach (var enemyData in _enemySpawnData) {
+            weightSum += enemyData.spawnWeight;
+            if (randomValue <= weightSum) {
+                return enemyData.enemyPrefab;
+            }
+        }
+
+        return _enemySpawnData[0].enemyPrefab;
     }
 
     [ServerRpc(RequireOwnership = false)]

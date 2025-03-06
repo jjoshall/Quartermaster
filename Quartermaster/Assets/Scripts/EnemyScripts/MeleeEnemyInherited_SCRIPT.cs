@@ -4,9 +4,9 @@ using Unity.Netcode;
 
 public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     private bool _canAttack = true;
-    protected override float attackCooldown { get; } = 2f;
-    protected override float attackRange { get; } = 2f;
-    protected override int damage { get; } = 20;
+    protected override float attackCooldown => 2f;
+    protected override float attackRange => 2f;
+    protected override int damage => 15;
 
     protected override void UpdateTarget() {
         if (enemySpawner == null || enemySpawner.playerList == null) return;
@@ -36,7 +36,8 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         StartCoroutine(ResetAttackCooldown());
     }
 
-    private IEnumerator ResetAttackCooldown() {
+    private IEnumerator ResetAttackCooldown()
+    {
         yield return new WaitForSeconds(attackCooldown);
         _canAttack = true;
     }
