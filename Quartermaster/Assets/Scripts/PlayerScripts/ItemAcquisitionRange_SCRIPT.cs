@@ -9,6 +9,9 @@ public class ItemAcquisitionRange : MonoBehaviour {
 
     private List<GameObject> _itemsInRange = new List<GameObject>();
     private GameObject _closestItem;
+    
+    private GameObject _lastClosestItem;
+    public float pickupSphereRadius = 0.5f;
 
     void Start() {
         _playerObj = transform.parent.gameObject;
@@ -16,7 +19,7 @@ public class ItemAcquisitionRange : MonoBehaviour {
     }
 
     void Update() {
-        // updateClosestItem(); // Uncomment this line if we want some kind of real-time effect on closest item. (e.g. a shader)
+        UpdateClosestItem();
     }
 
     void OnTriggerEnter(Collider other) {
@@ -29,8 +32,6 @@ public class ItemAcquisitionRange : MonoBehaviour {
         if (_itemsInRange.Contains(item)) { return; }
         _itemsInRange.Add(item);
 
-        string stringID = ItemManager.instance.itemEntries[item.GetComponent<WorldItem>().GetItemID()].inventoryItemClass;
-        // Debug_print_items_in_range();
         Debug_print_items_in_range(); 
     }
 
@@ -43,40 +44,61 @@ public class ItemAcquisitionRange : MonoBehaviour {
     public void RemoveItem(GameObject item) {
         if (!_itemsInRange.Contains(item)) { return; }
         _itemsInRange.Remove(item);
-        // Debug_print_items_in_range();
     }
 
     private void UpdateClosestItem() {
-        // Call this function every update() if we want to apply a shader to closest item.
-        //     otherwise, only call it when we need to get the closest item.
-
         if (_itemsInRange.Count == 0) {
+            if (_lastClosestItem != null) {
+                RemoveOutline(_lastClosestItem);
+                _lastClosestItem = null;
+            }
             _closestItem = null;
             return;
         }
+
         // Prioritize raycast over closest.
         Physics.Raycast(_playerCam.transform.position, _playerCam.transform.forward, out RaycastHit hit, Mathf.Infinity);
-        if (hit.collider != null) {
-            if (hit.collider.gameObject.CompareTag("Item")) {
-                if (_itemsInRange.Contains(hit.collider.gameObject)) {
-                    _closestItem = hit.collider.gameObject;
-                    return;
+        if (hit.collider != null && hit.collider.gameObject.CompareTag("Item") && _itemsInRange.Contains(hit.collider.gameObject)) {
+            _closestItem = hit.collider.gameObject;
+        } else {
+            GameObject localClosest = null;
+            float closestDistance = Mathf.Infinity;
+
+            foreach (GameObject item in _itemsInRange) {
+                float distance = Vector3.Distance(_playerObj.transform.position, item.transform.position);
+                if (distance < closestDistance) {
+                    localClosest = item;
+                    closestDistance = distance;
                 }
             }
+
+            _closestItem = localClosest;
         }
 
-        GameObject localClosest = null;
-        float closestDistance = Mathf.Infinity;
-
-        foreach (GameObject item in _itemsInRange) {
-            float distance = Vector3.Distance(_playerObj.transform.position, item.transform.position);
-            if (distance < closestDistance) {
-                localClosest = item;
-                closestDistance = distance;
+        if (_closestItem != _lastClosestItem) {
+            if (_lastClosestItem != null) {
+                RemoveOutline(_lastClosestItem);
             }
+            if (_closestItem != null) {
+                ActivateOutlineShader(_closestItem);
+            }
+            _lastClosestItem = _closestItem;
         }
+    }
 
-        _closestItem = localClosest;
+    private void ActivateOutlineShader(GameObject item) {
+        Outline outline = item.GetComponent<Outline>();
+        if (outline == null) {
+            outline = item.AddComponent<Outline>();
+        }
+        outline.OutlineWidth = 15f;
+    }
+
+    private void RemoveOutline(GameObject item) {
+        Outline outline = item.GetComponent<Outline>();
+        if (outline != null) {
+            outline.OutlineWidth = 0f;
+        }
     }
 
     public GameObject GetClosestItem() {

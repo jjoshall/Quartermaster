@@ -45,8 +45,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1810372612
-  InScenePlacedSourceGlobalObjectIdHash: 0
+  GlobalObjectIdHash: 4032955809
+  InScenePlacedSourceGlobalObjectIdHash: 1810372612
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
@@ -71,34 +71,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  flame_Damage: 0
-  flame_Range: 0
-  flame_EndRadius: 0
+  flame_Damage: 8
+  flame_Range: 8
+  flame_EndRadius: 4
   flame_Cooldown: 0
   flame_EnemyHitEffect: Sample
   flame_BarrelEffect: PistolBarrelFire
-  railgun_Damage: 0
-  railgun_AoeRadius: 0
-  railgun_Cooldown: 0
-  pistol_Damage: 0
-  pistol_Cooldown: 0
-  portalKey_Cooldown: 0
-  grenade_Damage: 0
-  grenade_AoeRadius: 0
-  grenade_ChargeTime: 0
-  grenade_MinVelocity: 0
-  grenade_MaxVelocity: 0
-  grenade_Cooldown: 0
-  grenade_ExpireTimer: 0
-  grenade_StackLimit: 0
+  railgun_Damage: 30
+  railgun_AoeRadius: 8
+  railgun_Cooldown: 1
+  pistol_Damage: 40
+  pistol_Cooldown: 0.4
+  portalKey_Cooldown: 10
+  grenade_Damage: 20
+  grenade_AoeRadius: 10
+  grenade_ChargeTime: 1
+  grenade_MinVelocity: 5
+  grenade_MaxVelocity: 30
+  grenade_Cooldown: 3
+  grenade_ExpireTimer: 1
+  grenade_StackLimit: 3
   slowTrap_SlowByPct: 0
-  slowTrap_Duration: 0
-  slowTrap_Cooldown: 0
-  slowTrap_StackLimit: 0
-  medKit_HealAmount: 0
-  medKit_Cooldown: 0
-  medKit_StackLimit: 0
-  questItem_StackLimit: 0
+  slowTrap_Duration: 7
+  slowTrap_Cooldown: 3
+  slowTrap_StackLimit: 3
+  medKit_HealAmount: 20
+  medKit_Cooldown: 1
+  medKit_StackLimit: 3
+  questItem_StackLimit: 1
   _playersToEnemyHpMultiplier:
   - 0.1
   - 1
