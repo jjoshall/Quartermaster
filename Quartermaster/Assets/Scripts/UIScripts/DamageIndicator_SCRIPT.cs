@@ -10,13 +10,17 @@ public class DamageIndicator : MonoBehaviour
     private Transform playerObj;
     public Transform damageImagePivot;
     public CanvasGroup damageImageCanvas;
-    public float fadeStartTime, fadeTime;
-    float maxFadeTime;
 
-    public float RemainingFadeTime => fadeTime;
+    [Header("Fade Settings")]
+    public float fadeStartTime = 1.5f;
+    public float fadeDuration = 1.5f;
+
+    private float currentFadeStartTime;
+    private float currentFadeTime;
+
+    public float RemainingFadeTime => currentFadeTime;
 
     private void Start() {
-        maxFadeTime = fadeTime;
         StartCoroutine(FindLocalPlayer());
     }
 
@@ -46,17 +50,27 @@ public class DamageIndicator : MonoBehaviour
             return;
         }
 
-        if (fadeStartTime > 0) {
-            fadeStartTime -= Time.deltaTime;
+        if (currentFadeStartTime > 0) {
+            currentFadeStartTime -= Time.deltaTime;
+            if (damageImageCanvas != null) {
+                damageImageCanvas.alpha = 1.0f;
+            }
         }
         else {
-            fadeTime -= Time.deltaTime;
-            damageImageCanvas.alpha = fadeTime / maxFadeTime;
-            if (fadeTime <= 0) {
+            currentFadeTime -= Time.deltaTime;
+
+            if (damageImageCanvas != null) {
+                float alphaValue = Mathf.Clamp01(currentFadeTime / fadeDuration);
+                damageImageCanvas.alpha = alphaValue;
+            }
+            else {
+                Debug.LogError("Damage Image Canvas is null");
+            }
+
+            if (currentFadeTime <= 0) {
                 ReturnToPool();
             }
         }
-
         damageLocation.y = playerObj.position.y; // Keep the damage indicator at the same height as the player
         Vector3 directionToDamage = (damageLocation - playerObj.position).normalized;
         float angle = Vector3.SignedAngle(directionToDamage, playerObj.forward, Vector3.up);
@@ -65,10 +79,22 @@ public class DamageIndicator : MonoBehaviour
 
     public void Initialize(Vector3 damagePos) {
         damageLocation = damagePos;
-        fadeTime = maxFadeTime;
-        fadeStartTime = 1.5f; // Or whatever your default is
-        damageImageCanvas.alpha = 1f;
-        this.gameObject.SetActive(true);
+        currentFadeStartTime = fadeStartTime;
+        currentFadeTime = fadeDuration;
+
+        if (damageImageCanvas != null) { 
+            damageImageCanvas.alpha = 1f;
+        }
+        else
+        {
+            damageImageCanvas = GetComponent<CanvasGroup>();
+            if (damageImageCanvas == null)
+            {
+                Debug.LogError("Failed to find CanvasGroup on DamageIndicator!");
+            }
+        }
+
+        gameObject.SetActive(true);
     }
 
     private void ReturnToPool()
@@ -76,6 +102,19 @@ public class DamageIndicator : MonoBehaviour
         this.gameObject.SetActive(false);
         if (DI_Manager_SCRIPT.Instance != null) {
             DI_Manager_SCRIPT.Instance.ReturnIndicatorToPool(this);
+        }
+    }
+
+    private void OnEnable()
+    {
+        // Ensure CanvasGroup is properly referenced
+        if (damageImageCanvas == null)
+        {
+            damageImageCanvas = GetComponent<CanvasGroup>();
+            if (damageImageCanvas == null)
+            {
+                Debug.LogError("DamageIndicator is missing CanvasGroup reference!");
+            }
         }
     }
 }
