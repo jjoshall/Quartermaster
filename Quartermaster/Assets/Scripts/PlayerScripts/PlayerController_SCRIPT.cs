@@ -473,13 +473,18 @@ public class PlayerController : NetworkBehaviour {
     // }
 
     public void HandleDamageIndicator(Vector3 damagePosition, ulong damagedPlayerId) {
-        ClientRpcParams clientRpcParams = new ClientRpcParams {
-            Send = new ClientRpcSendParams {
-                TargetClientIds = new ulong[] { damagedPlayerId }
-            }
-        };
-
-        DI_Manager_SCRIPT.Instance.ShowDamageIndicatorClientRpc(damagePosition, clientRpcParams);
+        if (IsLocalPlayer) {
+            DI_Manager_SCRIPT.Instance.ShowDamageIndicator(damagePosition);
+        }
+        else
+        {
+            ClientRpcParams clientRpcParams = new ClientRpcParams {
+                Send = new ClientRpcSendParams {
+                    TargetClientIds = new ulong[] { damagedPlayerId }
+                }
+            };
+            DI_Manager_SCRIPT.Instance.ShowDamageIndicatorClientRpc(damagePosition, clientRpcParams);
+        }
     }
 
     public void disableCharacterController() {

@@ -22,6 +22,15 @@ public class DI_Manager_SCRIPT : NetworkBehaviour {
         }
     }
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (Instance == null) {
+            Instance = this;
+        }
+    }
+
     public void ShowDamageIndicator(Vector3 damageLocation) {
         if (indicatorPool.Count == 0) {
             DamageIndicator oldestIndicator = FindOldestActiveIndicator();

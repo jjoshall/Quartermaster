@@ -35,7 +35,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 275}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 50, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6972588082283096144
 CanvasRenderer:
@@ -141,4 +141,4 @@ MonoBehaviour:
   damageImagePivot: {fileID: 7048090565171323936}
   damageImageCanvas: {fileID: 7228167465318679356}
   fadeStartTime: 1.5
-  fadeTime: 1.5
+  fadeDuration: 1.5

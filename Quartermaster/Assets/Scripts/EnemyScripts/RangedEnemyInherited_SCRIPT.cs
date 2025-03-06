@@ -138,7 +138,6 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     }
 
     private IEnumerator ResetAttackCooldown() {
-        Debug.Log("Waiting " + attackCooldown + " seconds before attacking in RangedEnemyInherited_SCRIPT");
         yield return new WaitForSeconds(attackCooldown);
         _canAttack = true;
     }

@@ -38,7 +38,6 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     private IEnumerator ResetAttackCooldown()
     {
-        Debug.Log("Waiting " + attackCooldown + " seconds before attacking in MeleeEnemyInherited_SCRIPT");
         yield return new WaitForSeconds(attackCooldown);
         _canAttack = true;
     }
