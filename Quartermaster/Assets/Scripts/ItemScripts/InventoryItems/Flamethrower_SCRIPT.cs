@@ -68,22 +68,28 @@ public class Flamethrower : IWeapon
     public override bool CanAutoFire(){
         return true;
     }
-
     public override void Use(GameObject user, bool isHeld) {
-        //if isheld or clicked, startFire
-        // if released, stopfire
-        if (isHeld){
-            if (!_isFireStarted){
-                StartFire(user);
-                _isFireStarted = true;
-            }  
-        } else {
-            if (_isFireStarted){
-                _isFireStarted = false;
-                StopFire(user);
-            }
+        if (lastUsed + cooldown > Time.time) {
+            return;
         }
+
+        if (!_isFireStarted){
+            StartFire(user);
+            _isFireStarted = true;
+        } else {
+            fire(user);
+        }
+        lastUsed = Time.time;
     }
+
+    public override void Release(GameObject user){
+        if (_isFireStarted){
+            _isFireStarted = false;
+            StopFire(user);
+        }
+        lastUsed = float.MinValue;
+    }
+
 
     #endregion
 
@@ -95,7 +101,13 @@ public class Flamethrower : IWeapon
             _flamethrowerPS = shotOrigin.GetComponent<ParticleSystem>();
         }
 
-        if (_flamethrowerPS != null && !_flamethrowerPS.isPlaying) {
+        if (_flamethrowerPS.isPlaying) {
+            Debug.Log ("STATE BEFORE CHECK: flamethrowerPS is playing");
+        } else {
+            Debug.Log ("STATE BEFORE CHECK: flamethrowerPS is not playing");
+        }
+        if (_flamethrowerPS != null && !_flamethrowerPS.isEmitting) {
+            Debug.Log ("starting flamethrowerPS play");
             _flamethrowerPS.Play();
         }        
     }
@@ -110,17 +122,11 @@ public class Flamethrower : IWeapon
         }
 
         if (_flamethrowerPS != null && _flamethrowerPS.isPlaying) {
+            Debug.Log ("stopping flamethrowerPS play");
             _flamethrowerPS.Stop();
         }
     }
 
-    public override float GetCooldownRemaining() {
-        return Mathf.Max(0, (lastUsed + _itemCooldown) - Time.time);
-    }
-
-    public override float GetMaxCooldown() {
-        return _itemCooldown;
-    }
 
     #region Fire()
     public override void fire(GameObject user){
@@ -136,10 +142,10 @@ public class Flamethrower : IWeapon
         // Particle on player
         Quaternion attackRotation = Quaternion.LookRotation(camera.transform.forward);
         if (_barrelLaserEffect != ""){
-            ParticleManager.instance.SpawnSelfThenAll(_barrelLaserEffect, user.transform.position, attackRotation);
+            // ParticleManager.instance.SpawnSelfThenAll(_barrelLaserEffect, user.transform.position, attackRotation);
         }
 
-        // Piercing raycast
+        // Capsulecast.
         List<Transform> targetsHit = new List<Transform>();
 
         Debug.DrawRay(shotOrigin.transform.position, shotEnd, Color.red, 2f);

@@ -274,15 +274,16 @@ public class Inventory : NetworkBehaviour {
 
         InventoryItem selectedItem = _inventory[_currentInventoryIndex];
 
-        if (selectedItem == null || !selectedItem.IsWeapon()) {
+        // deprecated: !selectedItem.IsWeapon()
+        if (selectedItem == null) {
             _uiManager.weaponCooldownRadial.gameObject.SetActive(false);
             return;
         }
 
-        IWeapon heldWeapon = selectedItem as IWeapon;
-        if (heldWeapon != null) {
-            float cooldownRemaining = heldWeapon.GetCooldownRemaining();
-            float cooldownMax = heldWeapon.GetMaxCooldown();
+        InventoryItem heldItem = selectedItem;
+        if (heldItem != null) {
+            float cooldownRemaining = heldItem.GetCooldownRemaining();
+            float cooldownMax = heldItem.GetMaxCooldown();
 
             if (cooldownMax > 0) {
                 _uiManager.weaponCooldownRadial.gameObject.SetActive(true);
