@@ -86,13 +86,13 @@ public class Railgun : IWeapon
     }
     #endregion
 
-    public override float GetCooldownRemaining() {
-        return Mathf.Max(0, (lastUsed + _itemCooldown) - Time.time);
-    }
+    // public override float GetCooldownRemaining() {
+    //     return Mathf.Max(0, (lastUsed + _itemCooldown) - Time.time);
+    // }
 
-    public override float GetMaxCooldown() {
-        return _itemCooldown;
-    }
+    // public override float GetMaxCooldown() {
+    //     return _itemCooldown;
+    // }
 
 
 

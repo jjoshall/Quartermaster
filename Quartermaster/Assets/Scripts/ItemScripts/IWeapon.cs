@@ -18,6 +18,4 @@ public abstract class IWeapon : InventoryItem
 
     public abstract void fire(GameObject user);
 
-    public abstract float GetCooldownRemaining();
-    public abstract float GetMaxCooldown();
 }

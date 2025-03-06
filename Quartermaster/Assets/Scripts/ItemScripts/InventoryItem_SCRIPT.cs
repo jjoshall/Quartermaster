@@ -39,4 +39,11 @@ public abstract class InventoryItem {
     public abstract bool IsWeapon();
 
     public abstract int StackLimit();
+
+    public float GetCooldownRemaining(){
+        return Mathf.Max(0, (lastUsed + cooldown) - Time.time);
+    }
+    public float GetMaxCooldown(){
+        return cooldown;
+    }
 }
