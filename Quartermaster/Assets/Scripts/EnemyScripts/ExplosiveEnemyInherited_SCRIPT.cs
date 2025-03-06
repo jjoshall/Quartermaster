@@ -6,7 +6,7 @@ using Unity.Services.Matchmaker.Models;
 public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     protected override float attackCooldown => 2f;
     protected override float attackRange => 3f;
-    protected override int damage => 50;
+    protected override int damage => 45;
     protected override float attackRadius => 3.5f;
 
     private bool _isExploding = false;
@@ -97,28 +97,6 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         _isExploding = true;
 
         AttackServerRpc(true);
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    protected override void AttackServerRpc(bool destroyAfterAttack = false) {
-        if (!IsServer) return;
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
-
-        foreach (var hitCollider in hitColliders) {
-            if (hitCollider.CompareTag("Player") || hitCollider.CompareTag("Enemy")) {
-                float appliedDamage = hitCollider.CompareTag("Enemy") ? damage * 0.5f : damage;
-                hitCollider.GetComponent<Damageable>()?.InflictDamage(appliedDamage, false, gameObject);
-            }
-        }
-
-        if (destroyAfterAttack) {
-            enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
-        }
-    }
-
-    protected override void OnDie() {
-        AttackServerRpc(true);
-        base.OnDie();
     }
 
     public override void OnNetworkDespawn()

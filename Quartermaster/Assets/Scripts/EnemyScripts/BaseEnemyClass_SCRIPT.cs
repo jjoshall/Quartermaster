@@ -95,7 +95,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     }
 
     [ServerRpc(RequireOwnership = false)]
-    protected virtual void AttackServerRpc(bool destroyAfterAttack = false) {
+    protected void AttackServerRpc(bool destroyAfterAttack = false) {
         if (!IsServer) return;
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
 
