@@ -27,6 +27,7 @@ public class Flamethrower : IWeapon
     private int _ammo = 0;
     private float lastUsedTime = float.MinValue;
     private float lastFiredTime = float.MinValue;
+    private bool _isFiring = false;
 
     #endregion
     #region Basic Overrides
@@ -53,30 +54,57 @@ public class Flamethrower : IWeapon
     }
 
     public override bool CanAutoFire(){
-        return false;
+        return true;
     }
 
-    public override void Use(GameObject user, bool isHeld)
-    {
-        string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
-        if (lastUsed + cooldown > Time.time){
-            return;
-        }
-        //Debug.Log(itemStr + " (" + itemID + ") used");
-    
-        if (IsConsumable()){
-            quantity--;
-        }
-        lastUsed = Time.time;
+    private float holdThreshold = 0.3f; // Only fire if held for at least 0.3 seconds.
+    private float holdStartTime = 0;
 
-        ItemEffect(user);
+    public override void Use(GameObject user, bool isHeld) {
+        if (isHeld) {
+            // Immediately start firing
+            if (!_isFiring) {
+                StartFire(user);
+            }
 
+            // Ensure cooldown is met.
+            if (lastUsed + cooldown > Time.time)
+                return;
+
+            if (IsConsumable())
+                quantity--;
+            
+            lastUsed = Time.time;
+            ItemEffect(user);
+        } else {
+            // When the button is released, stop firing
+            StopFire(user);
+        }
+    }
+
+    private void StartFire(GameObject user) {
+        GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
+        GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
+        GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
+
+        ParticleSystem flamethrower_ps = shotOrigin.GetComponent<ParticleSystem>();
+        
+        if (!flamethrower_ps.isPlaying) {
+            flamethrower_ps.Play();
+        }
+        
+        _isFiring = true;
+    }
+
+    public override void Release(GameObject user) {
+        StopFire(user);
     }
 
     private void ItemEffect(GameObject user){
         // Do some kind of alternate attack, or reload.
         fire(user);
     }
+
     #endregion
 
     public override float GetCooldownRemaining() {
@@ -87,37 +115,48 @@ public class Flamethrower : IWeapon
         return _itemCooldown;
     }
 
-
     #region Fire()
     public override void fire(GameObject user){
         GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
         GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
         GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
 
-
         GameObject camera = user.transform.Find("Camera").gameObject;
 
         //get player camera forward + max range + capsule radius
         Vector3 shotEnd = camera.transform.position + camera.transform.forward * (_maxRange + _capsuleRadius);
 
-
         // particle on player
         Quaternion attackRotation = Quaternion.LookRotation(camera.transform.forward);
         if (_barrelLaserEffect != ""){
-            ParticleManager.instance.SpawnSelfThenAll(_barrelLaserEffect, user.transform.position, attackRotation);
+            //ParticleManager.instance.SpawnSelfThenAll(_barrelLaserEffect, user.transform.position, attackRotation);
         }
         // piercing raycast
         List<Transform> targetsHit = new List<Transform>();
 
-        
-        Debug.DrawRay(shotOrigin.transform.position, shotEnd, Color.red, 2f);
-
-
+        // Ensure particle system is playing
+        ParticleSystem flamethrower_ps = shotOrigin.GetComponent<ParticleSystem>();
+        if (!flamethrower_ps.isPlaying) {
+            flamethrower_ps.Play();
+        }
 
         CapsuleAoe(user, camera, targetsHit); // calls explosion if environment hit.
         DamageTargets(user, targetsHit);
-        
     }
+
+    public void StopFire(GameObject user){
+        GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
+        GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
+        GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
+
+        ParticleSystem flamethrower_ps = shotOrigin.GetComponent<ParticleSystem>();
+        if (flamethrower_ps.isPlaying) {
+            flamethrower_ps.Stop();
+        }
+        
+        _isFiring = false;
+    }
+
     #endregion
 
     #region CapsuleAoE()
@@ -163,5 +202,4 @@ public class Flamethrower : IWeapon
     }
 
     #endregion
-
 }
