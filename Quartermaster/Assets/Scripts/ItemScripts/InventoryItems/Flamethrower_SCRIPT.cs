@@ -8,7 +8,7 @@ public class Flamethrower : IWeapon
     #region DesignSettings
     // Change these to adjust weapon stats.
     
-    private static float _itemCooldown = 0.2f; // originally 0.2f
+    private static float _itemCooldown = 0f; // originally 0.2f
     private static float _flamethrowerDamage = 6.0f; // originally 6.0f
     private static float _capsuleRadius = 4.0f; // 4.0f
     private static float _maxRange = 10.0f; // 10.0f
@@ -27,6 +27,10 @@ public class Flamethrower : IWeapon
     private int _ammo = 0;
     private float lastUsedTime = float.MinValue;
     private float lastFiredTime = float.MinValue;
+
+    private bool _isFireStarted = false;
+
+    private ParticleSystem _flamethrowerPS;
 
     #endregion
     #region Basic Overrides
@@ -52,8 +56,7 @@ public class Flamethrower : IWeapon
         set => lastUsedTime = value;
     }
 
-    public override void InitializeFromGameManager()
-    {
+    public override void InitializeFromGameManager(){
         _itemCooldown = GameManager.instance.Flame_Cooldown; // originally 0.2f
         _flamethrowerDamage = GameManager.instance.Flame_Damage; // originally 6.0f
         _capsuleRadius = GameManager.instance.Flame_EndRadius; // 4.0f
@@ -63,31 +66,53 @@ public class Flamethrower : IWeapon
     }
 
     public override bool CanAutoFire(){
-        return false;
+        return true;
     }
 
-    public override void Use(GameObject user, bool isHeld)
-    {
-        string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
-        if (lastUsed + cooldown > Time.time){
-            return;
+    public override void Use(GameObject user, bool isHeld) {
+        //if isheld or clicked, startFire
+        // if released, stopfire
+        if (isHeld){
+            if (!_isFireStarted){
+                StartFire(user);
+                _isFireStarted = true;
+            }  
+        } else {
+            if (_isFireStarted){
+                _isFireStarted = false;
+                StopFire(user);
+            }
         }
-        //Debug.Log(itemStr + " (" + itemID + ") used");
-    
-        if (IsConsumable()){
-            quantity--;
-        }
-        lastUsed = Time.time;
-
-        ItemEffect(user);
-
     }
 
-    private void ItemEffect(GameObject user){
-        // Do some kind of alternate attack, or reload.
-        fire(user);
-    }
     #endregion
+
+    private void StartFire(GameObject user) {
+        if (_flamethrowerPS == null) {
+            GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
+            GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
+            GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
+            _flamethrowerPS = shotOrigin.GetComponent<ParticleSystem>();
+        }
+
+        if (_flamethrowerPS != null && !_flamethrowerPS.isPlaying) {
+            _flamethrowerPS.Play();
+        }        
+    }
+
+
+    private void StopFire(GameObject user) {
+        if (_flamethrowerPS == null) {
+            GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
+            GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
+            GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
+            _flamethrowerPS = shotOrigin.GetComponent<ParticleSystem>();
+        }
+
+        if (_flamethrowerPS != null && _flamethrowerPS.isPlaying) {
+            _flamethrowerPS.Stop();
+        }
+    }
 
     public override float GetCooldownRemaining() {
         return Mathf.Max(0, (lastUsed + _itemCooldown) - Time.time);
@@ -97,41 +122,33 @@ public class Flamethrower : IWeapon
         return _itemCooldown;
     }
 
-
     #region Fire()
     public override void fire(GameObject user){
         GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
         GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
         GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
 
-
         GameObject camera = user.transform.Find("Camera").gameObject;
 
-        //get player camera forward + max range + capsule radius
+        // Get player camera forward + max range + capsule radius
         Vector3 shotEnd = camera.transform.position + camera.transform.forward * (_maxRange + _capsuleRadius);
 
-
-        // particle on player
+        // Particle on player
         Quaternion attackRotation = Quaternion.LookRotation(camera.transform.forward);
         if (_barrelLaserEffect != ""){
             ParticleManager.instance.SpawnSelfThenAll(_barrelLaserEffect, user.transform.position, attackRotation);
         }
-        // piercing raycast
+
+        // Piercing raycast
         List<Transform> targetsHit = new List<Transform>();
 
-        
         Debug.DrawRay(shotOrigin.transform.position, shotEnd, Color.red, 2f);
 
-
-
-        CapsuleAoe(user, camera, targetsHit); // calls explosion if environment hit.
+        CapsuleAoe(user, camera, targetsHit);
         DamageTargets(user, targetsHit);
-        
     }
     #endregion
-
     #region CapsuleAoE()
-
     private void CapsuleAoe(GameObject user, GameObject camera, List<Transform> targetsHit){
         Vector3 direction = camera.transform.forward;
         Vector3 origin = camera.transform.position;
@@ -149,11 +166,8 @@ public class Flamethrower : IWeapon
             }
         }
     }
-
     #endregion
-
     #region Damage()
-
     private void DamageTargets (GameObject user, List<Transform> targetsHit){
         foreach (Transform target in targetsHit){
             if (target != null){                 
@@ -163,15 +177,13 @@ public class Flamethrower : IWeapon
                 } else {
                     damageable?.InflictDamage(_flamethrowerDamage, false, user);
                 }
-                
-                // enemy effect
+
+                // Enemy effect
                 if (_enemyHitEffect != ""){
                     ParticleManager.instance.SpawnSelfThenAll(_enemyHitEffect, target.position, Quaternion.Euler(0, 0, 0));
                 }
             }
         }
     }
-
     #endregion
-
 }
