@@ -21,10 +21,6 @@ public class PlayerController : NetworkBehaviour {
     private PlayerInput PlayerInput;
     private Health health;
 
-    [Header("Damage Indicator")]
-    public Canvas playerHUDCanvas;
-    public GameObject damageIndicatorPrefab;
-
     [Header("Mini Map")]
     private Canvas miniMapCanvas;
     private RawImage miniMapRawImage;
@@ -211,12 +207,6 @@ public class PlayerController : NetworkBehaviour {
 
         InitializeStateMachine();
         UpdateHeight(true);
-
-        //playerHUDCanvas = GameObject.FindWithTag("DamageIndicatorCanvas")?.GetComponent<Canvas>();
-        //if (playerHUDCanvas != null)
-        //{
-        //    damageIndicatorPrefab = playerHUDCanvas.transform.Find("DamageIndicator")?.gameObject;
-        //}
     }
 
     void Update() {
@@ -457,16 +447,10 @@ public class PlayerController : NetworkBehaviour {
 
         HealthBarUI.instance.UpdateHealthBar(health);
 
-        Vector3 directionToDamage = (damageSource.transform.position - transform.position).normalized;
-        directionToDamage.y = 0f;
+        Vector3 damagePosition = damageSource.transform.position;
+        ulong damagedPlayerId = gameObject.GetComponent<NetworkObject>().OwnerClientId;
 
-        float angle = Vector3.SignedAngle(directionToDamage, transform.forward, Vector3.up);
-
-        GameObject damageIndicator = Instantiate(
-            damageIndicatorPrefab, playerHUDCanvas.transform
-        );
-
-        damageIndicator.transform.localEulerAngles = new Vector3(0, 0, angle);
+        HandleDamageIndicator(damagePosition, damagedPlayerId);
     }
 
     void OnHealed(float healAmount) {
@@ -487,6 +471,16 @@ public class PlayerController : NetworkBehaviour {
 
     //     return false; // false if null.
     // }
+
+    public void HandleDamageIndicator(Vector3 damagePosition, ulong damagedPlayerId) {
+        ClientRpcParams clientRpcParams = new ClientRpcParams {
+            Send = new ClientRpcSendParams {
+                TargetClientIds = new ulong[] { damagedPlayerId }
+            }
+        };
+
+        DI_Manager_SCRIPT.Instance.ShowDamageIndicatorClientRpc(damagePosition, clientRpcParams);
+    }
 
     public void disableCharacterController() {
         if (Controller != null) {
