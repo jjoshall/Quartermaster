@@ -8,10 +8,10 @@ public class Flamethrower : IWeapon
     #region DesignSettings
     // Change these to adjust weapon stats.
     
-    private static float _itemCooldown = 0.2f;
-    private static float _flamethrowerDamage = 6.0f;
-    private static float _capsuleRadius = 4.0f;
-    private static float _maxRange = 10.0f;
+    private static float _itemCooldown = 0.2f; // originally 0.2f
+    private static float _flamethrowerDamage = 6.0f; // originally 6.0f
+    private static float _capsuleRadius = 4.0f; // 4.0f
+    private static float _maxRange = 10.0f; // 10.0f
     public override bool isHoldable { get; set; } = true;
 
     // Make an effect string = "" to disable spawning an effect.
@@ -51,6 +51,16 @@ public class Flamethrower : IWeapon
     public override float lastUsed {
         get => lastUsedTime;
         set => lastUsedTime = value;
+    }
+
+    public override void InitializeFromGameManager()
+    {
+        _itemCooldown = GameManager.instance.Flame_Cooldown; // originally 0.2f
+        _flamethrowerDamage = GameManager.instance.Flame_Damage; // originally 6.0f
+        _capsuleRadius = GameManager.instance.Flame_EndRadius; // 4.0f
+        _maxRange = GameManager.instance.Flame_Range; // 10.0f
+        _enemyHitEffect = GameManager.instance.Flame_EnemyHitEffect; // effect spawned on center of every enemy hit.
+        _barrelLaserEffect = GameManager.instance.Flame_BarrelEffect; // effect at player
     }
 
     public override bool CanAutoFire(){

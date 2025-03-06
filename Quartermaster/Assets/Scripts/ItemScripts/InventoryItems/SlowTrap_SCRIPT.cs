@@ -6,6 +6,9 @@ public class SlowTrap : InventoryItem {
     private int _slowtrapQuantity = 0;
     private float _lastUsedTime = float.MinValue;
     private static float _itemCooldown = 10f;
+    
+    private float _slowPercentage = 0.0f; // enemy movespeed *= 1 - slowPercentage
+                                          // spawned slowtrap prefab should inherit this value
 
     // Abstract overrides
     public override float cooldown {
@@ -27,13 +30,19 @@ public class SlowTrap : InventoryItem {
         set => _lastUsedTime = value;
     }
 
+    public override void InitializeFromGameManager()
+    {
+        _itemCooldown = GameManager.instance.SlowTrap_Cooldown;
+        _slowPercentage = GameManager.instance.SlowTrap_SlowByPct;
+    }
+
     // Override methods (used as "static fields" for subclass)
     public override bool IsConsumable() {
         return true;
     }
 
     public override int StackLimit() {
-        return 2;
+        return GameManager.instance.SlowTrap_StackLimit;
     }
 
     public override bool IsWeapon() {

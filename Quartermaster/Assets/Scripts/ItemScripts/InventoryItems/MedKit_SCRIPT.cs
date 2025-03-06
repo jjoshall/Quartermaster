@@ -6,6 +6,9 @@ public class MedKit : InventoryItem {
     private int _medkitQuantity = 0;
     private float _lastUsedTime = float.MinValue;
     private static float _itemCooldown = 0.1f;
+    private int _stackLimit = 1;
+
+    private float _healAmount = 0.0f;
 
     // Abstract overrides
     public override float cooldown {
@@ -27,21 +30,27 @@ public class MedKit : InventoryItem {
         set => _lastUsedTime = value;
     }
 
+    public override void InitializeFromGameManager()
+    {
+        _itemCooldown = GameManager.instance.MedKit_Cooldown;
+        _healAmount = GameManager.instance.MedKit_HealAmount;
+        _stackLimit = GameManager.instance.MedKit_StackLimit;
+
+    }
+
     // Override methods (used as "static fields" for subclass)
     public override bool IsConsumable() {
         return true;
     }
 
     public override int StackLimit() {
-        return 5;
+        return GameManager.instance.MedKit_StackLimit;
     }
 
     public override bool IsWeapon() {
         return false;
     }
 
-    // Item constants
-    private const int HEAL_AMOUNT = 50;
 
     public override void Use(GameObject user, bool isHeld) {
         string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
@@ -73,7 +82,7 @@ public class MedKit : InventoryItem {
             Debug.LogError("MedKit: ItemEffect: No Health component found on user.");
             return;
         }
-        hp.HealServerRpc(HEAL_AMOUNT);
+        hp.HealServerRpc(_healAmount);
         ParticleManager.instance.SpawnSelfThenAll("Healing", user.transform.position, Quaternion.Euler(-90, 0, 0));
     }
 
