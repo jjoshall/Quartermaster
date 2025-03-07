@@ -137,17 +137,19 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     }
 
     protected virtual void OnDamaged(float damage, GameObject damageSource) {
-        Debug.Log(enemyType + " took " + damage + " damage!");
+        //Debug.Log(enemyType + " took " + damage + " damage!");
+
+        GameManager.instance.AddEnemyDamageServerRpc(damage);
+        //Debug.Log("Total damage taken by enemies: " + GameManager.instance.totalDamageDealtToEnemies.Value);
     }
 
     protected virtual void OnDie() {
         ItemManager.instance.ThresholdBurstDrop(transform.position);
-        
-        if (enemySpawner != null) {
-            enemySpawner.IncrementKillCounter();
-        }
 
-            enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
+        GameManager.instance.IncrementEnemyKillsServerRpc();
+        //Debug.Log("Total enemy kills: " + GameManager.instance.totalEnemyKills.Value);
+
+        enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
     }
 
     public override void OnNetworkDespawn() {

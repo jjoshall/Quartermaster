@@ -1,10 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
-using System.Collections.Generic;
-using System.Collections;
 
-public class GameManager : NetworkBehaviour
-{
+public class GameManager : NetworkBehaviour {
     #region InspectorSettings
     // Do not update these values during run-time. Set in inspector.
     [Header("Player Settings")]
@@ -107,12 +104,6 @@ public class GameManager : NetworkBehaviour
 
     #endregion
 
-
-
-
-
-
-
     #region RuntimeVariables
 
     [Header("Enemy Settings")]
@@ -121,10 +112,22 @@ public class GameManager : NetworkBehaviour
     public float enemySpeedMultiplier { get; private set; }  // enemy classes will need to have their own logic to propagate this value to all the navmeshagent parameters for speed.
     // individual enemy settings set in their prefabs.
 
+    [Header("Game Statistics")]
+    public NetworkVariable<int> totalEnemyKills = new NetworkVariable<int>(0,
+    NetworkVariableReadPermission.Everyone,
+    NetworkVariableWritePermission.Server);
 
+    public NetworkVariable<float> totalDamageDealtToEnemies = new NetworkVariable<float>(0,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
 
+    public NetworkVariable<float> totalPlayerDamageTaken = new NetworkVariable<float>(0,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
 
-
+    public NetworkVariable<int> totalPlayers = new NetworkVariable<int>(0,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
 
     [Header("DramaFunction")]
     // placeholder variables. nothing set in stone, just brainstorming
@@ -138,8 +141,26 @@ public class GameManager : NetworkBehaviour
         return 0.0f;
     }
 
+    #endregion
 
+    #region GameStatistics
+    [ServerRpc(RequireOwnership = false)]
+    public void IncrementEnemyKillsServerRpc() {
+        if (!IsServer) return;
+        totalEnemyKills.Value++;
+    }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void AddEnemyDamageServerRpc(float damageAmount) {
+        if (!IsServer) return;
+        totalDamageDealtToEnemies.Value += damageAmount;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void AddPlayerDamageServerRpc(float damageAmount) {
+        if (!IsServer) return;
+        totalPlayerDamageTaken.Value += damageAmount;
+    }
 
     #endregion
 
@@ -150,40 +171,57 @@ public class GameManager : NetworkBehaviour
 
     // singleton code
     public static GameManager instance;
-    private void Awake()
-    {
-        if (instance == null)
-        {
+    private void Awake() {
+        if (instance == null) {
             instance = this;
         }
-        else
-        {
+        else {
             Destroy(this);
         }
         InitializeRuntimeVars();
     }
 
-    private void InitializeRuntimeVars(){
+    public override void OnNetworkSpawn() {
+        if (!IsServer) return;
+
+        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+
+        UpdatePlayerCount();
+    }
+
+    private void OnClientConnected(ulong clientId) {
+        if (!IsServer) return;
+        UpdatePlayerCount();
+    }
+
+    private void OnClientDisconnected(ulong clientId) {
+        if (!IsServer) return;
+        UpdatePlayerCount();
+    }
+
+    private void UpdatePlayerCount() {
+        if (!IsServer) return;
+
+        int count = NetworkManager.Singleton.ConnectedClientsIds.Count;
+        totalPlayers.Value = count;
+
+        Debug.Log("Player count: " + count);
+    }
+
+    private void InitializeRuntimeVars() {
         n_players = new NetworkList<NetworkObjectReference>();
         n_enemies = new NetworkList<NetworkObjectReference>();
         n_worldItems = new NetworkList<NetworkObjectReference>();
+    }
 
+    public override void OnNetworkDespawn()
+    {
+        if (!IsServer || NetworkManager.Singleton == null) return;
+
+        NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
     }
 
     #endregion
-    
-
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
