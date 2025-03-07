@@ -1,5 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
+using UnityEditor.Localization.Plugins.XLIFF.V20;
+using UnityEditor;
 
 public class Pistol : IWeapon
 {
@@ -74,7 +76,6 @@ public class Pistol : IWeapon
         lastUsed = Time.time;
 
         ItemEffect(user);
-
     }
 
     private void ItemEffect(GameObject user){
@@ -84,23 +85,12 @@ public class Pistol : IWeapon
 
     #endregion
 
-    // public override float GetCooldownRemaining() {
-    //     return Mathf.Max(0, (lastUsed + _itemCooldown) - Time.time);
-    // }
-
-    // public override float GetMaxCooldown() {
-    //     return _itemCooldown;
-    // }
-
-
-
 
     #region PistolFire()
     public override void fire(GameObject user){
         GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
         GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
         GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
-
 
         GameObject camera = user.transform.Find("Camera").gameObject;
         int enemyLayer = LayerMask.GetMask("Enemy");
@@ -113,12 +103,25 @@ public class Pistol : IWeapon
         }
         //Debug.DrawRay(camera.transform.position, camera.transform.forward * 100, Color.yellow, 2f);
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, 100f, combinedLayerMask, QueryTriggerInteraction.Ignore)){
-            Debug.Log("Pistol hit something: " + hit.collider.name + "on layer: " + hit.collider.gameObject.layer);
+            Debug.Log("Pistol hit something: " + hit.collider.name + " on layer: " + hit.collider.gameObject.layer);
 
-            // draw a ray from the shotOrigin to the hit point
+            // draw a ray from the shotOrigin to the hit point (for debug)
             Debug.DrawRay(shotOrigin.transform.position, hit.point - shotOrigin.transform.position, Color.green, 2f);
 
+            // ~---- SPAWN TRAIL RENDER FROM SHOT ORIGIN TO HIT POINT ----~
+            WeaponEffects effects = user.GetComponent<WeaponEffects>();
+            NetworkObject userNetObj = user.GetComponent<NetworkObject>();
 
+            if (effects != null && userNetObj != null) {
+                if (NetworkManager.Singleton.IsServer) {
+                    // If the user (player) is the server, spawn the trail directly.
+                    effects.SpawnBulletTrailClientRpc(shotOrigin.transform.position, hit.point, itemID);
+                }
+                else {
+                    // If the user is a client, request the server to spawn the trail.
+                    effects.RequestSpawnBulletTrailServerRpc(shotOrigin.transform.position, hit.point, itemID);
+                }
+            }
 
             // Check if the hit object is a building
             if (hit.collider.gameObject.layer == buildingLayer) {
@@ -149,8 +152,6 @@ public class Pistol : IWeapon
                 }
             }
         }
-        
     }
     #endregion
-
 }

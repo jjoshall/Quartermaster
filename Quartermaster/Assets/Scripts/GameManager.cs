@@ -26,6 +26,8 @@ public class GameManager : NetworkBehaviour
     [SerializeField] private float pistol_Damage;
     [SerializeField] private float pistol_Cooldown;
 
+    [SerializeField] public GameObject bulletTracerPrefab;
+
     [Header("Item Settings")]
     [SerializeField] private float portalKey_Cooldown;
 
@@ -82,6 +84,8 @@ public class GameManager : NetworkBehaviour
 
     public float Pistol_Damage => pistol_Damage;
     public float Pistol_Cooldown => pistol_Cooldown;
+
+    public GameObject Pistol_TrailPrefab => bulletTracerPrefab;
 
     public float PortalKey_Cooldown => portalKey_Cooldown;
 
