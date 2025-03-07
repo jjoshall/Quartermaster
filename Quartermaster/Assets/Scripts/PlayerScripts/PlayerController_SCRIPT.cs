@@ -451,6 +451,9 @@ public class PlayerController : NetworkBehaviour {
         ulong damagedPlayerId = gameObject.GetComponent<NetworkObject>().OwnerClientId;
 
         HandleDamageIndicator(damagePosition, damagedPlayerId);
+
+        GameManager.instance.AddPlayerDamageServerRpc(damage);
+        //Debug.Log("Total damage taken by players: " + GameManager.instance.totalPlayerDamageTaken.Value);
     }
 
     void OnHealed(float healAmount) {
