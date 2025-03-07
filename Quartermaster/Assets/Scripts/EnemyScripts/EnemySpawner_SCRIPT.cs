@@ -17,6 +17,11 @@ public class EnemySpawner : NetworkBehaviour {
     public List<Transform> enemyList = new List<Transform>();
     public List<GameObject> playerList;
 
+    // For the game manager
+    public NetworkVariable<int> totalEnemyKills = new NetworkVariable<int>(0,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
+
     // static 
     public static EnemySpawner instance;
 
@@ -144,5 +149,11 @@ public class EnemySpawner : NetworkBehaviour {
             enemyList.Remove(networkObject.transform);
             networkObject.Despawn();
         }
+    }
+
+    public void IncrementKillCounter() {
+        if (!IsServer) return;
+        totalEnemyKills.Value++;
+        Debug.Log("Total enemy kills: " + totalEnemyKills.Value);
     }
 }

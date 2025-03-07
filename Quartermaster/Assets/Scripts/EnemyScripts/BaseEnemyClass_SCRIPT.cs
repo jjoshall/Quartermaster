@@ -142,7 +142,12 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     protected virtual void OnDie() {
         ItemManager.instance.ThresholdBurstDrop(transform.position);
-        enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
+        
+        if (enemySpawner != null) {
+            enemySpawner.IncrementKillCounter();
+        }
+
+            enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
     }
 
     public override void OnNetworkDespawn() {
