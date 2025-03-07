@@ -85,13 +85,6 @@ public class Pistol : IWeapon
 
     #endregion
 
-    // public override float GetCooldownRemaining() {
-    //     return Mathf.Max(0, (lastUsed + _itemCooldown) - Time.time);
-    // }
-
-    // public override float GetMaxCooldown() {
-    //     return _itemCooldown;
-    // }
 
     #region PistolFire()
     public override void fire(GameObject user){
@@ -115,13 +108,19 @@ public class Pistol : IWeapon
             // draw a ray from the shotOrigin to the hit point (for debug)
             Debug.DrawRay(shotOrigin.transform.position, hit.point - shotOrigin.transform.position, Color.green, 2f);
 
-            // Remove any local TrailRenderer code and spawn a networked BulletTracer instead.
-            Vector3 startPoint = shotOrigin.transform.position;
-            Vector3 endPoint = hit.point;
-            if (NetworkManager.Singleton.IsServer) {
-                SpawnBulletTracer(startPoint, endPoint);
-            } else {
-                RequestSpawnBulletTracerServerRpc(startPoint, endPoint);
+            // ~---- SPAWN TRAIL RENDER FROM SHOT ORIGIN TO HIT POINT ----~
+            WeaponEffects effects = user.GetComponent<WeaponEffects>();
+            NetworkObject userNetObj = user.GetComponent<NetworkObject>();
+
+            if (effects != null && userNetObj != null) {
+                if (NetworkManager.Singleton.IsServer) {
+                    // If the user (player) is the server, spawn the trail directly.
+                    effects.SpawnBulletTrailClientRpc(shotOrigin.transform.position, hit.point, itemID);
+                }
+                else {
+                    // If the user is a client, request the server to spawn the trail.
+                    effects.RequestSpawnBulletTrailServerRpc(shotOrigin.transform.position, hit.point, itemID);
+                }
             }
 
             // Check if the hit object is a building
@@ -155,17 +154,4 @@ public class Pistol : IWeapon
         }
     }
     #endregion
-
-    [ServerRpc]
-    private void RequestSpawnBulletTracerServerRpc(Vector3 startPoint, Vector3 endPoint) {
-        SpawnBulletTracer(startPoint, endPoint);
-    }
-
-    // New: Spawns the networked bullet tracer effect from shot origin to hit position.
-    private void SpawnBulletTracer(Vector3 startPoint, Vector3 endPoint) {
-        // Instantiate the tracer prefab (make sure it's assigned in your GameManager)
-        GameObject tracerInstance = Object.Instantiate(GameManager.instance.bulletTracerPrefab);
-        tracerInstance.GetComponent<NetworkObject>().Spawn();
-        tracerInstance.GetComponent<BulletTracer>().SetupTracerClientRpc(startPoint, endPoint);
-    }
 }

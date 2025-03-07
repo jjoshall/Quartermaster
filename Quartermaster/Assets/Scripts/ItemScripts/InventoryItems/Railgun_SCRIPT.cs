@@ -98,7 +98,6 @@ public class Railgun : IWeapon
 
     #region Fire()
     public override void fire(GameObject user){
-
         GameObject camera = user.transform.Find("Camera").gameObject;
         int enemyLayer = LayerMask.GetMask("Enemy");
         int buildingLayer = LayerMask.GetMask("Building");
@@ -139,6 +138,21 @@ public class Railgun : IWeapon
 
             // draw a ray from the shotOrigin to the hit point
             Debug.DrawRay(shotOrigin.transform.position, hits[0].point - shotOrigin.transform.position, Color.blue, 2f);
+
+            // ~---- SPAWN TRAIL RENDER FROM SHOT ORIGIN TO HIT POINT ----~
+            WeaponEffects effects = user.GetComponent<WeaponEffects>();
+            NetworkObject userNetObj = user.GetComponent<NetworkObject>();
+
+            if (effects != null && userNetObj != null) {
+                if (NetworkManager.Singleton.IsServer) {
+                    // If the user (player) is the server, spawn the trail directly.
+                    effects.SpawnBulletTrailClientRpc(shotOrigin.transform.position, hits[0].point, itemID);
+                }
+                else {
+                    // If the user is a client, request the server to spawn the trail.
+                    effects.RequestSpawnBulletTrailServerRpc(shotOrigin.transform.position, hits[0].point, itemID);
+                }
+            }
 
 
 

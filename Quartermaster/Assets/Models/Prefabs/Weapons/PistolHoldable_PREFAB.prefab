@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4710753140388415242}
   - component: {fileID: 5065780883961568738}
-  - component: {fileID: 6852075235399413725}
   m_Layer: 0
   m_Name: ShotOrigin
   m_TagString: Untagged
@@ -58,20 +57,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &6852075235399413725
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8195468240033230307}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 899078ca009619242be3dbb8b481068c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  tracerDuration: 0.1
 --- !u!1 &8214988673966322452
 GameObject:
   m_ObjectHideFlags: 0
