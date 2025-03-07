@@ -1,5 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
+using UnityEditor.Localization.Plugins.XLIFF.V20;
+using UnityEditor;
 
 public class Pistol : IWeapon
 {
@@ -74,7 +76,6 @@ public class Pistol : IWeapon
         lastUsed = Time.time;
 
         ItemEffect(user);
-
     }
 
     private void ItemEffect(GameObject user){
@@ -92,15 +93,11 @@ public class Pistol : IWeapon
     //     return _itemCooldown;
     // }
 
-
-
-
     #region PistolFire()
     public override void fire(GameObject user){
         GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
         GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
         GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
-
 
         GameObject camera = user.transform.Find("Camera").gameObject;
         int enemyLayer = LayerMask.GetMask("Enemy");
@@ -113,12 +110,19 @@ public class Pistol : IWeapon
         }
         //Debug.DrawRay(camera.transform.position, camera.transform.forward * 100, Color.yellow, 2f);
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, 100f, combinedLayerMask, QueryTriggerInteraction.Ignore)){
-            Debug.Log("Pistol hit something: " + hit.collider.name + "on layer: " + hit.collider.gameObject.layer);
+            Debug.Log("Pistol hit something: " + hit.collider.name + " on layer: " + hit.collider.gameObject.layer);
 
-            // draw a ray from the shotOrigin to the hit point
+            // draw a ray from the shotOrigin to the hit point (for debug)
             Debug.DrawRay(shotOrigin.transform.position, hit.point - shotOrigin.transform.position, Color.green, 2f);
 
-
+            // Remove any local TrailRenderer code and spawn a networked BulletTracer instead.
+            Vector3 startPoint = shotOrigin.transform.position;
+            Vector3 endPoint = hit.point;
+            if (NetworkManager.Singleton.IsServer) {
+                SpawnBulletTracer(startPoint, endPoint);
+            } else {
+                RequestSpawnBulletTracerServerRpc(startPoint, endPoint);
+            }
 
             // Check if the hit object is a building
             if (hit.collider.gameObject.layer == buildingLayer) {
@@ -149,8 +153,19 @@ public class Pistol : IWeapon
                 }
             }
         }
-        
     }
     #endregion
 
+    [ServerRpc]
+    private void RequestSpawnBulletTracerServerRpc(Vector3 startPoint, Vector3 endPoint) {
+        SpawnBulletTracer(startPoint, endPoint);
+    }
+
+    // New: Spawns the networked bullet tracer effect from shot origin to hit position.
+    private void SpawnBulletTracer(Vector3 startPoint, Vector3 endPoint) {
+        // Instantiate the tracer prefab (make sure it's assigned in your GameManager)
+        GameObject tracerInstance = Object.Instantiate(GameManager.instance.bulletTracerPrefab);
+        tracerInstance.GetComponent<NetworkObject>().Spawn();
+        tracerInstance.GetComponent<BulletTracer>().SetupTracerClientRpc(startPoint, endPoint);
+    }
 }
