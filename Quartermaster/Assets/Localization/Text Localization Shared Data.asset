@@ -1,0 +1,176 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Text Localization Shared Data
+  m_EditorClassIdentifier: 
+  m_TableCollectionName: Text Localization
+  m_TableCollectionNameGuidString: e87e235a736f42a4c83058cd00343bab
+  m_Entries:
+  - m_Id: 1940407652352
+    m_Key: CREATE LOBBY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27596319297536
+    m_Key: QUARTERMASTER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27825789669376
+    m_Key: PLAY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27920153120768
+    m_Key: SETTINGS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27997923905536
+    m_Key: QUIT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28069533257728
+    m_Key: 1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28195429486592
+    m_Key: 2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28231622135808
+    m_Key: 3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28268108386304
+    m_Key: 4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28330741927936
+    m_Key: ITEMS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28501366214656
+    m_Key: LOADING
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28672208605184
+    m_Key: BACK TO MAIN MENU
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28776852295680
+    m_Key: JOIN LOBBY TEXT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28870926340096
+    m_Key: ENTER CODE HERE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30859911434240
+    m_Key: SETTINGS2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 31102497394688
+    m_Key: CONTROLS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 31254410891264
+    m_Key: AUDIO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 31328079646720
+    m_Key: VIDEO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 31425773375488
+    m_Key: RETURN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32195419770880
+    m_Key: MOVE FORWARD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32265355595776
+    m_Key: MOVE BACKWARD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32339875794944
+    m_Key: MOVE LEFT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32415381655552
+    m_Key: MOVE RIGHT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32474840109056
+    m_Key: SPRINT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32539310755840
+    m_Key: CROUCH
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32609917669376
+    m_Key: PICK UP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32661360807936
+    m_Key: DROP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32726146027520
+    m_Key: ITEM SLOT 1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32846497386496
+    m_Key: ITEM SLOT 2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32942911852544
+    m_Key: ITEM SLOT 3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 33000533200896
+    m_Key: ITEM SLOT 4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 33045982679040
+    m_Key: ITEM SCROLL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 33109853540352
+    m_Key: USE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 33163859398656
+    m_Key: SHOOT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36227588755456
+    m_Key: MASTER VOLUME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36341384417280
+    m_Key: MUSIC VOLUME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36425014644736
+    m_Key: SFX VOLUME
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 2769498432417562648
+  references:
+    version: 2
+    RefIds:
+    - rid: 2769498432417562648
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1741333694486
