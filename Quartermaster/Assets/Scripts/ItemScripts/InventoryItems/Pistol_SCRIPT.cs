@@ -96,8 +96,18 @@ public class Pistol : IWeapon
     #region PistolFire()
     public override void fire(GameObject user){
         GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
+        Debug.Log("p_weaponSlot: " + p_weaponSlot.name);
         GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
+        Debug.Log("p_heldWeapon: " + p_heldWeapon.name);
+
+        // list all children of held weapon
+        foreach (Transform child in p_heldWeapon.transform){
+            Debug.Log("child: " + child.name);
+        }
+
+
         GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
+        Debug.Log("shotOrigin: " + shotOrigin.name);
 
         GameObject camera = user.transform.Find("Camera").gameObject;
         int enemyLayer = LayerMask.GetMask("Enemy");
@@ -116,13 +126,8 @@ public class Pistol : IWeapon
             Debug.DrawRay(shotOrigin.transform.position, hit.point - shotOrigin.transform.position, Color.green, 2f);
 
             // Remove any local TrailRenderer code and spawn a networked BulletTracer instead.
-            Vector3 startPoint = shotOrigin.transform.position;
-            Vector3 endPoint = hit.point;
-            if (NetworkManager.Singleton.IsServer) {
-                SpawnBulletTracer(startPoint, endPoint);
-            } else {
-                RequestSpawnBulletTracerServerRpc(startPoint, endPoint);
-            }
+            BulletTracerManager.Instance.RequestSpawnTracer(shotOrigin.transform.position, hit.point);
+
 
             // Check if the hit object is a building
             if (hit.collider.gameObject.layer == buildingLayer) {
@@ -155,17 +160,4 @@ public class Pistol : IWeapon
         }
     }
     #endregion
-
-    [ServerRpc]
-    private void RequestSpawnBulletTracerServerRpc(Vector3 startPoint, Vector3 endPoint) {
-        SpawnBulletTracer(startPoint, endPoint);
-    }
-
-    // New: Spawns the networked bullet tracer effect from shot origin to hit position.
-    private void SpawnBulletTracer(Vector3 startPoint, Vector3 endPoint) {
-        // Instantiate the tracer prefab (make sure it's assigned in your GameManager)
-        GameObject tracerInstance = Object.Instantiate(GameManager.instance.bulletTracerPrefab);
-        tracerInstance.GetComponent<NetworkObject>().Spawn();
-        tracerInstance.GetComponent<BulletTracer>().SetupTracerClientRpc(startPoint, endPoint);
-    }
 }
