@@ -23,6 +23,7 @@ GameObject:
   - component: {fileID: 7595196884806960159}
   - component: {fileID: 3459918479299022771}
   - component: {fileID: -1596647786455328852}
+  - component: {fileID: 2486281207987998458}
   m_Layer: 8
   m_Name: Player_PREFAB
   m_TagString: Player
@@ -747,6 +748,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   soundAddressableKey: Audio/pew.ogg
+--- !u!114 &2486281207987998458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 533627647367738219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e56f4f38f40fd4145bcf95130f1abbc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  bulletTrailPrefab:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 3492294749685168360, guid: 8064f3d936d68ad4f8c4ff24afd625f8, type: 3}
+  - {fileID: 3492294749685168360, guid: 1fa0a300bef0b08478fb06a12a87134f, type: 3}
+  - {fileID: 0}
+  trailDuration: 0.3
 --- !u!1 &1180047318962825330
 GameObject:
   m_ObjectHideFlags: 0
@@ -1309,6 +1330,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerCam: {fileID: 3428043383610237515}
+  pickupSphereRadius: 0.5
 --- !u!1 &6822122996988940553
 GameObject:
   m_ObjectHideFlags: 0
