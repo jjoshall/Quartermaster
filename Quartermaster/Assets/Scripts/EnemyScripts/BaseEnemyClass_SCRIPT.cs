@@ -10,6 +10,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected virtual int damage => 2;
     protected virtual float attackRadius => 2f;
     public EnemyType enemyType;
+    public GameObject floatingTextPrefab;
     private bool _isAttacking = false;
     [SerializeField] private float _separationRadius = 10f;
     [SerializeField] private float _separationStrength = 3f;
@@ -139,8 +140,19 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected virtual void OnDamaged(float damage, GameObject damageSource) {
         //Debug.Log(enemyType + " took " + damage + " damage!");
 
+        if (floatingTextPrefab != null)
+        {
+            ShowFloatingText();
+        }
+        
         GameManager.instance.AddEnemyDamageServerRpc(damage);
         //Debug.Log("Total damage taken by enemies: " + GameManager.instance.totalDamageDealtToEnemies.Value);
+    }
+
+    void ShowFloatingText()
+    {
+        var go = Instantiate(floatingTextPrefab, transform.position, Quaternion.identity, transform);
+        go.GetComponent<TextMesh>().text = health.CurrentHealth.Value.ToString();
     }
 
     protected virtual void OnDie() {
