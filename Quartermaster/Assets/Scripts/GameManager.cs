@@ -210,7 +210,7 @@ public class GameManager : NetworkBehaviour {
         int count = NetworkManager.Singleton.ConnectedClientsIds.Count;
         totalPlayers.Value = count;
 
-        Debug.Log("Player count: " + count);
+        //Debug.Log("Player count: " + count);
     }
 
     private void InitializeRuntimeVars() {
