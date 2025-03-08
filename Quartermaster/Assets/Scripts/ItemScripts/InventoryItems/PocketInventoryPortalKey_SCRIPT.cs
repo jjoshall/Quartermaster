@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PocketInventoryPortalKey : InventoryItem {
     [Header("Item Configuration")]
-    private const float _TELEPORT_RADIUS = 20.0f;
+    private float _teleportRadius = 20.0f;
 
 
     [Header("Backing Fields")]
@@ -43,6 +43,12 @@ public class PocketInventoryPortalKey : InventoryItem {
         return 1;
     }
 
+    public override void InitializeFromGameManager()
+    {
+        _teleportRadius = GameManager.instance.PortalKey_TeleportRadius;
+        _itemCooldown = GameManager.instance.PortalKey_Cooldown;
+    }
+
     public override void Use(GameObject user , bool isHeld) {
         NetworkObject n_user = user.GetComponent<NetworkObject>();
         
@@ -65,7 +71,7 @@ public class PocketInventoryPortalKey : InventoryItem {
 
         List<GameObject> nearbyPlayers;
         // use physics overlap sphere with radius _TELEPORT_RADIUS to grab nearby players
-        nearbyPlayers = GetNearbyPlayers(user, _TELEPORT_RADIUS);
+        nearbyPlayers = GetNearbyPlayers(user, _teleportRadius);
         Debug.Log ("Nearby players to teleport: " + nearbyPlayers.Count);
         foreach (GameObject player in nearbyPlayers) {
             TeleportPlayer(player);

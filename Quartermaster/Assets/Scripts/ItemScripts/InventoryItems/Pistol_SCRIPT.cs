@@ -1,6 +1,5 @@
 using UnityEngine;
 using Unity.Netcode;
-using UnityEditor.Localization.Plugins.XLIFF.V20;
 using UnityEditor;
 
 public class Pistol : IWeapon

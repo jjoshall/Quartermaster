@@ -404,5 +404,18 @@ public class Inventory : NetworkBehaviour {
         }
         return -1;
     }
+    public int HasItem(string itemClass) {
+        for (int i = 0; i < _inventory.Length; i++) {
+            if (_inventory[i] != null && InventoryItemToString(_inventory[i]) == itemClass) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public string InventoryItemToString(InventoryItem item){
+        if (item == null) return "null";
+        return ItemManager.instance.itemEntries[item.itemID].inventoryItemClass;
+    }
     #endregion
 }
