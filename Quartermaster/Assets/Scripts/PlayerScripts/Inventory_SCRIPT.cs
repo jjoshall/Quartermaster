@@ -140,7 +140,7 @@ public class Inventory : NetworkBehaviour {
         ItemManager.instance.DestroyWorldItemServerRpc(pickedUp.GetComponent<NetworkObject>());
 
         Debug.Log("Spawning a new inventoryItem for pickup: " + stringID);
-        InventoryItem newItem = ItemManager.instance.SpawnInventoryItem(stringID, stackQuantity, lastUsed);
+        InventoryItem newItem = ItemManager.instance.SpawnInventoryItem(_playerObj, stringID, stackQuantity, lastUsed);
 
         // If stackable, try to stack.
         if (TryStackItem(newItem)) {

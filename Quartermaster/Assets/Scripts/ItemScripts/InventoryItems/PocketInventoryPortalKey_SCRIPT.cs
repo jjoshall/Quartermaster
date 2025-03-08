@@ -8,7 +8,7 @@ public class PocketInventoryPortalKey : InventoryItem {
 
 
     [Header("Backing Fields")]
-    private int _id = 0;
+    // private int _id = 0;
     private int _pocketInventoryQuantity = 0;
     private float _lastUsedTime = float.MinValue;
     private static float _itemCooldown = 10f;
@@ -29,10 +29,6 @@ public class PocketInventoryPortalKey : InventoryItem {
         set => _pocketInventoryQuantity = value;
     }
 
-    public override float lastUsed {
-        get => _lastUsedTime;
-        set => _lastUsedTime = value;
-    }
 
     public override bool IsWeapon(){
         return false;

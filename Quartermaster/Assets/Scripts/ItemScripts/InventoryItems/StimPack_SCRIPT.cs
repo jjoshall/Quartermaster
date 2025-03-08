@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class StimPack : InventoryItem {
     // Backing fields
-    private int _id = 0;
+    // private int _id = 0;
     private int _stimpackQuantity = 0;
     private float _lastUsedTime = float.MinValue;
     private static float _itemCooldown = 10f;
@@ -22,10 +22,6 @@ public class StimPack : InventoryItem {
         set => _stimpackQuantity = value;
     }
 
-    public override float lastUsed {
-        get => _lastUsedTime;
-        set => _lastUsedTime = value;
-    }
 
     // Override methods (used as "static fields" for subclass)
     public override bool IsConsumable() {

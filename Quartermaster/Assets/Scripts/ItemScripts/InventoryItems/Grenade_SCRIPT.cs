@@ -21,9 +21,9 @@ public class Grenade : InventoryItem {
 
 
     // Backing fields. DONT CHANGE.
-    private int _id = 0;
+    // private int _id = 0;
     private int _grenadeQuantity = 0;
-    private float _lastUsedTime = float.MinValue;
+    // private float _lastUsedTime = float.MinValue;
     private static float _itemCooldown = 3f;
     public override bool isHoldable { get; set; } = true;
 
@@ -40,11 +40,6 @@ public class Grenade : InventoryItem {
     public override int quantity {
         get => _grenadeQuantity;
         set => _grenadeQuantity = value;
-    }
-
-    public override float lastUsed {
-        get => _lastUsedTime;
-        set => _lastUsedTime = value;
     }
 
 

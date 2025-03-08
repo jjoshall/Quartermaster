@@ -92,7 +92,7 @@ public class GameManager : NetworkBehaviour {
     public float Grenade_MinVelocity => grenade_MinVelocity;
     public float Grenade_MaxVelocity => grenade_MaxVelocity;
     public float Grenade_Cooldown => grenade_Cooldown;
-    public float Grenade_ExpireTimer => Grenade_ExpireTimer;
+    public float Grenade_ExpireTimer => grenade_ExpireTimer;
     public int Grenade_StackLimit => grenade_StackLimit;
 
     public float SlowTrap_SlowByPct => slowTrap_SlowByPct;

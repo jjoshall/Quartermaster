@@ -191,10 +191,10 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.49999997
-  m_Speed: 3
-  m_Acceleration: 14
+  m_Speed: 5
+  m_Acceleration: 4
   avoidancePriority: 50
-  m_AngularSpeed: 200
+  m_AngularSpeed: 800
   m_StoppingDistance: 2.5
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
@@ -250,7 +250,7 @@ MonoBehaviour:
   enemyType: 0
   floatingTextPrefab: {fileID: 550058981611720628, guid: 2f1aa88225abaa94ea335fa199c81f1d, type: 3}
   _separationRadius: 10
-  _separationStrength: 12
+  _separationStrength: 3
   enemySpawner: {fileID: 0}
   blinkSpeed: 5
   normalSpeed: 5

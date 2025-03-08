@@ -21,12 +21,12 @@ public class Flamethrower : IWeapon
     #endregion
     #region Variables
     // Backing fields. Don't touch these.
-    private int _id;
+    // private int _id;
     
     private int _quantity = 1;
-    private int _ammo = 0;
-    private float lastUsedTime = float.MinValue;
-    private float lastFiredTime = float.MinValue;
+    // private int _ammo = 0;
+    // private float lastUsedTime = float.MinValue;
+    // private float lastFiredTime = float.MinValue;
 
     private bool _isFireStarted = false;
 
@@ -49,11 +49,6 @@ public class Flamethrower : IWeapon
     public override int quantity {
         get => _quantity;
         set => _quantity = value;
-    }
-
-    public override float lastUsed {
-        get => lastUsedTime;
-        set => lastUsedTime = value;
     }
 
     public override void InitializeFromGameManager(){
@@ -101,13 +96,7 @@ public class Flamethrower : IWeapon
             _flamethrowerPS = shotOrigin.GetComponent<ParticleSystem>();
         }
 
-        if (_flamethrowerPS.isPlaying) {
-            Debug.Log ("STATE BEFORE CHECK: flamethrowerPS is playing");
-        } else {
-            Debug.Log ("STATE BEFORE CHECK: flamethrowerPS is not playing");
-        }
         if (_flamethrowerPS != null && !_flamethrowerPS.isEmitting) {
-            Debug.Log ("starting flamethrowerPS play");
             _flamethrowerPS.Play();
         }        
     }

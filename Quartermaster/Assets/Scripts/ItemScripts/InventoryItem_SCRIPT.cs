@@ -1,13 +1,22 @@
 using UnityEngine;
+using UnityEngine.Localization.SmartFormat.Utilities;
+using Unity.Netcode;
 
 public abstract class InventoryItem {
+
+    public GameObject userRef;
+
+    protected virtual int _id { get; set; } = 0;
     // define an int itemID that all subclasses should define as a constant
     public abstract int itemID { get; set; }
     public virtual bool isHoldable { get; set; } = false;
 
     public abstract int quantity { get; set; }
 
-    public abstract float lastUsed { get; set; }
+    public float lastUsed {
+        get => userRef.GetComponent<PlayerStatus>().n_lastUsed[_id];
+        set => userRef.GetComponent<PlayerStatus>().n_lastUsed[_id] = value;
+    }
 
     // class static cooldown. defined by inherited class
     public abstract float cooldown { get; set; }

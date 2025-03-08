@@ -24,6 +24,7 @@ GameObject:
   - component: {fileID: 3459918479299022771}
   - component: {fileID: -1596647786455328852}
   - component: {fileID: 2486281207987998458}
+  - component: {fileID: 9130185698221645851}
   m_Layer: 8
   m_Name: Player_PREFAB
   m_TagString: Player
@@ -469,9 +470,9 @@ MonoBehaviour:
   - {fileID: 3870561826843129333}
   - {fileID: 313669229880681147}
   spawnLocation: {fileID: 0}
-  groundSpeed: 4
-  maxAirSpeed: 5
-  airAcceleration: 15
+  groundSpeed: 1.75
+  maxAirSpeed: 1.3
+  airAcceleration: 2
   minSlideSpeed: 0.5
   slideDeceleration: 3
   backwardsMovementPenalty: 0.4
@@ -768,6 +769,31 @@ MonoBehaviour:
   - {fileID: 3492294749685168360, guid: 1fa0a300bef0b08478fb06a12a87134f, type: 3}
   - {fileID: 0}
   trailDuration: 0.3
+--- !u!114 &9130185698221645851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 533627647367738219}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51a1ea0f18749714898fb3511a7190bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  n_stimActive:
+    m_InternalValue: 0
+  n_healBuffActive:
+    m_InternalValue: 0
+  n_dmgBuffActive:
+    m_InternalValue: 0
+  stimAspdMultiplier: 1
+  stimMspdMultiplier: 1
+  stimDuration: 1
+  healMultiplier: 1
+  healThrowVelocity: 0
+  dmgMultiplier: 1
 --- !u!1 &1180047318962825330
 GameObject:
   m_ObjectHideFlags: 0

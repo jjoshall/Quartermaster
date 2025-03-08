@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class SlowTrap : InventoryItem {
     // Backing fields
-    private int _id = 0;
+    // private int _id = 0;
     private int _slowtrapQuantity = 0;
     private float _lastUsedTime = float.MinValue;
     private static float _itemCooldown = 10f;
@@ -25,10 +25,6 @@ public class SlowTrap : InventoryItem {
         set => _slowtrapQuantity = value;
     }
 
-    public override float lastUsed {
-        get => _lastUsedTime;
-        set => _lastUsedTime = value;
-    }
 
     public override void InitializeFromGameManager()
     {

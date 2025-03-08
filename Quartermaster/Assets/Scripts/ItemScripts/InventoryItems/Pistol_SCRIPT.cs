@@ -18,12 +18,12 @@ public class Pistol : IWeapon
     
     #endregion
     #region Variables
-    private int _id;
+    // private int _id;
     // Backing fields
     private int _quantity = 1;
-    private int _ammo = 0;
-    private float lastUsedTime = float.MinValue;
-    private float lastFiredTime = float.MinValue;
+    // private int _ammo = 0;
+    // private float lastUsedTime = float.MinValue;
+    // private float lastFiredTime = float.MinValue;
 
     #endregion
     #region Basics
@@ -44,10 +44,6 @@ public class Pistol : IWeapon
         set => _quantity = value;
     }
 
-    public override float lastUsed {
-        get => lastUsedTime;
-        set => lastUsedTime = value;
-    }
 
     public override void InitializeFromGameManager()
     {
@@ -57,6 +53,11 @@ public class Pistol : IWeapon
 
     // Deprecated. Use IsHoldable instead.
     public override bool CanAutoFire(){
+        return false;
+    }
+
+    public override bool IsWeapon()
+    {
         return false;
     }
 
@@ -78,6 +79,7 @@ public class Pistol : IWeapon
         ItemEffect(user);
     }
 
+
     private void ItemEffect(GameObject user){
         // Do some kind of alternate attack, or reload.
         fire(user);
@@ -96,11 +98,7 @@ public class Pistol : IWeapon
         int enemyLayer = LayerMask.GetMask("Enemy");
         int buildingLayer = LayerMask.GetMask("Building");
         int combinedLayerMask = enemyLayer | buildingLayer;
-        // spawn the pistol barrel fire in direction of camera look
-        Quaternion attackRotation = Quaternion.LookRotation(camera.transform.forward);
-        if (_barrelFireEffect != ""){
-            ParticleManager.instance.SpawnSelfThenAll(_barrelFireEffect, camera.transform.position, attackRotation);
-        }
+
         //Debug.DrawRay(camera.transform.position, camera.transform.forward * 100, Color.yellow, 2f);
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, 100f, combinedLayerMask, QueryTriggerInteraction.Ignore)){
             Debug.Log("Pistol hit something: " + hit.collider.name + " on layer: " + hit.collider.gameObject.layer);
@@ -113,6 +111,11 @@ public class Pistol : IWeapon
             NetworkObject userNetObj = user.GetComponent<NetworkObject>();
 
             if (effects != null && userNetObj != null) {
+                if (_barrelFireEffect != ""){
+                    // spawn the pistol barrel fire in direction of camera look
+                    Quaternion attackRotation = Quaternion.LookRotation(hit.point - shotOrigin.transform.position);
+                    ParticleManager.instance.SpawnSelfThenAll(_barrelFireEffect, shotOrigin.transform.position, attackRotation);
+                }
                 if (NetworkManager.Singleton.IsServer) {
                     // If the user (player) is the server, spawn the trail directly.
                     effects.SpawnBulletTrailClientRpc(shotOrigin.transform.position, hit.point, itemID);
