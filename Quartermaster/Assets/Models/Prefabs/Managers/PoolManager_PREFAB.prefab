@@ -78,9 +78,9 @@ MonoBehaviour:
     spawnWeight: 5
   - enemyPrefab: {fileID: 4276394852278779144, guid: 8ee66f5ce3f72cc4bb6aade7e36c6e5e, type: 3}
     spawnWeight: 2
-  _maxEnemyInstanceCount: 10
+  _maxEnemyInstanceCount: 50
   isSpawning: 1
-  _spawnCooldown: 1
+  _spawnCooldown: 0.2
   _enemySpawnPoints:
   - {fileID: 0}
   - {fileID: 0}
