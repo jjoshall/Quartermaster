@@ -136,18 +136,21 @@ public class Inventory : NetworkBehaviour {
         int stackQuantity = pickedUp.GetComponent<WorldItem>().GetStackQuantity();
         float lastUsed = pickedUp.GetComponent<WorldItem>().GetLastUsed();
 
-        _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().RemoveItem(pickedUp);
-        ItemManager.instance.DestroyWorldItemServerRpc(pickedUp.GetComponent<NetworkObject>());
-
         Debug.Log("Spawning a new inventoryItem for pickup: " + stringID);
         InventoryItem newItem = ItemManager.instance.SpawnInventoryItem(_playerObj, stringID, stackQuantity, lastUsed);
 
         // If stackable, try to stack.
         if (TryStackItem(newItem)) {
             Debug.Log("Stacked the item");
+            _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().RemoveItem(pickedUp);
+            ItemManager.instance.DestroyWorldItemServerRpc(pickedUp.GetComponent<NetworkObject>());
             return;
         }
-        if (newItem.quantity <= 0) return;
+        if (newItem.quantity <= 0) {
+            Debug.Log("Item quantity is 0 or less. Deallocating it");
+            newItem = null;
+            return;
+        }
 
         // If it's a weapon, check if one already exists.
         if (newItem.IsWeapon()){
@@ -163,11 +166,18 @@ public class Inventory : NetworkBehaviour {
             if (_inventory[_currentInventoryIndex] == null) {
                 _inventory[_currentInventoryIndex] = newItem;
                 _currentHeldItems++;
-                UpdateAllInventoryUI();
-                return;
+            } else {
+                bool success = AddToFirstEmptySlot(newItem);
+                if (!success){
+                    Debug.Log("No empty slots available.");
+                    // destroy newItem
+                    newItem = null;
+                }
             }
-            AddToFirstEmptySlot(newItem);
             UpdateAllInventoryUI();
+            _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().RemoveItem(pickedUp);
+            ItemManager.instance.DestroyWorldItemServerRpc(pickedUp.GetComponent<NetworkObject>());
+
         }
     }
     #endregion
@@ -190,15 +200,16 @@ public class Inventory : NetworkBehaviour {
         return false;
     }
 
-    void AddToFirstEmptySlot(InventoryItem item) {
+    bool AddToFirstEmptySlot(InventoryItem item) {
         for (int i = 0; i < _inventory.Length; i++) {
             if (_inventory[i] == null) {
                 _inventory[i] = item;
                 _currentHeldItems++;
                 Debug.Log($"Item {item.GetType().Name} added to slot {i}");
-                return;
+                return true;
             }
         }
+        return false;
     }
     #endregion
 
