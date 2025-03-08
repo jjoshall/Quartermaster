@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class MedKit : InventoryItem {
     // Backing fields
-    private int _id = 0;
+    // private int _id = 0;
     private int _medkitQuantity = 0;
-    private float _lastUsedTime = float.MinValue;
+    // private float _lastUsedTime = float.MinValue;
     private static float _itemCooldown = 0.1f;
     private int _stackLimit = 1;
 
@@ -23,11 +23,6 @@ public class MedKit : InventoryItem {
     public override int quantity {
         get => _medkitQuantity;
         set => _medkitQuantity = value;
-    }
-
-    public override float lastUsed {
-        get => _lastUsedTime;
-        set => _lastUsedTime = value;
     }
 
     public override void InitializeFromGameManager()

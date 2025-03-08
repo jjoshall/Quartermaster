@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1810372612
+  GlobalObjectIdHash: 4032955809
   InScenePlacedSourceGlobalObjectIdHash: 1810372612
   DeferredDespawnTick: 0
   Ownership: 1
@@ -71,17 +71,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  flame_Damage: 8
-  flame_Range: 8
-  flame_EndRadius: 4
-  flame_Cooldown: 0.2
+  flame_Damage: 15
+  flame_Range: 3
+  flame_EndRadius: 6
+  flame_Cooldown: 0.1
   flame_EnemyHitEffect: Sample
   flame_BarrelEffect: PistolBarrelFire
   railgun_Damage: 30
   railgun_AoeRadius: 8
   railgun_Cooldown: 1
-  pistol_Damage: 12
-  pistol_Cooldown: 0.4
+  pistol_Damage: 18
+  pistol_Cooldown: 0.128
+  bulletTracerPrefab: {fileID: 839268535770390749, guid: d1acafa1418563641b82d5f84126414b, type: 3}
   portalKey_Cooldown: 10
   grenade_Damage: 20
   grenade_AoeRadius: 10
@@ -112,3 +113,11 @@ MonoBehaviour:
   - 3
   burstDropRate: 0
   _dramaOverTimeCoefficient: 0.1
+  totalEnemyKills:
+    m_InternalValue: 0
+  totalDamageDealtToEnemies:
+    m_InternalValue: 0
+  totalPlayerDamageTaken:
+    m_InternalValue: 0
+  totalPlayers:
+    m_InternalValue: 0

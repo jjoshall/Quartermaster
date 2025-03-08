@@ -178,11 +178,13 @@ public class ItemManager : NetworkBehaviour {
     }
 
     // Used as a lookup, and returns an instance of InventoryItem
-    public InventoryItem SpawnInventoryItem (string id, int stackQuantity, float timeLastUsed) {
+    public InventoryItem SpawnInventoryItem (GameObject user, string id, int stackQuantity, float timeLastUsed) {
         InventoryItem newInventoryItem = _itemClassMap[id]();
         newInventoryItem.itemID = itemEntries.FindIndex(item => item.inventoryItemClass == id);
         newInventoryItem.quantity = stackQuantity;
+        newInventoryItem.userRef = user;
         newInventoryItem.lastUsed = timeLastUsed;
+
         newInventoryItem.InitializeFromGameManager();
         return newInventoryItem;
     }

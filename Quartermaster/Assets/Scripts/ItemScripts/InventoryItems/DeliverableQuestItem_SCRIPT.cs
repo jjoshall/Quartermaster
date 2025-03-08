@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class DeliverableQuestItem : InventoryItem
 {
-    private int _id = 0;
+    // private int _id = 0;
     private int _quantity = 0;
     private float _cooldown = 0;
-    private float _lastUsedTime = 0;
+    // private float _lastUsedTime = 0;
     private int _stackLimit = 1;
 
     // Abstract overrides
@@ -23,10 +23,7 @@ public class DeliverableQuestItem : InventoryItem
         set => _quantity = value;
     }
 
-    public override float lastUsed {
-        get => _lastUsedTime;
-        set => _lastUsedTime = value;
-    }
+    
 
     public override void InitializeFromGameManager()
     {

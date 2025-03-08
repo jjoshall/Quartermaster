@@ -21,12 +21,12 @@ public class Railgun : IWeapon
     #endregion
     #region Variables
     // Backing fields. Don't touch these.
-    private int _id;
+    // private int _id;
     
     private int _quantity = 1;
-    private int _ammo = 0;
-    private float lastUsedTime = float.MinValue;
-    private float lastFiredTime = float.MinValue;
+    // private int _ammo = 0;
+    // private float lastUsedTime = float.MinValue;
+    // private float lastFiredTime = float.MinValue;
 
     #endregion
     #region Basic Overrides
@@ -45,11 +45,6 @@ public class Railgun : IWeapon
     public override int quantity {
         get => _quantity;
         set => _quantity = value;
-    }
-
-    public override float lastUsed {
-        get => lastUsedTime;
-        set => lastUsedTime = value;
     }
 
     public override void InitializeFromGameManager()
@@ -105,13 +100,6 @@ public class Railgun : IWeapon
         int groundLayer = LayerMask.GetMask("whatIsGround");
         combinedLayerMask = combinedLayerMask | groundLayer;
 
-        // particle on player
-        Quaternion attackRotation = Quaternion.LookRotation(camera.transform.forward);
-        if (_barrelLaserEffect != ""){
-            ParticleManager.instance.SpawnSelfThenAll(_barrelLaserEffect, camera.transform.position, attackRotation);
-        }
-
-
         // piercing raycast
         List<Transform> targetsHit = new List<Transform>();
 
@@ -135,7 +123,11 @@ public class Railgun : IWeapon
         System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
 
         if (hits.Length > 0){
-
+            // particle on player
+            Quaternion attackRotation = Quaternion.LookRotation(hits[0].point - shotOrigin.transform.position);
+            if (_barrelLaserEffect != ""){
+                ParticleManager.instance.SpawnSelfThenAll(_barrelLaserEffect, shotOrigin.transform.position, attackRotation);
+            }
             // draw a ray from the shotOrigin to the hit point
             Debug.DrawRay(shotOrigin.transform.position, hits[0].point - shotOrigin.transform.position, Color.blue, 2f);
 
