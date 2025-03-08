@@ -14,8 +14,8 @@ public abstract class InventoryItem {
     public abstract int quantity { get; set; }
 
     public float lastUsed {
-        get => userRef.GetComponent<PlayerStatus>().n_lastUsed[_id];
-        set => userRef.GetComponent<PlayerStatus>().n_lastUsed[_id] = value;
+        get => userRef.GetComponent<PlayerStatus>().GetLastUsed(_id);
+        set => userRef.GetComponent<PlayerStatus>().SetLastUsed(_id, value);
     }
 
     // class static cooldown. defined by inherited class

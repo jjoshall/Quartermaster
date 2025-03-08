@@ -1,11 +1,14 @@
 using UnityEngine;
 using Unity.Netcode;
+using System.Collections.Generic;
+using System.Collections;
 
 [RequireComponent(typeof(NetworkObject))]
 public class PlayerStatus : NetworkBehaviour
 {
+
     // Cooldown
-    public NetworkList<float> n_lastUsed = new NetworkList<float>();
+    private List<float> _lastUsed = new List<float>();
 
     // Status Effects
     public NetworkVariable<bool> n_stimActive = new NetworkVariable<bool>(false); // runtime var
@@ -26,6 +29,14 @@ public class PlayerStatus : NetworkBehaviour
 
     }
 
+    public float GetLastUsed(int itemID){
+        return _lastUsed[itemID];
+    }
+
+    public void SetLastUsed(int itemID, float time){
+        _lastUsed[itemID] = time;
+    }
+
     public override void OnNetworkSpawn(){
         InitValuesFromGameManager();
         InitLastUsedList();
@@ -39,7 +50,7 @@ public class PlayerStatus : NetworkBehaviour
         // n_lastUsed = new NetworkList<float>();
         for (int i = 0; i < ItemManager.instance.itemEntries.Count; i++)
         {
-            n_lastUsed.Add(float.MinValue);
+            _lastUsed.Add(float.MinValue);
         }
     }
 
