@@ -11,7 +11,7 @@ public class PlayerStatus : NetworkBehaviour
     private List<float> _lastUsed = new List<float>();
 
     // Status Effects
-    public NetworkVariable<bool> n_stimActive = new NetworkVariable<bool>(false); // runtime var
+    private NetworkVariable<bool> n_stimActive = new NetworkVariable<bool>(false); // runtime var
     public NetworkVariable<bool> n_healBuffActive = new NetworkVariable<bool>(false); // runtime var
     public NetworkVariable<bool> n_dmgBuffActive = new NetworkVariable<bool>(false);
 
@@ -19,24 +19,13 @@ public class PlayerStatus : NetworkBehaviour
     public float stimAspdMultiplier = 1.0f;
     public float stimMspdMultiplier = 1.0f;
     public float stimDuration = 1.0f;
+    private float _stimTimer = 0.0f;
     public float healMultiplier = 1.0f;
     public float healThrowVelocity = 0.0f;
     public float dmgMultiplier = 1.0f;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
 
-    }
-
-    public float GetLastUsed(int itemID){
-        return _lastUsed[itemID];
-    }
-
-    public void SetLastUsed(int itemID, float time){
-        _lastUsed[itemID] = time;
-    }
-
+    #region Startup
     public override void OnNetworkSpawn(){
         InitValuesFromGameManager();
         InitLastUsedList();
@@ -54,9 +43,45 @@ public class PlayerStatus : NetworkBehaviour
         }
     }
 
+
+    #endregion 
+    #region Update
     // Update is called once per frame
     void Update()
     {
-        
+        if (n_stimActive.Value && _stimTimer > 0.0f){
+            _stimTimer -= Time.deltaTime;
+        } else {
+            DeactivateStimServerRpc();
+        }
     }
+
+
+    #endregion
+
+    #region Stim
+    [ServerRpc(RequireOwnership = false)]
+    public void ActivateStimServerRpc(){
+        n_stimActive.Value = true;
+        _stimTimer = stimDuration;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void DeactivateStimServerRpc(){
+        n_stimActive.Value = false;
+        stimAspdMultiplier = 1.0f;
+        stimMspdMultiplier = 1.0f;
+    }
+
+    #endregion
+    #region CooldownHelpers
+    public float GetLastUsed(int itemID){
+        return _lastUsed[itemID];
+    }
+
+    public void SetLastUsed(int itemID, float time){
+        _lastUsed[itemID] = time;
+    }
+
+    #endregion
 }
