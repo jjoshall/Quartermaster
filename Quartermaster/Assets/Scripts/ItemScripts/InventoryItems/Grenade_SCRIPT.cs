@@ -15,7 +15,6 @@ public class Grenade : InventoryItem {
     }
 
     // Runtime field. DONT CHANGE.
-    private bool _grenadeIsCharging = false;
     private float _grenadeChargeTime = 0f;
     private float _grenadeVelocity = 0f;
 
@@ -76,9 +75,7 @@ public class Grenade : InventoryItem {
     }
 
     private void StartCharging (GameObject user){
-        Debug.Log ("Start charging grenade");
         // Initialize the charging state.
-        _grenadeIsCharging = true;
         _grenadeVelocity = _grenadeBaseVelocity;
         // Initialize the line renderer.
         UpdateLineRenderer(user);
@@ -86,7 +83,6 @@ public class Grenade : InventoryItem {
 
     private void Charging(GameObject user)
     {
-        Debug.Log("Charging grenade called");
 
         // Increment the charge time
         _grenadeChargeTime += Time.deltaTime;
@@ -107,16 +103,19 @@ public class Grenade : InventoryItem {
     }
 
     public override void Release (GameObject user){
-        Debug.Log ("release grenade called");
         Transform camera = user.GetComponent<Inventory>().orientation;
         Vector3 direction = camera.forward;
         // Throw the grenade.
-        ProjectileManager.instance.SpawnSelfThenAll("Grenade", camera.transform.position + camera.right * 0.1f, camera.transform.rotation, direction, _grenadeVelocity, user);
+        ProjectileManager.instance.SpawnSelfThenAll("Grenade", 
+                camera.transform.position + camera.right * 0.1f, 
+                camera.transform.rotation, 
+                direction, 
+                _grenadeVelocity, 
+                user);
         _grenadeQuantity--;
         lastUsed = Time.time;
         ProjectileManager.instance.DestroyLineRenderer();
         _grenadeVelocity = _grenadeBaseVelocity;
-        _grenadeIsCharging = false;
         _grenadeChargeTime = 0.0f;
     }
 

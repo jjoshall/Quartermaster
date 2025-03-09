@@ -90,7 +90,7 @@ public class ArcLineRenderer : MonoBehaviour
         // Horizontal distance along the trajectory.
         float horizontalDistance = t * maxDistance; // this is x.  in y = f(x)
         
-        // Calculate the vertical offset using the projectile motion formula.
+        // Calculate the vertical _offset using the projectile motion formula.
         float verticalOffset = horizontalDistance * Mathf.Tan(_radianAngle) - 
            (   (g * horizontalDistance * horizontalDistance) /
                (2 * velocity * velocity * Mathf.Cos(_radianAngle) * Mathf.Cos(_radianAngle))   );
@@ -100,7 +100,7 @@ public class ArcLineRenderer : MonoBehaviour
         horizontalDirection.y = 0;
         horizontalDirection.Normalize();
         
-        // Combine the horizontal displacement and the physics-calculated vertical offset.
+        // Combine the horizontal displacement and the physics-calculated vertical _offset.
         return transform.position + (horizontalDirection * horizontalDistance) + (Vector3.up * verticalOffset);
     }
 

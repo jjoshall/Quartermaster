@@ -30,6 +30,7 @@ public class Inventory : NetworkBehaviour {
     [SerializeField] public Texture railgunMaterial;
     [SerializeField] public Texture flamethrowerMaterial;
     [SerializeField] public Texture grenadeMaterial;
+    [SerializeField] public Texture slowTrapMaterial;
 
     [Header("Weapon Holdable Setup")]
     public GameObject weaponSlot;
@@ -367,6 +368,9 @@ public class Inventory : NetworkBehaviour {
                     case 6:
                         textureToSet = grenadeMaterial;
                         break;  
+                    case 7:
+                        textureToSet = slowTrapMaterial;
+                        break;
                     default:
                         textureToSet = emptyMaterial;
                         break;

@@ -18,8 +18,9 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     private Color originalColor;
     [SerializeField] private float blinkSpeed = 5f;
-    [SerializeField] private float normalSpeed = 5f;
-    [SerializeField] private float blinkingSpeed = 8f;
+    // [SerializeField] private float normalSpeed = 5f;
+    [Range(1f, 3f)]
+    [SerializeField] private float blinkingSpeedMultiplier = 1.3f;
 
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
@@ -28,9 +29,9 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             originalColor = renderer.material.color;
         }
 
-        if (agent != null) {
-            agent.speed = normalSpeed;
-        }
+        // if (agent != null) {
+        //     agent.speed = normalSpeed;
+        // }
 
         isBlinking.OnValueChanged += OnBlinkingStateChanged;
     }
@@ -41,9 +42,29 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             StartCoroutine(BlinkCoroutine());
 
             if (IsServer && agent != null) {
-                agent.speed = blinkingSpeed;
+                // agent.speed = blinkingSpeed;
+                UpdateSpeedServerRpc();
             }
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    protected override void UpdateSpeedServerRpc(){
+        float finalSpeed = _baseSpeed;
+        float finalAcceleration = _baseAcceleration;
+
+        if (n_isSlowed.Value > 0){
+            finalSpeed *= 1 - n_slowMultiplier.Value;
+            finalAcceleration *= 1 - n_slowMultiplier.Value;
+        }
+
+        if (isBlinking.Value){
+            finalSpeed *= blinkingSpeedMultiplier;
+            finalAcceleration *= blinkingSpeedMultiplier;
+        }
+
+        agent.speed = finalSpeed;
+        agent.acceleration = finalAcceleration;
     }
 
     private IEnumerator BlinkCoroutine() {
