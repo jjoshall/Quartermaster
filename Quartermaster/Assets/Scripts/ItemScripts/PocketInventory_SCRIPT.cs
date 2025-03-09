@@ -69,6 +69,7 @@ public class PocketInventory : NetworkBehaviour {
     }
 
     #region Teleport
+    
     [ServerRpc(RequireOwnership = false)]
     public void TeleportToPocketServerRpc(NetworkObjectReference userRef){
 
@@ -95,6 +96,25 @@ public class PocketInventory : NetworkBehaviour {
         if (userRef.TryGet(out NetworkObject user)) {
             GameObject playerObj = user.gameObject;
             if (playerObj == null) return;
+
+            Inventory playerInventory = playerObj.GetComponent<Inventory>();
+            if (playerInventory == null) {
+                Debug.LogError ("player has no inventory"); 
+                return;
+            }
+
+            // Is owner check of teleporting player to avoid null on HasItem() condition.
+            if (userRef.TryGet(out NetworkObject userObj)){
+                Debug.Log ("got userNetObj");
+                if (userObj.OwnerClientId == NetworkManager.Singleton.LocalClientId) {
+                    Debug.Log ("user is owner");
+                    if (playerInventory.HasItem("PocketInventoryPortalKey") != -1) {
+                        Debug.Log ("player has key");
+                        TpNearbyItemsServerRpc(userRef, teleportPosition.position);
+                    }
+                }
+            }
+
 
             // turn off interpolation and char controller temporarily for teleport
             playerObj.GetComponent<NetworkTransform>().Interpolate = false;
@@ -129,13 +149,51 @@ public class PocketInventory : NetworkBehaviour {
     }
 
     #endregion
+    #region ItemTeleport
+    [ServerRpc(RequireOwnership = false)]
+    public void TpNearbyItemsServerRpc(NetworkObjectReference user, Vector3 targetPosition){
+        if (!user.TryGet(out NetworkObject userNetObj)){
+            return;
+        }
+        GameObject userGameObj = userNetObj.gameObject;
+
+        float tpRadius = GameManager.instance.PortalKey_TeleportRadius;
+        Collider[] colliders = Physics.OverlapSphere(userGameObj.transform.position, tpRadius);
+        
+        foreach (Collider col in colliders) {
+            if (col.gameObject.GetComponent<WorldItem>() != null) {
+                NetworkObjectReference itemRef = col.gameObject.GetComponent<NetworkObject>();
+                TpItemToPositionClientRpc(itemRef, targetPosition);
+
+                Debug.Log ("Tp'd item: " + itemRef);    
+            }
+        }
+    }
+    
+    [ClientRpc]
+    public void TpItemToPositionClientRpc(NetworkObjectReference itemRef, Vector3 position) {
+        if (itemRef.TryGet(out NetworkObject item)) {
+            item.transform.position = position;
+        }
+    }
+
+
+    #endregion
+    
     #region TeleportHelpers
+    
+    public bool HasPortalKey(GameObject player){
+        Inventory thisInventory = player.GetComponent<Inventory>();
+        return thisInventory.HasItem("PocketInventoryPortalKey") != -1;
+    }
+
     [ServerRpc(RequireOwnership = false)]
     public void clearDroppedKeyServerRpc() {
         n_droppedPortalKeyInPocket.Value = false;
         n_storedKeyObj = new NetworkObjectReference();
     }
 
+    
 
     [ClientRpc]
     public void ReturnAllPlayersClientRpc() {

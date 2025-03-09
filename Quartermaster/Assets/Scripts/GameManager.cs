@@ -27,6 +27,7 @@ public class GameManager : NetworkBehaviour {
 
     [Header("Item Settings")]
     [SerializeField] private float portalKey_Cooldown;
+    [SerializeField] private float portalKey_TeleportRadius;
 
     [SerializeField] private float grenade_Damage;
     [SerializeField] private float grenade_AoeRadius;
@@ -85,6 +86,7 @@ public class GameManager : NetworkBehaviour {
     public GameObject Pistol_TrailPrefab => bulletTracerPrefab;
 
     public float PortalKey_Cooldown => portalKey_Cooldown;
+    public float PortalKey_TeleportRadius => portalKey_TeleportRadius;
 
     public float Grenade_Damage => grenade_Damage;
     public float Grenade_AoeRadius => grenade_AoeRadius;
