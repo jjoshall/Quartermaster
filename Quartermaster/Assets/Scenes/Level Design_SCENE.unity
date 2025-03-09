@@ -2964,6 +2964,79 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2214651842299323774, guid: 9b898f39b26fc0d49914d00f4fc53b40, type: 3}
   m_PrefabInstance: {fileID: 1387107457}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1388405455
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1388405456}
+  - component: {fileID: 1388405457}
+  m_Layer: 0
+  m_Name: AI Director
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1388405456
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1388405455}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1797533317}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1388405457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1388405455}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aae4b54434805444a50332696dc64ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  _buildUpDuration: 180
+  _peakDuration: 30
+  _relaxDuration: 45
+  _baseIntensity: 10
+  _intensityDecayRate: 0.5
+  _peakIntensityThreshold: 80
+  _relaxIntensityThreshold: 30
+  _enemyKillIntensity: 5
+  _damageDealtMultiplier: 0.5
+  _damageTakenMultiplier: 1
+  _buildUpSpawnRate: 6
+  _peakSpawnRate: 2
+  _relaxSpawnRate: 10
+  _buildUpEnemyWeights:
+  - enemyType: 0
+    spawnWeight: 0
+  - enemyType: 1
+    spawnWeight: 0
+  _peakEnemyWeights:
+  - enemyType: 0
+    spawnWeight: 0
+  - enemyType: 0
+    spawnWeight: 0
+  - enemyType: 1
+    spawnWeight: 0
+  _relaxEnemyWeights:
+  - enemyType: 0
+    spawnWeight: 0
 --- !u!4 &1396842504 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4334222927529626911, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
@@ -3208,6 +3281,7 @@ Transform:
   - {fileID: 1107037197829159405}
   - {fileID: 249522829}
   - {fileID: 718947605}
+  - {fileID: 1388405456}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1797819870
