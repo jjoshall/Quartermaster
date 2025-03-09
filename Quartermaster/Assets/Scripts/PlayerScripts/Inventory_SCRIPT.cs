@@ -31,6 +31,7 @@ public class Inventory : NetworkBehaviour {
     [SerializeField] public Texture flamethrowerMaterial;
     [SerializeField] public Texture grenadeMaterial;
     [SerializeField] public Texture slowTrapMaterial;
+    [SerializeField] public Texture deliverableMaterial;
 
     [Header("Weapon Holdable Setup")]
     public GameObject weaponSlot;
@@ -222,7 +223,7 @@ public class Inventory : NetworkBehaviour {
         int stackQuantity = _inventory[_currentInventoryIndex].quantity;
         float lastUsed = _inventory[_currentInventoryIndex].lastUsed;
         _inventory[_currentInventoryIndex] = null;
-        Vector3 initVelocity = orientation.forward * 10;
+        Vector3 initVelocity = orientation.forward * GameManager.instance.DropItemVelocity;
         NetworkObjectReference n_playerObj = _playerObj.GetComponent<NetworkObject>();
 
         ItemManager.instance.SpawnWorldItemServerRpc(
@@ -365,12 +366,16 @@ public class Inventory : NetworkBehaviour {
                     case 4:
                         textureToSet = flamethrowerMaterial;
                         break;
+                    case 5:
+                        textureToSet = deliverableMaterial;
+                        break;
                     case 6:
                         textureToSet = grenadeMaterial;
                         break;  
                     case 7:
                         textureToSet = slowTrapMaterial;
                         break;
+                    
                     default:
                         textureToSet = emptyMaterial;
                         break;

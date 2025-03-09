@@ -40,7 +40,9 @@ public class SlowTrapProjectile : IProjectile
         col.enabled = false;
 
         childSlowTrap.SetActive(true); 
-        childSlowTrap.GetComponent<SlowTrapChildTrigger>().ActivateSlow();                                     // Activate slow trigger volume
+        childSlowTrap.GetComponent<SlowTrapChildTrigger>().ActivateSlow();  // Activate slow trigger volume
+
+        ParticleManager.instance.SpawnSelfThenAll("SlowTrapAoe", trapPosition, Quaternion.Euler(0, 0, 0));
         
     }
 
