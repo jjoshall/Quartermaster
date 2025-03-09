@@ -614,8 +614,8 @@ GameObject:
   - component: {fileID: 4715171396735850015}
   - component: {fileID: 2941303876281257134}
   - component: {fileID: 3598719706095241124}
-  - component: {fileID: 7913979326643981690}
   - component: {fileID: 252892340572965323}
+  - component: {fileID: 7369547624774397214}
   m_Layer: 14
   m_Name: Grenade_DUMMY
   m_TagString: PlayerProjectile
@@ -700,18 +700,6 @@ MonoBehaviour:
   m_IgnoreFromBuild: 1
   m_ApplyToChildren: 1
   m_AffectedAgents: ffffffff
---- !u!114 &7913979326643981690
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8519617277999394602}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11536cded36689842ae7edbb5d9efdb1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!135 &252892340572965323
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -733,3 +721,15 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.25
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7369547624774397214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8519617277999394602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ad6df3929423404d8e82532f277d648, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

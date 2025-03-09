@@ -10,16 +10,24 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected virtual int damage => 2;
     protected virtual float attackRadius => 2f;
     public EnemyType enemyType;
-    public GameObject floatingTextPrefab;
-    private bool _isAttacking = false;
     [SerializeField] private float _separationRadius = 10f;
     [SerializeField] private float _separationStrength = 3f;
-    private Vector3 enemySeparationVector;
     protected NavMeshAgent agent;
-    protected Transform target;
     protected Health health;
     protected Renderer renderer;
     public EnemySpawner enemySpawner;
+
+    public GameObject floatingTextPrefab;
+    private bool _isAttacking = false;
+    private Vector3 enemySeparationVector;
+    protected Transform target;
+
+    // Speed run-time variables
+    protected float _baseSpeed = 0.0f;
+    protected float _baseAcceleration = 0.0f;
+    protected NetworkVariable<int> n_isSlowed = new NetworkVariable<int>(0); // int is used in case of multiple slow traps.
+    protected NetworkVariable<float> n_slowMultiplier = new NetworkVariable<float>(0.0f);
+
 
     // Used to sync color across clients
     private NetworkVariable<float> healthRatio = new NetworkVariable<float>(1f,
@@ -28,6 +36,10 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     public override void OnNetworkSpawn() {
         agent = GetComponent<NavMeshAgent>();
+        _baseSpeed = agent.speed;
+        _baseAcceleration = agent.acceleration;
+
+
         health = GetComponent<Health>();
         renderer = GetComponent<Renderer>();
 
@@ -178,6 +190,47 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             health.OnDie -= OnDie;
         }
     }
+
+    #region SpeedChanged
+    [ServerRpc(RequireOwnership = false)]   
+    protected virtual void UpdateSpeedServerRpc(){
+        float finalSpeed = _baseSpeed;
+        float finalAcceleration = _baseAcceleration;
+
+        if (n_isSlowed.Value > 0){
+            finalSpeed *= 1 - n_slowMultiplier.Value;
+            finalAcceleration *= 1 - n_slowMultiplier.Value;
+        }
+
+        UpdateSpeedClientRpc(finalSpeed, finalAcceleration);
+    }
+
+    [ClientRpc]
+    private void UpdateSpeedClientRpc(float finalSpeed, float finalAcceleration){
+        Debug.Log ("Updating speed client rpc, original speed & acceleration: " + agent.speed + ", " + agent.acceleration);
+        agent.speed = finalSpeed;
+        agent.acceleration = finalAcceleration;
+        agent.velocity = agent.velocity.normalized * finalSpeed;
+        Debug.Log ("Updated speed & acceleration: " + agent.speed + ", " + agent.acceleration);
+    }
+
+    [ServerRpc(RequireOwnership = false)]   
+    public void ApplySlowDebuffServerRpc(){
+        n_isSlowed.Value = n_isSlowed.Value + 1;
+        n_slowMultiplier.Value = GameManager.instance.SlowTrap_SlowByPct;
+        UpdateSpeedServerRpc();
+    }
+
+    [ServerRpc(RequireOwnership = false)]   
+    public void RemoveSlowDebuffServerRpc(){
+        n_isSlowed.Value = n_isSlowed.Value - 1;
+        n_slowMultiplier.Value = GameManager.instance.SlowTrap_SlowByPct;
+        UpdateSpeedServerRpc();
+    }
+
+
+
+    #endregion
 }
 
 public enum EnemyType {

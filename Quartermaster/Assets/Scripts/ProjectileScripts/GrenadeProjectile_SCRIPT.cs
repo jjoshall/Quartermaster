@@ -2,11 +2,29 @@ using UnityEngine;
 
 public class GrenadeProjectile : IProjectile
 {
-
-    protected override void Expire()
+    protected override void Start()
     {
-        Explode();
+        _expireTimer = GameManager.instance.Grenade_ExpireTimer;
     }
+    protected override void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy")){
+            Explode();
+        } else {
+            _projectileCollided = true;
+        }
+    }
+
+    protected override void Update()
+    {
+        if (_projectileCollided){
+            _expireTimer -= Time.deltaTime;
+            if (_expireTimer <= 0){
+                Explode();
+            }
+        }   
+    }
+
 
     void Explode(){
         float _explosionRadius = GameManager.instance.Grenade_AoeRadius;
