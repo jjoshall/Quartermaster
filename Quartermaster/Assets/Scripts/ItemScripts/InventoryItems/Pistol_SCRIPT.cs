@@ -113,8 +113,8 @@ public class Pistol : IWeapon
             if (effects != null && userNetObj != null) {
                 if (_barrelFireEffect != ""){
                     // spawn the pistol barrel fire in direction of camera look
-                    Quaternion attackRotation = Quaternion.LookRotation(hit.point - shotOrigin.transform.position);
-                    ParticleManager.instance.SpawnSelfThenAll(_barrelFireEffect, shotOrigin.transform.position, attackRotation);
+                    //Quaternion attackRotation = Quaternion.LookRotation(hit.point - shotOrigin.transform.position);
+                    //ParticleManager.instance.SpawnSelfThenAll(_barrelFireEffect, shotOrigin.transform.position, attackRotation);
                 }
                 if (NetworkManager.Singleton.IsServer) {
                     // If the user (player) is the server, spawn the trail directly.
@@ -124,6 +124,12 @@ public class Pistol : IWeapon
                     // If the user is a client, request the server to spawn the trail.
                     effects.RequestSpawnBulletTrailServerRpc(shotOrigin.transform.position, hit.point, itemID);
                 }
+            }
+
+            SoundEmitter soundEmitter = p_heldWeapon.GetComponent<SoundEmitter>();
+            if (soundEmitter != null) {
+                Debug.Log("Played sound: " + soundEmitter);
+                soundEmitter.PlayNetworkedSound("Weapon/PistolShot.ogg", shotOrigin.transform.position);
             }
 
             // Check if the hit object is a building
