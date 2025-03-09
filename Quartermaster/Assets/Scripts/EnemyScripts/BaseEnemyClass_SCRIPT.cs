@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using Unity.Netcode;
 using System.Collections;
+using TMPro;
 
 public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [Header("Enemy Settings")]
@@ -17,7 +18,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected Renderer renderer;
     public EnemySpawner enemySpawner;
 
-    public GameObject floatingTextPrefab;
+    [SerializeField] private GameObject floatingTextPrefab;
     private bool _isAttacking = false;
     private Vector3 enemySeparationVector;
     protected Transform target;
@@ -152,19 +153,23 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected virtual void OnDamaged(float damage, GameObject damageSource) {
         //Debug.Log(enemyType + " took " + damage + " damage!");
 
-        if (floatingTextPrefab != null)
-        {
-            ShowFloatingText();
+        if (floatingTextPrefab != null) {
+            ShowFloatingTextServerRpc(damage);
         }
         
         GameManager.instance.AddEnemyDamageServerRpc(damage);
         //Debug.Log("Total damage taken by enemies: " + GameManager.instance.totalDamageDealtToEnemies.Value);
     }
 
-    void ShowFloatingText()
-    {
+    [ServerRpc(RequireOwnership = false)]
+    private void ShowFloatingTextServerRpc(float damage) {
+        ShowFloatingTextClientRpc(damage);
+    }
+
+    [ClientRpc]
+    void ShowFloatingTextClientRpc(float damage) {
         var go = Instantiate(floatingTextPrefab, transform.position, Quaternion.identity, transform);
-        go.GetComponent<TextMesh>().text = health.CurrentHealth.Value.ToString();
+        go.GetComponent<TextMeshPro>().SetText(damage.ToString());
     }
 
     protected virtual void OnDie() {
