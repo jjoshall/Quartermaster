@@ -105,11 +105,8 @@ public class PocketInventory : NetworkBehaviour {
 
             // Is owner check of teleporting player to avoid null on HasItem() condition.
             if (userRef.TryGet(out NetworkObject userObj)){
-                Debug.Log ("got userNetObj");
                 if (userObj.OwnerClientId == NetworkManager.Singleton.LocalClientId) {
-                    Debug.Log ("user is owner");
                     if (playerInventory.HasItem("PocketInventoryPortalKey") != -1) {
-                        Debug.Log ("player has key");
                         TpNearbyItemsServerRpc(userRef, teleportPosition.position);
                     }
                 }

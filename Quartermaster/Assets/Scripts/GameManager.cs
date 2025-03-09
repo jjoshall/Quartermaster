@@ -40,8 +40,12 @@ public class GameManager : NetworkBehaviour {
 
     [SerializeField] private float slowTrap_SlowByPct;// give enemy a debuff flag. enemy checks for debuff then accesses this value to adjust their own speed.
     [SerializeField] private float slowTrap_Duration;   // duration of the trap itself. 
+    [SerializeField] private float slowTrap_AoERadius;
     [SerializeField] private float slowTrap_Cooldown;
     [SerializeField] private int slowTrap_StackLimit;
+    [SerializeField] private float slowTrap_ChargeTime;
+    [SerializeField] private float slowTrap_MinVelocity;
+    [SerializeField] private float slowTrap_MaxVelocity;
 
     [SerializeField] private float medKit_HealAmount ;
     [SerializeField] private float medKit_Cooldown ;
@@ -100,7 +104,13 @@ public class GameManager : NetworkBehaviour {
     public float SlowTrap_SlowByPct => slowTrap_SlowByPct;
     public float SlowTrap_Duration => slowTrap_Duration;
     public float SlowTrap_Cooldown => slowTrap_Cooldown;
+    public float SlowTrap_AoERadius => slowTrap_AoERadius;
     public int SlowTrap_StackLimit => slowTrap_StackLimit;
+    public float SlowTrap_ChargeTime => slowTrap_ChargeTime;
+    public float SlowTrap_MinVelocity => slowTrap_MinVelocity;
+    public float SlowTrap_MaxVelocity => slowTrap_MaxVelocity;
+
+
 
     public float MedKit_HealAmount => medKit_HealAmount;
     public float MedKit_Cooldown => medKit_Cooldown;
