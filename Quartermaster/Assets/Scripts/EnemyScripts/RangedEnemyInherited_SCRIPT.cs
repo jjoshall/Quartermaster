@@ -18,12 +18,22 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     private bool _canAttack = true;
 
+    private Animator animator;
+
+    [Header("Armature Settings")]
+    [SerializeField] private Transform _leftGun;
+    [SerializeField] private Transform _rightGun;   
+
     protected override float attackCooldown => 3f;
     protected override float attackRange => 10f;
     protected override int damage => 8;
 
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
+        
+        animator = GetComponentInChildren<Animator>();
+
+
 
         if (IsServer) {
             _hoverOffset = Random.Range(0f, 2f * Mathf.PI);
@@ -47,12 +57,32 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         transform.LookAt(lookPosition);
 
         ApplyHovering();
+        UpdateAnimation();
+        UpdateWeaponAngle();
     }
 
     private void ApplyHovering() {
         if (agent != null && agent.enabled) {
             float verticalOffset = _hoverAmplitude * Mathf.Sin(Time.time + _hoverOffset) * _hoverFrequency;
             agent.baseOffset = _hoveredHeight + verticalOffset;
+        }
+    }
+
+    private void UpdateAnimation() {
+        if (animator == null || agent == null) return;
+
+        float speed = agent.velocity.magnitude;
+        animator.SetFloat("ForwardSpeed", speed);
+    }
+
+    private void UpdateWeaponAngle() {
+        if (_leftGun != null && _rightGun != null) {
+            Vector3 directionToTarget = (target.position - transform.position).normalized;
+            Debug.DrawRay(_firePoint.position, directionToTarget * 10f, Color.red);
+            Quaternion lookRotation = Quaternion.LookRotation(directionToTarget) * Quaternion.Euler(90f, 0f, 0f);
+
+            _leftGun.rotation = Quaternion.Slerp(_leftGun.rotation, lookRotation, Time.deltaTime * 5f);
+            _rightGun.rotation = Quaternion.Slerp(_rightGun.rotation, lookRotation, Time.deltaTime * 5f);
         }
     }
 

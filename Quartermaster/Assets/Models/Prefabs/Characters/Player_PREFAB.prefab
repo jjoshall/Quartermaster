@@ -25,6 +25,7 @@ GameObject:
   - component: {fileID: -1596647786455328852}
   - component: {fileID: 2486281207987998458}
   - component: {fileID: 9130185698221645851}
+  - component: {fileID: 6095801325562219084}
   m_Layer: 8
   m_Name: Player_PREFAB
   m_TagString: Player
@@ -797,6 +798,21 @@ MonoBehaviour:
   healMultiplier: 1
   healThrowVelocity: 0
   dmgMultiplier: 1
+--- !u!114 &6095801325562219084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 533627647367738219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01db514f5e6309c4e9942a6913481df6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioSource: {fileID: 3459918479299022771}
+  destinationMixer: SFX
+  soundAddressableKey: 
 --- !u!1 &1180047318962825330
 GameObject:
   m_ObjectHideFlags: 0
