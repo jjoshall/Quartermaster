@@ -517,6 +517,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   tooltipCanvas: {fileID: 90319612}
   tooltipPrefab: {fileID: 6792220041042979371, guid: 00fbd0743e92f12489e1d43f959d811b, type: 3}
+  finalPos: {x: -9300, y: 990}
+  startPos: {x: -330, y: 990}
 --- !u!114 &249522831
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4592,8 +4594,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameMixer: {fileID: 24100000, guid: 5c90026cecfa740439f0e5debdf3233a, type: 2}
   playerTransform: {fileID: 0}
-  minDistance: 5
-  maxDistance: 50
+  minDistance: 2
+  maxDistance: 25
 --- !u!4 &2083760351
 Transform:
   m_ObjectHideFlags: 0

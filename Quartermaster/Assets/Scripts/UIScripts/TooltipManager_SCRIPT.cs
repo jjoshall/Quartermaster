@@ -13,8 +13,8 @@ public class TooltipManager : NetworkBehaviour {
     public GameObject tooltipPrefab;
 
     // Tooltip animation positions.
-    Vector2 finalPos = new Vector2(-930, 510);
-    Vector2 startPos = new Vector2(-1350, 510);
+    [SerializeField] private Vector2 finalPos = new Vector2(10, 55);
+    [SerializeField] private Vector2 startPos = new Vector2(-700, 550);
 
     void Awake() {
         if (Instance == null) {
@@ -43,7 +43,7 @@ public class TooltipManager : NetworkBehaviour {
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [ServerRpc()]
     private void SendTooltipServerRpc(string message, ServerRpcParams rpcParams = default) {
         ShowTooltipClientRpc(message);
     }

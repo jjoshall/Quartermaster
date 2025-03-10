@@ -8,11 +8,15 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     protected override float attackRange => 10f;
     protected override int damage => 15;
 
+    private SoundEmitter[] soundEmitters;
+
     private Animator animator;
 
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
         animator = GetComponentInChildren<Animator>();
+
+        soundEmitters = GetComponents<SoundEmitter>();
     }
 
     protected override void UpdateTarget() {
@@ -46,6 +50,12 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         StartCoroutine(ResetAttackCooldown());
     }
 
+    protected override void OnDamaged(float damage, GameObject damageSource)
+    {
+        base.OnDamaged(damage, damageSource);
+        PlaySoundForEmitter("melee_damaged", "__", transform.position);
+    }
+
     private IEnumerator ResetAttackCooldown() {
         yield return new WaitForSeconds(0.5f);
         Debug.Log("Melee enemy starting idle animation");
@@ -63,6 +73,15 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             Debug.Log("Attack animation is playing");
         } else {
             Debug.Log("Attack animation is NOT playing");
+        }
+    }
+
+    public void PlaySoundForEmitter(string emitterId, string key, Vector3 position) {
+        foreach (SoundEmitter emitter in soundEmitters) {
+            if (emitter.emitterID == emitterId) {
+                emitter.PlayNetworkedSound(key, position);
+                return;
+            }
         }
     }
 }
