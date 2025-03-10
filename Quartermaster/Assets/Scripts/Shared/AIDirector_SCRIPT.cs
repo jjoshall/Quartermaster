@@ -13,7 +13,7 @@ public class AIDirector : NetworkBehaviour {
     [Header("Intensity Settings")]
     [SerializeField] private float _baseIntensity = 10f; // Base intensity level
     [SerializeField] private float _intensityDecayRate = 0.5f; // How fast intensity decreases over time
-    [SerializeField] private float _peakIntensityThreshold = 80f; // When to trigger peak
+    [SerializeField] private float _peakIntensityThreshold = 60f; // When to trigger peak
     [SerializeField] private float _relaxIntensityThreshold = 30f; // When to end relax phase early
 
     [Header("Intensity Gain Multipliers")]
@@ -32,17 +32,17 @@ public class AIDirector : NetworkBehaviour {
     [SerializeField] private List<EnemyWeightData> _relaxEnemyWeights = new List<EnemyWeightData>();
 
     // State machine properties
-    private NetworkVariable<DirectorState> _currentState = new NetworkVariable<DirectorState>(
+    public NetworkVariable<DirectorState> _currentState = new NetworkVariable<DirectorState>(
         DirectorState.BuildUp,
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
-    private NetworkVariable<float> _currentIntensity = new NetworkVariable<float>(
+    public NetworkVariable<float> _currentIntensity = new NetworkVariable<float>(
         0f,
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
-    private NetworkVariable<float> _stateTimeRemaining = new NetworkVariable<float>(
+    public NetworkVariable<float> _stateTimeRemaining = new NetworkVariable<float>(
         180f, // Default to build up time
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
@@ -57,10 +57,24 @@ public class AIDirector : NetworkBehaviour {
     private float _lastDamageTaken = 0f;
 
     [System.Serializable]
-    public class EnemyWeightData {
+    public class EnemyWeightData : INetworkSerializable {
         public Transform enemyPrefab;
         public EnemyType enemyType;
         public float spawnWeight = 1f;
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter {
+            serializer.SerializeValue(ref spawnWeight);
+
+            if (serializer.IsReader) {
+                int typeValue = 0;
+                serializer.SerializeValue(ref typeValue);
+                enemyType = (EnemyType)typeValue;
+            }
+            else {
+                int typeValue = (int)enemyType;
+                serializer.SerializeValue(ref typeValue);
+            }
+        }
     }
 
     public enum DirectorState {
@@ -213,22 +227,19 @@ public class AIDirector : NetworkBehaviour {
 
         // Update spawn cooldown based on current state
         float spawnRate = _buildUpSpawnRate;
-        List<EnemyWeightData> weights = _buildUpEnemyWeights;
+        DirectorState currentState = _currentState.Value;
 
-        switch (_currentState.Value) {
+        switch (currentState) {
             case DirectorState.BuildUp:
                 spawnRate = _buildUpSpawnRate;
-                weights = _buildUpEnemyWeights;
                 break;
 
             case DirectorState.Peak:
                 spawnRate = _peakSpawnRate;
-                weights = _peakEnemyWeights;
                 break;
 
             case DirectorState.Relax:
                 spawnRate = _relaxSpawnRate;
-                weights = _relaxEnemyWeights;
                 break;
         }
 
@@ -236,7 +247,7 @@ public class AIDirector : NetworkBehaviour {
         float playerCountScaling = CalculatePlayerCountScaling();
         spawnRate /= playerCountScaling;
 
-        UpdateSpawnerSettingsServerRpc(spawnRate, weights);
+        UpdateSpawnerSettingsServerRpc(spawnRate, currentState);
     }
 
     private float CalculatePlayerCountScaling() {
@@ -249,10 +260,29 @@ public class AIDirector : NetworkBehaviour {
     }
 
     [ServerRpc]
-    private void UpdateSpawnerSettingsServerRpc(float spawnRate, List<EnemyWeightData> weights) {
+    private void UpdateSpawnerSettingsServerRpc(float spawnRate, DirectorState state) {
         if (!IsServer) return;
         _enemySpawner._spawnCooldown = spawnRate;
         _enemySpawner._enemySpawnData.Clear();
+
+        List<EnemyWeightData> weights;
+        switch (state) {
+            case DirectorState.BuildUp:
+                weights = _buildUpEnemyWeights;
+                break;
+
+            case DirectorState.Peak:
+                weights = _peakEnemyWeights;
+                break;
+
+            case DirectorState.Relax:
+                weights = _relaxEnemyWeights;
+                break;
+
+            default:
+                weights = _buildUpEnemyWeights;
+                break;
+        }
 
         foreach (var weightData in weights) {
             EnemySpawner.EnemySpawnData spawnData = new EnemySpawner.EnemySpawnData {

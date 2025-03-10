@@ -1,0 +1,130 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8444834782760470264
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7779283026591875376}
+  - component: {fileID: -219807797934244134}
+  - component: {fileID: 6541605234242733098}
+  - component: {fileID: 8304827006908812911}
+  m_Layer: 0
+  m_Name: AI Director
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7779283026591875376
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8444834782760470264}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-219807797934244134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8444834782760470264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 1412214570
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &6541605234242733098
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8444834782760470264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aae4b54434805444a50332696dc64ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  _buildUpDuration: 180
+  _peakDuration: 30
+  _relaxDuration: 45
+  _baseIntensity: 10
+  _intensityDecayRate: 0.5
+  _peakIntensityThreshold: 60
+  _relaxIntensityThreshold: 30
+  _enemyKillIntensity: 5
+  _damageDealtMultiplier: 0.5
+  _damageTakenMultiplier: 1
+  _buildUpSpawnRate: 6
+  _peakSpawnRate: 2
+  _relaxSpawnRate: 10
+  _buildUpEnemyWeights:
+  - enemyPrefab: {fileID: 6449858844552445292, guid: f9e0d41d7de8cf940b0224449f9fdaa3, type: 3}
+    enemyType: 0
+    spawnWeight: 10
+  - enemyPrefab: {fileID: 3551560962508933810, guid: 69de7c9352a23844187f99a1518c29a9, type: 3}
+    enemyType: 1
+    spawnWeight: 1
+  _peakEnemyWeights:
+  - enemyPrefab: {fileID: 6449858844552445292, guid: f9e0d41d7de8cf940b0224449f9fdaa3, type: 3}
+    enemyType: 0
+    spawnWeight: 10
+  - enemyPrefab: {fileID: 4276394852278779144, guid: 8ee66f5ce3f72cc4bb6aade7e36c6e5e, type: 3}
+    enemyType: 0
+    spawnWeight: 4
+  - enemyPrefab: {fileID: 3551560962508933810, guid: 69de7c9352a23844187f99a1518c29a9, type: 3}
+    enemyType: 1
+    spawnWeight: 5
+  _relaxEnemyWeights:
+  - enemyPrefab: {fileID: 6449858844552445292, guid: f9e0d41d7de8cf940b0224449f9fdaa3, type: 3}
+    enemyType: 0
+    spawnWeight: 1
+  _currentState:
+    m_InternalValue: 0
+  _currentIntensity:
+    m_InternalValue: 0
+  _stateTimeRemaining:
+    m_InternalValue: 180
+--- !u!114 &8304827006908812911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8444834782760470264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71deb278ff20fdf4dbe561004abbf38b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _intensitySlider: {fileID: 6522531841078524450, guid: 246126898ff7f22428e1000ea63d1f81, type: 3}
+  _stateText: {fileID: 8721206541854713308, guid: c24eb06aa2ce1834b859f6d309c623e9, type: 3}
+  _timeRemainingText: {fileID: 4020819043053846585, guid: da3c1abfea88f7d40b3eebd4f6ec9366, type: 3}
+  _enemyCountText: {fileID: 5224404580563832615, guid: e21a36f6eb1f0a94bb79acb2e3db0779, type: 3}
