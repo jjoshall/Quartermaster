@@ -150,10 +150,23 @@ public class Pistol : IWeapon
                 if (damageable == null){
                     Debug.LogError ("Raycast hit enemy without damageable component.");
                 } else {
-                    damageable?.InflictDamage(_pistolDamage, false, user);
+                    // damageable?.InflictDamage(_pistolDamage, false, user);
+                    DoDamage(damageable, false, user);
                 }
             }
         }
+    }
+
+    
+    private void DoDamage (Damageable d, bool isExplosiveDmgType, GameObject user){
+        float damage = _pistolDamage;
+        PlayerStatus s = user.GetComponent<PlayerStatus>();
+        if (s != null){
+            float bonusPerSpec = GameManager.instance.DmgSpec_MultiplierPer;
+            int dmgSpecLvl = s.GetDmgSpecLvl();
+            damage = damage * (1 + bonusPerSpec * dmgSpecLvl);
+        }
+        d?.InflictDamage(damage, isExplosiveDmgType, user);
     }
     #endregion
 }

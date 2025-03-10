@@ -105,7 +105,16 @@ MonoBehaviour:
   medKit_HealAmount: 20
   medKit_Cooldown: 1
   medKit_StackLimit: 3
+  _medKit_ChargeTime: 0.5
+  _medKit_TapThreshold: 0.128
+  _medKit_MinVelocity: 5
+  _medKit_MaxVelocity: 20
+  _medKit_ExpireTimer: 5
   questItem_StackLimit: 1
+  _healSpec_StackLimit: 3
+  _healSpec_MultiplierPer: 0.1
+  _dmgSpec_StackLimit: 3
+  _dmgSpec_MultiplierPer: 1
   _playersToEnemyHpMultiplier:
   - 0.1
   - 1

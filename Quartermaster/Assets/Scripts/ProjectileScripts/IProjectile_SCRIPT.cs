@@ -14,6 +14,10 @@ public abstract class IProjectile : MonoBehaviour
 
     protected abstract void OnCollisionEnter(Collision collision);
 
+    protected virtual void OnTriggerEnter(Collider collision){
+
+    }
+
     protected abstract void Update();
 
 }

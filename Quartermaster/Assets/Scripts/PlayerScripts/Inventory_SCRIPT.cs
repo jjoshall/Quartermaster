@@ -32,6 +32,8 @@ public class Inventory : NetworkBehaviour {
     [SerializeField] public Texture grenadeMaterial;
     [SerializeField] public Texture slowTrapMaterial;
     [SerializeField] public Texture deliverableMaterial;
+    [SerializeField] public Texture healSpecMaterial;
+    [SerializeField] public Texture dmgSpecMaterial;
 
     [Header("Weapon Holdable Setup")]
     public GameObject weaponSlot;
@@ -163,11 +165,17 @@ public class Inventory : NetworkBehaviour {
             }
         }
 
+        if (newItem.IsClassSpec()){
+            Debug.Log ("Class Spec picked");
+            DropAllOtherClassSpecs(InventoryItemToString(newItem));
+        }
+
         // Add to the first empty slot.
         if (_currentHeldItems < _maxInventorySize) {
             if (_inventory[_currentInventoryIndex] == null) {
                 _inventory[_currentInventoryIndex] = newItem;
                 _currentHeldItems++;
+                CallPickUp(newItem);
             } else {
                 bool success = AddToFirstEmptySlot(newItem);
                 if (!success){
@@ -190,11 +198,14 @@ public class Inventory : NetworkBehaviour {
         for (int i = 0; i < _inventory.Length; i++){
             if (_inventory[i] == null) continue;
             if (_inventory[i].itemID == newItem.itemID) {
+                int quantityBefore = _inventory[i].quantity;
                 _inventory[i].quantity += newItem.quantity;
                 if (_inventory[i].quantity > _inventory[i].StackLimit()) {
                     newItem.quantity = _inventory[i].quantity - _inventory[i].StackLimit();
                     _inventory[i].quantity = _inventory[i].StackLimit();
+                    CallPickUp(newItem);
                 } else {
+                    CallPickUp(newItem);
                     return true;
                 }
             }
@@ -202,11 +213,21 @@ public class Inventory : NetworkBehaviour {
         return false;
     }
 
+    public int GetSlotQuantity (int slot) {
+        if (_inventory[slot] == null) return 0;
+        return _inventory[slot].quantity;
+    }
+
+    void CallPickUp(InventoryItem newItem) {
+        newItem.PickUp(_playerObj);
+    }
+
     bool AddToFirstEmptySlot(InventoryItem item) {
         for (int i = 0; i < _inventory.Length; i++) {
             if (_inventory[i] == null) {
                 _inventory[i] = item;
                 _currentHeldItems++;
+                CallPickUp(item);
                 Debug.Log($"Item {item.GetType().Name} added to slot {i}");
                 return true;
             }
@@ -222,6 +243,10 @@ public class Inventory : NetworkBehaviour {
         string stringID = ItemManager.instance.itemEntries[selectedItemId].inventoryItemClass;
         int stackQuantity = _inventory[_currentInventoryIndex].quantity;
         float lastUsed = _inventory[_currentInventoryIndex].lastUsed;
+
+        _inventory[_currentInventoryIndex].quantity = 0; // set quantity to 0 so drop logic counts as 0.
+        _inventory[_currentInventoryIndex].Drop(_playerObj); // call any logic that needs to happen on drop
+        
         _inventory[_currentInventoryIndex] = null;
         Vector3 initVelocity = orientation.forward * GameManager.instance.DropItemVelocity;
         NetworkObjectReference n_playerObj = _playerObj.GetComponent<NetworkObject>();
@@ -244,6 +269,10 @@ public class Inventory : NetworkBehaviour {
         string stringID = ItemManager.instance.itemEntries[selectedItemId].inventoryItemClass;
         int stackQuantity = _inventory[slot].quantity;
         float lastUsed = _inventory[slot].lastUsed;
+
+        _inventory[slot].quantity = 0; // set quantity to 0 so drop logic counts as 0.
+        _inventory[slot].Drop(_playerObj); // call any logic that needs to happen on drop
+
         _inventory[slot] = null;
         NetworkObjectReference n_playerObj = _playerObj.GetComponent<NetworkObject>();
 
@@ -375,7 +404,12 @@ public class Inventory : NetworkBehaviour {
                     case 7:
                         textureToSet = slowTrapMaterial;
                         break;
-                    
+                    case 9:
+                        textureToSet = healSpecMaterial;
+                        break;
+                    case 10:
+                        textureToSet = dmgSpecMaterial;
+                        break;
                     default:
                         textureToSet = emptyMaterial;
                         break;
@@ -386,20 +420,35 @@ public class Inventory : NetworkBehaviour {
     }
 
     #region Helpers
+    private void DropAllOtherClassSpecs(string pickedSpec){
+        for (int i = 0; i < _inventory.Length; i++){
+            if (_inventory[i] == null){
+                continue;
+            }
+            if (_inventory[i].IsClassSpec()){
+                string itemStr = InventoryItemToString(_inventory[i]);
+                if (itemStr != pickedSpec){
+                    DropItem(i);
+                }
+                Debug.Log ("Dropped " + itemStr);
+            }
+        }
+
+    }
     bool ValidIndexCheck(){
         if (_currentInventoryIndex < 0 || _currentInventoryIndex >= _inventory.Length) {
-            Debug.LogError("Invalid inventory index: " + _currentInventoryIndex);
+            // Debug.LogError("Invalid inventory index: " + _currentInventoryIndex);
             return false;
         }
         if (_inventory[_currentInventoryIndex] == null) {
-            Debug.Log("No item in inventory slot " + _currentInventoryIndex);
+            // Debug.Log("No item in inventory slot " + _currentInventoryIndex);
             return false;
         }
         if (_playerObj == null) {
             _playerObj = transform.parent.gameObject;
         }
         if (_playerObj == null) {
-            Debug.LogError("No player object found.");
+            // Debug.LogError("No player object found.");
             return false;
         }
         return true;
@@ -407,12 +456,13 @@ public class Inventory : NetworkBehaviour {
     public int HasWeapon() {
         for (int i = 0; i < _inventory.Length; i++) {
             if (_inventory[i] != null && _inventory[i].IsWeapon()) {
-                Debug.Log("HasWeapon(): Found weapon at slot " + i);
+                // Debug.Log("HasWeapon(): Found weapon at slot " + i);
                 return i;
             }
         }
         return -1;
     }
+
     public int HasItem(string itemClass) {
         for (int i = 0; i < _inventory.Length; i++) {
             if (_inventory[i] != null && InventoryItemToString(_inventory[i]) == itemClass) {
