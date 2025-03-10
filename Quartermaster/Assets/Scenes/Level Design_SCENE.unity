@@ -4020,7 +4020,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: _maxEnemyInstanceCount
-      value: 50
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: _enemyPrefabs.Array.size
@@ -4326,6 +4326,10 @@ PrefabInstance:
       value: 1412214570
       objectReference: {fileID: 0}
     - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
+      propertyPath: _buildUpDuration
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
       propertyPath: _peakIntensityThreshold
       value: 60
       objectReference: {fileID: 0}
@@ -4385,7 +4389,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: AI Director
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 8304827006908812911, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

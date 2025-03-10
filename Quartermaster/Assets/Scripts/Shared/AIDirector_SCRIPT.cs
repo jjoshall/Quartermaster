@@ -17,13 +17,13 @@ public class AIDirector : NetworkBehaviour {
     [SerializeField] private float _relaxIntensityThreshold = 30f; // When to end relax phase early
 
     [Header("Intensity Gain Multipliers")]
-    [SerializeField] private float _enemyKillIntensity = 5f; // Intensity gained per kill
-    [SerializeField] private float _damageDealtMultiplier = 0.5f; // Intensity gained per damage dealt
-    [SerializeField] private float _damageTakenMultiplier = 1.0f; // Intensity gained per damage taken
+    [SerializeField] private float _enemyKillIntensity = .5f; // Intensity gained per kill
+    [SerializeField] private float _damageDealtMultiplier = 0.25f; // Intensity gained per damage dealt
+    [SerializeField] private float _damageTakenMultiplier = 0.25f; // Intensity gained per damage taken
 
     [Header("Spawn Rate Settings")]
     [SerializeField] private float _buildUpSpawnRate = 6f; // Seconds between spawns
-    [SerializeField] private float _peakSpawnRate = 2f; // Seconds between spawns
+    [SerializeField] private float _peakSpawnRate = 1f; // Seconds between spawns
     [SerializeField] private float _relaxSpawnRate = 10f; // Seconds between spawns
 
     [Header("Enemy Type Weights")]
@@ -183,8 +183,8 @@ public class AIDirector : NetworkBehaviour {
                     break;
 
                 case DirectorState.Relax:
-                    // Check if relax is over or intensity is low enough
-                    if (_currentIntensity.Value <= _relaxIntensityThreshold || _stateTimeRemaining.Value <= 0) {
+                    // Check if relax is over or intensity is high enough
+                    if (_currentIntensity.Value >= _relaxIntensityThreshold || _stateTimeRemaining.Value <= 0) {
                         TransitionToBuildUp();
                     }
                     break;
@@ -195,6 +195,7 @@ public class AIDirector : NetworkBehaviour {
     }
 
     private void TransitionToBuildUp() {
+        _currentIntensity.Value = _baseIntensity;
         _currentState.Value = DirectorState.BuildUp;
         _stateTimeRemaining.Value = _buildUpDuration;
         UpdateEnemySpawnerSettings();   
@@ -211,6 +212,7 @@ public class AIDirector : NetworkBehaviour {
     }
 
     private void TransitionToRelax() {
+        _currentIntensity.Value = _baseIntensity;
         _currentState.Value = DirectorState.Relax;
         _stateTimeRemaining.Value = _relaxDuration;
         UpdateEnemySpawnerSettings();
