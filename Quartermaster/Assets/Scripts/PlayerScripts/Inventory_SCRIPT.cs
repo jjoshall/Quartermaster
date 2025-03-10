@@ -339,22 +339,32 @@ public class Inventory : NetworkBehaviour {
 
     void UpdateHeldItem() {
         InventoryItem selectedItem = _inventory[_currentInventoryIndex];
+        // Debug.Log ("updateHeldItem called");
 
         if (selectedItem != null) {
+            // Debug.Log ("selectedItem is not null");
             // If a holdable is already spawned, check if it matches the current item.
             if (currentHoldable != null) {
                 WeaponIdentifier identifier = currentHoldable.GetComponent<WeaponIdentifier>();
+                Debug.Log ("identifier is " + identifier.itemID);
                 if (identifier != null && identifier.itemID == selectedItem.itemID) {
                     return; // Correct item already displayed.
                 } else {
-                    Destroy(currentHoldable);
+                    DestroyCurrentHoldableServerRpc(currentHoldable.GetComponent<NetworkObjectReference>());
                     currentHoldable = null;
                 }
             }
-            
+            Debug.Log ("selectedItem.itemID is " + selectedItem.itemID);
+            Debug.Log ("holdablePrefabs.Length is " + holdablePrefabs.Length);
+            Debug.Log ("holdablePrefabs[selectedItem.itemID] is " + holdablePrefabs[selectedItem.itemID]);
             // Instantiate the corresponding prefab if it exists.
             if (selectedItem.itemID < holdablePrefabs.Length && holdablePrefabs[selectedItem.itemID] != null) {
-                currentHoldable = Instantiate(holdablePrefabs[selectedItem.itemID], weaponSlot.transform);
+                
+                Debug.Log ("prefab found, instantiating");
+                
+                NetworkObject n_playerObj = _playerObj.GetComponent<NetworkObject>();
+                SpawnHoldableServerRpc(selectedItem.itemID, n_playerObj, OwnerClientId);
+
                 currentHoldable.transform.localPosition = Vector3.zero;
                 currentHoldable.transform.localRotation = Quaternion.identity;
                 
@@ -364,12 +374,58 @@ public class Inventory : NetworkBehaviour {
                     identifier.itemID = selectedItem.itemID;
                 }
             }
-        } else {
+        } else { // selected item is null in this else.
             // No item selected: remove any spawned holdable.
             if (currentHoldable != null) {
-                Destroy(currentHoldable);
-                currentHoldable = null;
+                DestroyCurrentHoldableServerRpc(currentHoldable.GetComponent<NetworkObjectReference>());
+                // Destroy(currentHoldable);
+                if (currentHoldable != null) currentHoldable = null;
+                // currentHoldable = null;
             }
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SpawnHoldableServerRpc(int prefabID, NetworkObjectReference n_parent, ulong clientID){
+        if (!IsServer) { return; }
+
+        if (n_parent.TryGet(out NetworkObject n_parentObj)) { // grab parent obj
+            GameObject playerObj = n_parentObj.gameObject;
+            GameObject weaponParent = playerObj.transform.Find("WeaponSlot").gameObject;
+            
+            GameObject newHoldable = Instantiate (holdablePrefabs[prefabID], weaponParent.transform);
+            NetworkObject n_holdable = newHoldable.GetComponent<NetworkObject>();
+            n_holdable.transform.SetParent(n_parentObj.transform);
+            n_holdable.Spawn();
+
+            ClientRpcParams clientRpcParams = new ClientRpcParams {
+                Send = new ClientRpcSendParams {
+                    TargetClientIds = new ulong[] { clientID }
+                }
+            };
+            SetHoldableClientRpc(n_holdable, clientRpcParams);
+        }
+    }
+
+    [ClientRpc]
+    private void SetHoldableClientRpc(NetworkObjectReference n_holdable, 
+                                    ClientRpcParams clientRpcParams = default) {
+        if (!IsClient) { return; }
+        if (n_holdable.TryGet(out NetworkObject n_currentObj)) {
+            Debug.Log ("Client: setting holdable");
+            GameObject holdable = n_currentObj.gameObject;
+            currentHoldable = holdable;
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void DestroyCurrentHoldableServerRpc(NetworkObjectReference n_currentHoldable) {
+        if (!IsServer) { return; }
+
+        if (n_currentHoldable.TryGet(out NetworkObject n_currentObj)) {
+            Debug.Log ("Server: despawning holdable");
+            n_currentObj.Despawn();
+            // Destroy(worldItem.gameObject);
         }
     }
 
