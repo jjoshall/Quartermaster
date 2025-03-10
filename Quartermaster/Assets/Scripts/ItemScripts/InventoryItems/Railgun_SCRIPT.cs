@@ -221,7 +221,8 @@ public class Railgun : IWeapon
                 if (damageable == null){
                     Debug.LogError ("Raycast hit enemy without damageable component.");
                 } else {
-                    damageable?.InflictDamage(_railgunDamage, false, user);
+                    // damageable?.InflictDamage(_railgunDamage, false, user);
+                    DoDamage(damageable, false, user);
                 }
                 
                 // enemy effect
@@ -230,6 +231,18 @@ public class Railgun : IWeapon
                 }
             }
         }
+    }
+
+    
+    private void DoDamage (Damageable d, bool isExplosiveDmgType, GameObject user){
+        float damage = _railgunDamage;
+        PlayerStatus s = user.GetComponent<PlayerStatus>();
+        if (s != null){
+            float bonusPerSpec = GameManager.instance.DmgSpec_MultiplierPer;
+            int dmgSpecLvl = s.GetDmgSpecLvl();
+            damage = damage * (1 + bonusPerSpec * dmgSpecLvl);
+        }
+        d?.InflictDamage(damage, isExplosiveDmgType, user);
     }
 
     #endregion

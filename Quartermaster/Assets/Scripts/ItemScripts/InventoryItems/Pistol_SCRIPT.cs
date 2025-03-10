@@ -112,8 +112,8 @@ public class Pistol : IWeapon
             if (effects != null && userNetObj != null) {
                 if (_barrelFireEffect != ""){
                     // spawn the pistol barrel fire in direction of camera look
-                    Quaternion attackRotation = Quaternion.LookRotation(hit.point - shotOrigin.transform.position);
-                    ParticleManager.instance.SpawnSelfThenAll(_barrelFireEffect, shotOrigin.transform.position, attackRotation);
+                    //Quaternion attackRotation = Quaternion.LookRotation(hit.point - shotOrigin.transform.position);
+                    //ParticleManager.instance.SpawnSelfThenAll(_barrelFireEffect, shotOrigin.transform.position, attackRotation);
                 }
                 if (NetworkManager.Singleton.IsServer) {
                     // If the user (player) is the server, spawn the trail directly.
@@ -123,6 +123,12 @@ public class Pistol : IWeapon
                     // If the user is a client, request the server to spawn the trail.
                     effects.RequestSpawnBulletTrailServerRpc(shotOrigin.transform.position, hit.point, itemID);
                 }
+            }
+
+            SoundEmitter soundEmitter = p_heldWeapon.GetComponent<SoundEmitter>();
+            if (soundEmitter != null) {
+                Debug.Log("Played sound: " + soundEmitter);
+                soundEmitter.PlayNetworkedSound("Weapon/PistolShot.ogg", shotOrigin.transform.position);
             }
 
             // Check if the hit object is a building
@@ -150,10 +156,23 @@ public class Pistol : IWeapon
                 if (damageable == null){
                     Debug.LogError ("Raycast hit enemy without damageable component.");
                 } else {
-                    damageable?.InflictDamage(_pistolDamage, false, user);
+                    // damageable?.InflictDamage(_pistolDamage, false, user);
+                    DoDamage(damageable, false, user);
                 }
             }
         }
+    }
+
+    
+    private void DoDamage (Damageable d, bool isExplosiveDmgType, GameObject user){
+        float damage = _pistolDamage;
+        PlayerStatus s = user.GetComponent<PlayerStatus>();
+        if (s != null){
+            float bonusPerSpec = GameManager.instance.DmgSpec_MultiplierPer;
+            int dmgSpecLvl = s.GetDmgSpecLvl();
+            damage = damage * (1 + bonusPerSpec * dmgSpecLvl);
+        }
+        d?.InflictDamage(damage, isExplosiveDmgType, user);
     }
     #endregion
 }

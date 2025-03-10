@@ -51,8 +51,19 @@ public class GameManager : NetworkBehaviour {
     [SerializeField] private float medKit_HealAmount ;
     [SerializeField] private float medKit_Cooldown ;
     [SerializeField] private int medKit_StackLimit;
+    [SerializeField] private float _medKit_ChargeTime;
+    [SerializeField] private float _medKit_TapThreshold;
+    [SerializeField] private float _medKit_MinVelocity;
+    [SerializeField] private float _medKit_MaxVelocity;
+    [SerializeField] private float _medKit_ExpireTimer;
 
     [SerializeField] private int questItem_StackLimit;
+
+    [SerializeField] private int _healSpec_StackLimit;
+    [SerializeField] private float _healSpec_MultiplierPer;
+
+    [SerializeField] private int _dmgSpec_StackLimit;
+    [SerializeField] private float _dmgSpec_MultiplierPer;
 
     [SerializeField] private float[] _playersToEnemyHpMultiplier = new float[10] {  0.1f, 
                                                                                     1.0f, 
@@ -113,13 +124,22 @@ public class GameManager : NetworkBehaviour {
     public float SlowTrap_MinVelocity => slowTrap_MinVelocity;
     public float SlowTrap_MaxVelocity => slowTrap_MaxVelocity;
 
-
-
     public float MedKit_HealAmount => medKit_HealAmount;
     public float MedKit_Cooldown => medKit_Cooldown;
     public int MedKit_StackLimit => medKit_StackLimit;
+    public float MedKit_ChargeTime => _medKit_ChargeTime;
+    public float MedKit_TapThreshold => _medKit_TapThreshold;
+    public float MedKit_MinVelocity => _medKit_MinVelocity;
+    public float MedKit_MaxVelocity => _medKit_MaxVelocity;
+    public float MedKit_ExpireTimer => _medKit_ExpireTimer;
 
     public int QuestItem_StackLimit => questItem_StackLimit;
+
+    public float HealSpec_MultiplierPer => _healSpec_MultiplierPer;
+    public int HealSpec_StackLimit => _healSpec_StackLimit;
+
+    public float DmgSpec_MultiplierPer => _dmgSpec_MultiplierPer;
+    public int DmgSpec_StackLimit => _dmgSpec_StackLimit;
 
     #endregion
 

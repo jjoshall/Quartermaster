@@ -15,6 +15,12 @@ public class PlayerStatus : NetworkBehaviour
     public NetworkVariable<bool> n_healBuffActive = new NetworkVariable<bool>(false); // runtime var
     public NetworkVariable<bool> n_dmgBuffActive = new NetworkVariable<bool>(false);
 
+    // Carried SpecItems   
+    private NetworkVariable<int> n_healSpecLvl = new NetworkVariable<int>(0);
+    private NetworkVariable<int> n_dmgSpecLvl = new NetworkVariable<int>(0);
+    // 172 stuff: private NetworkList<int> n_tankSpecLvl = new NetworkList<int>(); // increase aggro range, hp, movespeed.
+
+
     // Effect values. TREAT AS CONSTANTS. Initialize from GameManager.
     public float stimAspdMultiplier = 1.0f;
     public float stimMspdMultiplier = 1.0f;
@@ -81,6 +87,25 @@ public class PlayerStatus : NetworkBehaviour
 
     public void SetLastUsed(int itemID, float time){
         _lastUsed[itemID] = time;
+    }
+
+    #endregion
+    #region SpecItems
+    // Getters
+    public int GetHealSpecLvl(){
+        return n_healSpecLvl.Value;
+    } 
+    public int GetDmgSpecLvl(){
+        return n_dmgSpecLvl.Value;
+    }
+    // Pickup Specitems
+    [ServerRpc(RequireOwnership = false)]
+    public void UpdateDmgSpecServerRpc(int quantity){
+        n_dmgSpecLvl.Value = quantity;
+    }
+    [ServerRpc(RequireOwnership = false)]
+    public void UpdateHealSpecServerRpc(int quantity){
+        n_healSpecLvl.Value = quantity;
     }
 
     #endregion
