@@ -36,7 +36,8 @@ public class GrenadeProjectile : IProjectile
             if (nearbyObject.CompareTag("Enemy")){
                 Damageable d = nearbyObject.GetComponent<Damageable>();
                 if (d != null){
-                    d.InflictDamage(_explosionDamage, true, sourcePlayer);
+                    // d.InflictDamage(_explosionDamage, true, sourcePlayer);
+                    DoDamage(d, _explosionDamage, true, sourcePlayer);
                     ParticleManager.instance.SpawnSelfThenAll("Sample", nearbyObject.transform.position, Quaternion.identity);
                 } else {
                     Debug.LogError("GrenadeProjectile.Explode() - enemy tag without damageable component: " + nearbyObject.name);
@@ -46,6 +47,18 @@ public class GrenadeProjectile : IProjectile
 
         // ParticleManager.instance.
         Destroy(this.gameObject);
+    }
+
+    
+    private void DoDamage (Damageable d, float dmg, bool isExplosiveDmgType, GameObject user){
+        float damage = dmg;
+        PlayerStatus s = user.GetComponent<PlayerStatus>();
+        if (s != null){
+            float bonusPerSpec = GameManager.instance.DmgSpec_MultiplierPer;
+            int dmgSpecLvl = s.GetDmgSpecLvl();
+            damage = damage * (1 + bonusPerSpec * dmgSpecLvl);
+        }
+        d?.InflictDamage(damage, isExplosiveDmgType, user);
     }
 
 }
