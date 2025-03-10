@@ -1,7 +1,5 @@
 using UnityEngine;
-using Unity.Netcode;
 using System.Collections.Generic;
-using System.Collections;
 
 public class Flamethrower : IWeapon
 {
