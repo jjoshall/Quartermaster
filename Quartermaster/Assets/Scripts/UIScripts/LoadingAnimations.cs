@@ -1,21 +1,44 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class LoadingTextAnimator : MonoBehaviour
 {
-    [SerializeField] private TMP_Text loadingText;  // Reference to the TextMeshProUGUI component.
-    [SerializeField] private string baseText = "Loading";
-    [SerializeField] private float delay = 0.01f;      // Delay in seconds between updates.
+    [SerializeField] private TMP_Text loadingText;   // Reference to the TMP component.
+    [SerializeField] private LocalizedString baseText; // Localized string for the base text.
+    [SerializeField] private float delay = 0.5f;         // Delay between updates.
 
-    private void Start()
+    private string localizedBaseText = "";
+    private bool prependDots = false;                  // Flag to decide dot placement.
+
+    private IEnumerator Start()
     {
-        // If loadingText isn't assigned in the Inspector, try to get the component from this GameObject.
+        // Ensure we have a reference to the TMP component.
         if (loadingText == null)
         {
             loadingText = GetComponent<TMP_Text>();
         }
 
+        // Determine language-specific formatting. For example, if the locale is Arabic:
+        var currentLocale = LocalizationSettings.SelectedLocale;
+        if (currentLocale != null && currentLocale.Identifier.Code == "ar")
+        {
+            prependDots = true;
+        }
+        else
+        {
+            prependDots = false;
+        }
+
+        // Wait for the localized string to load asynchronously.
+        AsyncOperationHandle<string> handle = baseText.GetLocalizedStringAsync();
+        yield return handle;
+        localizedBaseText = handle.Result;
+
+        // Now that we have the localized text, start the animation.
         StartCoroutine(AnimateText());
     }
 
@@ -24,12 +47,22 @@ public class LoadingTextAnimator : MonoBehaviour
         int dotCount = 0;
         while (true)
         {
-            dotCount = (dotCount + 1) % 4; // Cycles through 0, 1, 2, 3 dots.
+            dotCount = (dotCount + 1) % 4; // Cycle through 0 to 3 dots.
             string dots = new string('.', dotCount);
-            loadingText.text = baseText + dots;
+
+            // For RTL languages like Arabic, you might want the dots to come first.
+            if (prependDots)
+            {
+                loadingText.text = dots + localizedBaseText;
+            }
+            else
+            {
+                loadingText.text = localizedBaseText + dots;
+            }
             yield return new WaitForSeconds(delay);
         }
     }
 }
+
 
 
