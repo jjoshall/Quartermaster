@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1810372612
+  GlobalObjectIdHash: 4032955809
   InScenePlacedSourceGlobalObjectIdHash: 1810372612
   DeferredDespawnTick: 0
   Ownership: 1
@@ -71,6 +71,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  _dropItemVelocity: 20
   flame_Damage: 15
   flame_Range: 3
   flame_EndRadius: 6
@@ -84,23 +85,23 @@ MonoBehaviour:
   pistol_Cooldown: 0.128
   bulletTracerPrefab: {fileID: 1649034064736082309, guid: 8064f3d936d68ad4f8c4ff24afd625f8, type: 3}
   portalKey_Cooldown: 10
-  portalKey_TeleportRadius: 5
-  grenade_Damage: 20
+  portalKey_TeleportRadius: 2
+  grenade_Damage: 29
   grenade_AoeRadius: 10
-  grenade_ChargeTime: 1
+  grenade_ChargeTime: 0.5
   grenade_MinVelocity: 5
   grenade_MaxVelocity: 30
   grenade_Cooldown: 3
   grenade_ExpireTimer: 1
   grenade_StackLimit: 3
   slowTrap_SlowByPct: 0.5
-  slowTrap_Duration: 7
+  slowTrap_Duration: 14
   slowTrap_AoERadius: 5
   slowTrap_Cooldown: 3
   slowTrap_StackLimit: 3
-  slowTrap_ChargeTime: 1
+  slowTrap_ChargeTime: 0.5
   slowTrap_MinVelocity: 5
-  slowTrap_MaxVelocity: 10
+  slowTrap_MaxVelocity: 20
   medKit_HealAmount: 20
   medKit_Cooldown: 1
   medKit_StackLimit: 3

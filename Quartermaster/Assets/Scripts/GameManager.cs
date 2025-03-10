@@ -6,6 +6,7 @@ public class GameManager : NetworkBehaviour {
     // Do not update these values during run-time. Set in inspector.
     [Header("Player Settings")]
     // HP and player speed set in the Player prefab settings.
+    [SerializeField] private float _dropItemVelocity;
 
     [Header("Weapon Settings")]
     // Weapons should not scale at run-time. Scale enemy hp instead.
@@ -73,6 +74,8 @@ public class GameManager : NetworkBehaviour {
     #endregion
 
     #region ReadonlyAccess
+    public float DropItemVelocity => _dropItemVelocity;
+
     public float Flame_Damage => flame_Damage;
     public float Flame_Range => flame_Range;
     public float Flame_EndRadius => flame_EndRadius;

@@ -2802,7 +2802,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
       propertyPath: particleTypesPrefabList.Array.size
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
       propertyPath: particleTypesPrefabList.Array.data[2].key
@@ -2813,12 +2813,20 @@ PrefabInstance:
       value: RingEmission
       objectReference: {fileID: 0}
     - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
+      propertyPath: particleTypesPrefabList.Array.data[4].key
+      value: SlowTrapAoe
+      objectReference: {fileID: 0}
+    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
       propertyPath: particleTypesPrefabList.Array.data[2].duration
       value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
       propertyPath: particleTypesPrefabList.Array.data[3].duration
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
+      propertyPath: particleTypesPrefabList.Array.data[4].duration
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
       propertyPath: particleTypesPrefabList.Array.data[2].particlePrefab
@@ -2828,6 +2836,10 @@ PrefabInstance:
       propertyPath: particleTypesPrefabList.Array.data[3].particlePrefab
       value: 
       objectReference: {fileID: 8038196586517577084, guid: 1d6930ad97206094f99816d995aa5967, type: 3}
+    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
+      propertyPath: particleTypesPrefabList.Array.data[4].particlePrefab
+      value: 
+      objectReference: {fileID: 3886726516580340517, guid: 0124a3093deb5f14b9f1b8b3b059ab72, type: 3}
     - target: {fileID: 5341081937763403480, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
       propertyPath: m_Name
       value: ParticleManager_PREFAB
@@ -4856,10 +4868,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1797533317}
     m_Modifications:
-    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
-      propertyPath: slowTrap_SlowByPct
-      value: 0.5
-      objectReference: {fileID: 0}
     - target: {fileID: 2828975723718611920, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 4032955809
