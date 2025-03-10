@@ -85,6 +85,7 @@ public class PocketInventory : NetworkBehaviour {
             teleportSpot.rotation = user.transform.rotation;
 
             TeleportUserToPositionClientRpc(userRef, teleportSpot); // teleport
+            
             _playersInPocket.Add(userRef);
             n_timeEnteredPocketNetworkVar.Value = NetworkManager.Singleton.ServerTime.Time;
 
@@ -112,6 +113,7 @@ public class PocketInventory : NetworkBehaviour {
                 }
             }
 
+            playerObj.GetComponentInChildren<PlayerDissolveAnimator>().AnimateSolidifyServerRpc();
 
             // turn off interpolation and char controller temporarily for teleport
             playerObj.GetComponent<NetworkTransform>().Interpolate = false;
