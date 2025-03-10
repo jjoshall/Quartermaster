@@ -15,7 +15,7 @@ public class TestAudioTrigger : NetworkBehaviour {
             //     }
             // });
 
-            GetComponent<NetworkAudio>().RequestSoundServerRpc(soundAddressableKey, transform.position);
+            GetComponent<NetworkAudio>().RequestSoundServerRpc(soundAddressableKey, transform.position, "SFX");
         }
 
         if (Input.GetKeyDown(KeyCode.Y)) {
