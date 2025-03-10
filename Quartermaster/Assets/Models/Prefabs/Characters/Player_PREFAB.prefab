@@ -25,6 +25,7 @@ GameObject:
   - component: {fileID: -1596647786455328852}
   - component: {fileID: 2486281207987998458}
   - component: {fileID: 9130185698221645851}
+  - component: {fileID: 6095801325562219084}
   m_Layer: 8
   m_Name: Player_PREFAB
   m_TagString: Player
@@ -52,6 +53,7 @@ Transform:
   - {fileID: 6319570716621287494}
   - {fileID: 5333576958288503675}
   - {fileID: 5832225581637432980}
+  - {fileID: 8390052266842905436}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!143 &4058199120900012297
@@ -444,6 +446,9 @@ MonoBehaviour:
   flamethrowerMaterial: {fileID: 2800000, guid: c6b290b5717566144b7f057edceadffc, type: 3}
   grenadeMaterial: {fileID: 2800000, guid: bf1ed58d660f427479999ac377cbb09a, type: 3}
   slowTrapMaterial: {fileID: 2800000, guid: 2263076bda62b18478952a7bcc0644d1, type: 3}
+  deliverableMaterial: {fileID: 2800000, guid: 0b4580a8cfef587469bf4639d7bec309, type: 3}
+  healSpecMaterial: {fileID: 2800000, guid: e2ff992b8bfca034b817d47086fbf850, type: 3}
+  dmgSpecMaterial: {fileID: 2800000, guid: 295d4b06478496141854d630d2b0c0d2, type: 3}
   weaponSlot: {fileID: 5079399718664646750}
   holdablePrefabs:
   - {fileID: 8350377457489554618, guid: 83d9e3b59728a384e92d02a0f6f67371, type: 3}
@@ -777,14 +782,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 533627647367738219}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 51a1ea0f18749714898fb3511a7190bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  n_stimActive:
-    m_InternalValue: 0
   n_healBuffActive:
     m_InternalValue: 0
   n_dmgBuffActive:
@@ -795,6 +798,21 @@ MonoBehaviour:
   healMultiplier: 1
   healThrowVelocity: 0
   dmgMultiplier: 1
+--- !u!114 &6095801325562219084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 533627647367738219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01db514f5e6309c4e9942a6913481df6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioSource: {fileID: 3459918479299022771}
+  destinationMixer: SFX
+  soundAddressableKey: 
 --- !u!1 &1180047318962825330
 GameObject:
   m_ObjectHideFlags: 0
@@ -989,7 +1007,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 2047
+    m_Bits: 51199
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -1690,3 +1708,86 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!1 &8658714418835819566
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8390052266842905436}
+  - component: {fileID: 9068394992663897612}
+  - component: {fileID: 6489231899473073948}
+  m_Layer: 16
+  m_Name: Collider For Allied Projectiles
+  m_TagString: PlayerHealCollider
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8390052266842905436
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8658714418835819566}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9178118900874394549}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &9068394992663897612
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8658714418835819566}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 1.4
+  m_Height: 3.4
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &6489231899473073948
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8658714418835819566}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0

@@ -170,7 +170,7 @@ public class Flamethrower : IWeapon
                 if (damageable == null){
                     Debug.LogError ("Raycast hit enemy without damageable component.");
                 } else {
-                    damageable?.InflictDamage(_flamethrowerDamage, false, user);
+                    DoDamage(damageable, false, user);
                 }
 
                 // Enemy effect
@@ -179,6 +179,17 @@ public class Flamethrower : IWeapon
                 }
             }
         }
+    }
+
+    private void DoDamage (Damageable d, bool isExplosiveDmgType, GameObject user){
+        float damage = _flamethrowerDamage;
+        PlayerStatus s = user.GetComponent<PlayerStatus>();
+        if (s != null){
+            float bonusPerSpec = GameManager.instance.DmgSpec_MultiplierPer;
+            int dmgSpecLvl = s.GetDmgSpecLvl();
+            damage = damage * (1 + bonusPerSpec * dmgSpecLvl);
+        }
+        d?.InflictDamage(damage, isExplosiveDmgType, user);
     }
     #endregion
 }

@@ -37,6 +37,14 @@ public abstract class InventoryItem {
         }
     }
 
+    public virtual void PickUp(GameObject user){
+        // do nothing by default. items that convey effects on pickup should override this method.
+    }
+
+    public virtual void Drop(GameObject user){
+        // do nothing by default. items that convey effects on drop should override this method.
+    }
+
     public abstract void Use(GameObject user, bool isHeld);
 
     public virtual void Release(GameObject user){
@@ -46,6 +54,10 @@ public abstract class InventoryItem {
     public abstract bool IsConsumable();
 
     public abstract bool IsWeapon();
+
+    public virtual bool IsClassSpec(){
+        return false;
+    }
 
     public abstract int StackLimit();
 

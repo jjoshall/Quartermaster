@@ -137,6 +137,14 @@ public class ParticleManager : NetworkBehaviour
             particleObj = Instantiate(typePrefab, position, rotation);
             particleObj.transform.SetParent(this.gameObject.transform);
             float typeDuration = particleTypesPrefabList.Find(x => x.key == key).duration;
+            if (key == "SlowTrapAoe"){
+                typeDuration = GameManager.instance.SlowTrap_Duration;
+                particleObj.transform.localScale = new Vector3(
+                                                    GameManager.instance.SlowTrap_AoERadius * 2.0f, 
+                                                    GameManager.instance.SlowTrap_AoERadius * 2.0f,
+                                                    GameManager.instance.SlowTrap_AoERadius * 2.0f);
+                
+            }
             PlayParticle(particleObj, key, typeDuration);
         }
         else // else grab from pool.
@@ -149,6 +157,14 @@ public class ParticleManager : NetworkBehaviour
             particleObj.SetActive(true);
 
             float typeDuration = particleTypesPrefabList.Find(x => x.key == key).duration;
+            if (key == "SlowTrapAoe"){
+                typeDuration = GameManager.instance.SlowTrap_Duration;
+                particleObj.transform.localScale = new Vector3(
+                                                    GameManager.instance.SlowTrap_AoERadius * 2.0f, 
+                                                    GameManager.instance.SlowTrap_AoERadius * 2.0f, 
+                                                    GameManager.instance.SlowTrap_AoERadius * 2.0f);
+
+            }
             PlayParticle(particleObj, key, typeDuration);
         }
     }

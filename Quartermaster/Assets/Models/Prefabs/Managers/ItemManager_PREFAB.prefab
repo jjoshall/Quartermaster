@@ -96,6 +96,10 @@ MonoBehaviour:
     inventoryItemClass: SlowTrap
   - worldPrefab: {fileID: 8519617277999394602, guid: 70aec5c8417023c46b813500f0ce3f65, type: 3}
     inventoryItemClass: StimPack
+  - worldPrefab: {fileID: 3214981217242712164, guid: 63c8aea43122d1c4e86a3ebdd0bd1263, type: 3}
+    inventoryItemClass: HealSpec
+  - worldPrefab: {fileID: 3214981217242712164, guid: 51ec490133b24cd4ab7f738e8a88973c, type: 3}
+    inventoryItemClass: DmgSpec
   dropEntries:
   - stringID: MedKit
     quantity: 5
@@ -115,3 +119,12 @@ MonoBehaviour:
   - stringID: Grenade
     quantity: 5
     dropChance: 0.4
+  - stringID: SlowTrap
+    quantity: 3
+    dropChance: 0.2
+  - stringID: HealSpec
+    quantity: 1
+    dropChance: 0.1
+  - stringID: DmgSpec
+    quantity: 1
+    dropChance: 0.1
