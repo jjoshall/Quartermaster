@@ -30,7 +30,6 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
-        // getchild named "EnemyDrone?
         
         animator = GetComponentInChildren<Animator>();
 
