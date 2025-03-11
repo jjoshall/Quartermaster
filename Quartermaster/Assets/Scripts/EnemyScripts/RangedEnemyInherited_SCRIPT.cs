@@ -132,7 +132,7 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             CreateVisualEffectClientRpc(_firePoint.position, hit.point);
 
             if (hit.collider.gameObject.layer == buildingLayerMask) {
-                Debug.Log("Ranged enemy hit building layer.");
+                //Debug.Log("Ranged enemy hit building layer.");
                 return;
             }
             else if (hit.collider.CompareTag("Player")) {

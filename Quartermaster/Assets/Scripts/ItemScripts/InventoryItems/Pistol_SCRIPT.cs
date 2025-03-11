@@ -100,10 +100,10 @@ public class Pistol : IWeapon
 
         //Debug.DrawRay(camera.transform.position, camera.transform.forward * 100, Color.yellow, 2f);
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, 100f, combinedLayerMask, QueryTriggerInteraction.Ignore)){
-            Debug.Log("Pistol hit something: " + hit.collider.name + " on layer: " + hit.collider.gameObject.layer);
+            //Debug.Log("Pistol hit something: " + hit.collider.name + " on layer: " + hit.collider.gameObject.layer);
 
             // draw a ray from the shotOrigin to the hit point (for debug)
-            Debug.DrawRay(shotOrigin.transform.position, hit.point - shotOrigin.transform.position, Color.green, 2f);
+            //Debug.DrawRay(shotOrigin.transform.position, hit.point - shotOrigin.transform.position, Color.green, 2f);
 
             // ~---- SPAWN TRAIL RENDER FROM SHOT ORIGIN TO HIT POINT ----~
             WeaponEffects effects = user.GetComponent<WeaponEffects>();
@@ -133,7 +133,7 @@ public class Pistol : IWeapon
 
             // Check if the hit object is a building
             if (hit.collider.gameObject.layer == buildingLayer) {
-                Debug.Log("Hit building: " + hit.collider.name);
+                //Debug.Log("Hit building: " + hit.collider.name);
                 return;
             }
 
@@ -141,7 +141,7 @@ public class Pistol : IWeapon
             Transform enemyRootObj = hit.transform;
             while (enemyRootObj.parent != null && !enemyRootObj.CompareTag("Enemy")){
                 enemyRootObj = enemyRootObj.parent;
-                Debug.Log("Enemy that was hit: " + enemyRootObj.name);
+                //Debug.Log("Enemy that was hit: " + enemyRootObj.name);
             }
 
             if (enemyRootObj.CompareTag("Enemy")){
