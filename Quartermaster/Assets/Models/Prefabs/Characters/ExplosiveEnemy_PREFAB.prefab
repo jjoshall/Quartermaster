@@ -284,7 +284,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  MaxHealth: 10
+  MaxHealth: 35
   CriticalHealthRatio: 0.3
   CurrentHealth:
     m_InternalValue: 0
@@ -348,7 +348,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01db514f5e6309c4e9942a6913481df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  soundEmitterIndex: 0
+  emitterID: 
   destinationMixer: SFX
   soundAddressableKeys: []
 --- !u!114 &5131794169148518160

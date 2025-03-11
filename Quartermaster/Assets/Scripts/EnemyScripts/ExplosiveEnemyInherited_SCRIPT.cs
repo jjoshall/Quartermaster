@@ -5,8 +5,8 @@ using UnityEngine;
 public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     protected override float attackCooldown => 2f;
     protected override float attackRange => 10f;
-    protected override int damage => 50;
-    protected override float attackRadius => 6f;
+    protected override int damage => 60;
+    protected override float attackRadius => 8f;
 
     private bool _isExploding = false;
 
@@ -82,32 +82,29 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     #endregion
 
-    //protected override void UpdateTarget() {
-    //    if (enemySpawner == null || enemySpawner.playerList == null) return;
+    public void TriggerExplosion() {
+        if (!IsServer || _isExploding) return;
 
-    //    bool useGlobalTarget = true;
+        isBlinking.Value = true;
 
-    //    if (useGlobalTarget) {
-    //        GameObject closestPlayerToGlobalTarget = null;
-    //        float closestDistance = float.MaxValue;
-    //        Vector3 globalTarget = enemySpawner.GetGlobalAggroTarget();
+        StartCoroutine(ExplodeAfterDelay(0.5f));
+    }
 
-    //        foreach (GameObject player in enemySpawner.playerList) {
-    //            if (player == null) continue;
+    private IEnumerator ExplodeAfterDelay(float delay) {
+        yield return new WaitForSeconds(delay);
+        Attack();
+    }
 
-    //            float distance = Vector3.Distance(player.transform.position, globalTarget);
-    //            if (distance < closestDistance) {
-    //                closestDistance = distance;
-    //                closestPlayerToGlobalTarget = player;
-    //            }
-    //        }
+    protected override void OnDie() {
+        TriggerExplosion();
 
-    //        target = closestPlayerToGlobalTarget != null ? closestPlayerToGlobalTarget.transform : null;
-    //    }
-    //    else {
-    //        base.UpdateTarget();
-    //    }
-    //}
+        StartCoroutine(DelayedBaseDie());
+    }
+
+    private IEnumerator DelayedBaseDie() {
+        yield return new WaitForSeconds(1.0f);
+        base.OnDie();
+    }
 
     protected override IEnumerator DelayAttack() {
         isBlinking.Value = true;
@@ -120,6 +117,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         if (!IsServer || _isExploding) return;
         _isExploding = true;
 
+        ParticleManager.instance.SpawnSelfThenAll("EnemyExplosion", transform.position, Quaternion.identity);
         AttackServerRpc(true);
     }
 
