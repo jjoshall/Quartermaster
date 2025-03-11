@@ -88,18 +88,26 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
         UpdateTarget();
 
-        if (targetDestination != null) {
-            bool inRange = Vector3.Distance(transform.position, targetDestination) <= attackRange;
+        if (target != null) {
+            float targetDistance = Vector3.Distance(transform.position, target.transform.position);
+            if (targetDistance < _localAggroRadius){
+                bool inRange = Vector3.Distance(transform.position, targetDestination) <= attackRange;
 
-            if (inRange && !_isAttacking) {
-                // Add a delay before attacking
-                StartCoroutine(DelayAttack());
-            }
-            else {
-                CalculateSeparationOffset();
-                agent.SetDestination(targetDestination);
+                if (inRange && !_isAttacking) {
+                    // Add a delay before attacking
+                    StartCoroutine(DelayAttack());
+                }
+                else {
+                    CalculateSeparationOffset();
+                    agent.SetDestination(target.transform.position);
 
-                this.gameObject.transform.position += enemySeparationVector * Time.deltaTime;
+                    this.gameObject.transform.position += enemySeparationVector * Time.deltaTime;
+                }
+            } else {
+                    CalculateSeparationOffset();
+                    agent.SetDestination(targetDestination);
+
+                    this.gameObject.transform.position += enemySeparationVector * Time.deltaTime;
             }
         }
     }
@@ -107,6 +115,9 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     // IMPLEMENT THESE TWO METHODS FOR NEW ENEMIES
     protected void UpdateTarget(){
         if (enemySpawner == null || enemySpawner.playerList == null) return;
+
+        int randPlayer = Random.Range(0, enemySpawner.playerList.Count);
+        targetDestination = enemySpawner.playerList[randPlayer].transform.position;
 
         GameObject closestPlayer = null;
         float closestDistance = float.MaxValue;
@@ -128,16 +139,10 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
                     }
                 }
             }
-            if (closestPlayer == null){
-                targetDestination = EnemySpawner.instance.globalDelayTarget;
-                target = null;
-            }
-            else {
-                target = closestPlayer.transform;
-                targetDestination = closestPlayer.transform.position;
-            }
         }
-
+        if (closestPlayer){
+            target = closestPlayer.transform;
+        }
     }
 
     protected abstract void Attack();
