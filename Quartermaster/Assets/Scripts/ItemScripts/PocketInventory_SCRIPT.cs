@@ -114,6 +114,12 @@ public class PocketInventory : NetworkBehaviour {
             }
 
             playerObj.GetComponentInChildren<PlayerDissolveAnimator>().AnimateSolidifyServerRpc();
+            ParticleManager.instance.SpawnSelfThenAll("TeleportParticles", 
+                                                        playerObj.transform.position, 
+                                                        playerObj.transform.rotation);
+            ParticleManager.instance.SpawnSelfThenAll("TeleportParticles", 
+                                                        teleportPosition.position, 
+                                                        teleportPosition.rotation);
 
             // turn off interpolation and char controller temporarily for teleport
             playerObj.GetComponent<NetworkTransform>().Interpolate = false;

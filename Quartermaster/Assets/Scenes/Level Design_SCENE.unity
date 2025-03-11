@@ -3083,49 +3083,25 @@ PrefabInstance:
       value: 2283088156
       objectReference: {fileID: 0}
     - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleParent
-      value: 
+      propertyPath: particleTypesPrefabList.Array.size
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.size
+      propertyPath: particleTypesPrefabList.Array.data[6].key
+      value: RailgunExplosion
+      objectReference: {fileID: 0}
+    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
+      propertyPath: particleTypesPrefabList.Array.data[7].key
+      value: GrenadeExplosion
+      objectReference: {fileID: 0}
+    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
+      propertyPath: particleTypesPrefabList.Array.data[7].duration
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.data[2].key
-      value: PistolBarrelFire
-      objectReference: {fileID: 0}
-    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.data[3].key
-      value: RingEmission
-      objectReference: {fileID: 0}
-    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.data[4].key
-      value: SlowTrapAoe
-      objectReference: {fileID: 0}
-    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.data[2].duration
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.data[3].duration
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.data[4].duration
-      value: -1
-      objectReference: {fileID: 0}
-    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.data[2].particlePrefab
+      propertyPath: particleTypesPrefabList.Array.data[7].particlePrefab
       value: 
-      objectReference: {fileID: 8038196586517577084, guid: af3a2ba58d696b64c93a62c6d51ff326, type: 3}
-    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.data[3].particlePrefab
-      value: 
-      objectReference: {fileID: 8038196586517577084, guid: 1d6930ad97206094f99816d995aa5967, type: 3}
-    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.data[4].particlePrefab
-      value: 
-      objectReference: {fileID: 3886726516580340517, guid: 0124a3093deb5f14b9f1b8b3b059ab72, type: 3}
+      objectReference: {fileID: 8038196586517577084, guid: b6c479d774dead640a2513433c0a93e3, type: 3}
     - target: {fileID: 5341081937763403480, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
       propertyPath: m_Name
       value: ParticleManager_PREFAB
