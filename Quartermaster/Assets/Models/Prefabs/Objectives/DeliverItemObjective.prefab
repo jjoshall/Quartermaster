@@ -98,6 +98,7 @@ GameObject:
   - component: {fileID: 1745357869389372355}
   - component: {fileID: 19103879317940977}
   - component: {fileID: 8201188098024036472}
+  - component: {fileID: 1632429757502491108}
   m_Layer: 0
   m_Name: DeliverItemObjective
   m_TagString: Untagged
@@ -133,7 +134,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3125735911
+  GlobalObjectIdHash: 3854571375
   InScenePlacedSourceGlobalObjectIdHash: 3854571375
   DeferredDespawnTick: 0
   Ownership: 1
@@ -159,6 +160,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  indexOfSpawnPoint:
+    m_InternalValue: 0
 --- !u!65 &8201188098024036472
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -180,6 +183,22 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 3, y: 2, z: 3}
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &1632429757502491108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 808812521994242024}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62d419665ed6d7a41b7dc591a5a37b4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startPos: {x: -400, y: 100}
+  finalPos: {x: 100, y: 100}
+  holdDuration: 5
+  message: OBJECTIVE. The mailbox hungers for mail. Maybe you should deliver some.
 --- !u!1 &986505607877228591
 GameObject:
   m_ObjectHideFlags: 0
