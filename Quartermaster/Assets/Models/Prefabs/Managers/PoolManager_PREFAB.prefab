@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2529143914
+  GlobalObjectIdHash: 2198742438
   InScenePlacedSourceGlobalObjectIdHash: 2529143914
   DeferredDespawnTick: 0
   Ownership: 1
@@ -73,14 +73,15 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   _enemySpawnData:
   - enemyPrefab: {fileID: 6449858844552445292, guid: f9e0d41d7de8cf940b0224449f9fdaa3, type: 3}
-    spawnWeight: 10
+    spawnWeight: 4
   - enemyPrefab: {fileID: 3551560962508933810, guid: 69de7c9352a23844187f99a1518c29a9, type: 3}
-    spawnWeight: 5
+    spawnWeight: 3
   - enemyPrefab: {fileID: 4276394852278779144, guid: 8ee66f5ce3f72cc4bb6aade7e36c6e5e, type: 3}
-    spawnWeight: 2
+    spawnWeight: 1
   _maxEnemyInstanceCount: 100
-  isSpawning: 1
-  _spawnCooldown: 0.2
+  isSpawning:
+    m_InternalValue: 0
+  _spawnCooldown: 1
   _totalWeight: 0
   _enemySpawnPoints:
   - {fileID: 0}
