@@ -545,7 +545,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  soundAddressableKey: Item/DropItem.ogg
+  soundAddressableKey: Weapon/PistolShot.ogg
 --- !u!114 &2486281207987998458
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -622,7 +622,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01db514f5e6309c4e9942a6913481df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  soundEmitterIndex: 0
+  emitterID: test_shot
   destinationMixer: SFX
   soundAddressableKeys:
   - Item/DropItem.ogg

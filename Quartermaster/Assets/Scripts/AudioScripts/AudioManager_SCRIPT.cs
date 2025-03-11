@@ -69,6 +69,7 @@ public class AudioManager : MonoBehaviour {
     }
     // Plays the clip at the given position with 3D settings.
     public void PlaySoundAtPosition(AudioClip clip, Vector3 sourcePosition, string destinationMixer) {
+        Debug.Log("Before temp audio created");
         GameObject tempGO = new GameObject("TempAudio");
         tempGO.transform.position = sourcePosition;
         AudioSource aSource = tempGO.AddComponent<AudioSource>();
@@ -78,6 +79,8 @@ public class AudioManager : MonoBehaviour {
         aSource.maxDistance = maxDistance;
         // Route this AudioSource to the SFX group.
         aSource.outputAudioMixerGroup = gameMixer.FindMatchingGroups(destinationMixer)[0];
+
+        Debug.Log("[AudioManager] Playing sound: " + clip.name);
 
         aSource.Play();
         Destroy(tempGO, clip.length);

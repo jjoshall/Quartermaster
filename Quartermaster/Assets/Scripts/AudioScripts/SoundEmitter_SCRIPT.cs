@@ -8,12 +8,13 @@ public class SoundEmitter : MonoBehaviour {
     [SerializeField] string destinationMixer;
 
     [SerializeField] string[] soundAddressableKeys;
+    private string soundAddressableKey;
 
     private void Awake() {
         networkAudio = GetComponent<NetworkAudio>(); 
     }
 
-    public void PlayNetworkedSound(string soundAddressableKey, Vector3 soundPosition) {
+    public void PlayNetworkedSound(Vector3 soundPosition) {
         if (networkAudio == null) {
             Debug.LogError("[SoundEmitter] No NetworkAudio component found!");
             return;
@@ -37,6 +38,9 @@ public class SoundEmitter : MonoBehaviour {
             }
         }
 
+        Debug.Log("[SoundEmitter] Playing sound: " + soundAddressableKey);
+
+        Debug.Log("Requestion sound server RPC for " + soundAddressableKey);
         networkAudio.RequestSoundServerRpc(soundAddressableKey, soundPosition, destinationMixer);
     }
 }

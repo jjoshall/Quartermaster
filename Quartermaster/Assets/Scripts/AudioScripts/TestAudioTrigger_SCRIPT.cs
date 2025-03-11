@@ -2,7 +2,7 @@ using Unity.Netcode;
 using UnityEngine;
 
 public class TestAudioTrigger : NetworkBehaviour {
-    public string soundAddressableKey = "Player/PlayerJump.ogg";
+    public string soundAddressableKey = "";
 
     void Update() {
         if (!IsLocalPlayer)
