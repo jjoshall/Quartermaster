@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 public class EnemySpawner : NetworkBehaviour {
     [Header("Spawner Settings")]
-    [SerializeField] private List<EnemySpawnData> _enemySpawnData = new List<EnemySpawnData>();
+    public List<EnemySpawnData> _enemySpawnData = new List<EnemySpawnData>();
     [SerializeField] private int _maxEnemyInstanceCount = 20;
     public bool isSpawning = true;
-    [SerializeField] private float _spawnCooldown = 2f;
-    private float _totalWeight = 0f;
+    public float _spawnCooldown = 2f;
+    [HideInInspector] public float _totalWeight = 0f;
 
     [SerializeField] private List<GameObject> _enemySpawnPoints;
 
@@ -57,15 +57,14 @@ public class EnemySpawner : NetworkBehaviour {
         playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
     }
 
-    private void CalculateTotalWeight() {
+    public void CalculateTotalWeight() {
         _totalWeight = 0f;
 
         foreach (var data in _enemySpawnData) {
             _totalWeight += data.spawnWeight;
         }
 
-        if (_totalWeight <= 0f)
-        {
+        if (_totalWeight <= 0f) {
             Debug.LogError("Total weight is less than or equal to 0.");
             serverDebugMsgServerRpc("Total weight is less than or equal to 0.");
         }
@@ -97,8 +96,7 @@ public class EnemySpawner : NetworkBehaviour {
         while (true) {
             if (enemyList.Count < _maxEnemyInstanceCount && isSpawning) {
                 Transform enemyPrefab = GetWeightedRandomEnemyPrefab();
-                if (enemyPrefab != null)
-                {
+                if (enemyPrefab != null) {
                     Transform enemyTransform = Instantiate(enemyPrefab, GetSpawnPoint(), Quaternion.identity);
                     enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemySpawner = this;
                     enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemyType = GetEnemyType(enemyPrefab);

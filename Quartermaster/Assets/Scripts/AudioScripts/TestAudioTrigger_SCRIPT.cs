@@ -19,6 +19,7 @@ public class TestAudioTrigger : NetworkBehaviour {
         }
 
         if (Input.GetKeyDown(KeyCode.Y)) {
+            Debug.Log ("testaudiotrigger: tooltip");
             TooltipManager.SendTooltip("testing tooltip", toAll: true);
         }
     }
