@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 
 public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
-    protected override float attackCooldown => 2f;
+    protected override float attackCooldown => 2.37f;
     protected override float attackRange => 10f;
     protected override int damage => 60;
     protected override float attackRadius => 8f;
@@ -87,7 +87,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
         isBlinking.Value = true;
 
-        StartCoroutine(ExplodeAfterDelay(0.5f));
+        StartCoroutine(ExplodeAfterDelay(attackCooldown));
     }
 
     private IEnumerator ExplodeAfterDelay(float delay) {
@@ -102,7 +102,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     }
 
     private IEnumerator DelayedBaseDie() {
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(3.0f);
         base.OnDie();
     }
 
