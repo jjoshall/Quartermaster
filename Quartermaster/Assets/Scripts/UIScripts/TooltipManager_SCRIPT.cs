@@ -26,30 +26,30 @@ public class TooltipManager : NetworkBehaviour {
     }
 
     public static void SendTooltip(string message, bool toAll = false) {
+        Debug.Log ("SendTooltip()");
         if (Instance == null) {
             Debug.LogError("TooltipManager instance not found in the scene.");
             return;
         }
 
         if (!toAll) {
+            Debug.Log ("Create local tooltip");
             Instance.CreateTooltip(message);
             return;
         }
 
-        if (NetworkManager.Singleton.IsServer) {
-            Instance.ShowTooltipClientRpc(message);
-        } else {
-            Instance.SendTooltipServerRpc(message);
-        }
+        Instance.SendTooltipAllServerRpc(message);
     }
 
-    [ServerRpc()]
-    private void SendTooltipServerRpc(string message, ServerRpcParams rpcParams = default) {
+    [ServerRpc(RequireOwnership = false)]
+    private void SendTooltipAllServerRpc(string message, ServerRpcParams rpcParams = default) {
+        Debug.Log ("ServerRPC: SendTooltipAllServerRpc()");
         ShowTooltipClientRpc(message);
     }
 
     [ClientRpc]
     private void ShowTooltipClientRpc(string message) {
+        Debug.Log ("ClientRPC: ShowTooltipClientRpc()");
         CreateTooltip(message);
     }
 
