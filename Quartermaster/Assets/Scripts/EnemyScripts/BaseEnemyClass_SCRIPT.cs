@@ -2,9 +2,15 @@ using UnityEngine;
 using UnityEngine.AI;
 using Unity.Netcode;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 
 public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
+
+    // WIP. Add aggro at attacked player.
+    private List<GameObject> _aggroedPlayers = new List<GameObject>();
+    [SerializeField] private float _localAggroRadius;
+
     [Header("Enemy Settings")]
     protected virtual float attackCooldown => 2f;
     protected virtual float attackRange => 2f;

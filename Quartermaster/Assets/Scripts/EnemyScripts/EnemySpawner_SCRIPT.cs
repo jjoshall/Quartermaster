@@ -9,9 +9,8 @@ public class EnemySpawner : NetworkBehaviour {
     public List<EnemySpawnData> _enemySpawnData = new List<EnemySpawnData>();
     [SerializeField] private int _maxEnemyInstanceCount = 20;
     public NetworkVariable<bool> isSpawning = new NetworkVariable<bool>(true);
-    public float _spawnCooldown = 2f;
+    [HideInInspector] public float _spawnCooldown = 2f;
     [HideInInspector] public float _totalWeight = 0f;
-
     [SerializeField] private List<GameObject> _enemySpawnPoints;
 
     public List<Transform> enemyList = new List<Transform>();
@@ -20,10 +19,27 @@ public class EnemySpawner : NetworkBehaviour {
     // static 
     public static EnemySpawner instance;
 
+    public Vector3 globalDelayTarget;
+    public float globalTargetUpdateInterval;
+    private float _globalTargetLastUpdated;
+
     [System.Serializable]
     public class EnemySpawnData {
         public Transform enemyPrefab;
         public float spawnWeight = 1f;
+    }
+
+    void Update()
+    {
+        if (Time.time - _globalTargetLastUpdated > globalTargetUpdateInterval)
+        {
+            // get position of random player
+            if (playerList.Count > 0)
+            {
+                globalDelayTarget = playerList[Random.Range(0, playerList.Count)].transform.position;
+            }
+            _globalTargetLastUpdated = Time.time;
+        }
     }
 
     void Awake() {
