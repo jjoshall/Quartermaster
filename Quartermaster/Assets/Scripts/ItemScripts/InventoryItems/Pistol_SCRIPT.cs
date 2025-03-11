@@ -91,30 +91,33 @@ public class Pistol : IWeapon
 
     #region PistolFire()
     public override void fire(GameObject user){
+        Debug.Log ("fire pistol");
         GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
         GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
         GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
 
-        soundEmitters = p_heldWeapon.GetComponents<SoundEmitter>();
-        string emitterId = "pistol_shot";
+        // soundEmitters = p_heldWeapon.GetComponents<SoundEmitter>();
+        // soundEmitters = user.GetComponents<SoundEmitter>();
+        // string emitterId = "test_shot";
 
+        SoundEmitter thisEmitter = user.GetComponent<SoundEmitter>();
+        thisEmitter.PlayNetworkSound(shotOrigin.transform.position, "pistol_shot");
 
-        foreach (SoundEmitter emitter in soundEmitters) {
-            if (emitter.emitterID == emitterId) {
-                emitter.PlayNetworkedSound(shotOrigin.transform.position);
-                return;
-            }
-        }
+        // foreach (SoundEmitter emitter in soundEmitters) {
+        //     if (emitter.emitterID == emitterId) {
+        //         emitter.PlayNetworkedSound(shotOrigin.transform.position);
+        //     }
+        // }
 
 
         // play sound
-        SoundEmitter soundEmitter = p_heldWeapon.GetComponent<SoundEmitter>();
-        if (soundEmitter != null) {
-            Debug.Log("Fired pistol, played sound: " + soundEmitter.emitterID);
-            soundEmitter.PlayNetworkedSound(shotOrigin.transform.position);
-        } else {
-            Debug.LogError("Pistol has no SoundEmitter component.");
-        }
+        // SoundEmitter soundEmitter = p_heldWeapon.GetComponent<SoundEmitter>();
+        // if (soundEmitter != null) {
+        //     Debug.Log("Fired pistol, played sound: " + soundEmitter.emitterID);
+        //     soundEmitter.PlayNetworkedSound(shotOrigin.transform.position);
+        // } else {
+        //     Debug.LogError("Pistol has no SoundEmitter component.");
+        // }
 
         GameObject camera = user.transform.Find("Camera").gameObject;
         int enemyLayer = LayerMask.GetMask("Enemy");

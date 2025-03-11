@@ -622,10 +622,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01db514f5e6309c4e9942a6913481df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   emitterID: test_shot
   destinationMixer: SFX
   soundAddressableKeys:
   - Item/DropItem.ogg
+  emitterTypes:
+  - emitterID: pistol_shot
+    destinationMixer: SFX
+    soundAddressableKeys:
+    - Weapon/PistolShot.ogg
 --- !u!1 &1180047318962825330
 GameObject:
   m_ObjectHideFlags: 0

@@ -2,7 +2,7 @@ using Unity.Netcode;
 using UnityEngine;
 
 public class TestAudioTrigger : NetworkBehaviour {
-    public string soundAddressableKey = "";
+    public string soundAddressableKey = "pistol_shot";
 
     void Update() {
         if (!IsLocalPlayer)

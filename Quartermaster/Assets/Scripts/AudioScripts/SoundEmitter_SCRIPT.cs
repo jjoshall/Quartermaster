@@ -1,7 +1,8 @@
 using Unity.VisualScripting;
 using UnityEngine;
-
-public class SoundEmitter : MonoBehaviour {
+using Unity.Netcode;    
+using System.Collections.Generic;
+public class SoundEmitter : NetworkBehaviour {
     private NetworkAudio networkAudio;
 
     public string emitterID;
@@ -10,9 +11,29 @@ public class SoundEmitter : MonoBehaviour {
     [SerializeField] string[] soundAddressableKeys;
     private string soundAddressableKey;
 
+    [System.Serializable]
+    public struct emitterType {
+        public string emitterID;
+        public string destinationMixer;
+        public string[] soundAddressableKeys;
+    }
+
+    public List<emitterType> emitterTypes;
+
+    public void PlayNetworkSound(Vector3 soundPosition, string emitterId){
+        foreach (emitterType emitter in emitterTypes){
+            if (emitter.emitterID == emitterId){
+                destinationMixer = emitter.destinationMixer;
+                soundAddressableKeys = emitter.soundAddressableKeys;
+                PlayNetworkedSound(soundPosition);
+            }
+        }
+    }
+
     private void Awake() {
         networkAudio = GetComponent<NetworkAudio>(); 
     }
+
 
     public void PlayNetworkedSound(Vector3 soundPosition) {
         if (networkAudio == null) {
@@ -41,6 +62,7 @@ public class SoundEmitter : MonoBehaviour {
         Debug.Log("[SoundEmitter] Playing sound: " + soundAddressableKey);
 
         Debug.Log("Requestion sound server RPC for " + soundAddressableKey);
+        Debug.Log ("destination mixer is: " + destinationMixer);
         networkAudio.RequestSoundServerRpc(soundAddressableKey, soundPosition, destinationMixer);
     }
 }
