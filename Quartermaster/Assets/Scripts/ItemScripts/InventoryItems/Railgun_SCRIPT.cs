@@ -15,7 +15,7 @@ public class Railgun : IWeapon
 
     // Make an effect string = "" to disable spawning an effect.
     private static string _enemyHitEffect = "Sample"; // effect spawned on center of every enemy hit.
-    private static string _explosionEffect = ""; // effect spawned at environment explosion contact pt
+    private static string _explosionEffect = "RailgunExplosion"; // effect spawned at environment explosion contact pt
     private static string _barrelLaserEffect = "PistolBarrelFire"; // effect at player
 
     #endregion

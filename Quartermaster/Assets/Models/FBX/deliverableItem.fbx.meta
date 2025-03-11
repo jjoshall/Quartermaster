@@ -1,9 +1,19 @@
 fileFormatVersion: 2
-guid: f2e74654b1efdf2438a55b93efc843f8
+guid: a99f84ed6791ecc4c9c94d42ec827201
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: glowy
+    second: {fileID: 2100000, guid: 61ab03dc6c534de47ad6b693831b68f8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: gun_blue
+    second: {fileID: 2100000, guid: 3006e42278e9fec45b8de9833cac03c5, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -30,7 +40,7 @@ ModelImporter:
     extraExposedTransformPaths: []
     extraUserProperties: []
     clipAnimations: []
-    isReadable: 0
+    isReadable: 1
   meshes:
     lODScreenPercentages: []
     globalScale: 1

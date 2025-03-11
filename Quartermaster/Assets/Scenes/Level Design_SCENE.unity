@@ -479,6 +479,7 @@ GameObject:
   m_Component:
   - component: {fileID: 249522829}
   - component: {fileID: 249522830}
+  - component: {fileID: 249522831}
   m_Layer: 0
   m_Name: TooltipManager
   m_TagString: Untagged
@@ -515,7 +516,34 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   tooltipCanvas: {fileID: 90319612}
-  tooltipPrefab: {fileID: 699031808}
+  tooltipPrefab: {fileID: 6792220041042979371, guid: 00fbd0743e92f12489e1d43f959d811b, type: 3}
+  finalPos: {x: -9300, y: 990}
+  startPos: {x: -330, y: 990}
+--- !u!114 &249522831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 249522828}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2639931720
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!1001 &267678452
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1678,11 +1706,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d62d04855d8c11d4a8a181d3886a4f13, type: 3}
---- !u!1 &699031808 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2147075767889828555, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
-  m_PrefabInstance: {fileID: 2091593734}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &710621596
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3088,49 +3111,25 @@ PrefabInstance:
       value: 2283088156
       objectReference: {fileID: 0}
     - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleParent
-      value: 
+      propertyPath: particleTypesPrefabList.Array.size
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.size
+      propertyPath: particleTypesPrefabList.Array.data[6].key
+      value: RailgunExplosion
+      objectReference: {fileID: 0}
+    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
+      propertyPath: particleTypesPrefabList.Array.data[7].key
+      value: GrenadeExplosion
+      objectReference: {fileID: 0}
+    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
+      propertyPath: particleTypesPrefabList.Array.data[7].duration
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.data[2].key
-      value: PistolBarrelFire
-      objectReference: {fileID: 0}
-    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.data[3].key
-      value: RingEmission
-      objectReference: {fileID: 0}
-    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.data[4].key
-      value: SlowTrapAoe
-      objectReference: {fileID: 0}
-    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.data[2].duration
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.data[3].duration
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.data[4].duration
-      value: -1
-      objectReference: {fileID: 0}
-    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.data[2].particlePrefab
+      propertyPath: particleTypesPrefabList.Array.data[7].particlePrefab
       value: 
-      objectReference: {fileID: 8038196586517577084, guid: af3a2ba58d696b64c93a62c6d51ff326, type: 3}
-    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.data[3].particlePrefab
-      value: 
-      objectReference: {fileID: 8038196586517577084, guid: 1d6930ad97206094f99816d995aa5967, type: 3}
-    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
-      propertyPath: particleTypesPrefabList.Array.data[4].particlePrefab
-      value: 
-      objectReference: {fileID: 3886726516580340517, guid: 0124a3093deb5f14b9f1b8b3b059ab72, type: 3}
+      objectReference: {fileID: 8038196586517577084, guid: b6c479d774dead640a2513433c0a93e3, type: 3}
     - target: {fileID: 5341081937763403480, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
       propertyPath: m_Name
       value: ParticleManager_PREFAB
@@ -4646,6 +4645,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2083760351}
   - component: {fileID: 2083760350}
+  - component: {fileID: 2083760352}
   m_Layer: 0
   m_Name: AudioManager
   m_TagString: Untagged
@@ -4667,8 +4667,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameMixer: {fileID: 24100000, guid: 5c90026cecfa740439f0e5debdf3233a, type: 2}
   playerTransform: {fileID: 0}
-  minDistance: 5
-  maxDistance: 50
+  minDistance: 2
+  maxDistance: 25
 --- !u!4 &2083760351
 Transform:
   m_ObjectHideFlags: 0
@@ -4684,6 +4684,31 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1797533317}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2083760352
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2083760349}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2697531669
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!1001 &2087411206
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4896,6 +4921,13 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 87448124708902768, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+    - {fileID: 1379729126558717377, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+    - {fileID: 8765143625034944274, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+    - {fileID: 3328879473848388611, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+    - {fileID: 8415371579122862293, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+    - {fileID: 5310730562408670197, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+    - {fileID: 7586421895071571392, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+    - {fileID: 2770866409945409645, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d175a29868c362e4c83cd9eff8157693, type: 3}

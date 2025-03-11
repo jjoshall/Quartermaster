@@ -21,7 +21,6 @@ public class AudioManager : MonoBehaviour {
         }
     }
 
-    // For testing local sound playback via Addressables when pressing K.
     private void Update() {
         if (Input.GetKeyDown(KeyCode.L)) {
             DebugMixerVolumes();
@@ -48,18 +47,6 @@ public class AudioManager : MonoBehaviour {
         } else {
             Debug.LogWarning("[AudioManager] MasterVolume parameter not found in Audio Mixer.");
         }
-    }
-
-
-    public void TestPlaySound(string destinationMixer) {
-        // Here we use the Addressable key directly.
-        string audioKey = "Audio/pew.ogg";
-        // Use AudioLibrary to load asynchronously.
-        AudioLibrary.GetClipAsync(audioKey, (clip) => {
-            if (clip != null) {
-                PlaySoundAtPosition(clip, playerTransform.position, destinationMixer);
-            }
-        });
     }
 
     // Volume control methods
