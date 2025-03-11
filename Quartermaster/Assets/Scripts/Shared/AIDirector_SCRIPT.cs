@@ -1,8 +1,18 @@
+// NEXT THINGS TO DO:
+// - Add scaling based on intensity number. Maybe >=400 intensity makes game a lot harder
+//   because players will be really good if they hit that high of a number but if they are below 30 for a long time
+//   then the game will be easier. This will make the game more dynamic and interesting.
+// - Heavily increase enemy speed and enemy spawning during peak state (map is big so enemies should overwhelm players)
+// - Maybe custom states where its only ranged enemies or explosive enemies?
+// - Add something for player deaths (maybe increase intensity by 10% of current intensity)
+// - ** DO FIRST** Every peak state is different (one peak state will add more health to enemies, another will increase speed,
+//   maybe a combination of stuff, maybe it'l spawn like WAY more than normal
+// - Make objectives the main intensity increaser or maybe if you start objective it goes straight to peak
+
 using System.Collections.Generic;
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
-using TMPro;
 
 public class AIDirector : NetworkBehaviour {
     [Header("State Machine Settings")]
@@ -183,8 +193,8 @@ public class AIDirector : NetworkBehaviour {
                     break;
 
                 case DirectorState.Relax:
-                    // Check if relax is over or intensity is high enough
-                    if (_currentIntensity.Value >= _relaxIntensityThreshold || _stateTimeRemaining.Value <= 0) {
+                    // Check if relax is over or intensity is low enough
+                    if (_currentIntensity.Value <= _relaxIntensityThreshold || _stateTimeRemaining.Value <= 0) {
                         TransitionToBuildUp();
                     }
                     break;
@@ -212,7 +222,6 @@ public class AIDirector : NetworkBehaviour {
     }
 
     private void TransitionToRelax() {
-        _currentIntensity.Value = _baseIntensity;
         _currentState.Value = DirectorState.Relax;
         _stateTimeRemaining.Value = _relaxDuration;
         UpdateEnemySpawnerSettings();
