@@ -46,6 +46,7 @@ public class GrenadeProjectile : IProjectile
         }
 
         // ParticleManager.instance.
+        ParticleManager.instance.SpawnSelfThenAll("GrenadeExplosion", transform.position, Quaternion.identity);
         Destroy(this.gameObject);
     }
 

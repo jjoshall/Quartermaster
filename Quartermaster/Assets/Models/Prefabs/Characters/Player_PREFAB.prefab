@@ -1409,6 +1409,7 @@ GameObject:
   - component: {fileID: 6359143604446955361}
   - component: {fileID: 313669229880681147}
   - component: {fileID: 8243739684815623467}
+  - component: {fileID: 8021436220032852494}
   m_Layer: 8
   m_Name: Visual
   m_TagString: Untagged
@@ -1521,6 +1522,22 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &8021436220032852494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7440579359296825556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f8c254739811cb459449bbc9e1c3c12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  playerMaterial: {fileID: 2100000, guid: 72be28177387cc341a63f9642bdfe803, type: 2}
+  dissolveDuration: 1
+  solidifyDuration: 1
 --- !u!1 &8658714418835819566
 GameObject:
   m_ObjectHideFlags: 0
