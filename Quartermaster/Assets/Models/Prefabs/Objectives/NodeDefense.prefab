@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 9163449026887716693}
   - component: {fileID: 146208490506117070}
   - component: {fileID: 3325286732709450222}
+  - component: {fileID: 1625942619063529575}
   m_Layer: 0
   m_Name: NodeDefense
   m_TagString: Untagged
@@ -99,6 +100,23 @@ MonoBehaviour:
   m_IgnoreFromBuild: 1
   m_ApplyToChildren: 1
   m_AffectedAgents: ffffffff
+--- !u!114 &1625942619063529575
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7850845871219590944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62d419665ed6d7a41b7dc591a5a37b4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startPos: {x: -400, y: 100}
+  finalPos: {x: 100, y: 100}
+  holdDuration: 5
+  message: OBJECTIVE. Shiny! Stand inside to activate. Defend the spot for 15 seconds
+    to clear!
 --- !u!1001 &4090008224216736199
 PrefabInstance:
   m_ObjectHideFlags: 0
