@@ -8,7 +8,7 @@ public class EnemySpawner : NetworkBehaviour {
     [Header("Spawner Settings")]
     public List<EnemySpawnData> _enemySpawnData = new List<EnemySpawnData>();
     [SerializeField] private int _maxEnemyInstanceCount = 20;
-    public bool isSpawning = true;
+    public NetworkVariable<bool> isSpawning = new NetworkVariable<bool>(true);
     public float _spawnCooldown = 2f;
     [HideInInspector] public float _totalWeight = 0f;
 
@@ -33,6 +33,12 @@ public class EnemySpawner : NetworkBehaviour {
         else {
             Destroy(this);
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void SetSpawningServerRpc(bool value) {
+        if (!IsServer) { return; }
+        isSpawning.Value = value;
     }
 
     public override void OnNetworkSpawn() {
@@ -94,7 +100,7 @@ public class EnemySpawner : NetworkBehaviour {
 
     private IEnumerator SpawnOverTime() {
         while (true) {
-            if (enemyList.Count < _maxEnemyInstanceCount && isSpawning) {
+            if (enemyList.Count < _maxEnemyInstanceCount && isSpawning.Value) {
                 Transform enemyPrefab = GetWeightedRandomEnemyPrefab();
                 if (enemyPrefab != null) {
                     Transform enemyTransform = Instantiate(enemyPrefab, GetSpawnPoint(), Quaternion.identity);
