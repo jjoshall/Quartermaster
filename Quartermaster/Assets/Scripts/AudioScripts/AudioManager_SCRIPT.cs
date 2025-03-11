@@ -13,9 +13,6 @@ public class AudioManager : MonoBehaviour {
     public float minDistance = 5f;
     public float maxDistance = 50f;
 
-    private Dictionary<string, AudioSource> loopingAudioSources = new Dictionary<string, AudioSource>();
-
-
     private void Awake() {
         if (Instance == null) {
             Instance = this;
@@ -72,7 +69,7 @@ public class AudioManager : MonoBehaviour {
         Debug.Log($"[AudioManager] Set Master Volume: {dbVolume} dB");
     }
     // Plays the clip at the given position with 3D settings.
-    public void PlaySoundAtPosition(AudioClip clip, Vector3 sourcePosition, string destinationMixer) {
+    public void PlaySoundAtPosition(AudioClip clip, Vector3 sourcePosition, string destinationMixer, bool isLooped = false) {
         Debug.Log("Before temp audio created");
         GameObject tempGO = new GameObject("TempAudio");
         tempGO.transform.position = sourcePosition;
@@ -81,6 +78,7 @@ public class AudioManager : MonoBehaviour {
         aSource.spatialBlend = 1.0f;
         aSource.minDistance = minDistance;
         aSource.maxDistance = maxDistance;
+        aSource.loop = isLooped;
         // Route this AudioSource to the SFX group.
         aSource.outputAudioMixerGroup = gameMixer.FindMatchingGroups(destinationMixer)[0];
 
@@ -88,32 +86,12 @@ public class AudioManager : MonoBehaviour {
 
         aSource.Play();
         Debug.Log("After temp audio played");
-        Destroy(tempGO, clip.length);
-    }
-
-    public void PlayLoopingSoundAtPosition(AudioClip clip, Vector3 soundPosition, string destinationMixer) {
-        // Create a new GameObject to hold the looping AudioSource.
-        GameObject loopGO = new GameObject("LoopingAudio_" + clip.name);
-        loopGO.transform.position = soundPosition;
-        AudioSource aSource = loopGO.AddComponent<AudioSource>();
-        aSource.clip = clip;
-        aSource.loop = true;
-        aSource.spatialBlend = 1.0f;
-        aSource.minDistance = minDistance;
-        aSource.maxDistance = maxDistance;
-        aSource.outputAudioMixerGroup = gameMixer.FindMatchingGroups(destinationMixer)[0];
-        aSource.Play();
-
-        // Store reference so it can be stopped later.
-        loopingAudioSources[clip.name] = aSource;
-    }
-
-    public void StopLoopingSoundAtPosition(string soundAddressableKey, Vector3 soundPosition, string destinationMixer) {
-        // Use the key (or some identifier) to stop the corresponding AudioSource.
-        if (loopingAudioSources.TryGetValue(soundAddressableKey, out AudioSource aSource)) {
-            aSource.Stop();
-            Destroy(aSource.gameObject);
-            loopingAudioSources.Remove(soundAddressableKey);
+        if (!isLooped) {
+            Destroy(tempGO, clip.length);
         }
+    }
+
+    public void DestroySoundByGameObject() {
+        
     }
 }
