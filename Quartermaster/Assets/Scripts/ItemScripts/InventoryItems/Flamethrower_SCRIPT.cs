@@ -1,7 +1,5 @@
 using UnityEngine;
-using Unity.Netcode;
 using System.Collections.Generic;
-using System.Collections;
 
 public class Flamethrower : IWeapon
 {
@@ -21,12 +19,12 @@ public class Flamethrower : IWeapon
     #endregion
     #region Variables
     // Backing fields. Don't touch these.
-    private int _id;
+    // private int _id;
     
     private int _quantity = 1;
-    private int _ammo = 0;
-    private float lastUsedTime = float.MinValue;
-    private float lastFiredTime = float.MinValue;
+    // private int _ammo = 0;
+    // private float lastUsedTime = float.MinValue;
+    // private float lastFiredTime = float.MinValue;
 
     private bool _isFireStarted = false;
 
@@ -49,11 +47,6 @@ public class Flamethrower : IWeapon
     public override int quantity {
         get => _quantity;
         set => _quantity = value;
-    }
-
-    public override float lastUsed {
-        get => lastUsedTime;
-        set => lastUsedTime = value;
     }
 
     public override void InitializeFromGameManager(){
@@ -101,13 +94,7 @@ public class Flamethrower : IWeapon
             _flamethrowerPS = shotOrigin.GetComponent<ParticleSystem>();
         }
 
-        if (_flamethrowerPS.isPlaying) {
-            Debug.Log ("STATE BEFORE CHECK: flamethrowerPS is playing");
-        } else {
-            Debug.Log ("STATE BEFORE CHECK: flamethrowerPS is not playing");
-        }
         if (_flamethrowerPS != null && !_flamethrowerPS.isEmitting) {
-            Debug.Log ("starting flamethrowerPS play");
             _flamethrowerPS.Play();
         }        
     }
@@ -181,7 +168,7 @@ public class Flamethrower : IWeapon
                 if (damageable == null){
                     Debug.LogError ("Raycast hit enemy without damageable component.");
                 } else {
-                    damageable?.InflictDamage(_flamethrowerDamage, false, user);
+                    DoDamage(damageable, false, user);
                 }
 
                 // Enemy effect
@@ -190,6 +177,17 @@ public class Flamethrower : IWeapon
                 }
             }
         }
+    }
+
+    private void DoDamage (Damageable d, bool isExplosiveDmgType, GameObject user){
+        float damage = _flamethrowerDamage;
+        PlayerStatus s = user.GetComponent<PlayerStatus>();
+        if (s != null){
+            float bonusPerSpec = GameManager.instance.DmgSpec_MultiplierPer;
+            int dmgSpecLvl = s.GetDmgSpecLvl();
+            damage = damage * (1 + bonusPerSpec * dmgSpecLvl);
+        }
+        d?.InflictDamage(damage, isExplosiveDmgType, user);
     }
     #endregion
 }

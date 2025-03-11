@@ -34,9 +34,9 @@ public class ObjectiveRingEntry : MonoBehaviour {
     private void OnTriggerEnter(Collider other) {
         if (subChildMaterial != null && objectMaterial != null) {
             if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
-            fadeCoroutine = StartCoroutine(FadeOpacity(1.2f, fadeTime));
+            fadeCoroutine = StartCoroutine(FadeOpacity(1f, fadeTime));
         }
-        nodeDefense.GetComponent<NodeDefense>().PublicTriggerEnter(other);
+        nodeDefense.GetComponent<DefendNodeObjective>().PublicTriggerEnter(other);
     }
 
     private void OnTriggerExit(Collider other) {
@@ -44,7 +44,7 @@ public class ObjectiveRingEntry : MonoBehaviour {
             if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
             fadeCoroutine = StartCoroutine(FadeOpacity(0f, fadeTime));
         }
-        nodeDefense.GetComponent<NodeDefense>().PublicTriggerExit(other);
+        nodeDefense.GetComponent<DefendNodeObjective>().PublicTriggerExit(other);
     }
 
     private IEnumerator FadeOpacity(float targetOpacity, float duration) {

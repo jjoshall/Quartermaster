@@ -1,14 +1,12 @@
 using UnityEngine;
 using Unity.Netcode;
-using System.Collections.Generic;
-using System.Collections;
 
-public class GameManager : NetworkBehaviour
-{
+public class GameManager : NetworkBehaviour {
     #region InspectorSettings
     // Do not update these values during run-time. Set in inspector.
     [Header("Player Settings")]
     // HP and player speed set in the Player prefab settings.
+    [SerializeField] private float _dropItemVelocity;
 
     [Header("Weapon Settings")]
     // Weapons should not scale at run-time. Scale enemy hp instead.
@@ -26,8 +24,11 @@ public class GameManager : NetworkBehaviour
     [SerializeField] private float pistol_Damage;
     [SerializeField] private float pistol_Cooldown;
 
+    [SerializeField] public GameObject bulletTracerPrefab;
+
     [Header("Item Settings")]
     [SerializeField] private float portalKey_Cooldown;
+    [SerializeField] private float portalKey_TeleportRadius;
 
     [SerializeField] private float grenade_Damage;
     [SerializeField] private float grenade_AoeRadius;
@@ -40,14 +41,29 @@ public class GameManager : NetworkBehaviour
 
     [SerializeField] private float slowTrap_SlowByPct;// give enemy a debuff flag. enemy checks for debuff then accesses this value to adjust their own speed.
     [SerializeField] private float slowTrap_Duration;   // duration of the trap itself. 
+    [SerializeField] private float slowTrap_AoERadius;
     [SerializeField] private float slowTrap_Cooldown;
     [SerializeField] private int slowTrap_StackLimit;
+    [SerializeField] private float slowTrap_ChargeTime;
+    [SerializeField] private float slowTrap_MinVelocity;
+    [SerializeField] private float slowTrap_MaxVelocity;
 
     [SerializeField] private float medKit_HealAmount ;
     [SerializeField] private float medKit_Cooldown ;
     [SerializeField] private int medKit_StackLimit;
+    [SerializeField] private float _medKit_ChargeTime;
+    [SerializeField] private float _medKit_TapThreshold;
+    [SerializeField] private float _medKit_MinVelocity;
+    [SerializeField] private float _medKit_MaxVelocity;
+    [SerializeField] private float _medKit_ExpireTimer;
 
     [SerializeField] private int questItem_StackLimit;
+
+    [SerializeField] private int _healSpec_StackLimit;
+    [SerializeField] private float _healSpec_MultiplierPer;
+
+    [SerializeField] private int _dmgSpec_StackLimit;
+    [SerializeField] private float _dmgSpec_MultiplierPer;
 
     [SerializeField] private float[] _playersToEnemyHpMultiplier = new float[10] {  0.1f, 
                                                                                     1.0f, 
@@ -69,6 +85,8 @@ public class GameManager : NetworkBehaviour
     #endregion
 
     #region ReadonlyAccess
+    public float DropItemVelocity => _dropItemVelocity;
+
     public float Flame_Damage => flame_Damage;
     public float Flame_Range => flame_Range;
     public float Flame_EndRadius => flame_EndRadius;
@@ -83,7 +101,10 @@ public class GameManager : NetworkBehaviour
     public float Pistol_Damage => pistol_Damage;
     public float Pistol_Cooldown => pistol_Cooldown;
 
+    public GameObject Pistol_TrailPrefab => bulletTracerPrefab;
+
     public float PortalKey_Cooldown => portalKey_Cooldown;
+    public float PortalKey_TeleportRadius => portalKey_TeleportRadius;
 
     public float Grenade_Damage => grenade_Damage;
     public float Grenade_AoeRadius => grenade_AoeRadius;
@@ -91,27 +112,36 @@ public class GameManager : NetworkBehaviour
     public float Grenade_MinVelocity => grenade_MinVelocity;
     public float Grenade_MaxVelocity => grenade_MaxVelocity;
     public float Grenade_Cooldown => grenade_Cooldown;
-    public float Grenade_ExpireTimer => Grenade_ExpireTimer;
+    public float Grenade_ExpireTimer => grenade_ExpireTimer;
     public int Grenade_StackLimit => grenade_StackLimit;
 
     public float SlowTrap_SlowByPct => slowTrap_SlowByPct;
     public float SlowTrap_Duration => slowTrap_Duration;
     public float SlowTrap_Cooldown => slowTrap_Cooldown;
+    public float SlowTrap_AoERadius => slowTrap_AoERadius;
     public int SlowTrap_StackLimit => slowTrap_StackLimit;
+    public float SlowTrap_ChargeTime => slowTrap_ChargeTime;
+    public float SlowTrap_MinVelocity => slowTrap_MinVelocity;
+    public float SlowTrap_MaxVelocity => slowTrap_MaxVelocity;
 
     public float MedKit_HealAmount => medKit_HealAmount;
     public float MedKit_Cooldown => medKit_Cooldown;
     public int MedKit_StackLimit => medKit_StackLimit;
+    public float MedKit_ChargeTime => _medKit_ChargeTime;
+    public float MedKit_TapThreshold => _medKit_TapThreshold;
+    public float MedKit_MinVelocity => _medKit_MinVelocity;
+    public float MedKit_MaxVelocity => _medKit_MaxVelocity;
+    public float MedKit_ExpireTimer => _medKit_ExpireTimer;
 
     public int QuestItem_StackLimit => questItem_StackLimit;
 
+    public float HealSpec_MultiplierPer => _healSpec_MultiplierPer;
+    public int HealSpec_StackLimit => _healSpec_StackLimit;
+
+    public float DmgSpec_MultiplierPer => _dmgSpec_MultiplierPer;
+    public int DmgSpec_StackLimit => _dmgSpec_StackLimit;
+
     #endregion
-
-
-
-
-
-
 
     #region RuntimeVariables
 
@@ -121,10 +151,22 @@ public class GameManager : NetworkBehaviour
     public float enemySpeedMultiplier { get; private set; }  // enemy classes will need to have their own logic to propagate this value to all the navmeshagent parameters for speed.
     // individual enemy settings set in their prefabs.
 
+    [Header("Game Statistics")]
+    public NetworkVariable<int> totalEnemyKills = new NetworkVariable<int>(0,
+    NetworkVariableReadPermission.Everyone,
+    NetworkVariableWritePermission.Server);
 
+    public NetworkVariable<float> totalDamageDealtToEnemies = new NetworkVariable<float>(0,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
 
+    public NetworkVariable<float> totalPlayerDamageTaken = new NetworkVariable<float>(0,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
 
-
+    public NetworkVariable<int> totalPlayers = new NetworkVariable<int>(0,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
 
     [Header("DramaFunction")]
     // placeholder variables. nothing set in stone, just brainstorming
@@ -138,8 +180,26 @@ public class GameManager : NetworkBehaviour
         return 0.0f;
     }
 
+    #endregion
 
+    #region GameStatistics
+    [ServerRpc(RequireOwnership = false)]
+    public void IncrementEnemyKillsServerRpc() {
+        if (!IsServer) return;
+        totalEnemyKills.Value++;
+    }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void AddEnemyDamageServerRpc(float damageAmount) {
+        if (!IsServer) return;
+        totalDamageDealtToEnemies.Value += damageAmount;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void AddPlayerDamageServerRpc(float damageAmount) {
+        if (!IsServer) return;
+        totalPlayerDamageTaken.Value += damageAmount;
+    }
 
     #endregion
 
@@ -150,40 +210,57 @@ public class GameManager : NetworkBehaviour
 
     // singleton code
     public static GameManager instance;
-    private void Awake()
-    {
-        if (instance == null)
-        {
+    private void Awake() {
+        if (instance == null) {
             instance = this;
         }
-        else
-        {
+        else {
             Destroy(this);
         }
         InitializeRuntimeVars();
     }
 
-    private void InitializeRuntimeVars(){
+    public override void OnNetworkSpawn() {
+        if (!IsServer) return;
+
+        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+
+        UpdatePlayerCount();
+    }
+
+    private void OnClientConnected(ulong clientId) {
+        if (!IsServer) return;
+        UpdatePlayerCount();
+    }
+
+    private void OnClientDisconnected(ulong clientId) {
+        if (!IsServer) return;
+        UpdatePlayerCount();
+    }
+
+    private void UpdatePlayerCount() {
+        if (!IsServer) return;
+
+        int count = NetworkManager.Singleton.ConnectedClientsIds.Count;
+        totalPlayers.Value = count;
+
+        //Debug.Log("Player count: " + count);
+    }
+
+    private void InitializeRuntimeVars() {
         n_players = new NetworkList<NetworkObjectReference>();
         n_enemies = new NetworkList<NetworkObjectReference>();
         n_worldItems = new NetworkList<NetworkObjectReference>();
+    }
 
+    public override void OnNetworkDespawn()
+    {
+        if (!IsServer || NetworkManager.Singleton == null) return;
+
+        NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
+        NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
     }
 
     #endregion
-    
-
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

@@ -15,18 +15,18 @@ public class Railgun : IWeapon
 
     // Make an effect string = "" to disable spawning an effect.
     private static string _enemyHitEffect = "Sample"; // effect spawned on center of every enemy hit.
-    private static string _explosionEffect = ""; // effect spawned at environment explosion contact pt
+    private static string _explosionEffect = "RailgunExplosion"; // effect spawned at environment explosion contact pt
     private static string _barrelLaserEffect = "PistolBarrelFire"; // effect at player
 
     #endregion
     #region Variables
     // Backing fields. Don't touch these.
-    private int _id;
+    // private int _id;
     
     private int _quantity = 1;
-    private int _ammo = 0;
-    private float lastUsedTime = float.MinValue;
-    private float lastFiredTime = float.MinValue;
+    // private int _ammo = 0;
+    // private float lastUsedTime = float.MinValue;
+    // private float lastFiredTime = float.MinValue;
 
     #endregion
     #region Basic Overrides
@@ -45,11 +45,6 @@ public class Railgun : IWeapon
     public override int quantity {
         get => _quantity;
         set => _quantity = value;
-    }
-
-    public override float lastUsed {
-        get => lastUsedTime;
-        set => lastUsedTime = value;
     }
 
     public override void InitializeFromGameManager()
@@ -98,20 +93,12 @@ public class Railgun : IWeapon
 
     #region Fire()
     public override void fire(GameObject user){
-
         GameObject camera = user.transform.Find("Camera").gameObject;
         int enemyLayer = LayerMask.GetMask("Enemy");
         int buildingLayer = LayerMask.GetMask("Building");
         int combinedLayerMask = enemyLayer | buildingLayer;
         int groundLayer = LayerMask.GetMask("whatIsGround");
         combinedLayerMask = combinedLayerMask | groundLayer;
-
-        // particle on player
-        Quaternion attackRotation = Quaternion.LookRotation(camera.transform.forward);
-        if (_barrelLaserEffect != ""){
-            ParticleManager.instance.SpawnSelfThenAll(_barrelLaserEffect, camera.transform.position, attackRotation);
-        }
-
 
         // piercing raycast
         List<Transform> targetsHit = new List<Transform>();
@@ -136,9 +123,28 @@ public class Railgun : IWeapon
         System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
 
         if (hits.Length > 0){
-
+            // particle on player
+            Quaternion attackRotation = Quaternion.LookRotation(hits[0].point - shotOrigin.transform.position);
+            if (_barrelLaserEffect != ""){
+                ParticleManager.instance.SpawnSelfThenAll(_barrelLaserEffect, shotOrigin.transform.position, attackRotation);
+            }
             // draw a ray from the shotOrigin to the hit point
             Debug.DrawRay(shotOrigin.transform.position, hits[0].point - shotOrigin.transform.position, Color.blue, 2f);
+
+            // ~---- SPAWN TRAIL RENDER FROM SHOT ORIGIN TO HIT POINT ----~
+            WeaponEffects effects = user.GetComponent<WeaponEffects>();
+            NetworkObject userNetObj = user.GetComponent<NetworkObject>();
+
+            if (effects != null && userNetObj != null) {
+                if (NetworkManager.Singleton.IsServer) {
+                    // If the user (player) is the server, spawn the trail directly.
+                    effects.SpawnBulletTrailClientRpc(shotOrigin.transform.position, hits[0].point, itemID);
+                }
+                else {
+                    // If the user is a client, request the server to spawn the trail.
+                    effects.RequestSpawnBulletTrailServerRpc(shotOrigin.transform.position, hits[0].point, itemID);
+                }
+            }
 
 
 
@@ -215,7 +221,8 @@ public class Railgun : IWeapon
                 if (damageable == null){
                     Debug.LogError ("Raycast hit enemy without damageable component.");
                 } else {
-                    damageable?.InflictDamage(_railgunDamage, false, user);
+                    // damageable?.InflictDamage(_railgunDamage, false, user);
+                    DoDamage(damageable, false, user);
                 }
                 
                 // enemy effect
@@ -224,6 +231,18 @@ public class Railgun : IWeapon
                 }
             }
         }
+    }
+
+    
+    private void DoDamage (Damageable d, bool isExplosiveDmgType, GameObject user){
+        float damage = _railgunDamage;
+        PlayerStatus s = user.GetComponent<PlayerStatus>();
+        if (s != null){
+            float bonusPerSpec = GameManager.instance.DmgSpec_MultiplierPer;
+            int dmgSpecLvl = s.GetDmgSpecLvl();
+            damage = damage * (1 + bonusPerSpec * dmgSpecLvl);
+        }
+        d?.InflictDamage(damage, isExplosiveDmgType, user);
     }
 
     #endregion

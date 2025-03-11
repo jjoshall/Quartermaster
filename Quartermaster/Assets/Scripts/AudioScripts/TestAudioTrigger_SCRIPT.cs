@@ -2,7 +2,7 @@ using Unity.Netcode;
 using UnityEngine;
 
 public class TestAudioTrigger : NetworkBehaviour {
-    public string soundAddressableKey = "Audio/pew.ogg";
+    public string soundAddressableKey = "Player/PlayerJump.ogg";
 
     void Update() {
         if (!IsLocalPlayer)
@@ -15,10 +15,11 @@ public class TestAudioTrigger : NetworkBehaviour {
             //     }
             // });
 
-            GetComponent<NetworkAudio>().RequestSoundServerRpc(soundAddressableKey, transform.position);
+            GetComponent<NetworkAudio>().RequestSoundServerRpc(soundAddressableKey, transform.position, "SFX");
         }
 
         if (Input.GetKeyDown(KeyCode.Y)) {
+            Debug.Log ("testaudiotrigger: tooltip");
             TooltipManager.SendTooltip("testing tooltip", toAll: true);
         }
     }

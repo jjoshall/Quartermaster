@@ -1,13 +1,22 @@
 using UnityEngine;
+using UnityEngine.Localization.SmartFormat.Utilities;
+using Unity.Netcode;
 
 public abstract class InventoryItem {
+
+    public GameObject userRef;
+
+    protected virtual int _id { get; set; } = 0;
     // define an int itemID that all subclasses should define as a constant
     public abstract int itemID { get; set; }
     public virtual bool isHoldable { get; set; } = false;
 
     public abstract int quantity { get; set; }
 
-    public abstract float lastUsed { get; set; }
+    public float lastUsed {
+        get => userRef.GetComponent<PlayerStatus>().GetLastUsed(_id);
+        set => userRef.GetComponent<PlayerStatus>().SetLastUsed(_id, value);
+    }
 
     // class static cooldown. defined by inherited class
     public abstract float cooldown { get; set; }
@@ -28,6 +37,14 @@ public abstract class InventoryItem {
         }
     }
 
+    public virtual void PickUp(GameObject user){
+        // do nothing by default. items that convey effects on pickup should override this method.
+    }
+
+    public virtual void Drop(GameObject user){
+        // do nothing by default. items that convey effects on drop should override this method.
+    }
+
     public abstract void Use(GameObject user, bool isHeld);
 
     public virtual void Release(GameObject user){
@@ -37,6 +54,10 @@ public abstract class InventoryItem {
     public abstract bool IsConsumable();
 
     public abstract bool IsWeapon();
+
+    public virtual bool IsClassSpec(){
+        return false;
+    }
 
     public abstract int StackLimit();
 

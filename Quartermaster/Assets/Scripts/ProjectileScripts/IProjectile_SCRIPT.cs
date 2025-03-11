@@ -10,30 +10,14 @@ public abstract class IProjectile : MonoBehaviour
 
     protected bool _projectileCollided = false;
 
-    protected virtual void Start(){
-        _expireTimer = GameManager.instance.Grenade_ExpireTimer;
-    }
+    protected abstract void Start();
 
-    protected virtual void OnCollisionEnter(Collision collision){
-        // if the grenade hits a player, it should explode.
-        if (collision.gameObject.CompareTag("Enemy")){
-            Expire();
-        } else {
-            _projectileCollided = true;
-        }
+    protected abstract void OnCollisionEnter(Collision collision);
+
+    protected virtual void OnTriggerEnter(Collider collision){
 
     }
 
-    protected virtual void Update(){
-        
-        if (_projectileCollided){
-            _expireTimer -= Time.deltaTime;
-            if (_expireTimer <= 0){
-                Expire();
-            }
-        }
-    }
+    protected abstract void Update();
 
-
-    protected abstract void Expire();
 }

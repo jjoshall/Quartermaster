@@ -1,13 +1,12 @@
 using Unity.Netcode;
 using System.Collections;
 using UnityEngine;
-using Unity.Services.Matchmaker.Models;
 
 public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     protected override float attackCooldown => 2f;
-    protected override float attackRange => 3f;
+    protected override float attackRange => 10f;
     protected override int damage => 50;
-    protected override float attackRadius => 3.5f;
+    protected override float attackRadius => 6f;
 
     private bool _isExploding = false;
 
@@ -18,18 +17,23 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     private Color originalColor;
     [SerializeField] private float blinkSpeed = 5f;
-    [SerializeField] private float normalSpeed = 5f;
-    [SerializeField] private float blinkingSpeed = 8f;
+    // [SerializeField] private float normalSpeed = 5f;
+    [Range(1f, 3f)]
+    [SerializeField] private float blinkingSpeedMultiplier = 1.3f;
+
+    private Animator animator;
+
+    [Header("Armature Settings")]
+    [SerializeField] private Transform _wheels;
+    
 
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
+
+        animator = GetComponentInChildren<Animator>();
         
         if (renderer != null) {
             originalColor = renderer.material.color;
-        }
-
-        if (agent != null) {
-            agent.speed = normalSpeed;
         }
 
         isBlinking.OnValueChanged += OnBlinkingStateChanged;
@@ -38,23 +42,33 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     // This function gets called whenever the value of isBlinking changes
     private void OnBlinkingStateChanged(bool oldValue, bool newValue) {
         if (newValue) {
-            StartCoroutine(BlinkCoroutine());
-
             if (IsServer && agent != null) {
-                agent.speed = blinkingSpeed;
+                // agent.speed = blinkingSpeed;
+                UpdateSpeedServerRpc();
+                animator.SetBool("TransitionToExplode", true);
             }
         }
     }
 
-    private IEnumerator BlinkCoroutine() {
-        while (gameObject.activeInHierarchy) {
-            if (renderer != null) {
-                renderer.material.color = renderer.material.color == Color.white ? originalColor : Color.white;
-            }
+    [ServerRpc(RequireOwnership = false)]
+    protected override void UpdateSpeedServerRpc(){
+        float finalSpeed = _baseSpeed;  
+        float finalAcceleration = _baseAcceleration;
 
-            yield return new WaitForSeconds(1f / blinkSpeed);
+        if (n_isSlowed.Value > 0){
+            finalSpeed *= 1 - n_slowMultiplier.Value;
+            finalAcceleration *= 1 - n_slowMultiplier.Value;
         }
+
+        if (isBlinking.Value){
+            finalSpeed *= blinkingSpeedMultiplier;
+            finalAcceleration *= blinkingSpeedMultiplier;
+        }
+
+        agent.speed = finalSpeed;
+        agent.acceleration = finalAcceleration;
     }
+
 
     protected override void OnDamaged(float damage, GameObject damageSource)
     {
@@ -81,6 +95,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
                 closestDistance = distance;
             }
         }
+
 
         target = closestPlayer != null ? closestPlayer.transform : null;
     }

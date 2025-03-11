@@ -1,8 +1,5 @@
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.Audio;
-using NUnit.Framework.Constraints;
 
 public class AudioManager : MonoBehaviour {
     public static AudioManager Instance { get; private set; }
@@ -24,7 +21,6 @@ public class AudioManager : MonoBehaviour {
         }
     }
 
-    // For testing local sound playback via Addressables when pressing K.
     private void Update() {
         if (Input.GetKeyDown(KeyCode.L)) {
             DebugMixerVolumes();
@@ -53,18 +49,6 @@ public class AudioManager : MonoBehaviour {
         }
     }
 
-
-    public void TestPlaySound() {
-        // Here we use the Addressable key directly.
-        string audioKey = "Audio/pew.ogg";
-        // Use AudioLibrary to load asynchronously.
-        AudioLibrary.GetClipAsync(audioKey, (clip) => {
-            if (clip != null) {
-                PlaySoundAtPosition(clip, playerTransform.position);
-            }
-        });
-    }
-
     // Volume control methods
     public void SetMusicVolume(float volume) {
         float dbVolume = Mathf.Log10(Mathf.Max(volume, 0.0001f)) * 20;
@@ -84,7 +68,7 @@ public class AudioManager : MonoBehaviour {
         Debug.Log($"[AudioManager] Set Master Volume: {dbVolume} dB");
     }
     // Plays the clip at the given position with 3D settings.
-    public void PlaySoundAtPosition(AudioClip clip, Vector3 sourcePosition) {
+    public void PlaySoundAtPosition(AudioClip clip, Vector3 sourcePosition, string destinationMixer) {
         GameObject tempGO = new GameObject("TempAudio");
         tempGO.transform.position = sourcePosition;
         AudioSource aSource = tempGO.AddComponent<AudioSource>();
@@ -93,7 +77,7 @@ public class AudioManager : MonoBehaviour {
         aSource.minDistance = minDistance;
         aSource.maxDistance = maxDistance;
         // Route this AudioSource to the SFX group.
-        aSource.outputAudioMixerGroup = gameMixer.FindMatchingGroups("SFX")[0];
+        aSource.outputAudioMixerGroup = gameMixer.FindMatchingGroups(destinationMixer)[0];
 
         aSource.Play();
         Destroy(tempGO, clip.length);

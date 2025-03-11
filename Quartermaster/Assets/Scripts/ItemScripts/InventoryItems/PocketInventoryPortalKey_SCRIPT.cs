@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class PocketInventoryPortalKey : InventoryItem {
     [Header("Item Configuration")]
-    private const float _TELEPORT_RADIUS = 20.0f;
+    private float _teleportRadius = 20.0f;
 
 
     [Header("Backing Fields")]
-    private int _id = 0;
+    // private int _id = 0;
     private int _pocketInventoryQuantity = 0;
     private float _lastUsedTime = float.MinValue;
     private static float _itemCooldown = 10f;
@@ -29,10 +29,6 @@ public class PocketInventoryPortalKey : InventoryItem {
         set => _pocketInventoryQuantity = value;
     }
 
-    public override float lastUsed {
-        get => _lastUsedTime;
-        set => _lastUsedTime = value;
-    }
 
     public override bool IsWeapon(){
         return false;
@@ -45,6 +41,12 @@ public class PocketInventoryPortalKey : InventoryItem {
 
     public override int StackLimit() {
         return 1;
+    }
+
+    public override void InitializeFromGameManager()
+    {
+        _teleportRadius = GameManager.instance.PortalKey_TeleportRadius;
+        _itemCooldown = GameManager.instance.PortalKey_Cooldown;
     }
 
     public override void Use(GameObject user , bool isHeld) {
@@ -69,7 +71,7 @@ public class PocketInventoryPortalKey : InventoryItem {
 
         List<GameObject> nearbyPlayers;
         // use physics overlap sphere with radius _TELEPORT_RADIUS to grab nearby players
-        nearbyPlayers = GetNearbyPlayers(user, _TELEPORT_RADIUS);
+        nearbyPlayers = GetNearbyPlayers(user, _teleportRadius);
         Debug.Log ("Nearby players to teleport: " + nearbyPlayers.Count);
         foreach (GameObject player in nearbyPlayers) {
             TeleportPlayer(player);
