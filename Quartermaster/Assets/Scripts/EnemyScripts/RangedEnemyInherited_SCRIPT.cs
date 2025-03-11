@@ -171,14 +171,24 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     }
 
     protected override void OnDie() {
+        try {
+            PlaySoundForEmitter("flying_die", transform.position); 
+        } catch (System.Exception e) {
+            Debug.LogError("Error playing sound for emitter: " + e.Message);
+        }    
+        
+        StartCoroutine(WaitOneSecond());
         base.OnDie();
-        PlaySoundForEmitter("flying_die", transform.position); 
 
     }
 
     private IEnumerator ResetAttackCooldown() {
         yield return new WaitForSeconds(attackCooldown);
         _canAttack = true;
+    }
+
+    private IEnumerator WaitOneSecond() {
+        yield return new WaitForSeconds(1f);
     }
 
     public void PlaySoundForEmitter(string emitterId, Vector3 position) {

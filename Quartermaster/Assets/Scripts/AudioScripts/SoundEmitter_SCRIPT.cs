@@ -1,5 +1,9 @@
 using Unity.VisualScripting;
 using UnityEngine;
+using System.Collections.Generic;
+
+
+
 
 public class SoundEmitter : MonoBehaviour {
     private NetworkAudio networkAudio;
@@ -11,7 +15,26 @@ public class SoundEmitter : MonoBehaviour {
     private string soundAddressableKey;
 
     private void Awake() {
-        networkAudio = GetComponent<NetworkAudio>(); 
+        networkAudio = GetComponentInParent<NetworkAudio>(); 
+    }
+
+    [System.Serializable]
+    public struct emitterType {
+        public string emitterID;
+        public string destinationMixer;
+        public string[] soundAddressableKeys;
+    }
+
+    public List<emitterType> emitterTypes;
+
+    public void PlayUserBasedNetworkSound(Vector3 soundPosition, string emitterId){
+        foreach (emitterType emitter in emitterTypes){
+            if (emitter.emitterID == emitterId){
+                destinationMixer = emitter.destinationMixer;
+                soundAddressableKeys = emitter.soundAddressableKeys;
+                PlayNetworkedSound(soundPosition);
+            }
+        }
     }
 
     public void PlayNetworkedSound(Vector3 soundPosition) {
@@ -42,5 +65,32 @@ public class SoundEmitter : MonoBehaviour {
 
         Debug.Log("Requestion sound server RPC for " + soundAddressableKey);
         networkAudio.RequestSoundServerRpc(soundAddressableKey, soundPosition, destinationMixer);
+    }
+
+    // helpers for looped sounds
+    public void StartLoopedSound(Vector3 soundPosition) {
+        if (networkAudio == null) {
+            Debug.LogError("[SoundEmitter] No NetworkAudio component found!");
+            return;
+        }
+
+        if (soundAddressableKeys == null || soundAddressableKeys.Length == 0) {
+            Debug.LogError($"[SoundEmitter] No sound keys assigned for {gameObject.name}!");
+            return;
+        }
+
+        soundAddressableKey = soundAddressableKeys[0];
+        Debug.Log("[SoundEmitter] Starting looping sound: " + soundAddressableKey);
+        networkAudio.RequestLoopedSoundServerRpc(soundAddressableKey, soundPosition, destinationMixer);
+    }
+
+    public void StopLoopedSound(Vector3 soundPosition) {
+        if (networkAudio == null) {
+            Debug.LogError("[SoundEmitter] No NetworkAudio component found!");
+            return;
+        }
+
+        Debug.Log("[SoundEmitter] Stopping looping sound: " + soundAddressableKey);
+        networkAudio.StopLoopedSoundServerRpc(soundAddressableKey, soundPosition, destinationMixer);
     }
 }

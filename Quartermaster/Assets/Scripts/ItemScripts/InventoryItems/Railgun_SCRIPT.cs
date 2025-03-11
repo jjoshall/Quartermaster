@@ -18,6 +18,8 @@ public class Railgun : IWeapon
     private static string _explosionEffect = "RailgunExplosion"; // effect spawned at environment explosion contact pt
     private static string _barrelLaserEffect = "PistolBarrelFire"; // effect at player
 
+    private SoundEmitter[] soundEmitters;
+
     #endregion
     #region Variables
     // Backing fields. Don't touch these.
@@ -102,6 +104,20 @@ public class Railgun : IWeapon
 
         // piercing raycast
         List<Transform> targetsHit = new List<Transform>();
+
+        GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
+        GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
+        GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
+
+        soundEmitters = user.GetComponents<SoundEmitter>();
+        string emitterId = "railgun_shot";
+
+        foreach (SoundEmitter emitter in soundEmitters) {
+            if (emitter.emitterID == emitterId) {
+                emitter.PlayNetworkedSound(shotOrigin.transform.position);
+            }
+        }
+
 
         LineAoe(user, camera, targetsHit, combinedLayerMask); // calls explosion if environment hit.
         DamageTargets(user, targetsHit);

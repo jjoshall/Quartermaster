@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Audio;
+using System.Collections.Generic;
 
 public class AudioManager : MonoBehaviour {
     public static AudioManager Instance { get; private set; }
@@ -11,6 +12,9 @@ public class AudioManager : MonoBehaviour {
     public Transform playerTransform;
     public float minDistance = 5f;
     public float maxDistance = 50f;
+
+    private Dictionary<string, AudioSource> loopingAudioSources = new Dictionary<string, AudioSource>();
+
 
     private void Awake() {
         if (Instance == null) {
@@ -83,6 +87,33 @@ public class AudioManager : MonoBehaviour {
         Debug.Log("[AudioManager] Playing sound: " + clip.name);
 
         aSource.Play();
+        Debug.Log("After temp audio played");
         Destroy(tempGO, clip.length);
+    }
+
+    public void PlayLoopingSoundAtPosition(AudioClip clip, Vector3 soundPosition, string destinationMixer) {
+        // Create a new GameObject to hold the looping AudioSource.
+        GameObject loopGO = new GameObject("LoopingAudio_" + clip.name);
+        loopGO.transform.position = soundPosition;
+        AudioSource aSource = loopGO.AddComponent<AudioSource>();
+        aSource.clip = clip;
+        aSource.loop = true;
+        aSource.spatialBlend = 1.0f;
+        aSource.minDistance = minDistance;
+        aSource.maxDistance = maxDistance;
+        aSource.outputAudioMixerGroup = gameMixer.FindMatchingGroups(destinationMixer)[0];
+        aSource.Play();
+
+        // Store reference so it can be stopped later.
+        loopingAudioSources[clip.name] = aSource;
+    }
+
+    public void StopLoopingSoundAtPosition(string soundAddressableKey, Vector3 soundPosition, string destinationMixer) {
+        // Use the key (or some identifier) to stop the corresponding AudioSource.
+        if (loopingAudioSources.TryGetValue(soundAddressableKey, out AudioSource aSource)) {
+            aSource.Stop();
+            Destroy(aSource.gameObject);
+            loopingAudioSources.Remove(soundAddressableKey);
+        }
     }
 }

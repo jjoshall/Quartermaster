@@ -95,26 +95,18 @@ public class Pistol : IWeapon
         GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
         GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
 
-        soundEmitters = p_heldWeapon.GetComponents<SoundEmitter>();
+        soundEmitters = user.GetComponents<SoundEmitter>();
         string emitterId = "pistol_shot";
 
 
         foreach (SoundEmitter emitter in soundEmitters) {
             if (emitter.emitterID == emitterId) {
                 emitter.PlayNetworkedSound(shotOrigin.transform.position);
-                return;
+
             }
         }
 
 
-        // play sound
-        SoundEmitter soundEmitter = p_heldWeapon.GetComponent<SoundEmitter>();
-        if (soundEmitter != null) {
-            Debug.Log("Fired pistol, played sound: " + soundEmitter.emitterID);
-            soundEmitter.PlayNetworkedSound(shotOrigin.transform.position);
-        } else {
-            Debug.LogError("Pistol has no SoundEmitter component.");
-        }
 
         GameObject camera = user.transform.Find("Camera").gameObject;
         int enemyLayer = LayerMask.GetMask("Enemy");
