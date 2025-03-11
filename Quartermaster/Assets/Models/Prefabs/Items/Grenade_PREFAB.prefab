@@ -67,6 +67,7 @@ GameObject:
   - component: {fileID: -241234100000356255}
   - component: {fileID: 3598719706095241124}
   - component: {fileID: 9026761743595690768}
+  - component: {fileID: 4009163659529052822}
   m_Layer: 6
   m_Name: Grenade_PREFAB
   m_TagString: Item
@@ -247,6 +248,22 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.4, y: 0.4, z: 0.4}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4009163659529052822
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8519617277999394602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62d419665ed6d7a41b7dc591a5a37b4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startPos: {x: -400, y: 100}
+  finalPos: {x: 100, y: 100}
+  holdDuration: 3
+  message: Grenade. Consumable. Can hold left click to throw.
 --- !u!1001 &1451973314769325731
 PrefabInstance:
   m_ObjectHideFlags: 0

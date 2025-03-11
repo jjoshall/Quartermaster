@@ -7,7 +7,7 @@ public class PlayerDissolveAnimator : NetworkBehaviour
     private const float _DISSOLVE_MAX_RANGE = 1.0f;
 
     public Renderer playerRenderer;
-    private Material _playerMaterial;
+    private Material[] _playerMaterials;
     public float dissolveDuration = 1.0f;
     public float solidifyDuration = 1.0f;
     private float _dissolveTimerStart = 0.0f;
@@ -25,8 +25,12 @@ public class PlayerDissolveAnimator : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         if (playerRenderer){
-            _playerMaterial = new Material(playerRenderer.material);
-            playerRenderer.material = _playerMaterial;
+            Material[] newMaterials = new Material[playerRenderer.materials.Length];
+            for (int i = 0; i < playerRenderer.materials.Length; i++){
+                newMaterials[i] = new Material(playerRenderer.materials[i]);
+            }
+            _playerMaterials = newMaterials;
+            playerRenderer.materials = newMaterials;
         } else {
             Debug.LogError("PlayerRenderer is not set in the PlayerDissolveAnimator script.");
         }
@@ -74,7 +78,9 @@ public class PlayerDissolveAnimator : NetworkBehaviour
     }
 
     public void AnimateDissolve(){
-        _playerMaterial.SetFloat("_DissolveStrength", 0.0f);
+        for (int i = 0; i < _playerMaterials.Length; i++){
+            _playerMaterials[i].SetFloat("_DissolveStrength", 0.0f);
+        }
         _dissolveTimerStart = Time.time;
         _dissolveStarted = true;
     }
@@ -85,12 +91,16 @@ public class PlayerDissolveAnimator : NetworkBehaviour
         // set the lerp value to the dissolveAmount
         // set the dissolveAmount to the playerMaterial's "_DissolveAmount" property
         dissolveAmount = Mathf.Lerp(_DISSOLVE_MIN_RANGE, _DISSOLVE_MAX_RANGE, (Time.time - _dissolveTimerStart) / dissolveDuration);
-        _playerMaterial.SetFloat("_DissolveStrength", dissolveAmount);
+        for (int i = 0; i < _playerMaterials.Length; i++){
+            _playerMaterials[i].SetFloat("_DissolveStrength", dissolveAmount);
+        }
     }
 
     public void AnimateSolidify(){
         Debug.Log ("animating solidify function. setting dissolve strength to 1.");
-        _playerMaterial.SetFloat("_DissolveStrength", 1.0f);
+        for (int i = 0; i < _playerMaterials.Length; i++){
+            _playerMaterials[i].SetFloat("_DissolveStrength", 1.0f);
+        }
         _solidifyTimerStart = Time.time;
         _solidifyStarted = true;
 
@@ -102,6 +112,8 @@ public class PlayerDissolveAnimator : NetworkBehaviour
         // set the lerp value to the dissolveAmount
         // set the dissolveAmount to the playerMaterial's "_DissolveAmount" property
         dissolveAmount = Mathf.Lerp(_DISSOLVE_MAX_RANGE, _DISSOLVE_MIN_RANGE, (Time.time - _solidifyTimerStart) / solidifyDuration);
-        _playerMaterial.SetFloat("_DissolveStrength", dissolveAmount);
+        for (int i = 0; i < _playerMaterials.Length; i++){
+            _playerMaterials[i].SetFloat("_DissolveStrength", dissolveAmount);
+        }
     }
 }
