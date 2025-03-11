@@ -335,8 +335,8 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             if (m_RebindText != null)
             {
                 var text = !string.IsNullOrEmpty(m_RebindOperation.expectedControlType)
-                    ? $"{partName}Waiting for {m_RebindOperation.expectedControlType} input..."
-                    : $"{partName}Waiting for input...";
+                    ? $"{partName}Waiting for {m_RebindOperation.expectedControlType} input...\n(esc to cancel)"
+                    : $"{partName}Waiting for input...\n(esc to cancel)";
                 m_RebindText.text = text;
             }
 
