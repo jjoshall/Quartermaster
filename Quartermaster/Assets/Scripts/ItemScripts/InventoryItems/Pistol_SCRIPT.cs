@@ -15,6 +15,8 @@ public class Pistol : IWeapon
     private static string _enemyHitEffect = "Sample"; // effect spawned on center of every enemy hit.
     private static string _barrelFireEffect = "PistolBarrelFire"; // effect at player
     
+    private SoundEmitter[] soundEmitters;
+
     #endregion
     #region Variables
     // private int _id;
@@ -93,6 +95,19 @@ public class Pistol : IWeapon
         GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
         GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
 
+        soundEmitters = user.GetComponents<SoundEmitter>();
+        string emitterId = "pistol_shot";
+
+
+        foreach (SoundEmitter emitter in soundEmitters) {
+            if (emitter.emitterID == emitterId) {
+                emitter.PlayNetworkedSound(shotOrigin.transform.position);
+
+            }
+        }
+
+
+
         GameObject camera = user.transform.Find("Camera").gameObject;
         int enemyLayer = LayerMask.GetMask("Enemy");
         int buildingLayer = LayerMask.GetMask("Building");
@@ -123,12 +138,6 @@ public class Pistol : IWeapon
                     // If the user is a client, request the server to spawn the trail.
                     effects.RequestSpawnBulletTrailServerRpc(shotOrigin.transform.position, hit.point, itemID);
                 }
-            }
-
-            SoundEmitter soundEmitter = p_heldWeapon.GetComponent<SoundEmitter>();
-            if (soundEmitter != null) {
-                Debug.Log("Played sound: " + soundEmitter);
-                soundEmitter.PlayNetworkedSound("Weapon/PistolShot.ogg", shotOrigin.transform.position);
             }
 
             // Check if the hit object is a building
@@ -162,6 +171,7 @@ public class Pistol : IWeapon
             }
         }
     }
+    
 
     
     private void DoDamage (Damageable d, bool isExplosiveDmgType, GameObject user){

@@ -1,4 +1,4 @@
-%YAML 1.1
+  %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!29 &1
 OcclusionCullingSettings:
@@ -567,8 +567,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   tooltipCanvas: {fileID: 90319612}
   tooltipPrefab: {fileID: 6792220041042979371, guid: 00fbd0743e92f12489e1d43f959d811b, type: 3}
-  finalPos: {x: -9300, y: 990}
-  startPos: {x: -330, y: 990}
+  finalPos: {x: -400, y: 990}
+  startPos: {x: 0, y: 990}
 --- !u!114 &249522831
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4200,6 +4200,26 @@ PrefabInstance:
     - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
       propertyPath: _peakIntensityThreshold
       value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
+      propertyPath: _buildUpEnemyWeights.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
+      propertyPath: _buildUpEnemyWeights.Array.data[2].enemyType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
+      propertyPath: _buildUpEnemyWeights.Array.data[0].spawnWeight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
+      propertyPath: _buildUpEnemyWeights.Array.data[2].enemyPrefab
+      value: 
+      objectReference: {fileID: 4276394852278779144, guid: 8ee66f5ce3f72cc4bb6aade7e36c6e5e, type: 3}
+    - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
+      propertyPath: _buildUpEnemyWeights.Array.data[2].spawnWeight
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 7779283026591875376, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
       propertyPath: m_LocalPosition.x

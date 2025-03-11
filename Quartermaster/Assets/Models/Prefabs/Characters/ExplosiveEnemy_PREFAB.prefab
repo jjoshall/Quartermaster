@@ -138,8 +138,9 @@ GameObject:
   - component: {fileID: 6073005085154520232}
   - component: {fileID: -8060667617129677652}
   - component: {fileID: 3496285695615514000}
-  - component: {fileID: 1885898373684724043}
   - component: {fileID: 5131794169148518160}
+  - component: {fileID: 1885898373684724043}
+  - component: {fileID: 4257739937915784478}
   m_Layer: 7
   m_Name: ExplosiveEnemy_PREFAB
   m_TagString: Enemy
@@ -336,21 +337,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
---- !u!114 &1885898373684724043
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5746035906590994295}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01db514f5e6309c4e9942a6913481df6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  soundEmitterIndex: 0
-  destinationMixer: SFX
-  soundAddressableKeys: []
 --- !u!114 &5131794169148518160
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -366,6 +352,40 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   TransitionStateInfoList: []
   m_Animator: {fileID: 4704307903886647586}
+--- !u!114 &1885898373684724043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5746035906590994295}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01db514f5e6309c4e9942a6913481df6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  emitterID: explode_build
+  destinationMixer: SFX
+  soundAddressableKeys:
+  - Enemy/EnemyExplodeBuildup.ogg
+  emitterTypes: []
+--- !u!114 &4257739937915784478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5746035906590994295}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01db514f5e6309c4e9942a6913481df6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  emitterID: explode_die
+  destinationMixer: SFX
+  soundAddressableKeys:
+  - Enemy/EnemyExplodeDie.ogg
+  emitterTypes: []
 --- !u!1 &7813868877917393971
 GameObject:
   m_ObjectHideFlags: 0
