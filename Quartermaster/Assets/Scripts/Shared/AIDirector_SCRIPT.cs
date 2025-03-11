@@ -33,7 +33,7 @@ public class AIDirector : NetworkBehaviour {
 
     [Header("Spawn Rate Settings")]
     [SerializeField] private float _buildUpSpawnRate = 6f; // Seconds between spawns
-    [SerializeField] private float _peakSpawnRate = 1f; // Seconds between spawns
+    [SerializeField] private float _peakSpawnRate = 0.5f; // Seconds between spawns
     [SerializeField] private float _relaxSpawnRate = 10f; // Seconds between spawns
 
     [Header("Enemy Type Weights")]

@@ -4332,6 +4332,34 @@ PrefabInstance:
       propertyPath: _peakIntensityThreshold
       value: 60
       objectReference: {fileID: 0}
+    - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
+      propertyPath: _buildUpEnemyWeights.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
+      propertyPath: _peakEnemyWeights.Array.data[0].spawnWeight
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
+      propertyPath: _buildUpEnemyWeights.Array.data[1].enemyType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
+      propertyPath: _buildUpEnemyWeights.Array.data[0].enemyPrefab
+      value: 
+      objectReference: {fileID: 3551560962508933810, guid: 69de7c9352a23844187f99a1518c29a9, type: 3}
+    - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
+      propertyPath: _buildUpEnemyWeights.Array.data[0].spawnWeight
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
+      propertyPath: _buildUpEnemyWeights.Array.data[1].enemyPrefab
+      value: 
+      objectReference: {fileID: 6449858844552445292, guid: f9e0d41d7de8cf940b0224449f9fdaa3, type: 3}
+    - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
+      propertyPath: _buildUpEnemyWeights.Array.data[1].spawnWeight
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 7779283026591875376, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -5455,6 +5483,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1797533317}
     m_Modifications:
+    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
+      propertyPath: flame_Damage
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
       propertyPath: _dmgSpec_MultiplierPer
       value: 0.2

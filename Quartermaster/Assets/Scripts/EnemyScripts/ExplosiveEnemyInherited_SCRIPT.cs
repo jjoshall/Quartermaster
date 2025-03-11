@@ -82,23 +82,32 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     #endregion
 
-    protected override void UpdateTarget() {
-        if (enemySpawner == null || enemySpawner.playerList == null) return;
+    //protected override void UpdateTarget() {
+    //    if (enemySpawner == null || enemySpawner.playerList == null) return;
 
-        GameObject closestPlayer = null;
-        float closestDistance = float.MaxValue;
+    //    bool useGlobalTarget = true;
 
-        foreach (GameObject obj in enemySpawner.playerList) {
-            float distance = Vector3.Distance(transform.position, obj.transform.position);
-            if (distance < closestDistance) {
-                closestPlayer = obj;
-                closestDistance = distance;
-            }
-        }
+    //    if (useGlobalTarget) {
+    //        GameObject closestPlayerToGlobalTarget = null;
+    //        float closestDistance = float.MaxValue;
+    //        Vector3 globalTarget = enemySpawner.GetGlobalAggroTarget();
 
+    //        foreach (GameObject player in enemySpawner.playerList) {
+    //            if (player == null) continue;
 
-        target = closestPlayer != null ? closestPlayer.transform : null;
-    }
+    //            float distance = Vector3.Distance(player.transform.position, globalTarget);
+    //            if (distance < closestDistance) {
+    //                closestDistance = distance;
+    //                closestPlayerToGlobalTarget = player;
+    //            }
+    //        }
+
+    //        target = closestPlayerToGlobalTarget != null ? closestPlayerToGlobalTarget.transform : null;
+    //    }
+    //    else {
+    //        base.UpdateTarget();
+    //    }
+    //}
 
     protected override IEnumerator DelayAttack() {
         isBlinking.Value = true;

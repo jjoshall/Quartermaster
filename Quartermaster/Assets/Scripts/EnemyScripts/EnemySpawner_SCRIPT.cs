@@ -11,6 +11,9 @@ public class EnemySpawner : NetworkBehaviour {
     public bool isSpawning = true;
     public float _spawnCooldown = 2f;
     [HideInInspector] public float _totalWeight = 0f;
+    [SerializeField] private float globalAggroUpdateInterval = 10.0f;
+    private float globalAggroUpdateTimer = 0.0f;
+    private Vector3 globalAggroTarget = new Vector3(0, 0, 0);
 
     [SerializeField] private List<GameObject> _enemySpawnPoints;
 
@@ -55,6 +58,12 @@ public class EnemySpawner : NetworkBehaviour {
     private async void ClientDisconnected(ulong u) {
         await Task.Yield();
         playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
+    }
+
+    private void Update() {
+        if (IsServer) {
+            UpdateGlobalAggroTargetTimer();
+        }   
     }
 
     public void CalculateTotalWeight() {
@@ -133,6 +142,30 @@ public class EnemySpawner : NetworkBehaviour {
         }
 
         return _enemySpawnData[0].enemyPrefab;
+    }
+
+    public Vector3 GetGlobalAggroTarget() {
+        return globalAggroTarget;
+    }
+
+    private void UpdateGlobalAggroTargetTimer() {
+        globalAggroUpdateTimer += Time.deltaTime;
+        if (globalAggroUpdateTimer >= globalAggroUpdateInterval) {
+            globalAggroUpdateTimer = 0.0f;
+            serverDebugMsgServerRpc("Player list count: " + playerList.Count);
+
+            for (int i = 0; i < playerList.Count; i++) {
+                if (playerList[i] == null) {
+                    playerList.RemoveAt(i);
+                    i--;
+                }
+            }
+
+            if (playerList.Count > 0) {
+                int randomPlayer = Random.Range(0, playerList.Count);
+                globalAggroTarget = playerList[randomPlayer].transform.position;
+            }
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
