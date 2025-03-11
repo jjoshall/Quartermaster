@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &2252270999769582739
+--- !u!1 &8444834782760470264
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,23 +8,23 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1851093734954844317}
-  - component: {fileID: 6293922688451564986}
-  - component: {fileID: 3636692678263731651}
+  - component: {fileID: 7779283026591875376}
+  - component: {fileID: -219807797934244134}
+  - component: {fileID: 6541605234242733098}
   m_Layer: 0
-  m_Name: PoolManager_PREFAB
+  m_Name: AI Director
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1851093734954844317
+--- !u!4 &7779283026591875376
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2252270999769582739}
+  m_GameObject: {fileID: 8444834782760470264}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -33,20 +33,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6293922688451564986
+--- !u!114 &-219807797934244134
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2252270999769582739}
+  m_GameObject: {fileID: 8444834782760470264}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2529143914
-  InScenePlacedSourceGlobalObjectIdHash: 2529143914
+  GlobalObjectIdHash: 1412214570
+  InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
@@ -58,38 +58,56 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &3636692678263731651
+--- !u!114 &6541605234242733098
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2252270999769582739}
+  m_GameObject: {fileID: 8444834782760470264}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6901faa0c289cbf41b10f3e1a812d782, type: 3}
+  m_Script: {fileID: 11500000, guid: 1aae4b54434805444a50332696dc64ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _enemySpawnData:
+  _buildUpDuration: 100
+  _peakDuration: 30
+  _relaxDuration: 45
+  _baseIntensity: 10
+  _intensityDecayRate: 0.5
+  _peakIntensityThreshold: 60
+  _relaxIntensityThreshold: 30
+  _enemyKillIntensity: 0.5
+  _damageDealtMultiplier: 0.25
+  _damageTakenMultiplier: 0.25
+  _buildUpSpawnRate: 6
+  _peakSpawnRate: 1
+  _relaxSpawnRate: 10
+  _buildUpEnemyWeights:
   - enemyPrefab: {fileID: 6449858844552445292, guid: f9e0d41d7de8cf940b0224449f9fdaa3, type: 3}
+    enemyType: 0
     spawnWeight: 10
   - enemyPrefab: {fileID: 3551560962508933810, guid: 69de7c9352a23844187f99a1518c29a9, type: 3}
-    spawnWeight: 5
+    enemyType: 1
+    spawnWeight: 1
+  _peakEnemyWeights:
+  - enemyPrefab: {fileID: 6449858844552445292, guid: f9e0d41d7de8cf940b0224449f9fdaa3, type: 3}
+    enemyType: 0
+    spawnWeight: 10
   - enemyPrefab: {fileID: 4276394852278779144, guid: 8ee66f5ce3f72cc4bb6aade7e36c6e5e, type: 3}
-    spawnWeight: 2
-  _maxEnemyInstanceCount: 100
-  isSpawning: 1
-  _spawnCooldown: 0.2
-  _totalWeight: 0
-  _enemySpawnPoints:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  enemyList: []
-  playerList: []
+    enemyType: 0
+    spawnWeight: 4
+  - enemyPrefab: {fileID: 3551560962508933810, guid: 69de7c9352a23844187f99a1518c29a9, type: 3}
+    enemyType: 1
+    spawnWeight: 5
+  _relaxEnemyWeights:
+  - enemyPrefab: {fileID: 6449858844552445292, guid: f9e0d41d7de8cf940b0224449f9fdaa3, type: 3}
+    enemyType: 0
+    spawnWeight: 1
+  _currentState:
+    m_InternalValue: 0
+  _currentIntensity:
+    m_InternalValue: 0
+  _stateTimeRemaining:
+    m_InternalValue: 180
