@@ -168,6 +168,10 @@ public class GameManager : NetworkBehaviour {
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
+    public NetworkVariable<int> totalScore = new NetworkVariable<int>(0,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
+
     [Header("DramaFunction")]
     // placeholder variables. nothing set in stone, just brainstorming
     private float _drama = 0.0f;
@@ -199,6 +203,12 @@ public class GameManager : NetworkBehaviour {
     public void AddPlayerDamageServerRpc(float damageAmount) {
         if (!IsServer) return;
         totalPlayerDamageTaken.Value += damageAmount;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void AddScoreServerRpc(int score) {
+        if (!IsServer) return;
+        totalScore.Value += score;
     }
 
     #endregion

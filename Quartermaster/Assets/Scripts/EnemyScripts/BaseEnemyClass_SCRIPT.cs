@@ -218,7 +218,8 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         ItemManager.instance.ThresholdBurstDrop(transform.position);
 
         GameManager.instance.IncrementEnemyKillsServerRpc();
-        //Debug.Log("Total enemy kills: " + GameManager.instance.totalEnemyKills.Value);
+        GameManager.instance.AddScoreServerRpc(50);
+        Debug.Log("Total score " + GameManager.instance.totalScore.Value);
 
         enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
     }
