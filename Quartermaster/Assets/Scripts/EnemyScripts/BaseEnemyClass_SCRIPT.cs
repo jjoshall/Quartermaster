@@ -28,6 +28,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     private bool _isAttacking = false;
     private Vector3 enemySeparationVector;
     protected Transform target;
+    protected Vector3 targetDestination;
 
     // Speed run-time variables
     protected float _baseSpeed = 0.0f;
@@ -87,8 +88,8 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
         UpdateTarget();
 
-        if (target != null) {
-            bool inRange = Vector3.Distance(transform.position, target.position) <= attackRange;
+        if (targetDestination != null) {
+            bool inRange = Vector3.Distance(transform.position, targetDestination) <= attackRange;
 
             if (inRange && !_isAttacking) {
                 // Add a delay before attacking
@@ -96,7 +97,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             }
             else {
                 CalculateSeparationOffset();
-                agent.SetDestination(target.position);
+                agent.SetDestination(targetDestination);
 
                 this.gameObject.transform.position += enemySeparationVector * Time.deltaTime;
             }
@@ -104,7 +105,41 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     }
 
     // IMPLEMENT THESE TWO METHODS FOR NEW ENEMIES
-    protected abstract void UpdateTarget();
+    protected void UpdateTarget(){
+        if (enemySpawner == null || enemySpawner.playerList == null) return;
+
+        GameObject closestPlayer = null;
+        float closestDistance = float.MaxValue;
+
+        foreach (GameObject obj in enemySpawner.playerList) {
+            float distance = Vector3.Distance(transform.position, obj.transform.position);
+            if (distance < closestDistance) {
+                closestPlayer = obj;
+                closestDistance = distance;
+            }
+        }
+        if (closestPlayer == null){
+            if (_aggroedPlayers.Count > 0){
+                foreach (GameObject obj in _aggroedPlayers) {
+                    float distance = Vector3.Distance(transform.position, obj.transform.position);
+                    if (distance < closestDistance) {
+                        closestPlayer = obj;
+                        closestDistance = distance;
+                    }
+                }
+            }
+            if (closestPlayer == null){
+                targetDestination = EnemySpawner.instance.globalDelayTarget;
+                target = null;
+            }
+            else {
+                target = closestPlayer.transform;
+                targetDestination = closestPlayer.transform.position;
+            }
+        }
+
+    }
+
     protected abstract void Attack();
 
     protected virtual IEnumerator DelayAttack() {
@@ -164,6 +199,15 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         }
         
         GameManager.instance.AddEnemyDamageServerRpc(damage);
+
+
+        if (damageSource == null){
+            return;
+        }
+        
+        if (damageSource.CompareTag("Player")) {
+            _aggroedPlayers.Add(damageSource);
+        }
         //Debug.Log("Total damage taken by enemies: " + GameManager.instance.totalDamageDealtToEnemies.Value);
     }
 

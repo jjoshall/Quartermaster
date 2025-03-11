@@ -52,7 +52,7 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
         if (!IsServer) return;
 
-        Vector3 lookPosition = target.position;
+        Vector3 lookPosition = targetDestination;
         lookPosition.y = transform.position.y;
         transform.LookAt(lookPosition);
 
@@ -77,7 +77,7 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     private void UpdateWeaponAngle() {
         if (_leftGun != null && _rightGun != null) {
-            Vector3 directionToTarget = (target.position - transform.position).normalized;
+            Vector3 directionToTarget = (targetDestination - transform.position).normalized;
             Debug.DrawRay(_firePoint.position, directionToTarget * 10f, Color.red);
             Quaternion lookRotation = Quaternion.LookRotation(directionToTarget) * Quaternion.Euler(90f, 0f, 0f);
 
@@ -86,25 +86,25 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         }
     }
 
-    protected override void UpdateTarget() {
-        if (enemySpawner == null || enemySpawner.playerList == null) return;
+    // protected override void UpdateTarget() {
+    //     if (enemySpawner == null || enemySpawner.playerList == null) return;
 
-        GameObject closestPlayer = null;
-        float closestDistance = float.MaxValue;
+    //     GameObject closestPlayer = null;
+    //     float closestDistance = float.MaxValue;
 
-        foreach (GameObject obj in enemySpawner.playerList) {
-            float distance = Vector3.Distance(transform.position, obj.transform.position);
-            if (distance < closestDistance) {
-                closestPlayer = obj;
-                closestDistance = distance;
-            }
-        }
-        target = closestPlayer != null ? closestPlayer.transform : null;
-    }
+    //     foreach (GameObject obj in enemySpawner.playerList) {
+    //         float distance = Vector3.Distance(transform.position, obj.transform.position);
+    //         if (distance < closestDistance) {
+    //             closestPlayer = obj;
+    //             closestDistance = distance;
+    //         }
+    //     }
+    //     target = closestPlayer != null ? closestPlayer.transform : null;
+    // }
 
     protected override void Attack() {
         if (!_canAttack) return;
-        if (target == null) return;
+        if (targetDestination == null) return;
         _canAttack = false;
 
         if (IsServer) {
