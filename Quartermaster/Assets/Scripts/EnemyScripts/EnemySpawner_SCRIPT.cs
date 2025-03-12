@@ -118,6 +118,7 @@ public class EnemySpawner : NetworkBehaviour {
                     enemyTransform.GetComponent<NetworkObject>().Spawn(true);
                     enemyList.Add(enemyTransform);
                     enemyTransform.SetParent(this.gameObject.transform);
+
                     yield return new WaitForSeconds(_spawnCooldown);
                 }
             }
