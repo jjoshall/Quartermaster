@@ -3,14 +3,22 @@ using UnityEngine.AI;
 using Unity.Netcode;
 using System.Collections;
 using TMPro;
+using UnityEngine.ResourceManagement.ResourceProviders.Simulation;
 
 public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
+    protected abstract float GetAttackCooldown();
+    protected abstract float GetAttackRange();
+    protected abstract int GetDamage();
+    protected abstract float GetAttackRadius();
+    protected abstract bool GetUseGlobalTarget();
+    protected abstract float GetInitialHealth();
+    
     [Header("Enemy Settings")]
-    protected virtual float attackCooldown => 2f;
-    protected virtual float attackRange => 2f;
-    protected virtual int damage => 2;
-    protected virtual float attackRadius => 2f;
-    protected virtual bool useGlobalTarget => true;
+    protected virtual float attackCooldown => GetAttackCooldown();
+    protected virtual float attackRange => GetAttackRange();
+    protected virtual int damage => GetDamage();
+    protected virtual float attackRadius => GetAttackRadius();
+    protected virtual bool useGlobalTarget => GetUseGlobalTarget();
     public EnemyType enemyType;
     [SerializeField] private float _separationRadius = 10f;
     [SerializeField] private float _separationStrength = 3f;
@@ -36,6 +44,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
+
     public override void OnNetworkSpawn() {
         agent = GetComponent<NavMeshAgent>();
         _baseSpeed = agent.speed;
@@ -55,6 +64,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             if (health != null) {
                 health.OnDamaged += OnDamaged;
                 health.OnDie += OnDie;
+                health.CurrentHealth.Value = GetInitialHealth();
             }
             enemySpawner = EnemySpawner.instance;
         }
@@ -218,7 +228,8 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         ItemManager.instance.ThresholdBurstDrop(transform.position);
 
         GameManager.instance.IncrementEnemyKillsServerRpc();
-        //Debug.Log("Total enemy kills: " + GameManager.instance.totalEnemyKills.Value);
+        GameManager.instance.AddScoreServerRpc(50);
+        Debug.Log("Total score " + GameManager.instance.totalScore.Value);
 
         enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
     }

@@ -3,10 +3,17 @@ using Unity.Netcode;
 using System.Collections;
 
 public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
+    protected override float GetAttackCooldown() => GameManager.instance.RangedEnemy_AttackCooldown;
+    protected override float GetAttackRange() => GameManager.instance.RangedEnemy_AttackRange;
+    protected override int GetDamage() => GameManager.instance.RangedEnemy_AttackDamage;
+    protected override float GetAttackRadius() => 0f; // Ranged enemies might not use this
+    protected override bool GetUseGlobalTarget() => GameManager.instance.RangedEnemy_UseGlobalTarget;
+    protected override float GetInitialHealth() => GameManager.instance.RangedEnemy_Health;
+
     [Header("Ranged Attack Settings")]
     [SerializeField] private float _maxAttackDistance = 10f;
     [SerializeField] private float _minAttackDistance = 4f; // Minimum distance to maintain from player
-    [SerializeField] private float _hoveredHeight = 3f; // Height above ground level
+    [SerializeField] private float _hoveredHeight = 3f; // Height abov/e ground level
     [SerializeField] private Transform _firePoint; // Where projectiles originate from
     [SerializeField] private TrailRenderer _bulletTrailPrefab;
     [SerializeField] private float _trailDuration = 0.3f; // How long the trail effect lasts
@@ -19,19 +26,23 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     private bool _canAttack = true;
 
     private Animator animator;
+    private SoundEmitter[] soundEmitters;
 
     [Header("Armature Settings")]
     [SerializeField] private Transform _leftGun;
-    [SerializeField] private Transform _rightGun;   
+    [SerializeField] private Transform _rightGun;
 
-    protected override float attackCooldown => 3f;
-    protected override float attackRange => 10f;
-    protected override int damage => 8;
+    //protected override float attackCooldown => 3f;
+    //protected override float attackRange => 10f;
+    //protected override int damage => 8;
+    //protected override bool useGlobalTarget => true;
 
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
         
         animator = GetComponentInChildren<Animator>();
+        soundEmitters = GetComponents<SoundEmitter>();
+
 
 
 
@@ -151,8 +162,33 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         Destroy(trail.gameObject, trail.time);
     }
 
+    protected override void OnDie() {
+        try {
+            PlaySoundForEmitter("flying_die", transform.position); 
+        } catch (System.Exception e) {
+            Debug.LogError("Error playing sound for emitter: " + e.Message);
+        }    
+        
+        StartCoroutine(WaitOneSecond());
+        base.OnDie();
+
+    }
+
     private IEnumerator ResetAttackCooldown() {
         yield return new WaitForSeconds(attackCooldown);
         _canAttack = true;
+    }
+
+    private IEnumerator WaitOneSecond() {
+        yield return new WaitForSeconds(1f);
+    }
+
+    public void PlaySoundForEmitter(string emitterId, Vector3 position) {
+        foreach (SoundEmitter emitter in soundEmitters) {
+            if (emitter.emitterID == emitterId) {
+                emitter.PlayNetworkedSound(position);
+                return;
+            }
+        }
     }
 }

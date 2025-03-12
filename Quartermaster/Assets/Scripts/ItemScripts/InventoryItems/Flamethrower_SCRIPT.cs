@@ -16,6 +16,8 @@ public class Flamethrower : IWeapon
     private static string _enemyHitEffect = "Sample"; // effect spawned on center of every enemy hit.
     private static string _barrelLaserEffect = "PistolBarrelFire"; // effect at player
 
+    private SoundEmitter[] soundEmitters;
+
     #endregion
     #region Variables
     // Backing fields. Don't touch these.
@@ -87,24 +89,36 @@ public class Flamethrower : IWeapon
     #endregion
 
     private void StartFire(GameObject user) {
+        GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
+        GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
+        GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
+
         if (_flamethrowerPS == null) {
-            GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
-            GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
-            GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
             _flamethrowerPS = shotOrigin.GetComponent<ParticleSystem>();
         }
 
         if (_flamethrowerPS != null && !_flamethrowerPS.isEmitting) {
             _flamethrowerPS.Play();
-        }        
+        }    
+
+        // soundEmitters = user.GetComponents<SoundEmitter>();
+        // string emitterId = "flamethrower_spray";
+
+        // foreach (SoundEmitter emitter in soundEmitters){
+        //     if (emitter.emitterID == emitterId){
+        //         emitter.PlayNetworkedSound(shotOrigin.transform.position, isLooped: true);
+        //     }
+        // }
+        
     }
 
 
     private void StopFire(GameObject user) {
+        GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
+        GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
+        GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
+        
         if (_flamethrowerPS == null) {
-            GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
-            GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
-            GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
             _flamethrowerPS = shotOrigin.GetComponent<ParticleSystem>();
         }
 
@@ -112,6 +126,16 @@ public class Flamethrower : IWeapon
             Debug.Log ("stopping flamethrowerPS play");
             _flamethrowerPS.Stop();
         }
+
+        // soundEmitters = user.GetComponents<SoundEmitter>();
+        // string emitterId = "flamethrower_spray";
+
+        // foreach (SoundEmitter emitter in soundEmitters){
+        //     if (emitter.emitterID == emitterId){
+        //         Debug.Log("nah");
+        //     }
+        // }
+
     }
 
 

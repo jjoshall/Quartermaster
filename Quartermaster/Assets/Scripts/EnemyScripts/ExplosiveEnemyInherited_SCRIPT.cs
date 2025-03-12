@@ -3,12 +3,21 @@ using System.Collections;
 using UnityEngine;
 
 public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
-    protected override float attackCooldown => 2f;
-    protected override float attackRange => 10f;
-    protected override int damage => 50;
-    protected override float attackRadius => 6f;
+    protected override float GetAttackCooldown() => GameManager.instance.ExplosiveEnemy_AttackCooldown;
+    protected override float GetAttackRange() => GameManager.instance.ExplosiveEnemy_AttackRange;
+    protected override int GetDamage() => GameManager.instance.ExplosiveEnemy_AttackDamage;
+    protected override float GetAttackRadius() => GameManager.instance.ExplosiveEnemy_AttackRadius;
+    protected override bool GetUseGlobalTarget() => GameManager.instance.ExplosiveEnemy_UseGlobalTarget;
+    protected override float GetInitialHealth() => GameManager.instance.ExplosiveEnemy_Health;
+
+    //protected override float attackCooldown => 2.37f;
+    //protected override float attackRange => 8f;
+    //protected override int damage => 60;
+    //protected override float attackRadius => 8f;
+    //protected override bool useGlobalTarget => true;
 
     private bool _isExploding = false;
+
 
     #region Explosion Blinking Visualization
     private NetworkVariable<bool> isBlinking = new NetworkVariable<bool>(false,
@@ -22,6 +31,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     [SerializeField] private float blinkingSpeedMultiplier = 1.3f;
 
     private Animator animator;
+    private SoundEmitter[] soundEmitters;
 
     [Header("Armature Settings")]
     [SerializeField] private Transform _wheels;
@@ -31,6 +41,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         base.OnNetworkSpawn();
 
         animator = GetComponentInChildren<Animator>();
+        soundEmitters = GetComponents<SoundEmitter>();
         
         if (renderer != null) {
             originalColor = renderer.material.color;
@@ -45,6 +56,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             if (IsServer && agent != null) {
                 // agent.speed = blinkingSpeed;
                 UpdateSpeedServerRpc();
+                PlaySoundForEmitter("explode_build", transform.position);
                 animator.SetBool("TransitionToExplode", true);
             }
         }
@@ -82,32 +94,35 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     #endregion
 
-    //protected override void UpdateTarget() {
-    //    if (enemySpawner == null || enemySpawner.playerList == null) return;
+    public void TriggerExplosion() {
+        if (!IsServer || _isExploding) return;
 
-    //    bool useGlobalTarget = true;
+        isBlinking.Value = true;
 
-    //    if (useGlobalTarget) {
-    //        GameObject closestPlayerToGlobalTarget = null;
-    //        float closestDistance = float.MaxValue;
-    //        Vector3 globalTarget = enemySpawner.GetGlobalAggroTarget();
+        StartCoroutine(ExplodeAfterDelay(attackCooldown));
+    }
 
-    //        foreach (GameObject player in enemySpawner.playerList) {
-    //            if (player == null) continue;
+    private IEnumerator ExplodeAfterDelay(float delay) {
+        yield return new WaitForSeconds(delay);
+        Attack();
+    }
 
-    //            float distance = Vector3.Distance(player.transform.position, globalTarget);
-    //            if (distance < closestDistance) {
-    //                closestDistance = distance;
-    //                closestPlayerToGlobalTarget = player;
-    //            }
-    //        }
+    protected override void OnDie() {
+        try {
+            PlaySoundForEmitter("explode_die", transform.position);
+        }
+        catch (System.Exception e) {
+            Debug.LogError("Error play sound for emitter: " + e.Message);
+        }
+        TriggerExplosion();
 
-    //        target = closestPlayerToGlobalTarget != null ? closestPlayerToGlobalTarget.transform : null;
-    //    }
-    //    else {
-    //        base.UpdateTarget();
-    //    }
-    //}
+        StartCoroutine(DelayedBaseDie());
+    }
+
+    private IEnumerator DelayedBaseDie() {
+        yield return new WaitForSeconds(3.0f);
+        base.OnDie();
+    }
 
     protected override IEnumerator DelayAttack() {
         isBlinking.Value = true;
@@ -120,6 +135,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         if (!IsServer || _isExploding) return;
         _isExploding = true;
 
+        ParticleManager.instance.SpawnSelfThenAll("EnemyExplosion", transform.position, Quaternion.identity);
         AttackServerRpc(true);
     }
 
@@ -147,12 +163,21 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         }
     }
 
-    public override void OnNetworkDespawn()
-    {
+    public override void OnNetworkDespawn() {
         isBlinking.OnValueChanged -= OnBlinkingStateChanged;
 
         StopAllCoroutines();
 
         base.OnNetworkDespawn();
     }
+
+    public void PlaySoundForEmitter(string emitterId, Vector3 position) {
+        foreach (SoundEmitter emitter in soundEmitters) {
+            if (emitter.emitterID == emitterId) {
+                emitter.PlayNetworkedSound(position);
+                return;
+            }
+        }
+    }
+    
 }
