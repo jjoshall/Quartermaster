@@ -1,11 +1,14 @@
 using UnityEngine;
 using UnityEngine.Events;
+using Unity.Netcode;
 
-public class GeneralAnimationController : MonoBehaviour
+public class GeneralAnimationController : NetworkBehaviour
 {
     private Animator animator;
     private bool isPaused = false;
     private float savedSpeed = 1f;
+
+    private bool gatesOpened = false;
 
     // Public UnityEvents for triggering animation controls externally
     public UnityEvent OnPlay = new UnityEvent();
@@ -34,6 +37,19 @@ public class GeneralAnimationController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftBracket))
         {
             TriggerPlay();
+
+
+            // trigger poolmanager spawning start.
+            EnableSpawnIfGatesNotOpenedYet();
+
+        }
+    }
+
+    private void EnableSpawnIfGatesNotOpenedYet(){ // 
+        if(!gatesOpened){
+            // trigger poolmanager spawning start.
+            gatesOpened = true;
+            EnemySpawner.instance.SetSpawningServerRpc(true);
         }
     }
 
