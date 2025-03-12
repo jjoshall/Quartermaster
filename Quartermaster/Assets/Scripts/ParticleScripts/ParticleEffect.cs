@@ -30,6 +30,11 @@ public class ParticleEffect : MonoBehaviour
         _timeSinceSpawn = 0.0f;
         _isPlaying = true;
         _playDuration = duration;
+
+        if (this.gameObject.GetComponent<PlayerDissolveAnimator>() != null)
+        {
+            this.gameObject.GetComponent<PlayerDissolveAnimator>().StartDissolve();
+        }
     }
     private void expirationTimer()
     {
