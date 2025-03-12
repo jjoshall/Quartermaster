@@ -10,6 +10,10 @@ public class DevController : NetworkBehaviour
     [SerializeField] float _sprintMultiplier;
     [SerializeField] private float _devBaseSpeed;
 
+    [SerializeField] private int packSize = 10;
+    [SerializeField] private float enemySpread = 2f;
+    private EnemySpawner enemySpawner;
+
     [SerializeField] float mouseSens = 100.0f;
     private float _xRotation = 0.0f;
     private float _yRotation = 0.0f;
@@ -17,7 +21,7 @@ public class DevController : NetworkBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        enemySpawner = EnemySpawner.instance;
     }
 
 
@@ -62,7 +66,13 @@ public class DevController : NetworkBehaviour
 
     private void EnemySpawn(){
         if (Input.GetKeyDown(KeyCode.G)){
-            
+            Vector3 spawnPosition = RaycastGround();
+
+            if (spawnPosition != Vector3.zero) {
+                if (enemySpawner != null) {
+                    enemySpawner.SpawnEnemyPackAtRandomPointServerRpc(packSize, spawnPosition, enemySpread);
+                }
+            }
         }
     }
 

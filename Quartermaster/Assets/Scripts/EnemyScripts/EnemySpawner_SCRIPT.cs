@@ -16,7 +16,7 @@ public class EnemySpawner : NetworkBehaviour {
     private Vector3 globalAggroTarget = new Vector3(0, 0, 0);
 
     [SerializeField] private List<GameObject> _enemySpawnPoints;
-    [SerializeField] private List<GameObject> _enemyPackSpawnPoints;
+    //[SerializeField] private List<GameObject> _enemyPackSpawnPoints;
 
     public List<Transform> enemyList = new List<Transform>();
     public List<GameObject> playerList;
@@ -102,29 +102,29 @@ public class EnemySpawner : NetworkBehaviour {
         return new Vector3(spawnX, spawnY, spawnZ);
     }
 
-    private Vector3 GetRandomPackSpawnPoint() {
-        if (_enemyPackSpawnPoints == null || _enemyPackSpawnPoints.Count == 0) {
-            Debug.LogError("No enemy pack spawn points found.");
-            return Vector3.zero;
-        }
+    //private Vector3 GetRandomPackSpawnPoint() {
+    //    if (_enemyPackSpawnPoints == null || _enemyPackSpawnPoints.Count == 0) {
+    //        Debug.LogError("No enemy pack spawn points found.");
+    //        return Vector3.zero;
+    //    }
 
-        // Choose a random spawn point from the list
-        GameObject spawnPoint = _enemyPackSpawnPoints[Random.Range(0, _enemyPackSpawnPoints.Count)];
-        return spawnPoint.transform.position;
-    }
+    //    // Choose a random spawn point from the list
+    //    GameObject spawnPoint = _enemyPackSpawnPoints[Random.Range(0, _enemyPackSpawnPoints.Count)];
+    //    return spawnPoint.transform.position;
+    //}
 
-    public void SpawnEnemyPackAtRandomPoint(int count, float spread = 2f) {
+    public void SpawnEnemyPackAtRandomPoint(int count, Vector3 position, float spread = 2f) {
         if (!IsServer) return;
 
-        Vector3 spawnPosition = GetRandomPackSpawnPoint();
-        SpawnEnemyPack(count, spawnPosition, spread);
+        //Vector3 spawnPosition = GetRandomPackSpawnPoint();
+        SpawnEnemyPack(count, position, spread);
     }
 
     // ServerRpc for clients to request a pack spawn at a random point
     [ServerRpc(RequireOwnership = false)]
-    public void SpawnEnemyPackAtRandomPointServerRpc(int count, float spread = 2f) {
+    public void SpawnEnemyPackAtRandomPointServerRpc(int count, Vector3 position, float spread = 2f) {
         if (!IsServer) return;
-        SpawnEnemyPackAtRandomPoint(count, spread);
+        SpawnEnemyPackAtRandomPoint(count, position, spread);
     }
 
     [ServerRpc]
