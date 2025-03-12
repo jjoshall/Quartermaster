@@ -2945,7 +2945,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
       propertyPath: particleTypesPrefabList.Array.size
-      value: 8
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
       propertyPath: particleTypesPrefabList.Array.data[6].key
@@ -2956,13 +2956,25 @@ PrefabInstance:
       value: GrenadeExplosion
       objectReference: {fileID: 0}
     - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
+      propertyPath: particleTypesPrefabList.Array.data[8].key
+      value: EnemyExplosion
+      objectReference: {fileID: 0}
+    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
       propertyPath: particleTypesPrefabList.Array.data[7].duration
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
+      propertyPath: particleTypesPrefabList.Array.data[8].duration
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
       propertyPath: particleTypesPrefabList.Array.data[7].particlePrefab
       value: 
       objectReference: {fileID: 8038196586517577084, guid: b6c479d774dead640a2513433c0a93e3, type: 3}
+    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
+      propertyPath: particleTypesPrefabList.Array.data[8].particlePrefab
+      value: 
+      objectReference: {fileID: 2502488514472684386, guid: bfea1162a9e3174458da9d8f6a56d7d3, type: 3}
     - target: {fileID: 5341081937763403480, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
       propertyPath: m_Name
       value: ParticleManager_PREFAB
@@ -4227,23 +4239,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
       propertyPath: _buildUpEnemyWeights.Array.size
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
-      propertyPath: _buildUpEnemyWeights.Array.data[2].enemyType
+      propertyPath: _peakEnemyWeights.Array.data[0].spawnWeight
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
+      propertyPath: _buildUpEnemyWeights.Array.data[1].enemyType
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
+      propertyPath: _buildUpEnemyWeights.Array.data[0].enemyPrefab
+      value: 
+      objectReference: {fileID: 3551560962508933810, guid: 69de7c9352a23844187f99a1518c29a9, type: 3}
+    - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
       propertyPath: _buildUpEnemyWeights.Array.data[0].spawnWeight
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
-      propertyPath: _buildUpEnemyWeights.Array.data[2].enemyPrefab
+      propertyPath: _buildUpEnemyWeights.Array.data[1].enemyPrefab
       value: 
       objectReference: {fileID: 4276394852278779144, guid: 8ee66f5ce3f72cc4bb6aade7e36c6e5e, type: 3}
     - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
-      propertyPath: _buildUpEnemyWeights.Array.data[2].spawnWeight
-      value: 300
+      propertyPath: _buildUpEnemyWeights.Array.data[1].spawnWeight
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 7779283026591875376, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5605,6 +5625,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1797533317}
     m_Modifications:
+    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
+      propertyPath: flame_Damage
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
+      propertyPath: pistol_Damage
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
       propertyPath: _dmgSpec_MultiplierPer
       value: 0.2

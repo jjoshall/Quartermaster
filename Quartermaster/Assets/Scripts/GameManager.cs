@@ -141,6 +141,26 @@ public class GameManager : NetworkBehaviour {
     public float DmgSpec_MultiplierPer => _dmgSpec_MultiplierPer;
     public int DmgSpec_StackLimit => _dmgSpec_StackLimit;
 
+    //public float MeleeEnemy_Health => meleeEnemy_Health;
+    //public float MeleeEnemy_AttackCooldown => meleeEnemy_AttackCooldown;
+    //public float MeleeEnemy_AttackRange => meleeEnemy_AttackRange;
+    //public int MeleeEnemy_AttackDamage => meleeEnemy_AttackDamage;
+    //public float MeleeEnemy_AttackRadius => meleeEnemy_AttackRadius;
+    //public bool MeleeEnemy_UseGlobalTarget => meleeEnemy_UseGlobalTarget;
+
+    //public float RangedEnemy_Health => rangedEnemy_Health;
+    //public float RangedEnemy_AttackCooldown => rangedEnemy_AttackCooldown;
+    //public float RangedEnemy_AttackRange => rangedEnemy_AttackRange;
+    //public int RangedEnemy_AttackDamage => rangedEnemy_AttackDamage;
+    //public bool RangedEnemy_UseGlobalTarget => rangedEnemy_UseGlobalTarget;
+
+    //public float ExplosiveEnemy_Health => explosiveEnemy_Health;
+    //public float ExplosiveEnemy_AttackCooldown => explosiveEnemy_AttackCooldown;
+    //public float ExplosiveEnemy_AttackRange => explosiveEnemy_AttackRange;
+    //public int ExplosiveEnemy_AttackDamage => explosiveEnemy_AttackDamage;
+    //public float ExplosiveEnemy_AttackRadius => explosiveEnemy_AttackRadius;
+    //public bool ExplosiveEnemy_UseGlobalTarget => explosiveEnemy_UseGlobalTarget;
+
     #endregion
 
     #region RuntimeVariables
@@ -165,6 +185,10 @@ public class GameManager : NetworkBehaviour {
         NetworkVariableWritePermission.Server);
 
     public NetworkVariable<int> totalPlayers = new NetworkVariable<int>(0,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
+
+    public NetworkVariable<int> totalScore = new NetworkVariable<int>(0,
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
@@ -199,6 +223,12 @@ public class GameManager : NetworkBehaviour {
     public void AddPlayerDamageServerRpc(float damageAmount) {
         if (!IsServer) return;
         totalPlayerDamageTaken.Value += damageAmount;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void AddScoreServerRpc(int score) {
+        if (!IsServer) return;
+        totalScore.Value += score;
     }
 
     #endregion

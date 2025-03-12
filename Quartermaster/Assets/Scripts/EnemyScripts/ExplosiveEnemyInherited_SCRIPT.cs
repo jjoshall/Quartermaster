@@ -3,10 +3,10 @@ using System.Collections;
 using UnityEngine;
 
 public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
-    protected override float attackCooldown => 2f;
-    protected override float attackRange => 10f;
-    protected override int damage => 50;
-    protected override float attackRadius => 6f;
+    protected override float attackCooldown => 2.37f;
+    protected override float attackRange => 8f;
+    protected override int damage => 60;
+    protected override float attackRadius => 8f;
 
     private bool _isExploding = false;
 
@@ -73,21 +73,6 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         agent.acceleration = finalAcceleration;
     }
 
-    protected override void OnDie() {
-        try {
-            PlaySoundForEmitter("explode_die", transform.position);
-        } catch (System.Exception e) {
-            Debug.LogError("Error play sound for emitter: " + e.Message);
-        }
-
-        WaitForXSeconds(0.5f);
-        base.OnDie();
-    }
-
-    private IEnumerator WaitForXSeconds(float seconds) {
-        yield return new WaitForSeconds(seconds);
-    }
-
 
     protected override void OnDamaged(float damage, GameObject damageSource)
     {
@@ -101,22 +86,34 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     #endregion
 
-    protected override void UpdateTarget() {
-        if (enemySpawner == null || enemySpawner.playerList == null) return;
+    public void TriggerExplosion() {
+        if (!IsServer || _isExploding) return;
 
-        GameObject closestPlayer = null;
-        float closestDistance = float.MaxValue;
+        isBlinking.Value = true;
 
-        foreach (GameObject obj in enemySpawner.playerList) {
-            float distance = Vector3.Distance(transform.position, obj.transform.position);
-            if (distance < closestDistance) {
-                closestPlayer = obj;
-                closestDistance = distance;
-            }
+        StartCoroutine(ExplodeAfterDelay(attackCooldown));
+    }
+
+    private IEnumerator ExplodeAfterDelay(float delay) {
+        yield return new WaitForSeconds(delay);
+        Attack();
+    }
+
+    protected override void OnDie() {
+        try {
+            PlaySoundForEmitter("explode_die", transform.position);
         }
+        catch (System.Exception e) {
+            Debug.LogError("Error play sound for emitter: " + e.Message);
+        }
+        TriggerExplosion();
 
+        StartCoroutine(DelayedBaseDie());
+    }
 
-        target = closestPlayer != null ? closestPlayer.transform : null;
+    private IEnumerator DelayedBaseDie() {
+        yield return new WaitForSeconds(3.0f);
+        base.OnDie();
     }
 
     protected override IEnumerator DelayAttack() {
@@ -130,6 +127,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         if (!IsServer || _isExploding) return;
         _isExploding = true;
 
+        ParticleManager.instance.SpawnSelfThenAll("EnemyExplosion", transform.position, Quaternion.identity);
         AttackServerRpc(true);
     }
 

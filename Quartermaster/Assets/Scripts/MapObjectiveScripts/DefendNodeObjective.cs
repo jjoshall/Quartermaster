@@ -85,6 +85,10 @@ public class DefendNodeObjective : IObjective
                 _currentDefenseTimer = 0;
             }
         }
+
+        GameManager.instance.AddScoreServerRpc(200);
+        Debug.Log("Total score " + GameManager.instance.totalScore.Value);
+        // throw new System.NotImplementedException();
     }
 
 
