@@ -73,21 +73,6 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         agent.acceleration = finalAcceleration;
     }
 
-    protected override void OnDie() {
-        try {
-            PlaySoundForEmitter("explode_die", transform.position);
-        } catch (System.Exception e) {
-            Debug.LogError("Error play sound for emitter: " + e.Message);
-        }
-
-        WaitForXSeconds(0.5f);
-        base.OnDie();
-    }
-
-    private IEnumerator WaitForXSeconds(float seconds) {
-        yield return new WaitForSeconds(seconds);
-    }
-
 
     protected override void OnDamaged(float damage, GameObject damageSource)
     {
@@ -115,6 +100,12 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     }
 
     protected override void OnDie() {
+        try {
+            PlaySoundForEmitter("explode_die", transform.position);
+        }
+        catch (System.Exception e) {
+            Debug.LogError("Error play sound for emitter: " + e.Message);
+        }
         TriggerExplosion();
 
         StartCoroutine(DelayedBaseDie());
