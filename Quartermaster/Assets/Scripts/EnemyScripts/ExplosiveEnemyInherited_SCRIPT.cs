@@ -3,10 +3,18 @@ using System.Collections;
 using UnityEngine;
 
 public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
-    protected override float attackCooldown => 2.37f;
-    protected override float attackRange => 8f;
-    protected override int damage => 60;
-    protected override float attackRadius => 8f;
+    protected override float GetAttackCooldown() => GameManager.instance.ExplosiveEnemy_AttackCooldown;
+    protected override float GetAttackRange() => GameManager.instance.ExplosiveEnemy_AttackRange;
+    protected override int GetDamage() => GameManager.instance.ExplosiveEnemy_AttackDamage;
+    protected override float GetAttackRadius() => GameManager.instance.ExplosiveEnemy_AttackRadius;
+    protected override bool GetUseGlobalTarget() => GameManager.instance.ExplosiveEnemy_UseGlobalTarget;
+    protected override float GetInitialHealth() => GameManager.instance.ExplosiveEnemy_Health;
+
+    //protected override float attackCooldown => 2.37f;
+    //protected override float attackRange => 8f;
+    //protected override int damage => 60;
+    //protected override float attackRadius => 8f;
+    //protected override bool useGlobalTarget => true;
 
     private bool _isExploding = false;
 
