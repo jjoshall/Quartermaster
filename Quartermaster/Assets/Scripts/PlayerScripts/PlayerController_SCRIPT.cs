@@ -426,6 +426,7 @@ public class PlayerController : NetworkBehaviour {
 
     void OnDie() {
         Debug.Log($"[{Time.time}] {gameObject.name} died. Respawning...");
+
         if (health != null) health.Invincible = true;
 
         playerVelocity = Vector3.zero;
@@ -440,6 +441,9 @@ public class PlayerController : NetworkBehaviour {
         }
 
         HealthBarUI.instance.UpdateHealthBar(health);
+
+        GameManager.instance.IncrementPlayerDeathsServerRpc();
+        GameManager.instance.AddScoreServerRpc(-100);
     }
 
     void OnDamaged(float damage, GameObject damageSource) {
