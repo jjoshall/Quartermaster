@@ -114,10 +114,10 @@ public class PocketInventory : NetworkBehaviour {
             }
 
             playerObj.GetComponentInChildren<PlayerDissolveAnimator>().AnimateSolidifyServerRpc();
-            ParticleManager.instance.SpawnSelfThenAll("TeleportParticles", 
+            ParticleManager.instance.SpawnSelfThenAll("TeleportSphere", 
                                                         playerObj.transform.position, 
                                                         playerObj.transform.rotation);
-            ParticleManager.instance.SpawnSelfThenAll("TeleportParticles", 
+            ParticleManager.instance.SpawnSelfThenAll("TeleportSphere", 
                                                         teleportPosition.position, 
                                                         teleportPosition.rotation);
 
