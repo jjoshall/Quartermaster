@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 823819638
+  GlobalObjectIdHash: 2283088156
   InScenePlacedSourceGlobalObjectIdHash: 823819638
   DeferredDespawnTick: 0
   Ownership: 1
@@ -90,6 +90,15 @@ MonoBehaviour:
   - key: TeleportParticles
     duration: 3
     particlePrefab: {fileID: 8038196586517577084, guid: 15db1031c4c475947b309118251a741d, type: 3}
-  - key: ExplosionParticles
+  - key: RailgunExplosion
+    duration: 1
+    particlePrefab: {fileID: 7334061216524104456, guid: 99c3dee9a7df56b40a02c97e719e28bb, type: 3}
+  - key: GrenadeExplosion
     duration: 5
-    particlePrefab: {fileID: 8038196586517577084, guid: 54fc5e8bfe7c59845bbe796c65042ecc, type: 3}
+    particlePrefab: {fileID: 6526317916832142444, guid: 6b95aacb26e52554ba0b302206a3cac6, type: 3}
+  - key: EnemyExplosion
+    duration: 5
+    particlePrefab: {fileID: 2502488514472684386, guid: bfea1162a9e3174458da9d8f6a56d7d3, type: 3}
+  - key: TeleportSphere
+    duration: 1
+    particlePrefab: {fileID: 5713332824094285282, guid: ef1d0af0496146c4ea0cfe6dcb212b3f, type: 3}

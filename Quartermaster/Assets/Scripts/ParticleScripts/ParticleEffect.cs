@@ -33,7 +33,15 @@ public class ParticleEffect : MonoBehaviour
 
         if (this.gameObject.GetComponent<PlayerDissolveAnimator>() != null)
         {
-            this.gameObject.GetComponent<PlayerDissolveAnimator>().StartDissolve();
+            Debug.Log ("particleeffect found a dissolve animator. playing it...");
+            this.gameObject.GetComponent<PlayerDissolveAnimator>().AnimateDissolveServerRpc();
+        }
+
+        IShaderAnimator[] animators = this.gameObject.GetComponentsInChildren<IShaderAnimator>();
+        foreach (IShaderAnimator animator in animators)
+        {
+            Debug.Log ("particleeffect found a shader animator. Animate()ing it");
+            animator.Animate();
         }
     }
     private void expirationTimer()
