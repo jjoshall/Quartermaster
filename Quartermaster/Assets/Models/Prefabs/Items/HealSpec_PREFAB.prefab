@@ -187,6 +187,7 @@ GameObject:
   - component: {fileID: 1036518241470988294}
   - component: {fileID: 2238640474794710002}
   - component: {fileID: -4868822403234808869}
+  - component: {fileID: -263882481023672883}
   m_Layer: 6
   m_Name: HealSpec_PREFAB
   m_TagString: Item
@@ -363,6 +364,23 @@ MonoBehaviour:
   m_IgnoreFromBuild: 1
   m_ApplyToChildren: 1
   m_AffectedAgents: ffffffff
+--- !u!114 &-263882481023672883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3214981217242712164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62d419665ed6d7a41b7dc591a5a37b4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startPos: {x: -400, y: 100}
+  finalPos: {x: 100, y: 100}
+  holdDuration: 4
+  message: +HEAL Chip. +MedKit effectiveness. Allows throwing! Stacks. Only one TYPE
+    of chip can be held.
 --- !u!1 &5894367003958111586
 GameObject:
   m_ObjectHideFlags: 0

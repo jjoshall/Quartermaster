@@ -10,6 +10,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     private bool _isExploding = false;
 
+
     #region Explosion Blinking Visualization
     private NetworkVariable<bool> isBlinking = new NetworkVariable<bool>(false,
         NetworkVariableReadPermission.Everyone,
@@ -22,6 +23,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     [SerializeField] private float blinkingSpeedMultiplier = 1.3f;
 
     private Animator animator;
+    private SoundEmitter[] soundEmitters;
 
     [Header("Armature Settings")]
     [SerializeField] private Transform _wheels;
@@ -31,6 +33,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         base.OnNetworkSpawn();
 
         animator = GetComponentInChildren<Animator>();
+        soundEmitters = GetComponents<SoundEmitter>();
         
         if (renderer != null) {
             originalColor = renderer.material.color;
@@ -45,6 +48,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             if (IsServer && agent != null) {
                 // agent.speed = blinkingSpeed;
                 UpdateSpeedServerRpc();
+                PlaySoundForEmitter("explode_build", transform.position);
                 animator.SetBool("TransitionToExplode", true);
             }
         }
@@ -67,6 +71,21 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
         agent.speed = finalSpeed;
         agent.acceleration = finalAcceleration;
+    }
+
+    protected override void OnDie() {
+        try {
+            PlaySoundForEmitter("explode_die", transform.position);
+        } catch (System.Exception e) {
+            Debug.LogError("Error play sound for emitter: " + e.Message);
+        }
+
+        WaitForXSeconds(0.5f);
+        base.OnDie();
+    }
+
+    private IEnumerator WaitForXSeconds(float seconds) {
+        yield return new WaitForSeconds(seconds);
     }
 
 
@@ -145,12 +164,21 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         }
     }
 
-    public override void OnNetworkDespawn()
-    {
+    public override void OnNetworkDespawn() {
         isBlinking.OnValueChanged -= OnBlinkingStateChanged;
 
         StopAllCoroutines();
 
         base.OnNetworkDespawn();
     }
+
+    public void PlaySoundForEmitter(string emitterId, Vector3 position) {
+        foreach (SoundEmitter emitter in soundEmitters) {
+            if (emitter.emitterID == emitterId) {
+                emitter.PlayNetworkedSound(position);
+                return;
+            }
+        }
+    }
+    
 }

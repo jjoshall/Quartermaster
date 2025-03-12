@@ -2,7 +2,7 @@ using Unity.Netcode;
 using UnityEngine;
 
 public class TestAudioTrigger : NetworkBehaviour {
-    public string soundAddressableKey = "Player/PlayerJump.ogg";
+    public string soundAddressableKey = "";
 
     void Update() {
         if (!IsLocalPlayer)
@@ -19,6 +19,7 @@ public class TestAudioTrigger : NetworkBehaviour {
         }
 
         if (Input.GetKeyDown(KeyCode.Y)) {
+            Debug.Log ("testaudiotrigger: tooltip");
             TooltipManager.SendTooltip("testing tooltip", toAll: true);
         }
     }
