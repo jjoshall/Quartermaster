@@ -11,6 +11,7 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     protected override float GetAttackRadius() => GameManager.instance.MeleeEnemy_AttackRadius;
     protected override bool GetUseGlobalTarget() => GameManager.instance.MeleeEnemy_UseGlobalTarget;
     protected override float GetInitialHealth() => GameManager.instance.MeleeEnemy_Health;
+    protected override float GetSpeed() => GameManager.instance.MeleeEnemy_Speed;
 
     //protected override float attackCooldown => 2f;
     //protected override float attackRange => 10f;

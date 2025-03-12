@@ -41,6 +41,14 @@ public class AIDirector : NetworkBehaviour {
     [SerializeField] private List<EnemyWeightData> _peakEnemyWeights = new List<EnemyWeightData>();
     [SerializeField] private List<EnemyWeightData> _relaxEnemyWeights = new List<EnemyWeightData>();
 
+    [Header("Difficulty Scaling Settings")]
+    [SerializeField] private float _scalingIncrement = 0.05f; // Increment of scaling each peak
+    [SerializeField] private float _maxSpeedScale = 0.3f; // 30% max speed increase
+    [SerializeField] private float _maxHealthScale = 0.5f; // 50% max health increase
+    [SerializeField] private float _maxSpawnRateScale = 1.0f; // 100% max spawn rate increase (double)
+    [SerializeField] private AnimationCurve _scalingCurve = AnimationCurve.EaseInOut(0, 0, 1, 1); // Optional: control scaling progression
+
+    
     // State machine properties
     public NetworkVariable<DirectorState> _currentState = new NetworkVariable<DirectorState>(
         DirectorState.BuildUp,
@@ -216,9 +224,16 @@ public class AIDirector : NetworkBehaviour {
     private void TransitionToPeak() {
         _currentState.Value = DirectorState.Peak;
         _stateTimeRemaining.Value = _peakDuration;
+
+        // Apply difficulty scaling with diminishing returns
+        IncreaseEnemyScaling();
+
         UpdateEnemySpawnerSettings();
 
-        Debug.Log("AI Director transitioning to Peak phase");
+        Debug.Log($"AI Director transitioning to Peak phase - " +
+             $"Speed: +{GameManager.instance.EnemySpeedMultiplier * 100 - 100:F1}%, " +
+             $"Health: +{GameManager.instance.EnemyHealthMultiplier * 100 - 100:F1}%, " +
+             $"Spawn Rate Scale: x{1f / (1f - GameManager.instance.SpawnRateMultiplier):F2}");
     }
 
     private void TransitionToRelax() {
@@ -229,6 +244,48 @@ public class AIDirector : NetworkBehaviour {
         Debug.Log("AI Director transitioning to Relax phase");
     }
 
+    #endregion
+
+    #region Difficulty Scaling
+    private void IncreaseEnemyScaling()
+    {
+        GameManager gm = GameManager.instance;
+
+        // Amount to increase each scaling factor by
+        float scalingIncrement = 0.05f; // 5% increase each peak
+
+        // Max scaling values (as per your requirements)
+        float maxSpeedScale = 0.30f; // 30% max speed increase
+        float maxHealthScale = 0.50f; // 50% max health increase
+        float maxSpawnRateScale = 0.50f; // Reduces spawn cooldown by up to 50% (doubles spawn rate)
+
+        // Get current scaling values
+        float currentSpeedScale = gm.EnemySpeedMultiplier - 1f; // Convert from multiplier to scale
+        float currentHealthScale = gm.EnemyHealthMultiplier - 1f; // Convert from multiplier to scale
+        float currentSpawnRateScale = gm.SpawnRateMultiplier; // Already a scale value
+
+        // Calculate new scaling with diminishing returns
+        float newSpeedScale = ApplyDiminishingReturns(currentSpeedScale + scalingIncrement, maxSpeedScale);
+        float newHealthScale = ApplyDiminishingReturns(currentHealthScale + scalingIncrement, maxHealthScale);
+        float newSpawnRateScale = ApplyDiminishingReturns(currentSpawnRateScale + scalingIncrement, maxSpawnRateScale);
+
+        // Update the GameManager multipliers
+        gm.EnemySpeedMultiplier = 1f + newSpeedScale;
+        gm.EnemyHealthMultiplier = 1f + newHealthScale;
+        gm.SpawnRateMultiplier = newSpawnRateScale;
+    }
+    private float ApplyDiminishingReturns(float rawValue, float maxValue)
+    {
+        // Ensure we never exceed the maximum value
+        float normalizedProgress = Mathf.Clamp01(rawValue / maxValue);
+
+        // Apply a curve to slow down scaling as we approach the maximum
+        // Using 1 - (1 - x)² for a diminishing returns curve
+        float curvedProgress = 1f - Mathf.Pow(1f - normalizedProgress, 2f);
+
+        // Convert back to actual scale value
+        return curvedProgress * maxValue;
+    }
     #endregion
 
     #region Enemy Spawning
@@ -258,6 +315,12 @@ public class AIDirector : NetworkBehaviour {
         float playerCountScaling = CalculatePlayerCountScaling();
         spawnRate /= playerCountScaling;
 
+        // Apply spawn rate scaling (reduce spawn cooldown)
+        if (currentState == DirectorState.BuildUp || currentState == DirectorState.Peak)
+        {
+            // SpawnRateMultiplier reduces the cooldown (between 0 and 0.5, or 0% to 50% reduction)
+            spawnRate *= (1f - GameManager.instance.SpawnRateMultiplier);
+        }
         UpdateSpawnerSettingsServerRpc(spawnRate, currentState);
     }
 

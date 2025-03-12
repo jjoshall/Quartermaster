@@ -12,6 +12,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected abstract float GetAttackRadius();
     protected abstract bool GetUseGlobalTarget();
     protected abstract float GetInitialHealth();
+    protected abstract float GetSpeed();
     
     [Header("Enemy Settings")]
     protected virtual float attackCooldown => GetAttackCooldown();
@@ -19,6 +20,8 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected virtual int damage => GetDamage();
     protected virtual float attackRadius => GetAttackRadius();
     protected virtual bool useGlobalTarget => GetUseGlobalTarget();
+    protected virtual float speed => GetSpeed();
+
     public EnemyType enemyType;
     [SerializeField] private float _separationRadius = 10f;
     [SerializeField] private float _separationStrength = 3f;

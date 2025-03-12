@@ -9,6 +9,7 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     protected override float GetAttackRadius() => 0f; // Ranged enemies might not use this
     protected override bool GetUseGlobalTarget() => GameManager.instance.RangedEnemy_UseGlobalTarget;
     protected override float GetInitialHealth() => GameManager.instance.RangedEnemy_Health;
+    protected override float GetSpeed() => GameManager.instance.RangedEnemy_Speed;
 
     [Header("Ranged Attack Settings")]
     [SerializeField] private float _maxAttackDistance = 10f;
