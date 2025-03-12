@@ -4234,6 +4234,10 @@ PrefabInstance:
       value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
+      propertyPath: _buildUpSpawnRate
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
       propertyPath: _peakIntensityThreshold
       value: 60
       objectReference: {fileID: 0}
@@ -4247,12 +4251,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
       propertyPath: _buildUpEnemyWeights.Array.data[1].enemyType
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
       propertyPath: _buildUpEnemyWeights.Array.data[0].enemyPrefab
       value: 
-      objectReference: {fileID: 3551560962508933810, guid: 69de7c9352a23844187f99a1518c29a9, type: 3}
+      objectReference: {fileID: 6449858844552445292, guid: f9e0d41d7de8cf940b0224449f9fdaa3, type: 3}
     - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
       propertyPath: _buildUpEnemyWeights.Array.data[0].spawnWeight
       value: 2
@@ -4260,10 +4264,10 @@ PrefabInstance:
     - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
       propertyPath: _buildUpEnemyWeights.Array.data[1].enemyPrefab
       value: 
-      objectReference: {fileID: 4276394852278779144, guid: 8ee66f5ce3f72cc4bb6aade7e36c6e5e, type: 3}
+      objectReference: {fileID: 3551560962508933810, guid: 69de7c9352a23844187f99a1518c29a9, type: 3}
     - target: {fileID: 6541605234242733098, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
       propertyPath: _buildUpEnemyWeights.Array.data[1].spawnWeight
-      value: 8
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7779283026591875376, guid: 9831cc9dc288c4c4eaabc28c717e7b2a, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5634,8 +5638,72 @@ PrefabInstance:
       value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
+      propertyPath: meleeEnemy_Health
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
+      propertyPath: rangedEnemy_Health
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
+      propertyPath: explosiveEnemy_Health
+      value: 35
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
       propertyPath: _dmgSpec_MultiplierPer
       value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
+      propertyPath: meleeEnemy_AttackRange
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
+      propertyPath: meleeEnemy_AttackDamage
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
+      propertyPath: meleeEnemy_AttackRadius
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
+      propertyPath: rangedEnemy_AttackRange
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
+      propertyPath: rangedEnemy_AttackDamage
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
+      propertyPath: meleeEnemy_AttackCooldown
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
+      propertyPath: explosiveEnemy_AttackRange
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
+      propertyPath: rangedEnemy_AttackCooldown
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
+      propertyPath: explosiveEnemy_AttackDamage
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
+      propertyPath: explosiveEnemy_AttackRadius
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
+      propertyPath: rangedEnemy_UseGlobalTarget
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
+      propertyPath: explosiveEnemy_AttackCooldown
+      value: 2.73
+      objectReference: {fileID: 0}
+    - target: {fileID: 1121280690104685183, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
+      propertyPath: explosiveEnemy_UseGlobalTarget
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2828975723718611920, guid: 3455bacd9b4b6fe43806acd0bf476a54, type: 3}
       propertyPath: GlobalObjectIdHash

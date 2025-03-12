@@ -3,6 +3,13 @@ using Unity.Netcode;
 using System.Collections;
 
 public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
+    protected override float GetAttackCooldown() => GameManager.instance.RangedEnemy_AttackCooldown;
+    protected override float GetAttackRange() => GameManager.instance.RangedEnemy_AttackRange;
+    protected override int GetDamage() => GameManager.instance.RangedEnemy_AttackDamage;
+    protected override float GetAttackRadius() => 0f; // Ranged enemies might not use this
+    protected override bool GetUseGlobalTarget() => GameManager.instance.RangedEnemy_UseGlobalTarget;
+    protected override float GetInitialHealth() => GameManager.instance.RangedEnemy_Health;
+
     [Header("Ranged Attack Settings")]
     [SerializeField] private float _maxAttackDistance = 10f;
     [SerializeField] private float _minAttackDistance = 4f; // Minimum distance to maintain from player
@@ -23,11 +30,12 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     [Header("Armature Settings")]
     [SerializeField] private Transform _leftGun;
-    [SerializeField] private Transform _rightGun;   
+    [SerializeField] private Transform _rightGun;
 
-    protected override float attackCooldown => 3f;
-    protected override float attackRange => 10f;
-    protected override int damage => 8;
+    //protected override float attackCooldown => 3f;
+    //protected override float attackRange => 10f;
+    //protected override int damage => 8;
+    //protected override bool useGlobalTarget => true;
 
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
