@@ -503,6 +503,7 @@ MonoBehaviour:
   jumpForce: 5
   visualTransform: {fileID: 6195205799938994444}
   crouchingSharpness: 5
+  _devPrefab: {fileID: 533627647367738219, guid: 34171f0fbc7fbe143af57441fdc77eb0, type: 3}
 --- !u!114 &3304562410642041497
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -893,7 +894,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
