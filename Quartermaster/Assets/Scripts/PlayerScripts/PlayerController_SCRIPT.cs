@@ -83,6 +83,37 @@ public class PlayerController : NetworkBehaviour {
 
     #endregion
 
+    [SerializeField] private GameObject _devPrefab;
+    private GameObject _devReference;
+
+    #region DEV_FUNCTIONS
+    private void SpawnDevController(){
+        if (!IsOwner) return;
+        if (_devReference == null){
+            _devReference = Instantiate(_devPrefab, this.gameObject.transform.position, this.gameObject.transform.rotation);
+            _devReference.GetComponent<DevController>().n_playerObj = this.GetComponent<NetworkObject>();
+            _devReference.GetComponent<DevController>().InitDevController();
+        }
+        _devReference.SetActive(true);
+        _devReference.transform.position = this.gameObject.transform.position;
+        _devReference.GetComponent<DevController>().cam.transform.rotation = this.PlayerCamera.transform.rotation;
+        this.gameObject.SetActive(false);
+    }
+
+
+    
+    
+    
+    
+    #endregion
+
+
+
+
+
+
+
+
     #region Start Up Functions
     private void EnablePlayerControls() {
         // Main Camera and Audio Listener
@@ -232,6 +263,11 @@ public class PlayerController : NetworkBehaviour {
         HandleLook();
 
         if (stateMachine != null) { stateMachine.Update(); }
+
+        // getkeydown ] to spawn dev controller
+        if (Input.GetKeyDown(KeyCode.RightBracket)){
+            SpawnDevController();
+        }
     }
 
     void FixedUpdate() {
