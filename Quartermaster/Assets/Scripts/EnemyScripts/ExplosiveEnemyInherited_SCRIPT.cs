@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     protected override float attackCooldown => 2.37f;
-    protected override float attackRange => 10f;
+    protected override float attackRange => 8f;
     protected override int damage => 60;
     protected override float attackRadius => 8f;
 

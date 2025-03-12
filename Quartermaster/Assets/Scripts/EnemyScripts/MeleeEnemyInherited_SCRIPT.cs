@@ -20,6 +20,10 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         soundEmitters = GetComponents<SoundEmitter>();
     }
 
+    //public override void InitializeFromGameManager() {
+        
+    //}
+
     protected override void Attack() {
         if (!_canAttack) return;
         _canAttack = false;

@@ -15,6 +15,9 @@ public class DefendNodeObjective : IObjective
                 return false;
             }
         }
+
+        GameManager.instance.AddScoreServerRpc(200);
+        Debug.Log("Total score " + GameManager.instance.totalScore.Value);
         return true;
         // throw new System.NotImplementedException();
     }
