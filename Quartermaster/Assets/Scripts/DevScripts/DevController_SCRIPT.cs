@@ -18,6 +18,8 @@ public class DevController : NetworkBehaviour
     private float _xRotation = 0.0f;
     private float _yRotation = 0.0f;
 
+    GameObject canvas;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -27,6 +29,15 @@ public class DevController : NetworkBehaviour
 
     public void InitDevController()
     {
+        // find the Player UI Canvas
+        if (!canvas){
+            canvas = GameObject.Find("Player UI Canvas");
+        }
+        if (canvas != null)
+        {
+            // set the player object to the player UI canvas
+            canvas.SetActive(false);
+        }
         // lock mouse
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -44,7 +55,22 @@ public class DevController : NetworkBehaviour
         WASD(); // checks wasd hold for movement.
         ItemSpawn(); // checks 123456qert keydown for item spawn at raycast.
         EnemySpawn();
+        Sprint();
+        ReturnToBeingPlayer();
+        IncreaseDecreaseSpeed();
 
+    }
+
+    private void ReturnToBeingPlayer(){
+        if (Input.GetKeyDown(KeyCode.RightBracket)){
+            n_playerObj.gameObject.SetActive(true);
+            n_playerObj.transform.position = transform.position;
+            n_playerObj.transform.rotation = transform.rotation;
+            this.gameObject.SetActive(false);
+            if (canvas){
+                canvas.SetActive(true);
+            }
+        }
     }
 
     private void MouseCameraMovement(){
@@ -82,6 +108,15 @@ public class DevController : NetworkBehaviour
         }
         if (Input.GetKeyUp(KeyCode.LeftShift)){
             _isSprinting = 1.0f;
+        }
+    }
+
+    private void IncreaseDecreaseSpeed(){
+        if (Input.GetKeyDown(KeyCode.Equals)){
+            _devBaseSpeed += 1.0f;
+        }
+        if (Input.GetKeyDown(KeyCode.Minus)){
+            _devBaseSpeed -= 1.0f;
         }
     }
 
