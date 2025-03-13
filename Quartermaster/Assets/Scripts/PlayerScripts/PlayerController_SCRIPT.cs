@@ -406,7 +406,7 @@ public class PlayerController : NetworkBehaviour {
         if (force) {
             Controller.height = targetHeight;
             Controller.center = Vector3.up * (Controller.height - CapsuleHeightStanding) / CapsuleHeightStanding;
-            PlayerCamera.transform.localPosition = cameraOffset + Vector3.up * ((targetHeight * CameraHeightRatio) - 1);
+            // PlayerCamera.transform.localPosition = cameraOffset + Vector3.up * ((targetHeight * CameraHeightRatio) - 1);
             visualTransform.localPosition = Controller.center;
             visualTransform.localScale = new Vector3(1f, Controller.height / CapsuleHeightStanding, 1f);
         }
@@ -421,11 +421,11 @@ public class PlayerController : NetworkBehaviour {
             Controller.center = Vector3.up * (Controller.height - CapsuleHeightStanding) / CapsuleHeightStanding;
             visualTransform.localPosition = Controller.center;
             visualTransform.localScale = new Vector3(1f, Controller.height / CapsuleHeightStanding, 1f);
-            PlayerCamera.transform.localPosition = Vector3.Lerp(
-                PlayerCamera.transform.localPosition,
-                cameraOffset + Vector3.up * ((targetHeight * CameraHeightRatio) - 1),
-                crouchingSharpness * Time.deltaTime
-            );
+            // PlayerCamera.transform.localPosition = Vector3.Lerp(
+            //     PlayerCamera.transform.localPosition,
+            //     cameraOffset + Vector3.up * ((targetHeight * CameraHeightRatio) - 1),
+            //     crouchingSharpness * Time.deltaTime
+            // );
         }
     }
 
