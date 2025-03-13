@@ -5,7 +5,7 @@ public class BubbleAnimator : IShaderAnimator
 
 
     [SerializeField] private float _BUBBLE_SCALE_MIN_RANGE = 0.1f;
-    public float BUBBLE_SCALE_MAX_RANGE = 1.0f;
+    [HideInInspector] public float BUBBLE_SCALE_MAX_RANGE = 1.0f;
 
     [SerializeField] private float _BUBBLE_OPACITY_MIN_RANGE = 0.0f;
     [SerializeField] private float _BUBBLE_OPACITY_MAX_RANGE = 0.5f;
