@@ -138,6 +138,8 @@ MonoBehaviour:
   n_playerObj: {fileID: 0}
   _sprintMultiplier: 3
   _devBaseSpeed: 50
+  packSize: 10
+  enemySpread: 2
   mouseSens: 100
 --- !u!54 &-8646500599702790610
 Rigidbody:
@@ -374,7 +376,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2215589099632538109, guid: 544756df0ec521a45b9808e18511bc36, type: 3}
+  - {fileID: 2100000, guid: a39439a97a8301b4caf23ce2742ca430, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
