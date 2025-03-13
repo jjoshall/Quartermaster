@@ -8790,7 +8790,34 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5144850779916584224, guid: 83a7c155e6ba4694799a3e53a01d3fe4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3077528239860702625}
+    - targetCorrespondingSourceObject: {fileID: 165090970873777355, guid: 83a7c155e6ba4694799a3e53a01d3fe4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1449737232195564766}
+    - targetCorrespondingSourceObject: {fileID: 6415931439723435178, guid: 83a7c155e6ba4694799a3e53a01d3fe4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8997081379022659252}
   m_SourcePrefab: {fileID: 100100000, guid: 83a7c155e6ba4694799a3e53a01d3fe4, type: 3}
+--- !u!1 &726949630928919089 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6415931439723435178, guid: 83a7c155e6ba4694799a3e53a01d3fe4, type: 3}
+  m_PrefabInstance: {fileID: 5989597773264539291}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8997081379022659252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 726949630928919089}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62d419665ed6d7a41b7dc591a5a37b4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startPos: {x: -400, y: 100}
+  finalPos: {x: 100, y: 100}
+  holdDuration: 4
+  message: Press '[' to open the doors and begin!
 --- !u!1 &1475348849826892731 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5144850779916584224, guid: 83a7c155e6ba4694799a3e53a01d3fe4, type: 3}
@@ -8821,6 +8848,27 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5489322977409474458, guid: 83a7c155e6ba4694799a3e53a01d3fe4, type: 3}
   m_PrefabInstance: {fileID: 5989597773264539291}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &5860825982149657168 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 165090970873777355, guid: 83a7c155e6ba4694799a3e53a01d3fe4, type: 3}
+  m_PrefabInstance: {fileID: 5989597773264539291}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1449737232195564766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5860825982149657168}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62d419665ed6d7a41b7dc591a5a37b4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startPos: {x: -400, y: 100}
+  finalPos: {x: 100, y: 100}
+  holdDuration: 4
+  message: Press '[' to open the doors and begin!
 --- !u!1001 &6148161684218053909
 PrefabInstance:
   m_ObjectHideFlags: 0

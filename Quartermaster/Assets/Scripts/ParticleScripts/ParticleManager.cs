@@ -139,10 +139,12 @@ public class ParticleManager : NetworkBehaviour
             float typeDuration = particleTypesPrefabList.Find(x => x.key == key).duration;
             if (key == "SlowTrapAoe"){
                 typeDuration = GameManager.instance.SlowTrap_Duration;
-                particleObj.transform.localScale = new Vector3(
-                                                    GameManager.instance.SlowTrap_AoERadius * 2.0f, 
-                                                    GameManager.instance.SlowTrap_AoERadius * 2.0f,
-                                                    GameManager.instance.SlowTrap_AoERadius * 2.0f);
+                particleObj.GetComponent<BubbleAnimator>().BUBBLE_SCALE_MAX_RANGE = 
+                    GameManager.instance.SlowTrap_AoERadius * 2.0f;
+                // particleObj.transform.localScale = new Vector3(
+                //                                     GameManager.instance.SlowTrap_AoERadius * 2.0f, 
+                //                                     GameManager.instance.SlowTrap_AoERadius * 2.0f,
+                //                                     GameManager.instance.SlowTrap_AoERadius * 2.0f);
                 
             }
             PlayParticle(particleObj, key, typeDuration);
