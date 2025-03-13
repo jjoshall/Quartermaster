@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6230738011997410488}
   - component: {fileID: 8827306955480823807}
   - component: {fileID: 4220749152878513091}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (11)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -113,7 +113,7 @@ GameObject:
   - component: {fileID: 9121858711910689858}
   - component: {fileID: 4012603489925958232}
   - component: {fileID: 974403979914323343}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -214,7 +214,7 @@ GameObject:
   - component: {fileID: 1025894191992326469}
   - component: {fileID: 1800817901128058503}
   - component: {fileID: 7933809222154386708}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (12)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -315,7 +315,7 @@ GameObject:
   - component: {fileID: 7614491527016100096}
   - component: {fileID: 9183360959338051714}
   - component: {fileID: 1796945611867076268}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -416,7 +416,7 @@ GameObject:
   - component: {fileID: 5456135265669308935}
   - component: {fileID: 796336271497985093}
   - component: {fileID: 2550901795683201691}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -517,7 +517,7 @@ GameObject:
   - component: {fileID: 2972256783367447527}
   - component: {fileID: 6053171366684451730}
   - component: {fileID: 2791818265530321728}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (8)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -618,7 +618,7 @@ GameObject:
   - component: {fileID: 8620361660747952444}
   - component: {fileID: 209037867063662332}
   - component: {fileID: 6367566910932463800}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -719,7 +719,7 @@ GameObject:
   - component: {fileID: 1964606693799988481}
   - component: {fileID: 6498796202798162760}
   - component: {fileID: 6471575221362822365}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (16)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -820,7 +820,7 @@ GameObject:
   - component: {fileID: 1989607090175139424}
   - component: {fileID: 8794582223795474844}
   - component: {fileID: 3071602792073642653}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (13)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -921,7 +921,7 @@ GameObject:
   - component: {fileID: 8178094228609745772}
   - component: {fileID: 595525299359936266}
   - component: {fileID: 4687673969189298765}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (20)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1022,7 +1022,7 @@ GameObject:
   - component: {fileID: 8376446171664394033}
   - component: {fileID: 267452429882371579}
   - component: {fileID: 7614637443393947458}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1203,9 +1203,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  objectivesList:
-  - {fileID: 0}
-  - {fileID: 0}
+  objectivesToWin: 4
+  initialSpawnCount: 2
+  minPerObjective:
+  - minimumToSpawn: 1
+    objectivePrefab: {fileID: 808812521994242024, guid: 5f794c60b8f1a33488d87873b66dc95a, type: 3}
+  - minimumToSpawn: 1
+    objectivePrefab: {fileID: 7850845871219590944, guid: 3ef565e796f59f14aa8d2b11b1aaed5a, type: 3}
 --- !u!1 &4591732904713874789
 GameObject:
   m_ObjectHideFlags: 0
@@ -1218,7 +1222,7 @@ GameObject:
   - component: {fileID: 7482999104066893778}
   - component: {fileID: 2629001748126608468}
   - component: {fileID: 1058184555266903199}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (14)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1319,7 +1323,7 @@ GameObject:
   - component: {fileID: 3342507490006051821}
   - component: {fileID: 3060716532774204821}
   - component: {fileID: 7437257877224953450}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1420,7 +1424,7 @@ GameObject:
   - component: {fileID: 2057377033283802109}
   - component: {fileID: 1317656006615912526}
   - component: {fileID: 6077503011027723205}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (10)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1521,7 +1525,7 @@ GameObject:
   - component: {fileID: 7459434273098169553}
   - component: {fileID: 4307855496935445961}
   - component: {fileID: 5771907493569103086}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (19)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1622,7 +1626,7 @@ GameObject:
   - component: {fileID: 8162856933701163302}
   - component: {fileID: 2181229228744988148}
   - component: {fileID: 8838611925712954989}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (15)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1723,7 +1727,7 @@ GameObject:
   - component: {fileID: 2676816340441117696}
   - component: {fileID: 251575307438049016}
   - component: {fileID: 5226294541758168598}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (17)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1824,7 +1828,7 @@ GameObject:
   - component: {fileID: 9004612658273590677}
   - component: {fileID: 3773863689438054767}
   - component: {fileID: 1545614142205408849}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (9)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1925,7 +1929,7 @@ GameObject:
   - component: {fileID: 4210974396316531904}
   - component: {fileID: 1288614574212891824}
   - component: {fileID: 362520555107947226}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2026,7 +2030,7 @@ GameObject:
   - component: {fileID: 8255635059937622000}
   - component: {fileID: 1762463891874270786}
   - component: {fileID: 2427649801519887696}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2127,7 +2131,7 @@ GameObject:
   - component: {fileID: 7736194234939733858}
   - component: {fileID: 5373516853240940472}
   - component: {fileID: 2921131023936502180}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: ValidPoint (18)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
