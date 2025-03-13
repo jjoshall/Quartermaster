@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 670930991722643377}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.399}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -104,6 +104,7 @@ MonoBehaviour:
   destinationMixer: SFX
   soundAddressableKeys:
   - Weapon/Railgun.ogg
+  emitterTypes: []
 --- !u!1 &7082432858141443402
 GameObject:
   m_ObjectHideFlags: 0
@@ -129,8 +130,8 @@ Transform:
   m_GameObject: {fileID: 7082432858141443402}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.015, z: 0.371}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0.000033724, y: 0.073461, z: 0.249073}
+  m_LocalScale: {x: 0.83576024, y: 0.83576024, z: 0.83576024}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1911928050127166748}
@@ -145,27 +146,27 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 69855c489d405ee408671a6d28199e4e, type: 3}
       propertyPath: m_LocalScale.x
-      value: 3
+      value: 2.5072808
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 69855c489d405ee408671a6d28199e4e, type: 3}
       propertyPath: m_LocalScale.y
-      value: 3
+      value: 2.5072808
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 69855c489d405ee408671a6d28199e4e, type: 3}
       propertyPath: m_LocalScale.z
-      value: 3
+      value: 2.5072808
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 69855c489d405ee408671a6d28199e4e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0
+      value: 0.000033724
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 69855c489d405ee408671a6d28199e4e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.086
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 69855c489d405ee408671a6d28199e4e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -0.061
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 69855c489d405ee408671a6d28199e4e, type: 3}
       propertyPath: m_LocalRotation.w

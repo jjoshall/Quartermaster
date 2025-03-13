@@ -373,6 +373,11 @@ public class PlayerController : NetworkBehaviour {
 
     void GroundCheck() {
         // Make sure that the ground check distance while already in air is very small, to prevent snapping to ground
+        if (Controller == null) {
+            Debug.LogError("CharacterController is null. Cannot perform ground check.");
+            return;
+        }
+
         float chosenGroundCheckDistance =
             IsGrounded ? (Controller.skinWidth + k_GroundCheckDistance) : k_GroundCheckDistanceInAir;
 
