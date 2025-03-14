@@ -1,36 +1,47 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class UIManager : MonoBehaviour {
-    [SerializeField] private RawImage[] inventorySlotImages; // Assign 4 RawImage objects in the Inspector (index 0 = slot 1, index 1 = slot 2, etc.)
-    [SerializeField] private float highlightScale = 1.5f;      // Scale multiplier for the highlighted slot
-    [SerializeField] private Canvas settingsCanvas;
+    [Header("Inventory UI Elements")]
+    [SerializeField] private RawImage[] inventorySlotImages; // Assign 4 RawImage objects in order (slot 1 at index 0, etc.)
+    [SerializeField] private TextMeshProUGUI[] inventorySlotQuantityTexts; // Assign 4 TMP text components corresponding to each slot
 
     [SerializeField] public Image weaponCooldownRadial;
 
+    [Header("Highlight Settings")]
+    [SerializeField] private float highlightScale = 1.5f; // Scale multiplier for the highlighted slot
 
+    // Optional: If you need weapon cooldown UI, add a field here.
+    // [SerializeField] private Image weaponCooldownRadial;
 
-    public Slider musicSlider;
-    public Slider sfxSlider;
-
-    public Slider masterVolSlider;
-
-
-    private void Start() {
-        musicSlider.onValueChanged.AddListener((value) => AudioManager.Instance.SetMusicVolume(value));
-        sfxSlider.onValueChanged.AddListener((value) => AudioManager.Instance.SetSFXVolume(value));
-
-        masterVolSlider.onValueChanged.AddListener((value) => AudioManager.Instance.SetMasterVolume(value));
-    }
-
-    // Updates the texture of a specific inventory slot.
+    /// <summary>
+    /// Sets the texture of a specified inventory slot.
+    /// </summary>
     public void SetInventorySlotTexture(int slot, Texture texture) {
         if (inventorySlotImages != null && slot >= 0 && slot < inventorySlotImages.Length) {
             inventorySlotImages[slot].texture = texture;
         }
     }
 
-    // Highlights the specified slot by resetting all scales and enlarging the chosen one.
+    /// <summary>
+    /// Sets the quantity text for a specified slot.
+    /// Displays the quantity if the item is stackable (stackLimit > 1) and quantity is greater than 1;
+    /// otherwise, it clears the text.
+    /// </summary>
+    public void SetInventorySlotQuantity(int slot, int quantity, int stackLimit) {
+        if (inventorySlotQuantityTexts != null && slot >= 0 && slot < inventorySlotQuantityTexts.Length) {
+            if (stackLimit > 1 && quantity > 1) {
+                inventorySlotQuantityTexts[slot].text = quantity.ToString();
+            } else {
+                inventorySlotQuantityTexts[slot].text = "";
+            }
+        }
+    }
+
+    /// <summary>
+    /// Highlights the specified slot by resetting the scale on all slots and enlarging the selected one.
+    /// </summary>
     public void HighlightSlot(int selectedSlot) {
         if (inventorySlotImages == null) return;
         for (int i = 0; i < inventorySlotImages.Length; i++) {
@@ -40,24 +51,6 @@ public class UIManager : MonoBehaviour {
             inventorySlotImages[selectedSlot].rectTransform.localScale = Vector3.one * highlightScale;
         }
     }
-
-    public void OpenSettingsCanvas() {
-        if (!settingsCanvas.gameObject.activeSelf) {
-            settingsCanvas.gameObject.SetActive(true);
-        }
-    }
-
-
-    void Update() {
-    #if UNITY_EDITOR
-    if (Input.GetKeyDown(KeyCode.Escape)) {
-        Debug.Log("Escape pressed, opening settings");
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-        OpenSettingsCanvas();
-    }
-    #endif
-}
 }
 
 

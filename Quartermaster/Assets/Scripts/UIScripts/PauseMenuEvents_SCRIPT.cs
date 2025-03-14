@@ -1,62 +1,122 @@
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using Unity.Netcode;
 
-public class PauseMenuEvents : MonoBehaviour {
-     private UIDocument _document;
-     private Button _resumeButton;
-     private Button _mainMenuButton;
-     private bool _isPaused = false;
+public class PauseMenuToggler : MonoBehaviour
+{
+    [Header("UI References")]
+    [SerializeField] private Canvas pauseCanvas;      // Your PauseMenu Canvas
+    [SerializeField] private Canvas playerUICanvas;     // The main Player UI Canvas
+    [SerializeField] private Canvas settingsCanvas;     // The Settings Canvas
 
-     private void Awake() {
-          // Make sure the scene is not paused when the game starts
-          Time.timeScale = 1;
+    private bool isPauseCanvasActive = false;
+    // Expose a global flag that other scripts can check.
+    public static bool IsPaused { get; private set; } = false;
 
-          _document = GetComponent<UIDocument>();
+    private void Start()
+    {
+        // Ensure the pause canvas is hidden at startup.
+        if (pauseCanvas != null)
+            pauseCanvas.gameObject.SetActive(false);
+        if (settingsCanvas != null)
+            settingsCanvas.gameObject.SetActive(false);
+    }
 
-          _resumeButton = _document.rootVisualElement.Q("ResumeButton") as Button;
-          _resumeButton.RegisterCallback<ClickEvent>(OnResumeClick);
+    private void Update()
+    {
+        // Only allow toggling the pause menu if the player UI canvas is active.
+        if (playerUICanvas != null && playerUICanvas.gameObject.activeSelf)
+        {
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                TogglePauseMenu();
+            }
+        }
+    }
 
-          _mainMenuButton = _document.rootVisualElement.Q("MainMenuButton") as Button;
-          _mainMenuButton.RegisterCallback<ClickEvent>(evt => SceneManager.LoadScene("MainMenu"));
+    private void TogglePauseMenu()
+    {
+        isPauseCanvasActive = !isPauseCanvasActive;
+        IsPaused = isPauseCanvasActive;
 
-          // Initially hide the pause menu
-          _document.rootVisualElement.style.display = DisplayStyle.None;
+        if (pauseCanvas != null)
+            pauseCanvas.gameObject.SetActive(isPauseCanvasActive);
 
-          // Find the camera movement script
+        if (isPauseCanvasActive)
+        {
+            // When pause is active, unlock and show the cursor.
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+        else
+        {
+            // When resuming, lock and hide the cursor.
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+    }
 
-          // Start listening for input
-          StartCoroutine(CheckForPauseInput());
-     }
+    /// <summary>
+    /// Called by the "Return" button to close the pause menu and resume gameplay.
+    /// </summary>
+    public void ReturnToGame()
+    {
+        isPauseCanvasActive = false;
+        IsPaused = false;
+        if (pauseCanvas != null)
+            pauseCanvas.gameObject.SetActive(false);
 
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
 
-     private void OnDisable() {
-          _resumeButton.UnregisterCallback<ClickEvent>(OnResumeClick);
-     }
+    /// <summary>
+    /// Called by the "Main Menu" button to load the main menu scene.
+    /// </summary>
+    public void GoToMainMenu()
+    {
+        // Shutdown the network instance if it's running.
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+        {
+            NetworkManager.Singleton.Shutdown();
+            Debug.Log("NetworkManager shut down.");
+        }
 
-     private void OnResumeClick(ClickEvent evt) {
-          TogglePauseMenu();
-     }
+        // Unpause the game explicitly.
+        isPauseCanvasActive = false;
+        IsPaused = false;
 
-     private void TogglePauseMenu() {
-          _isPaused = !_isPaused;
-          _document.rootVisualElement.style.display = _isPaused ? DisplayStyle.Flex : DisplayStyle.None;
-          Time.timeScale = _isPaused ? 0 : 1;
+        // Reset cursor to the desired state (for main menu usually unlocked).
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
 
-          // Show/hide cursor
-          UnityEngine.Cursor.visible = _isPaused;
-          UnityEngine.Cursor.lockState = _isPaused ? CursorLockMode.None : CursorLockMode.Locked;
+        // Load the main menu scene.
+        SceneManager.LoadScene("MainMenu_SCENE");
+    }
 
-          // Enable/disable camera movement
-     }
+    /// <summary>
+    /// Called by the "Settings" button in the pause menu to open the settings canvas.
+    /// Hides the pause menu and shows the settings canvas.
+    /// </summary>
+    public void OpenSettingsCanvas()
+    {
+        // Hide the pause menu.
+        if (pauseCanvas != null)
+            pauseCanvas.gameObject.SetActive(false);
+        // Show the settings canvas.
+        if (settingsCanvas != null)
+            settingsCanvas.gameObject.SetActive(true);
 
-     private System.Collections.IEnumerator CheckForPauseInput() {
-          while (true) {
-               if (Input.GetKeyDown(KeyCode.P)) {
-                    TogglePauseMenu();
-               }
-
-               yield return null;
-          }
-     }
+        // Keep the game paused and the cursor unlocked.
+        IsPaused = true;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
 }
+
+
+
+
+
+

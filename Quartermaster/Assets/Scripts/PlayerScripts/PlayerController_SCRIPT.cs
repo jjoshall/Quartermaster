@@ -210,6 +210,9 @@ public class PlayerController : NetworkBehaviour {
     }
 
     void Update() {
+        if (PauseMenuToggler.IsPaused) {
+            return; // Skip all input and movement processing when paused.
+        }
         if (!IsOwner) return;
 
         // If player falls too far, kill them
