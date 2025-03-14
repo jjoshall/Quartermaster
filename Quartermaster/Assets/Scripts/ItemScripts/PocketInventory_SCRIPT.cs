@@ -34,7 +34,7 @@ public class PocketInventory : NetworkBehaviour {
             serializer.SerializeValue(ref rotation);
         }
     }
-    private static readonly float MAX_TIME_IN_POCKET = 10.0f;
+    private static readonly float MAX_TIME_IN_POCKET = 20.0f;
     private static readonly float RADIUS_OF_POCKET_DETECTION = 20.0f;
     // private GameObject playerInPocket;
     #endregion
@@ -82,7 +82,7 @@ public class PocketInventory : NetworkBehaviour {
 
             PlayerPosition teleportSpot = new PlayerPosition();
             teleportSpot.position = _teleportPosition;
-            teleportSpot.rotation = user.transform.rotation;
+            teleportSpot.rotation = Quaternion.Euler(0, 0, 0);
 
             TeleportUserToPositionClientRpc(userRef, teleportSpot); // teleport
             
@@ -114,10 +114,10 @@ public class PocketInventory : NetworkBehaviour {
             }
 
             playerObj.GetComponentInChildren<PlayerDissolveAnimator>().AnimateSolidifyServerRpc();
-            ParticleManager.instance.SpawnSelfThenAll("TeleportParticles", 
+            ParticleManager.instance.SpawnSelfThenAll("TeleportSphere", 
                                                         playerObj.transform.position, 
                                                         playerObj.transform.rotation);
-            ParticleManager.instance.SpawnSelfThenAll("TeleportParticles", 
+            ParticleManager.instance.SpawnSelfThenAll("TeleportSphere", 
                                                         teleportPosition.position, 
                                                         teleportPosition.rotation);
 

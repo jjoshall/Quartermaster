@@ -214,6 +214,10 @@ public class GameManager : NetworkBehaviour {
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
+    public NetworkVariable<int> totalPlayerDeaths = new NetworkVariable<int>(0,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
+
     public NetworkVariable<int> totalPlayers = new NetworkVariable<int>(0,
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
@@ -253,6 +257,12 @@ public class GameManager : NetworkBehaviour {
     public void AddPlayerDamageServerRpc(float damageAmount) {
         if (!IsServer) return;
         totalPlayerDamageTaken.Value += damageAmount;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void IncrementPlayerDeathsServerRpc() {
+        if (!IsServer) return;
+        totalPlayerDeaths.Value++;
     }
 
     [ServerRpc(RequireOwnership = false)]

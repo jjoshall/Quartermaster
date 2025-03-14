@@ -83,6 +83,37 @@ public class PlayerController : NetworkBehaviour {
 
     #endregion
 
+    [SerializeField] private GameObject _devPrefab;
+    private GameObject _devReference;
+
+    #region DEV_FUNCTIONS
+    private void SpawnDevController(){
+        if (!IsOwner) return;
+        if (_devReference == null){
+            _devReference = Instantiate(_devPrefab, this.gameObject.transform.position, this.gameObject.transform.rotation);
+            _devReference.GetComponent<DevController>().n_playerObj = this.GetComponent<NetworkObject>();
+            _devReference.GetComponent<DevController>().InitDevController();
+        }
+        _devReference.SetActive(true);
+        _devReference.transform.position = this.gameObject.transform.position;
+        _devReference.GetComponent<DevController>().cam.transform.rotation = this.PlayerCamera.transform.rotation;
+        this.gameObject.GetComponent<NetworkObject>().Despawn(true);
+    }
+
+
+    
+    
+    
+    
+    #endregion
+
+
+
+
+
+
+
+
     #region Start Up Functions
     private void EnablePlayerControls() {
         // Main Camera and Audio Listener
@@ -232,6 +263,11 @@ public class PlayerController : NetworkBehaviour {
         HandleLook();
 
         if (stateMachine != null) { stateMachine.Update(); }
+
+        // getkeydown ] to spawn dev controller
+        if (Input.GetKeyDown(KeyCode.RightBracket)){
+            SpawnDevController();
+        }
     }
 
     void FixedUpdate() {
@@ -337,6 +373,11 @@ public class PlayerController : NetworkBehaviour {
 
     void GroundCheck() {
         // Make sure that the ground check distance while already in air is very small, to prevent snapping to ground
+        if (Controller == null) {
+            Debug.LogError("CharacterController is null. Cannot perform ground check.");
+            return;
+        }
+
         float chosenGroundCheckDistance =
             IsGrounded ? (Controller.skinWidth + k_GroundCheckDistance) : k_GroundCheckDistanceInAir;
 
@@ -426,6 +467,7 @@ public class PlayerController : NetworkBehaviour {
 
     void OnDie() {
         Debug.Log($"[{Time.time}] {gameObject.name} died. Respawning...");
+
         if (health != null) health.Invincible = true;
 
         playerVelocity = Vector3.zero;
@@ -440,6 +482,9 @@ public class PlayerController : NetworkBehaviour {
         }
 
         HealthBarUI.instance.UpdateHealthBar(health);
+
+        GameManager.instance.IncrementPlayerDeathsServerRpc();
+        GameManager.instance.AddScoreServerRpc(-100);
     }
 
     void OnDamaged(float damage, GameObject damageSource) {

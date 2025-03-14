@@ -7,6 +7,8 @@ public class Inventory : NetworkBehaviour {
     private GameObject _playerObj;
     private GameObject _itemAcquisitionRange;
 
+    private Animator animator;
+
     [Header("Orientation for dropItem direction")]
     public Transform orientation;
 
@@ -64,6 +66,8 @@ public class Inventory : NetworkBehaviour {
             }
             UpdateAllInventoryUI();
             UpdateHeldItem();
+
+            animator = _playerObj.GetComponentInChildren<Animator>();
         }
     }
 
@@ -320,6 +324,7 @@ public class Inventory : NetworkBehaviour {
             if (currentHoldable != null) {
                 Destroy(currentHoldable);
                 currentHoldable = null;
+                animator.SetBool("WeaponEquipped", false);
             }
             return;
         }
@@ -341,6 +346,11 @@ public class Inventory : NetworkBehaviour {
                 identifier.itemID = heldItemId;
             }
         }
+
+        if (animator != null) {
+            animator.SetBool("WeaponEquipped", true);
+        }
+
     }
 
     private void UpdateAllInventoryUI() {

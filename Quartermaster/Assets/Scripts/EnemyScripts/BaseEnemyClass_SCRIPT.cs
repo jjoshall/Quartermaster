@@ -3,7 +3,6 @@ using UnityEngine.AI;
 using Unity.Netcode;
 using System.Collections;
 using TMPro;
-using UnityEngine.ResourceManagement.ResourceProviders.Simulation;
 
 public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected abstract float GetAttackCooldown();

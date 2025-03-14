@@ -48,10 +48,8 @@ public class PlayerDissolveAnimator : NetworkBehaviour
         }
         if (_solidifyStarted){
             if (Time.time - _solidifyTimerStart < solidifyDuration){
-                Debug.Log ("lerping solidify amount");
                 LerpSolidifyAmount();
             } else {
-                Debug.Log ("solidify finished");
                 _solidifyStarted = false;
             }
         }

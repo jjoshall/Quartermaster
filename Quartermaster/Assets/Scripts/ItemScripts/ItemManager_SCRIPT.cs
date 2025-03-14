@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using Unity.VisualScripting;
 
 public class ItemManager : NetworkBehaviour {
 
@@ -108,6 +109,7 @@ public class ItemManager : NetworkBehaviour {
 
     #region Item Functions
 
+    // spawnWorldItemServerRpc takes a playerobj to give item velocity in direction.
     [ServerRpc(RequireOwnership = false)]
     public void SpawnWorldItemServerRpc(int id, 
                                         int quantity, 
@@ -221,7 +223,8 @@ public class ItemManager : NetworkBehaviour {
         }
     }
 
-    private void DropItems(Vector3 position){
+    // Does a separate roll for each item in dropEntries against its dropChance.
+    public void DropItems(Vector3 position){
         float countMultiplier = 1.0f; //_burstDrop_moddedRate / burstDrop_baseRate; // >1 multiplier.
         foreach (DropEntry entry in dropEntries){
             // roll for each item
@@ -235,6 +238,13 @@ public class ItemManager : NetworkBehaviour {
                 EnemyDropServerRpc(itemID, entry.quantity, 0.0f, position, randomDirection);
             }
         }
+    }
+
+    // Drop a specific item at a specific position. Written for creative mode / dev function.
+    public void DropSpecificItem(int index, Vector3 position){
+        Vector3 randVelocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0, UnityEngine.Random.Range(-1f, 1f));
+        Vector3 positionYOffsetByOne = new Vector3(position.x, position.y + 1.0f, position.z);
+        EnemyDropServerRpc (index, 1, 0.0f, positionYOffsetByOne, randVelocity);
     }
 
     private IEnumerator DestroyItemAfterTime(GameObject expiringDrop, float time){
