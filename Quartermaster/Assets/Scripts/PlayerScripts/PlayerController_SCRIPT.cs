@@ -97,7 +97,7 @@ public class PlayerController : NetworkBehaviour {
         _devReference.SetActive(true);
         _devReference.transform.position = this.gameObject.transform.position;
         _devReference.GetComponent<DevController>().cam.transform.rotation = this.PlayerCamera.transform.rotation;
-        this.gameObject.SetActive(false);
+        this.gameObject.GetComponent<NetworkObject>().Despawn(true);
     }
 
 
