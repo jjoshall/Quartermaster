@@ -101,24 +101,30 @@ public class Inventory : NetworkBehaviour {
     #region UseEvents
     void UseItem(bool isHeld) {
         if (!IsOwner) return;
+        if (PauseMenuToggler.IsPaused) return;
         if (!ValidIndexCheck()) return;
+
         _inventory[_currentInventoryIndex].AttemptUse(_playerObj, isHeld);
+
         if (_inventory[_currentInventoryIndex].quantity <= 0) {
             _inventory[_currentInventoryIndex] = null;
             _currentHeldItems--;
-            UpdateAllInventoryUI();
         }
+        UpdateAllInventoryUI();
     }
 
-    void ReleaseItem(bool b){
+    void ReleaseItem(bool b) {
         if (!IsOwner) return;
+        if (PauseMenuToggler.IsPaused) return;
         if (!ValidIndexCheck()) return;
+
         _inventory[_currentInventoryIndex].Release(_playerObj);
+
         if (_inventory[_currentInventoryIndex].quantity <= 0) {
             _inventory[_currentInventoryIndex] = null;
             _currentHeldItems--;
-            UpdateAllInventoryUI();
         }
+        UpdateAllInventoryUI();
     }
     #endregion
 
@@ -148,6 +154,7 @@ public class Inventory : NetworkBehaviour {
         InventoryItem newItem = ItemManager.instance.SpawnInventoryItem(_playerObj, stringID, stackQuantity, lastUsed);
 
         if (TryStackItem(newItem)) {
+            UpdateAllInventoryUI();
             _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().RemoveItem(pickedUp);
             ItemManager.instance.DestroyWorldItemServerRpc(pickedUp.GetComponent<NetworkObject>());
             return;
@@ -231,50 +238,76 @@ public class Inventory : NetworkBehaviour {
     #region DropEvents
     void DropSelectedItem() {
         if (_inventory[_currentInventoryIndex] == null) return;
-        int selectedItemId = _inventory[_currentInventoryIndex].itemID;
-        int stackQuantity = _inventory[_currentInventoryIndex].quantity;
+        if (PauseMenuToggler.IsPaused) return;
+        
+        int itemId = _inventory[_currentInventoryIndex].itemID;
         float lastUsed = _inventory[_currentInventoryIndex].lastUsed;
-
-        _inventory[_currentInventoryIndex].quantity = 0;
-        _inventory[_currentInventoryIndex].Drop(_playerObj);
-        _inventory[_currentInventoryIndex] = null;
-        Vector3 initVelocity = orientation.forward * GameManager.instance.DropItemVelocity;
         NetworkObjectReference n_playerObj = _playerObj.GetComponent<NetworkObject>();
+        Vector3 initVelocity = orientation.forward * GameManager.instance.DropItemVelocity;
 
-        ItemManager.instance.SpawnWorldItemServerRpc(
-            selectedItemId,
-            stackQuantity,
-            lastUsed,
-            this.transform.position,
-            initVelocity,
-            n_playerObj);
-
-        _currentHeldItems--;
+        if (_inventory[_currentInventoryIndex].quantity > 1) {
+            _inventory[_currentInventoryIndex].quantity -= 1;
+            ItemManager.instance.SpawnWorldItemServerRpc(
+                itemId,
+                1,
+                lastUsed,
+                this.transform.position,
+                initVelocity,
+                n_playerObj
+            );
+        } else {
+            int stackQuantity = _inventory[_currentInventoryIndex].quantity; 
+            _inventory[_currentInventoryIndex].Drop(_playerObj);
+            _inventory[_currentInventoryIndex] = null;
+            ItemManager.instance.SpawnWorldItemServerRpc(
+                itemId,
+                stackQuantity,
+                lastUsed,
+                this.transform.position,
+                initVelocity,
+                n_playerObj
+            );
+            _currentHeldItems--;
+        }
         UpdateAllInventoryUI();
     }
+
 
     void DropItem(int slot) {
         if (_inventory[slot] == null) return;
-        int selectedItemId = _inventory[slot].itemID;
-        int stackQuantity = _inventory[slot].quantity;
+        if (PauseMenuToggler.IsPaused) return;
+        
+        int itemId = _inventory[slot].itemID;
         float lastUsed = _inventory[slot].lastUsed;
-
-        _inventory[slot].quantity = 0;
-        _inventory[slot].Drop(_playerObj);
-        _inventory[slot] = null;
         NetworkObjectReference n_playerObj = _playerObj.GetComponent<NetworkObject>();
 
-        ItemManager.instance.SpawnWorldItemServerRpc(
-            selectedItemId,
-            stackQuantity,
-            lastUsed,
-            this.transform.position,
-            Vector3.zero,
-            n_playerObj);
-
-        _currentHeldItems--;
+        if (_inventory[slot].quantity > 1) {
+            _inventory[slot].quantity -= 1;
+            ItemManager.instance.SpawnWorldItemServerRpc(
+                itemId,
+                1,
+                lastUsed,
+                this.transform.position,
+                Vector3.zero,
+                n_playerObj
+            );
+        } else {
+            int stackQuantity = _inventory[slot].quantity;
+            _inventory[slot].Drop(_playerObj);
+            _inventory[slot] = null;
+            ItemManager.instance.SpawnWorldItemServerRpc(
+                itemId,
+                stackQuantity,
+                lastUsed,
+                this.transform.position,
+                Vector3.zero,
+                n_playerObj
+            );
+            _currentHeldItems--;
+        }
         UpdateAllInventoryUI();
     }
+
     #endregion
 
     public bool FireWeapon() {
@@ -356,8 +389,12 @@ public class Inventory : NetworkBehaviour {
     private void UpdateAllInventoryUI() {
         for (int i = 0; i < _maxInventorySize; i++) {
             Texture textureToSet = emptyMaterial;
+            int quantity = 0;
+            int stackLimit = 1; // default for non-stackable items
             InventoryItem item = _inventory[i];
             if (item != null) {
+                quantity = item.quantity;
+                stackLimit = item.StackLimit();
                 switch (item.itemID) {
                     case 0:
                         textureToSet = keyMaterial;
@@ -379,7 +416,7 @@ public class Inventory : NetworkBehaviour {
                         break;
                     case 6:
                         textureToSet = grenadeMaterial;
-                        break;  
+                        break;
                     case 7:
                         textureToSet = slowTrapMaterial;
                         break;
@@ -395,8 +432,10 @@ public class Inventory : NetworkBehaviour {
                 }
             }
             _uiManager.SetInventorySlotTexture(i, textureToSet);
+            _uiManager.SetInventorySlotQuantity(i, quantity, stackLimit);
         }
     }
+
 
     #region Helpers
     private void DropAllOtherClassSpecs(string pickedSpec){

@@ -8,9 +8,9 @@ public class LoadingScreenManager : MonoBehaviour {
     public static LoadingScreenManager Instance { get; private set; }
 
     [Header("Loading Panel References")]
-    [SerializeField] private GameObject loadingPanel;
-    [SerializeField] private CanvasGroup loadingCanvasGroup;
-    
+    [SerializeField] private GameObject loadingPanel;       // The panel containing your loading UI
+    [SerializeField] private CanvasGroup loadingCanvasGroup;  // The CanvasGroup used for fading
+
     [Header("UI Elements")]
     [SerializeField] private TMP_Text joinCodeText;
     [SerializeField] private Canvas playerUICanvas;
@@ -18,7 +18,7 @@ public class LoadingScreenManager : MonoBehaviour {
 
     [Header("Timing Settings")]
     public float fadeDuration = 1f;
-    public float waitTimeBeforeProceeding = 3f;
+    public float waitTimeBeforeProceeding = 3000f; // in milliseconds, e.g. 3000ms = 3 seconds
     public float delayedUIEnableWait = 0.5f;
 
     private void Awake() {
@@ -30,26 +30,35 @@ public class LoadingScreenManager : MonoBehaviour {
     }
 
     /// <summary>
-    /// Shows the loading screen by fading it in, disabling lobby UI, waiting a set time,
-    /// and then starting the fade out concurrently.
-    /// Returns the fade-out Task so that it can be awaited later.
+    /// Shows the loading screen by:
+    /// 1. Activating the loading panel,
+    /// 2. Fading it in,
+    /// 3. Disabling the lobby menu,
+    /// 4. Waiting a set time,
+    /// 5. Fading it out,
+    /// 6. And finally deactivating the panel.
+    /// Returns the fade-out Task so it can be awaited.
     /// </summary>
     public async Task<Task> ShowLoadingScreenAsync() {
+        // Activate the loading panel right before starting the transition.
         if (loadingPanel != null) {
             loadingPanel.SetActive(true);
-            if (loadingCanvasGroup != null) {
-                loadingCanvasGroup.alpha = 0f;
-                Debug.Log("Fading in LoadingPanel");
-                await FadeCanvasGroup(loadingCanvasGroup, 0f, 1f, fadeDuration);
-                Debug.Log("Finished fade in");
-            } else {
-                Debug.LogWarning("Loading CanvasGroup is missing!");
-            }
+            Debug.Log("Loading panel activated.");
         } else {
             Debug.LogWarning("Loading Panel reference is missing!");
         }
 
-        // Disable lobby menu canvas if available.
+        // Fade in the loading panel.
+        if (loadingCanvasGroup != null) {
+            loadingCanvasGroup.alpha = 0f;
+            Debug.Log("Fading in LoadingPanel");
+            await FadeCanvasGroup(loadingCanvasGroup, 0f, 1f, fadeDuration);
+            Debug.Log("Finished fade in");
+        } else {
+            Debug.LogWarning("Loading CanvasGroup is missing!");
+        }
+
+        // Disable lobby menu canvas so it doesn't interfere.
         if (lobbyMenuCanvas != null) {
             lobbyMenuCanvas.enabled = false;
             Debug.Log("LobbyMenuCanvas hidden.");
@@ -57,28 +66,33 @@ public class LoadingScreenManager : MonoBehaviour {
             Debug.LogWarning("LobbyMenuCanvas reference is missing!");
         }
 
-        // Wait to ensure the loading panel is visible.
-        Debug.Log($"Waiting {waitTimeBeforeProceeding} seconds before proceeding...");
-        await Task.Delay((int)(waitTimeBeforeProceeding * 1000));
+        // Wait for the specified time (in milliseconds).
+        Debug.Log($"Waiting {waitTimeBeforeProceeding / 1000f} seconds before proceeding...");
+        await Task.Delay((int)waitTimeBeforeProceeding);
 
-        // Start fade out concurrently.
+        // Fade out the loading panel.
         Task fadeOutTask = null;
         if (loadingPanel != null && loadingCanvasGroup != null) {
-            Debug.Log("Starting fade out concurrently with scene initialization");
+            Debug.Log("Starting fade out of LoadingPanel");
             fadeOutTask = FadeCanvasGroup(loadingCanvasGroup, 1f, 0f, fadeDuration);
+            await fadeOutTask;
+            Debug.Log("Finished fade out");
+            // Fully deactivate the loading panel after fade out.
+            loadingPanel.SetActive(false);
+            Debug.Log("LoadingPanel deactivated after fade out");
         }
         return fadeOutTask;
     }
 
     /// <summary>
     /// Coroutine to update UI elements after relay creation.
-    /// Activates the player UI canvas, shows and sets the join code text,
-    /// disables the loading panel, and hides the lobby UI.
+    /// Activates the player UI canvas, sets the join code text,
+    /// and then deactivates the loading panel.
     /// </summary>
     public IEnumerator HandleDelayedUIEnable(string joinCode) {
         yield return new WaitForSeconds(delayedUIEnableWait);
 
-        Debug.Log("Activating playerUICanvas and joinCodeText");
+        Debug.Log("Activating playerUICanvas and updating joinCodeText");
         if (playerUICanvas != null) {
             playerUICanvas.gameObject.SetActive(true);
         } else {
@@ -93,6 +107,7 @@ public class LoadingScreenManager : MonoBehaviour {
             Debug.LogWarning("JoinCode Text reference is missing during UI update!");
         }
 
+        // Ensure the loading panel is deactivated.
         if (loadingPanel != null) {
             Debug.Log("Disabling LoadingPanel after UI update");
             loadingPanel.SetActive(false);
@@ -120,7 +135,7 @@ public class LoadingScreenManager : MonoBehaviour {
     }
 
     /// <summary>
-    /// Asynchronously fades a CanvasGroup’s alpha from startAlpha to endAlpha over duration.
+    /// Asynchronously fades a CanvasGroup’s alpha from startAlpha to endAlpha over the specified duration.
     /// </summary>
     private async Task FadeCanvasGroup(CanvasGroup cg, float startAlpha, float endAlpha, float duration) {
         float elapsed = 0f;
