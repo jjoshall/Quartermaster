@@ -5,6 +5,12 @@ using UnityEngine;
 using System.Threading.Tasks;
 
 public class EnemySpawner : NetworkBehaviour {
+    [Header("AIDirector Run-time variables")]
+    [HideInInspector] public float aiHpMultiplier = 1.0f;
+    [HideInInspector] public float aiDmgMultiplier = 1.0f;
+    [HideInInspector] public float aiSpdMultiplier = 1.0f;
+    
+
     [Header("Spawner Settings")]
     public List<EnemySpawnData> _enemySpawnData = new List<EnemySpawnData>();
     [SerializeField] private int _maxEnemyInstanceCount = 20;
@@ -73,7 +79,6 @@ public class EnemySpawner : NetworkBehaviour {
         }   
     }
 
-
     /// <summary>
     /// If we add pack spawning, place spawn points in the scene and uncomment this method and use it
     /// Make sure to change SpawnEnemyPackAtRandomPoint and its server RPC to use this method
@@ -88,27 +93,6 @@ public class EnemySpawner : NetworkBehaviour {
     //    GameObject spawnPoint = _enemyPackSpawnPoints[Random.Range(0, _enemyPackSpawnPoints.Count)];
     //    return spawnPoint.transform.position;
     //}
-
-    public void SpawnEnemyPackAtRandomPoint(int count, Vector3 position, float spread = 2f) {
-        if (!IsServer) return;
-
-        //Vector3 spawnPosition = GetRandomPackSpawnPoint();
-        SpawnEnemyPack(count, position, spread);
-    }
-
-    // ServerRpc for clients to request a pack spawn at a random point
-    [ServerRpc(RequireOwnership = false)]
-    public void SpawnEnemyPackAtRandomPointServerRpc(int count, Vector3 position, float spread = 2f) {
-        if (!IsServer) return;
-        SpawnEnemyPackAtRandomPoint(count, position, spread);
-    }
-
-    [ServerRpc]
-    private void serverDebugMsgServerRpc(string msg) {
-        if (!IsServer) { return; }
-        Debug.Log(msg);
-    }
-
     private IEnumerator SpawnOverTime() {
         while (true) {
             if (enemyList.Count < _maxEnemyInstanceCount && isSpawning.Value) {
@@ -129,6 +113,20 @@ public class EnemySpawner : NetworkBehaviour {
         }
     }
 
+    #region Pack Spawn
+    public void SpawnEnemyPackAtRandomPoint(int count, Vector3 position, float spread = 2f) {
+        if (!IsServer) return;
+
+        //Vector3 spawnPosition = GetRandomPackSpawnPoint();
+        SpawnEnemyPack(count, position, spread);
+    }
+
+    // ServerRpc for clients to request a pack spawn at a random point
+    [ServerRpc(RequireOwnership = false)]
+    public void SpawnEnemyPackAtRandomPointServerRpc(int count, Vector3 position, float spread = 2f) {
+        if (!IsServer) return;
+        SpawnEnemyPackAtRandomPoint(count, position, spread);
+    }
     public void SpawnEnemyPack(int count, Vector3 position, float spread = 2f) {
         if (!IsServer) return;
 
@@ -162,6 +160,9 @@ public class EnemySpawner : NetworkBehaviour {
         SpawnEnemyPack(count, position, spread);
     }
 
+    #endregion 
+
+
     private EnemyType GetEnemyType(Transform enemyPrefab) {
         if (enemyPrefab.GetComponent<MeleeEnemyInherited_SCRIPT>() != null) return EnemyType.Melee;
         if (enemyPrefab.GetComponent<ExplosiveMeleeEnemyInherited_SCRIPT>() != null) return EnemyType.Melee;
@@ -186,6 +187,7 @@ public class EnemySpawner : NetworkBehaviour {
         return _enemySpawnData[0].enemyPrefab;
     }
 
+    #region GlobalAggro
     public Vector3 GetGlobalAggroTarget() {
         return globalAggroTarget;
     }
@@ -209,7 +211,9 @@ public class EnemySpawner : NetworkBehaviour {
             }
         }
     }
+    #endregion 
 
+    #region DestroyEnemy
     [ServerRpc(RequireOwnership = false)]
     public void destroyEnemyServerRpc(NetworkObjectReference enemy) {
         if (!IsServer) { return; }
@@ -218,12 +222,16 @@ public class EnemySpawner : NetworkBehaviour {
             networkObject.Despawn();
         }
     }
+
+
+    #endregion
     #region Update Enemy Speed
     public void UpdateEnemySpeed(float speed) {
+        aiSpdMultiplier = speed;
         foreach (Transform enemy in enemyList) {
             if (enemy != null) {
                 if (enemy.GetComponent<BaseEnemyClass_SCRIPT>() != null){
-                    enemy.GetComponent<BaseEnemyClass_SCRIPT>().AISpeedMultiplier = speed;
+                    enemy.GetComponent<BaseEnemyClass_SCRIPT>().AISpeedMultiplier = aiSpdMultiplier;
                     enemy.GetComponent<BaseEnemyClass_SCRIPT>().UpdateSpeedServerRpc();
                 }
             }
@@ -242,6 +250,11 @@ public class EnemySpawner : NetworkBehaviour {
 
 
     #region Helpers
+    [ServerRpc]
+    private void serverDebugMsgServerRpc(string msg) {
+        if (!IsServer) { return; }
+        Debug.Log(msg);
+    }
     public void CalculateTotalWeight() {
         _totalWeight = 0f;
 

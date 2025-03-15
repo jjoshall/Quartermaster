@@ -22,39 +22,44 @@ public class AIDirector : NetworkBehaviour {
         Mixed
     }
 
-    [Header("State Machine Settings")]
+    [Header("DRAMA PHASE timeout transition triggers")]
     [SerializeField] private float _buildUpDuration = 180f; // 3 minutes
     [SerializeField] private float _peakDuration = 30f; // 30 seconds
     [SerializeField] private float _relaxDuration = 45f; // 45 seconds
 
-    [Header("Intensity Settings")]
+    [Header("DRAMA PHASE intensity trigger settings")]
     [SerializeField] private float _baseIntensity = 10f; // Base intensity level
     [SerializeField] private float _intensityDecayRate = 0.5f; // How fast intensity decreases over time
     [SerializeField] private float _peakIntensityThreshold = 60f; // When to trigger peak
     [SerializeField] private float _relaxIntensityThreshold = 30f; // When to end relax phase early
 
-    [Header("Intensity Gain Multipliers")]
+    [Header("DRAMA PHASE intensity gain modifiers")]
     [SerializeField] private float _enemyKillIntensity = 0.5f; // Intensity gained per kill
     [SerializeField] private float _damageDealtMultiplier = 0.25f; // Intensity gained per damage dealt
     [SerializeField] private float _damageTakenMultiplier = 0.25f; // Intensity gained per damage taken
 
-    [Header("Spawn Rate Settings")]
+    [Header("DRAMA PHASE BASED spawn rates")]
     [SerializeField] private float _buildUpSpawnRate = 6f; // Seconds between spawns
     [SerializeField] private float _peakSpawnRate = 0.5f; // Seconds between spawns
     [SerializeField] private float _relaxSpawnRate = 10f; // Seconds between spawns
 
-    [Header("Enemy Type Weights")]
+    [Header("DRAMA PHASE BASED enemytype spawn weights")]
     [SerializeField] private List<EnemyWeightData> _buildUpEnemyWeights = new List<EnemyWeightData>();
     [SerializeField] private List<EnemyWeightData> _peakEnemyWeights = new List<EnemyWeightData>();
     [SerializeField] private List<EnemyWeightData> _relaxEnemyWeights = new List<EnemyWeightData>();
 
-    [Header("Difficulty Scaling Settings")]
+    [Header("TIME BASED permanent scaling")]
     // These settings are the original gradual values.
     [SerializeField] private float _scalingIncrement = 0.05f; // Increment of scaling each peak
-    [SerializeField] private float _maxSpeedScale = 0.3f; // 30% max speed increase
+    private float _scalingRawTotal = 0.0f; // value before curve.
+    private float _lastScaled = 0.0f; // timer. 
+    [SerializeField] private float _scalingIntervalSeconds = 30.0f; // timer.
+    
+    [SerializeField] private float _maxSpeedScale = 0.3f; // 20% max speed increase
     [SerializeField] private float _maxHealthScale = 0.5f; // 50% max health increase
+    [SerializeField] private float _maxDamageScale = 0.5f; // 50% max damage increase
     [SerializeField] private float _maxSpawnRateScale = 0.5f; // 50% max spawn rate increase
-    [SerializeField] private AnimationCurve _scalingCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
     [SerializeField] private float _peakBuffMultiplier = 2f;
 
     // State machine properties
@@ -141,7 +146,18 @@ public class AIDirector : NetworkBehaviour {
         if (!IsServer) return;
 
         _currentIntensity.Value = Mathf.Max(0, _currentIntensity.Value - (_intensityDecayRate * Time.deltaTime));
+        
+        // Phase state machine. 
+        // Transitions on intensity thresholds or timeouts.
+        // Cyclical. BuildUp -> Peak -> Relax -> BuildUp
         StateMachineTimer();
+
+        // Increase enemy scaling on timer. 
+        // Enemy scaling is asymptotic to max values at top of this file.
+        if (Time.time > _lastScaled + _scalingIntervalSeconds){
+            IncreaseEnemyScaling();
+            _lastScaled = Time.time;
+        }
     }
 
     #endregion
@@ -234,9 +250,18 @@ public class AIDirector : NetworkBehaviour {
     #region Difficulty Scaling
 
     private void IncreaseEnemyScaling() { // increase periodically enemy hp scaling based on time.
-        GameManager gm = GameManager.instance;
-        float scalingIncrement = _scalingIncrement;
+        _scalingRawTotal += _scalingIncrement;
+        float curvedHp = ScaledEaseOut(_scalingRawTotal, _maxHealthScale);
+        float curvedDmg = ScaledEaseOut(_scalingRawTotal, _maxDamageScale);
+        float curvedSpeed = ScaledEaseOut(_scalingRawTotal, _maxSpeedScale);
 
+
+        // affects new spawns.
+        EnemySpawner.instance.aiDmgMultiplier = 1.0f + curvedDmg;
+        EnemySpawner.instance.aiHpMultiplier = 1.0f + curvedHp;
+
+        // affects all active enemies
+        UpdateEnemySpeedMultiplier(1.0f + curvedSpeed);
         
 
         // float currentSpeedScale = gm.EnemySpeedMultiplier - 1f;

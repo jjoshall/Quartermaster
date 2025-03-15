@@ -35,10 +35,12 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     public EnemySpawner enemySpawner;
 
     // Speed run-time variables, think Norman added this
+    // Yes I did - Norman
     protected float _baseSpeed = 0.0f;
     protected float _baseAcceleration = 0.0f;
     protected NetworkVariable<int> n_isSlowed = new NetworkVariable<int>(0); // int is used in case of multiple slow traps.
     protected NetworkVariable<float> n_slowMultiplier = new NetworkVariable<float>(0.0f);
+    [HideInInspector] public float AISpeedMultiplier = 1.0f; // don't change. set by AIDirector at run-time.
 
     [SerializeField] private GameObject floatingTextPrefab;     // to spawn floating damage numbers
     private bool _isAttacking = false;      // to prevent multiple attacks happening at once
@@ -262,7 +264,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     #region SpeedChanged
     [ServerRpc(RequireOwnership = false)]   
-    protected virtual void UpdateSpeedServerRpc(){
+    public virtual void UpdateSpeedServerRpc(){
         float finalSpeed = _baseSpeed;
         float finalAcceleration = _baseAcceleration;
 

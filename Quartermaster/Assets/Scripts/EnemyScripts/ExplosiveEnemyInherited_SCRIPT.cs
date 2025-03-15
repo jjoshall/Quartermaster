@@ -52,7 +52,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     }
 
     [ServerRpc(RequireOwnership = false)]
-    protected override void UpdateSpeedServerRpc(){
+    public override void UpdateSpeedServerRpc(){
         float finalSpeed = _baseSpeed;  
         float finalAcceleration = _baseAcceleration;
 
@@ -60,6 +60,9 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             finalSpeed *= 1 - n_slowMultiplier.Value;
             finalAcceleration *= 1 - n_slowMultiplier.Value;
         }
+
+        finalSpeed *= AISpeedMultiplier;
+        finalAcceleration *= AISpeedMultiplier;
 
         if (isBlinking.Value){
             finalSpeed *= blinkingSpeedMultiplier;
