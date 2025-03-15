@@ -10,14 +10,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     protected override bool GetUseGlobalTarget() => GameManager.instance.ExplosiveEnemy_UseGlobalTarget;
     protected override float GetInitialHealth() => GameManager.instance.ExplosiveEnemy_Health;
 
-    //protected override float attackCooldown => 2.37f;
-    //protected override float attackRange => 8f;
-    //protected override int damage => 60;
-    //protected override float attackRadius => 8f;
-    //protected override bool useGlobalTarget => true;
-
     private bool _isExploding = false;
-
 
     #region Explosion Blinking Visualization
     private NetworkVariable<bool> isBlinking = new NetworkVariable<bool>(false,
@@ -42,10 +35,6 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
         animator = GetComponentInChildren<Animator>();
         soundEmitters = GetComponents<SoundEmitter>();
-        
-        if (renderer != null) {
-            originalColor = renderer.material.color;
-        }
 
         isBlinking.OnValueChanged += OnBlinkingStateChanged;
     }
@@ -81,17 +70,6 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         agent.acceleration = finalAcceleration;
     }
 
-
-    protected override void OnDamaged(float damage, GameObject damageSource)
-    {
-        base.OnDamaged(damage, damageSource);
-        
-        if (!isBlinking.Value && renderer != null)
-        {
-            originalColor = renderer.material.color;
-        }
-    }
-
     #endregion
 
     public void TriggerExplosion() {
@@ -123,6 +101,11 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         yield return new WaitForSeconds(3.0f);
         base.OnDie();
     }
+
+    //protected override void OnAttackStart() {
+    //    isBlinking.Value = true;
+    //    base.OnAttackStart();
+    //}
 
     protected override IEnumerator DelayAttack() {
         isBlinking.Value = true;

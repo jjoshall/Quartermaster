@@ -1,47 +1,34 @@
 using UnityEngine;
 using System.Collections;
-using Unity.Netcode;
 
 public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     private bool _canAttack = true;
 
+    #region Variables for GameManager
     protected override float GetAttackCooldown() => GameManager.instance.MeleeEnemy_AttackCooldown;
     protected override float GetAttackRange() => GameManager.instance.MeleeEnemy_AttackRange;
     protected override int GetDamage() => GameManager.instance.MeleeEnemy_AttackDamage;
     protected override float GetAttackRadius() => GameManager.instance.MeleeEnemy_AttackRadius;
     protected override bool GetUseGlobalTarget() => GameManager.instance.MeleeEnemy_UseGlobalTarget;
     protected override float GetInitialHealth() => GameManager.instance.MeleeEnemy_Health;
-
-    //protected override float attackCooldown => 2f;
-    //protected override float attackRange => 10f;
-    //protected override int damage => 15;
-    //protected override bool useGlobalTarget => false;
+    #endregion
 
     private SoundEmitter[] soundEmitters;
-
     private Animator animator;
 
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
         animator = GetComponentInChildren<Animator>();
-
         soundEmitters = GetComponents<SoundEmitter>();
     }
-
-    //public override void InitializeFromGameManager() {
-        
-    //}
 
     protected override void Attack() {
         if (!_canAttack) return;
         _canAttack = false;
 
         if (IsServer) {
-            Debug.Log("Melee enemy starting attack animation");
             animator.SetBool("IsAttacking", true);
             StartCoroutine(TriggerPunchSFX());
-
-            //StartCoroutine(DebugAttackState());
             AttackServerRpc(false);
         }
 

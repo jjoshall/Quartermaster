@@ -43,9 +43,6 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         animator = GetComponentInChildren<Animator>();
         soundEmitters = GetComponents<SoundEmitter>();
 
-
-
-
         if (IsServer) {
             _hoverOffset = Random.Range(0f, 2f * Mathf.PI);
 
