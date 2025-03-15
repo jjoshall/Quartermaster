@@ -4,9 +4,18 @@ using Unity.Netcode;
 
 public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     private bool _canAttack = true;
-    protected override float attackCooldown => 2f;
-    protected override float attackRange => 10f;
-    protected override int damage => 15;
+
+    protected override float GetAttackCooldown() => GameManager.instance.MeleeEnemy_AttackCooldown;
+    protected override float GetAttackRange() => GameManager.instance.MeleeEnemy_AttackRange;
+    protected override int GetDamage() => GameManager.instance.MeleeEnemy_AttackDamage;
+    protected override float GetAttackRadius() => GameManager.instance.MeleeEnemy_AttackRadius;
+    protected override bool GetUseGlobalTarget() => GameManager.instance.MeleeEnemy_UseGlobalTarget;
+    protected override float GetInitialHealth() => GameManager.instance.MeleeEnemy_Health;
+
+    //protected override float attackCooldown => 2f;
+    //protected override float attackRange => 10f;
+    //protected override int damage => 15;
+    //protected override bool useGlobalTarget => false;
 
     private SoundEmitter[] soundEmitters;
 
@@ -19,22 +28,9 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         soundEmitters = GetComponents<SoundEmitter>();
     }
 
-    protected override void UpdateTarget() {
-        if (enemySpawner == null || enemySpawner.playerList == null) return;
-
-        GameObject closestPlayer = null;
-        float closestDistance = float.MaxValue;
-
-        foreach (GameObject obj in enemySpawner.playerList) {
-            float distance = Vector3.Distance(transform.position, obj.transform.position);
-            if (distance < closestDistance) {
-                closestPlayer = obj;
-                closestDistance = distance;
-            }
-        }
-
-        target = closestPlayer != null ? closestPlayer.transform : null;
-    }
+    //public override void InitializeFromGameManager() {
+        
+    //}
 
     protected override void Attack() {
         if (!_canAttack) return;
@@ -43,6 +39,8 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         if (IsServer) {
             Debug.Log("Melee enemy starting attack animation");
             animator.SetBool("IsAttacking", true);
+            StartCoroutine(TriggerPunchSFX());
+
             //StartCoroutine(DebugAttackState());
             AttackServerRpc(false);
         }
@@ -53,7 +51,13 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     protected override void OnDamaged(float damage, GameObject damageSource)
     {
         base.OnDamaged(damage, damageSource);
-        PlaySoundForEmitter("melee_damaged", "__", transform.position);
+        PlaySoundForEmitter("melee_damaged", transform.position);
+    }
+
+    private IEnumerator TriggerPunchSFX() {
+        PlaySoundForEmitter("melee_punch", transform.position);
+        yield return new WaitForSeconds(0.2f);
+        PlaySoundForEmitter("melee_punch", transform.position);
     }
 
     private IEnumerator ResetAttackCooldown() {
@@ -76,10 +80,10 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         }
     }
 
-    public void PlaySoundForEmitter(string emitterId, string key, Vector3 position) {
+    public void PlaySoundForEmitter(string emitterId, Vector3 position) {
         foreach (SoundEmitter emitter in soundEmitters) {
             if (emitter.emitterID == emitterId) {
-                emitter.PlayNetworkedSound(key, position);
+                emitter.PlayNetworkedSound(position);
                 return;
             }
         }

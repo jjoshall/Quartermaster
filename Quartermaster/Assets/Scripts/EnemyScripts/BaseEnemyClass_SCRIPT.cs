@@ -5,11 +5,19 @@ using System.Collections;
 using TMPro;
 
 public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
+    protected abstract float GetAttackCooldown();
+    protected abstract float GetAttackRange();
+    protected abstract int GetDamage();
+    protected abstract float GetAttackRadius();
+    protected abstract bool GetUseGlobalTarget();
+    protected abstract float GetInitialHealth();
+    
     [Header("Enemy Settings")]
-    protected virtual float attackCooldown => 2f;
-    protected virtual float attackRange => 2f;
-    protected virtual int damage => 2;
-    protected virtual float attackRadius => 2f;
+    protected virtual float attackCooldown => GetAttackCooldown();
+    protected virtual float attackRange => GetAttackRange();
+    protected virtual int damage => GetDamage();
+    protected virtual float attackRadius => GetAttackRadius();
+    protected virtual bool useGlobalTarget => GetUseGlobalTarget();
     public EnemyType enemyType;
     [SerializeField] private float _separationRadius = 10f;
     [SerializeField] private float _separationStrength = 3f;
@@ -35,6 +43,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
+
     public override void OnNetworkSpawn() {
         agent = GetComponent<NavMeshAgent>();
         _baseSpeed = agent.speed;
@@ -54,6 +63,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             if (health != null) {
                 health.OnDamaged += OnDamaged;
                 health.OnDie += OnDie;
+                health.CurrentHealth.Value = GetInitialHealth();
             }
             enemySpawner = EnemySpawner.instance;
         }
@@ -90,16 +100,57 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             }
             else {
                 CalculateSeparationOffset();
-                agent.SetDestination(target.position);
+                if (useGlobalTarget) {
+                    Vector3 destination = enemySpawner.GetGlobalAggroTarget();
+                    agent.SetDestination(destination);
+                }
+                else {
+                    agent.SetDestination(target.position);
+                }              
 
                 this.gameObject.transform.position += enemySeparationVector * Time.deltaTime;
             }
         }
     }
 
-    // IMPLEMENT THESE TWO METHODS FOR NEW ENEMIES
-    protected abstract void UpdateTarget();
+    // IMPLEMENT THIS METHOD FOR NEW ENEMIES
     protected abstract void Attack();
+
+    protected virtual void UpdateTarget() {
+        if (enemySpawner == null || enemySpawner.playerList == null) return;
+
+        if (useGlobalTarget) {
+            GameObject closestPlayerToGlobalTarget = null;
+            float closestDistance = float.MaxValue;
+            Vector3 globalTarget = enemySpawner.GetGlobalAggroTarget();
+
+            foreach (GameObject player in enemySpawner.playerList) {
+                if (player == null) continue;
+
+                float distance = Vector3.Distance(player.transform.position, globalTarget);
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestPlayerToGlobalTarget = player;
+                }
+            }
+
+            target = closestPlayerToGlobalTarget != null ? closestPlayerToGlobalTarget.transform : null;
+        }
+        else {
+            GameObject closestPlayer = null;
+            float closestDistance = float.MaxValue;
+
+            foreach (GameObject obj in enemySpawner.playerList) {
+                float distance = Vector3.Distance(transform.position, obj.transform.position);
+                if (distance < closestDistance) {
+                    closestPlayer = obj;
+                    closestDistance = distance;
+                }
+            }
+
+            target = closestPlayer != null ? closestPlayer.transform : null;
+        }
+    }
 
     protected virtual IEnumerator DelayAttack() {
         _isAttacking = true;
@@ -176,7 +227,8 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         ItemManager.instance.ThresholdBurstDrop(transform.position);
 
         GameManager.instance.IncrementEnemyKillsServerRpc();
-        //Debug.Log("Total enemy kills: " + GameManager.instance.totalEnemyKills.Value);
+        GameManager.instance.AddScoreServerRpc(50);
+        Debug.Log("Total score " + GameManager.instance.totalScore.Value);
 
         enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
     }

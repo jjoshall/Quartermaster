@@ -17,8 +17,9 @@ GameObject:
   - component: {fileID: 4975842382590010180}
   - component: {fileID: 4520578236394344229}
   - component: {fileID: 559437968811191426}
-  - component: {fileID: 670477347733715727}
   - component: {fileID: -4193943459062670178}
+  - component: {fileID: 670477347733715727}
+  - component: {fileID: 7565283431715044315}
   m_Layer: 7
   m_Name: NormalMeleeEnemy_PREFAB
   m_TagString: Enemy
@@ -212,6 +213,19 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   TransitionStateInfoList: []
   m_Animator: {fileID: 1663899666230175592}
+--- !u!114 &-4193943459062670178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4108908729984213791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46358f51093a922409c7ec1e106ec6eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!114 &670477347733715727
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -230,7 +244,7 @@ MonoBehaviour:
   - Enemy/EnemyHurt_1.ogg
   - Enemy/EnemyHurt_2.ogg
   - Enemy/EnemyHurt_3.ogg
---- !u!114 &-4193943459062670178
+--- !u!114 &7565283431715044315
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -239,10 +253,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 4108908729984213791}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 46358f51093a922409c7ec1e106ec6eb, type: 3}
+  m_Script: {fileID: 11500000, guid: 01db514f5e6309c4e9942a6913481df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
+  emitterID: melee_punch
+  destinationMixer: SFX
+  soundAddressableKeys:
+  - Enemy/Melee_Punch.ogg
 --- !u!1 &9085996595791581510
 GameObject:
   m_ObjectHideFlags: 0

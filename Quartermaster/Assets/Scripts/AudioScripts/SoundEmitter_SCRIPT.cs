@@ -1,5 +1,9 @@
 using Unity.VisualScripting;
 using UnityEngine;
+using System.Collections.Generic;
+
+
+
 
 public class SoundEmitter : MonoBehaviour {
     private NetworkAudio networkAudio;
@@ -8,12 +12,32 @@ public class SoundEmitter : MonoBehaviour {
     [SerializeField] string destinationMixer;
 
     [SerializeField] string[] soundAddressableKeys;
+    private string soundAddressableKey;
 
     private void Awake() {
-        networkAudio = GetComponent<NetworkAudio>(); 
+        networkAudio = GetComponentInParent<NetworkAudio>(); 
     }
 
-    public void PlayNetworkedSound(string soundAddressableKey, Vector3 soundPosition) {
+    [System.Serializable]
+    public struct emitterType {
+        public string emitterID;
+        public string destinationMixer;
+        public string[] soundAddressableKeys;
+    }
+
+    public List<emitterType> emitterTypes;
+
+    public void PlayUserBasedNetworkSound(Vector3 soundPosition, string emitterId){
+        foreach (emitterType emitter in emitterTypes){
+            if (emitter.emitterID == emitterId){
+                destinationMixer = emitter.destinationMixer;
+                soundAddressableKeys = emitter.soundAddressableKeys;
+                PlayNetworkedSound(soundPosition);
+            }
+        }
+    }
+
+    public void PlayNetworkedSound(Vector3 soundPosition, bool isLooped = false) {
         if (networkAudio == null) {
             Debug.LogError("[SoundEmitter] No NetworkAudio component found!");
             return;
@@ -37,6 +61,13 @@ public class SoundEmitter : MonoBehaviour {
             }
         }
 
-        networkAudio.RequestSoundServerRpc(soundAddressableKey, soundPosition, destinationMixer);
+        Debug.Log("[SoundEmitter] Playing sound: " + soundAddressableKey);
+
+        Debug.Log("Requestion sound server RPC for " + soundAddressableKey);
+        networkAudio.RequestSoundServerRpc(soundAddressableKey, soundPosition, destinationMixer, isLooped: isLooped);
     }
+    
+
+
+
 }

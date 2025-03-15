@@ -239,6 +239,7 @@ public class ObjectiveManager : NetworkBehaviour {
         // Do something here. Boss phase.
         DebugAllClientRpc("ObjectiveManager: ClearedAllObjectives() placeholder clientRPC msg.");
         TooltipManager.SendTooltip("All objectives cleared. Stay tuned for the boss fight in 172!");
+        // CALL END GAME METHOD HERE AND SHOW SCORES FOR STATS
     }
 
     [ServerRpc]

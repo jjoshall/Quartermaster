@@ -3,12 +3,12 @@ using UnityEngine;
 
 public class NetworkAudio : NetworkBehaviour {
     [ClientRpc]
-    public void PlaySoundClientRpc(string soundAddressableKey, Vector3 soundPosition, string destinationMixer) {
+    public void PlaySoundClientRpc(string soundAddressableKey, Vector3 soundPosition, string destinationMixer, bool isLooped = false) {
         if (!IsClient) { return; }
-
         AudioLibrary.GetClipAsync(soundAddressableKey, (clip) => {
             if (clip != null && AudioManager.Instance != null) {
-                AudioManager.Instance.PlaySoundAtPosition(clip, soundPosition, destinationMixer);
+                Debug.Log("[NetworkAudio] Playing sound: " + soundAddressableKey);
+                AudioManager.Instance.PlaySoundAtPosition(clip, soundPosition, destinationMixer, isLooped);
             } else {
                 Debug.LogWarning("Clip not found or AudioManager missing. Check your Addressable key and AudioManager setup.");
             }
@@ -16,8 +16,11 @@ public class NetworkAudio : NetworkBehaviour {
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void RequestSoundServerRpc(string soundAddressableKey, Vector3 soundPosition, string destinationMixer) {
+    public void RequestSoundServerRpc(string soundAddressableKey, Vector3 soundPosition, string destinationMixer, bool isLooped = false) {
         if (!IsServer) { return; }
-        PlaySoundClientRpc(soundAddressableKey, soundPosition, destinationMixer);
+        Debug.Log("got to inside RequestSoundServerRpc");
+        PlaySoundClientRpc(soundAddressableKey, soundPosition, destinationMixer, isLooped);
+        Debug.Log("got to after PlaySoundClientRpc");
     }
+
 }

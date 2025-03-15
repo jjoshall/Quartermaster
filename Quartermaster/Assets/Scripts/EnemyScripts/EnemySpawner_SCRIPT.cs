@@ -11,8 +11,12 @@ public class EnemySpawner : NetworkBehaviour {
     public NetworkVariable<bool> isSpawning = new NetworkVariable<bool>(true);
     public float _spawnCooldown = 2f;
     [HideInInspector] public float _totalWeight = 0f;
+    [SerializeField] private float globalAggroUpdateInterval = 10.0f;
+    private float globalAggroUpdateTimer = 0.0f;
+    private Vector3 globalAggroTarget = new Vector3(0, 0, 0);
 
     [SerializeField] private List<GameObject> _enemySpawnPoints;
+    //[SerializeField] private List<GameObject> _enemyPackSpawnPoints;
 
     public List<Transform> enemyList = new List<Transform>();
     public List<GameObject> playerList;
@@ -63,6 +67,12 @@ public class EnemySpawner : NetworkBehaviour {
         playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
     }
 
+    private void Update() {
+        if (IsServer) {
+            UpdateGlobalAggroTargetTimer();
+        }   
+    }
+
     public void CalculateTotalWeight() {
         _totalWeight = 0f;
 
@@ -92,6 +102,31 @@ public class EnemySpawner : NetworkBehaviour {
         return new Vector3(spawnX, spawnY, spawnZ);
     }
 
+    //private Vector3 GetRandomPackSpawnPoint() {
+    //    if (_enemyPackSpawnPoints == null || _enemyPackSpawnPoints.Count == 0) {
+    //        Debug.LogError("No enemy pack spawn points found.");
+    //        return Vector3.zero;
+    //    }
+
+    //    // Choose a random spawn point from the list
+    //    GameObject spawnPoint = _enemyPackSpawnPoints[Random.Range(0, _enemyPackSpawnPoints.Count)];
+    //    return spawnPoint.transform.position;
+    //}
+
+    public void SpawnEnemyPackAtRandomPoint(int count, Vector3 position, float spread = 2f) {
+        if (!IsServer) return;
+
+        //Vector3 spawnPosition = GetRandomPackSpawnPoint();
+        SpawnEnemyPack(count, position, spread);
+    }
+
+    // ServerRpc for clients to request a pack spawn at a random point
+    [ServerRpc(RequireOwnership = false)]
+    public void SpawnEnemyPackAtRandomPointServerRpc(int count, Vector3 position, float spread = 2f) {
+        if (!IsServer) return;
+        SpawnEnemyPackAtRandomPoint(count, position, spread);
+    }
+
     [ServerRpc]
     private void serverDebugMsgServerRpc(string msg) {
         if (!IsServer) { return; }
@@ -109,12 +144,46 @@ public class EnemySpawner : NetworkBehaviour {
                     enemyTransform.GetComponent<NetworkObject>().Spawn(true);
                     enemyList.Add(enemyTransform);
                     enemyTransform.SetParent(this.gameObject.transform);
+
                     yield return new WaitForSeconds(_spawnCooldown);
                 }
             }
 
             yield return null;
         }
+    }
+
+    public void SpawnEnemyPack(int count, Vector3 position, float spread = 2f) {
+        if (!IsServer) return;
+
+        for (int i = 0; i < count; i++) {
+            // Add slight randomization to position so enemies don't stack
+            Vector3 randomOffset = new Vector3(
+                Random.Range(-spread, spread),
+                0f,
+                Random.Range(-spread, spread)
+            );
+
+            Vector3 spawnPosition = position + randomOffset;
+            spawnPosition.y = 5f; // Same height as your other spawns
+
+            Transform enemyPrefab = GetWeightedRandomEnemyPrefab();
+            if (enemyPrefab != null)
+            {
+                Transform enemyTransform = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemySpawner = this;
+                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemyType = GetEnemyType(enemyPrefab);
+                enemyTransform.GetComponent<NetworkObject>().Spawn(true);
+                enemyList.Add(enemyTransform);
+                enemyTransform.SetParent(this.gameObject.transform);
+            }
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void SpawnEnemyPackServerRpc(int count, Vector3 position, float spread = 2f) {
+        if (!IsServer) return;
+        SpawnEnemyPack(count, position, spread);
     }
 
     private EnemyType GetEnemyType(Transform enemyPrefab) {
@@ -139,6 +208,30 @@ public class EnemySpawner : NetworkBehaviour {
         }
 
         return _enemySpawnData[0].enemyPrefab;
+    }
+
+    public Vector3 GetGlobalAggroTarget() {
+        return globalAggroTarget;
+    }
+
+    private void UpdateGlobalAggroTargetTimer() {
+        globalAggroUpdateTimer += Time.deltaTime;
+        if (globalAggroUpdateTimer >= globalAggroUpdateInterval) {
+            globalAggroUpdateTimer = 0.0f;
+            serverDebugMsgServerRpc("Player list count: " + playerList.Count);
+
+            for (int i = 0; i < playerList.Count; i++) {
+                if (playerList[i] == null) {
+                    playerList.RemoveAt(i);
+                    i--;
+                }
+            }
+
+            if (playerList.Count > 0) {
+                int randomPlayer = Random.Range(0, playerList.Count);
+                globalAggroTarget = playerList[randomPlayer].transform.position;
+            }
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]

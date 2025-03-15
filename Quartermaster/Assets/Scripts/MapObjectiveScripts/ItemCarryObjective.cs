@@ -18,15 +18,18 @@ public class ItemCarryObjective : IObjective
         {
             return false;
         }
+        GameManager.instance.AddScoreServerRpc(200);
+        Debug.Log("Total score " + GameManager.instance.totalScore.Value);
         return true;
     }
 
     // OnTriggerEnter check for item DeliverableQuestItem
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Item") && 
-            other.gameObject.name == "DeliverableQuestItem")
+        Debug.Log("ItemCarry: OnTriggerEnter");
+        if (other.gameObject.CompareTag("Item"))
         {
+            Debug.Log ("ItemCarry: OnTriggerEnter. Found DeliverableQuestItem");
             int itemID = other.gameObject.GetComponent<WorldItem>().GetItemID();
             string stringID = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
 
@@ -43,8 +46,10 @@ public class ItemCarryObjective : IObjective
     #region = DespawnItem
     private IEnumerator _DelayedDespawn(GameObject obj, float delay)
     {
+        Debug.Log ("ItemCarry: _DelayedDespawn");
         obj.GetComponentInChildren<PlayerDissolveAnimator>().AnimateDissolveServerRpc();
         yield return new WaitForSeconds(delay);
+        Debug.Log ("ItemCarry: Despawning item");
         if (obj == null) { yield break; }
         n_itemsToDeliver.Value--;
         NetworkObjectReference objRef = new NetworkObjectReference(obj.GetComponent<NetworkObject>());

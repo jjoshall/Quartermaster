@@ -73,6 +73,8 @@ public class DefendNodeObjective : IObjective
         if (_currentDefenseTimer >= nodeDefenseDuration){
             n_defenseCompleted.Value = true;
             ClearObjective();
+            GameManager.instance.AddScoreServerRpc(200);
+            Debug.Log("Total score " + GameManager.instance.totalScore.Value);
             return;
             // _particleInterval = 1000f;
         }
@@ -85,6 +87,8 @@ public class DefendNodeObjective : IObjective
                 _currentDefenseTimer = 0;
             }
         }
+
+        // throw new System.NotImplementedException();
     }
 
 
