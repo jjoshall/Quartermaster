@@ -97,24 +97,30 @@ public class Inventory : NetworkBehaviour {
     #region UseEvents
     void UseItem(bool isHeld) {
         if (!IsOwner) return;
+        if (PauseMenuToggler.IsPaused) return;
         if (!ValidIndexCheck()) return;
+
         _inventory[_currentInventoryIndex].AttemptUse(_playerObj, isHeld);
+
         if (_inventory[_currentInventoryIndex].quantity <= 0) {
             _inventory[_currentInventoryIndex] = null;
             _currentHeldItems--;
-            UpdateAllInventoryUI();
         }
+        UpdateAllInventoryUI();
     }
 
-    void ReleaseItem(bool b){
+    void ReleaseItem(bool b) {
         if (!IsOwner) return;
+        if (PauseMenuToggler.IsPaused) return;
         if (!ValidIndexCheck()) return;
+
         _inventory[_currentInventoryIndex].Release(_playerObj);
+
         if (_inventory[_currentInventoryIndex].quantity <= 0) {
             _inventory[_currentInventoryIndex] = null;
             _currentHeldItems--;
-            UpdateAllInventoryUI();
         }
+        UpdateAllInventoryUI();
     }
     #endregion
 
@@ -144,7 +150,6 @@ public class Inventory : NetworkBehaviour {
         InventoryItem newItem = ItemManager.instance.SpawnInventoryItem(_playerObj, stringID, stackQuantity, lastUsed);
 
         if (TryStackItem(newItem)) {
-            // Immediately update the UI after stacking.
             UpdateAllInventoryUI();
             _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().RemoveItem(pickedUp);
             ItemManager.instance.DestroyWorldItemServerRpc(pickedUp.GetComponent<NetworkObject>());
@@ -229,16 +234,15 @@ public class Inventory : NetworkBehaviour {
     #region DropEvents
     void DropSelectedItem() {
         if (_inventory[_currentInventoryIndex] == null) return;
+        if (PauseMenuToggler.IsPaused) return;
         
         int itemId = _inventory[_currentInventoryIndex].itemID;
         float lastUsed = _inventory[_currentInventoryIndex].lastUsed;
         NetworkObjectReference n_playerObj = _playerObj.GetComponent<NetworkObject>();
         Vector3 initVelocity = orientation.forward * GameManager.instance.DropItemVelocity;
 
-        // If more than one item is stacked, drop only one.
         if (_inventory[_currentInventoryIndex].quantity > 1) {
             _inventory[_currentInventoryIndex].quantity -= 1;
-            // Spawn a dropped world item with quantity 1.
             ItemManager.instance.SpawnWorldItemServerRpc(
                 itemId,
                 1,
@@ -248,8 +252,7 @@ public class Inventory : NetworkBehaviour {
                 n_playerObj
             );
         } else {
-            // Only one item in the stack; drop the entire slot.
-            int stackQuantity = _inventory[_currentInventoryIndex].quantity; // should be 1
+            int stackQuantity = _inventory[_currentInventoryIndex].quantity; 
             _inventory[_currentInventoryIndex].Drop(_playerObj);
             _inventory[_currentInventoryIndex] = null;
             ItemManager.instance.SpawnWorldItemServerRpc(
@@ -268,25 +271,24 @@ public class Inventory : NetworkBehaviour {
 
     void DropItem(int slot) {
         if (_inventory[slot] == null) return;
+        if (PauseMenuToggler.IsPaused) return;
         
         int itemId = _inventory[slot].itemID;
         float lastUsed = _inventory[slot].lastUsed;
         NetworkObjectReference n_playerObj = _playerObj.GetComponent<NetworkObject>();
 
-        // If more than one item is stacked in that slot, drop only one.
         if (_inventory[slot].quantity > 1) {
             _inventory[slot].quantity -= 1;
-            // Spawn a dropped world item with quantity 1.
             ItemManager.instance.SpawnWorldItemServerRpc(
                 itemId,
                 1,
                 lastUsed,
                 this.transform.position,
-                Vector3.zero,  // or another velocity if needed
+                Vector3.zero,
                 n_playerObj
             );
         } else {
-            int stackQuantity = _inventory[slot].quantity; // should be 1
+            int stackQuantity = _inventory[slot].quantity;
             _inventory[slot].Drop(_playerObj);
             _inventory[slot] = null;
             ItemManager.instance.SpawnWorldItemServerRpc(

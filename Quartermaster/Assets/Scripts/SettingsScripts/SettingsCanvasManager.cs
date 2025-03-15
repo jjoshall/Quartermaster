@@ -8,11 +8,8 @@ public class SettingsCanvasManager : MonoBehaviour
 {
     [SerializeField] private Button returnToPrevBtn;
     
-    // Set this flag to true if the settings were opened from the main menu,
-    // or false if they were opened in-game (from the pause menu).
     [SerializeField] private bool isMainMenuContext = false;
     
-    // For in-game context, assign the PauseCanvas (the one that opened settings).
     [SerializeField] private Canvas pauseCanvas;
 
     private void Awake()
@@ -27,23 +24,16 @@ public class SettingsCanvasManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Called when the Return button is clicked.
-    /// Depending on the context, either loads the Main Menu scene or
-    /// hides the settings canvas and re-displays the pause canvas.
-    /// </summary>
     private void ReturnToPrevious()
     {
         if (isMainMenuContext)
         {
-            // For main menu context, return to the main menu scene.
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
             SceneManager.LoadScene("MainMenu_SCENE");
         }
         else
         {
-            // For in-game context, hide the settings canvas and show the pause canvas.
             if (pauseCanvas != null)
             {
                 pauseCanvas.gameObject.SetActive(true);
@@ -52,7 +42,6 @@ public class SettingsCanvasManager : MonoBehaviour
         }
     }
 
-    // Optional: A helper method to add hover effects to a button's text.
     private void AddHoverEffect(Button button)
     {
         TextMeshProUGUI buttonText = button.GetComponentInChildren<TextMeshProUGUI>();
