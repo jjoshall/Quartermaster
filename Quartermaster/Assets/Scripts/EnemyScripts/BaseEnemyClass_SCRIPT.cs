@@ -35,10 +35,11 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected Transform target;
 
     // Speed run-time variables
-    protected float _baseSpeed = 0.0f;
+    protected float _baseSpeed = 0.0f;      // grabbed and stored from agent at run-time.
     protected float _baseAcceleration = 0.0f;
     protected NetworkVariable<int> n_isSlowed = new NetworkVariable<int>(0); // int is used in case of multiple slow traps.
     protected NetworkVariable<float> n_slowMultiplier = new NetworkVariable<float>(0.0f);
+    [HideInInspector] public float AISpeedMultiplier = 1.0f;
 
 
     // Used to sync color across clients
@@ -253,14 +254,18 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     #region SpeedChanged
     [ServerRpc(RequireOwnership = false)]   
-    protected virtual void UpdateSpeedServerRpc(){
+    public virtual void UpdateSpeedServerRpc(){
         float finalSpeed = _baseSpeed;
         float finalAcceleration = _baseAcceleration;
 
+        // Checks for slow trap. Int represents number of slow traps affecting unit.
         if (n_isSlowed.Value > 0){
             finalSpeed *= 1 - n_slowMultiplier.Value;
             finalAcceleration *= 1 - n_slowMultiplier.Value;
         }
+
+        finalSpeed *= AISpeedMultiplier;
+        finalAcceleration *= AISpeedMultiplier;
 
         UpdateSpeedClientRpc(finalSpeed, finalAcceleration);
     }

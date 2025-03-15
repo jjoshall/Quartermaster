@@ -213,10 +213,9 @@ public class AIDirector : NetworkBehaviour {
         _currentState.Value = DirectorState.Peak;
         _stateTimeRemaining.Value = _peakDuration;
 
-        System.Array variations = System.Enum.GetValues(typeof(PeakVariation));
-        _currentPeakVariation = (PeakVariation)variations.GetValue(Random.Range(0, variations.Length));
-
-        ApplyPeakVariation(_currentPeakVariation);
+        // System.Array variations = System.Enum.GetValues(typeof(PeakVariation));
+        // _currentPeakVariation = (PeakVariation)variations.GetValue(Random.Range(0, variations.Length));
+        // ApplyPeakVariation(_currentPeakVariation);
 
         UpdateEnemySpawnerSettings();
 
@@ -241,57 +240,62 @@ public class AIDirector : NetworkBehaviour {
         GameManager gm = GameManager.instance;
         float scalingIncrement = _scalingIncrement;
 
-        float currentSpeedScale = gm.EnemySpeedMultiplier - 1f;
-        float currentHealthScale = gm.EnemyHealthMultiplier - 1f;
-        float currentSpawnRateScale = gm.SpawnRateMultiplier;
+        // float currentSpeedScale = gm.EnemySpeedMultiplier - 1f;
+        // float currentHealthScale = gm.EnemyHealthMultiplier - 1f;
+        // float currentSpawnRateScale = gm.SpawnRateMultiplier;
 
-        float newSpeedScale = ApplyDiminishingReturns(currentSpeedScale + scalingIncrement, _maxSpeedScale);
-        float newHealthScale = ApplyDiminishingReturns(currentHealthScale + scalingIncrement, _maxHealthScale);
-        float newSpawnRateScale = ApplyDiminishingReturns(currentSpawnRateScale + scalingIncrement, _maxSpawnRateScale);
+        // float newSpeedScale = ApplyDiminishingReturns(currentSpeedScale + scalingIncrement, _maxSpeedScale);
+        // float newHealthScale = ApplyDiminishingReturns(currentHealthScale + scalingIncrement, _maxHealthScale);
+        // float newSpawnRateScale = ApplyDiminishingReturns(currentSpawnRateScale + scalingIncrement, _maxSpawnRateScale);
 
-        gm.EnemySpeedMultiplier = 1f + newSpeedScale;
-        gm.EnemyHealthMultiplier = 1f + newHealthScale;
-        gm.SpawnRateMultiplier = newSpawnRateScale;
+        // gm.EnemySpeedMultiplier = 1f + newSpeedScale;
+        // gm.EnemyHealthMultiplier = 1f + newHealthScale;
+        // gm.SpawnRateMultiplier = newSpawnRateScale;
     }
 
-    private float ApplyDiminishingReturns(float rawValue, float maxValue) {
-        float normalizedProgress = Mathf.Clamp01(rawValue / maxValue);
-        float curvedProgress = 1f - Mathf.Pow(1f - normalizedProgress, 2f);
-        return curvedProgress * maxValue;
+    private float ScaledEaseOut(float x, float maxValue) {
+        float xCoefficient = -0.1f; // -0.1f returns ~0.9 at x = 24
+        float y = 1f - Mathf.Pow(2.71828f, xCoefficient * x);
+        return y * maxValue;
     }
 
-    private void ApplyPeakVariation(PeakVariation variation) {
-        GameManager gm = GameManager.instance;
-        float baseIncrement = _scalingIncrement;
+    // private void ApplyPeakVariation(PeakVariation variation) {
+    //     GameManager gm = GameManager.instance;
+    //     float baseIncrement = _scalingIncrement;
 
-        switch (variation) {
-            case PeakVariation.HealthBoost:
-                {
-                    float newHealthScale = ApplyDiminishingReturns(gm.EnemyHealthMultiplier - 1f + baseIncrement * _peakBuffMultiplier, _maxHealthScale);
-                    gm.EnemyHealthMultiplier = 1f + newHealthScale;
-                }
-                break;
-            case PeakVariation.SpeedBoost:
-                {
-                    float newSpeedScale = ApplyDiminishingReturns(gm.EnemySpeedMultiplier - 1f + baseIncrement * _peakBuffMultiplier, _maxSpeedScale);
-                    gm.EnemySpeedMultiplier = 1f + newSpeedScale;
-                }
-                break;
-            case PeakVariation.SpawnRush:
-                {
-                    float newSpawnRateScale = ApplyDiminishingReturns(gm.SpawnRateMultiplier + baseIncrement * _peakBuffMultiplier, _maxSpawnRateScale);
-                    gm.SpawnRateMultiplier = newSpawnRateScale;
-                }
-                break;
-            case PeakVariation.Mixed:
-                {
-                    IncreaseEnemyScaling();
-                }
-                break;
-        }
-    }
+    //     switch (variation) {
+    //         case PeakVariation.HealthBoost:
+    //             {
+    //                 float newHealthScale = ScaledEaseOut(baseIncrement * _peakBuffMultiplier, _maxHealthScale);
+    //                 gm.EnemyHealthMultiplier = 1f + newHealthScale;
+    //             }
+    //             break;
+    //         case PeakVariation.SpeedBoost:
+    //             {
+    //                 float newSpeedScale = ScaledEaseOut(baseIncrement * _peakBuffMultiplier, _maxSpeedScale);
+    //                 // gm.EnemySpeedMultiplier = 1f + newSpeedScale;
+    //                 UpdateEnemySpeedMultiplier(1f + newSpeedScale);
+    //             }
+    //             break;
+    //         case PeakVariation.SpawnRush:
+    //             {
+    //                 float newSpawnRateScale = ScaledEaseOut(baseIncrement * _peakBuffMultiplier, _maxSpawnRateScale);
+    //                 gm.SpawnRateMultiplier = newSpawnRateScale;
+    //             }
+    //             break;
+    //         case PeakVariation.Mixed:
+    //             {
+    //                 IncreaseEnemyScaling();
+    //             }
+    //             break;
+    //     }
+    // }
 
     #endregion
+
+    private void UpdateEnemySpeedMultiplier (float speedMultiplier){
+        EnemySpawner.instance.UpdateEnemySpeed(speedMultiplier);
+    }
 
     #region Enemy Spawning
 

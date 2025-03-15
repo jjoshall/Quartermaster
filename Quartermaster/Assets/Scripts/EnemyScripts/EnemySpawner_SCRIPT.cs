@@ -73,34 +73,6 @@ public class EnemySpawner : NetworkBehaviour {
         }   
     }
 
-    public void CalculateTotalWeight() {
-        _totalWeight = 0f;
-
-        foreach (var data in _enemySpawnData) {
-            _totalWeight += data.spawnWeight;
-        }
-
-        if (_totalWeight <= 0f) {
-            Debug.LogError("Total weight is less than or equal to 0.");
-            serverDebugMsgServerRpc("Total weight is less than or equal to 0.");
-        }
-    }
-
-    private Vector3 GetSpawnPoint() {
-        if (_enemySpawnPoints.Count == 0) {
-            Debug.LogError("No spawn points found.");
-            serverDebugMsgServerRpc("No spawn points found.");
-            return Vector3.zero;
-        }
-
-        // Choose a random spawn point index
-        GameObject spawnPoint = _enemySpawnPoints[Random.Range(0, _enemySpawnPoints.Count)];
-
-        float spawnX = spawnPoint.transform.position.x;
-        float spawnY = 5f;
-        float spawnZ = spawnPoint.transform.position.z;
-        return new Vector3(spawnX, spawnY, spawnZ);
-    }
 
     //private Vector3 GetRandomPackSpawnPoint() {
     //    if (_enemyPackSpawnPoints == null || _enemyPackSpawnPoints.Count == 0) {
@@ -242,4 +214,57 @@ public class EnemySpawner : NetworkBehaviour {
             networkObject.Despawn();
         }
     }
+    #region Update Enemy Speed
+    public void UpdateEnemySpeed(float speed) {
+        foreach (Transform enemy in enemyList) {
+            if (enemy != null) {
+                if (enemy.GetComponent<BaseEnemyClass_SCRIPT>() != null){
+                    enemy.GetComponent<BaseEnemyClass_SCRIPT>().AISpeedMultiplier = speed;
+                    enemy.GetComponent<BaseEnemyClass_SCRIPT>().UpdateSpeedServerRpc();
+                }
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+    #endregion 
+
+
+    #region Helpers
+    public void CalculateTotalWeight() {
+        _totalWeight = 0f;
+
+        foreach (var data in _enemySpawnData) {
+            _totalWeight += data.spawnWeight;
+        }
+
+        if (_totalWeight <= 0f) {
+            Debug.LogError("Total weight is less than or equal to 0.");
+            serverDebugMsgServerRpc("Total weight is less than or equal to 0.");
+        }
+    }
+
+    private Vector3 GetSpawnPoint() {
+        if (_enemySpawnPoints.Count == 0) {
+            Debug.LogError("No spawn points found.");
+            serverDebugMsgServerRpc("No spawn points found.");
+            return Vector3.zero;
+        }
+
+        // Choose a random spawn point index
+        GameObject spawnPoint = _enemySpawnPoints[Random.Range(0, _enemySpawnPoints.Count)];
+
+        float spawnX = spawnPoint.transform.position.x;
+        float spawnY = 5f;
+        float spawnZ = spawnPoint.transform.position.z;
+        return new Vector3(spawnX, spawnY, spawnZ);
+    }
+    #endregion
 }
