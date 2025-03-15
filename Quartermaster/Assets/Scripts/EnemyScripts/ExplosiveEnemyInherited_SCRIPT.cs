@@ -3,33 +3,26 @@ using System.Collections;
 using UnityEngine;
 
 public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
+    #region Variables for GameManager
     protected override float GetAttackCooldown() => GameManager.instance.ExplosiveEnemy_AttackCooldown;
     protected override float GetAttackRange() => GameManager.instance.ExplosiveEnemy_AttackRange;
     protected override int GetDamage() => GameManager.instance.ExplosiveEnemy_AttackDamage;
     protected override float GetAttackRadius() => GameManager.instance.ExplosiveEnemy_AttackRadius;
     protected override bool GetUseGlobalTarget() => GameManager.instance.ExplosiveEnemy_UseGlobalTarget;
     protected override float GetInitialHealth() => GameManager.instance.ExplosiveEnemy_Health;
-    protected override float GetSpeed() => GameManager.instance.ExplosiveEnemy_Speed;
-
-    //protected override float attackCooldown => 2.37f;
-    //protected override float attackRange => 8f;
-    //protected override int damage => 60;
-    //protected override float attackRadius => 8f;
-    //protected override bool useGlobalTarget => true;
+    #endregion
 
     private bool _isExploding = false;
 
-
-    #region Explosion Blinking Visualization
+    #region Explosion Beeping Changes
+    // this bool means if explosive enemy is starting his explosion sequence
     private NetworkVariable<bool> isBlinking = new NetworkVariable<bool>(false,
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
-    private Color originalColor;
     [SerializeField] private float blinkSpeed = 5f;
-    // [SerializeField] private float normalSpeed = 5f;
     [Range(1f, 3f)]
-    [SerializeField] private float blinkingSpeedMultiplier = 1.3f;
+    [SerializeField] private float blinkingSpeedMultiplier = 1.3f;  // Uses a range for 
 
     private Animator animator;
     private SoundEmitter[] soundEmitters;
@@ -37,21 +30,16 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     [Header("Armature Settings")]
     [SerializeField] private Transform _wheels;
     
-
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
 
         animator = GetComponentInChildren<Animator>();
         soundEmitters = GetComponents<SoundEmitter>();
-        
-        if (renderer != null) {
-            originalColor = renderer.material.color;
-        }
 
         isBlinking.OnValueChanged += OnBlinkingStateChanged;
     }
 
-    // This function gets called whenever the value of isBlinking changes
+    // This function gets called whenever the value of isBlinking changes/explosion sequence starts
     private void OnBlinkingStateChanged(bool oldValue, bool newValue) {
         if (newValue) {
             if (IsServer && agent != null) {
@@ -82,24 +70,15 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         agent.acceleration = finalAcceleration;
     }
 
-
-    protected override void OnDamaged(float damage, GameObject damageSource)
-    {
-        base.OnDamaged(damage, damageSource);
-        
-        if (!isBlinking.Value && renderer != null)
-        {
-            originalColor = renderer.material.color;
-        }
-    }
-
     #endregion
 
+    // This method is for when the explosive enemy is killed
     public void TriggerExplosion() {
         if (!IsServer || _isExploding) return;
 
         isBlinking.Value = true;
 
+        // Change to timer?
         StartCoroutine(ExplodeAfterDelay(attackCooldown));
     }
 
@@ -117,6 +96,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         }
         TriggerExplosion();
 
+        // Change to timer?, this is so explosive enemy doesn't get destroyed from scene before sound finishes
         StartCoroutine(DelayedBaseDie());
     }
 
@@ -125,6 +105,12 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         base.OnDie();
     }
 
+    //protected override void OnAttackStart() {
+    //    isBlinking.Value = true;
+    //    base.OnAttackStart();
+    //}
+
+    // This method is for when the explosive enemy is attacking, change to timer?
     protected override IEnumerator DelayAttack() {
         isBlinking.Value = true;
 
@@ -146,6 +132,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         if (!IsServer) return;
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
 
+        // Explosion hurts players and enemies, but enemies only take 1/3 of the damage
         foreach (var hitCollider in hitColliders)
         {
             if (hitCollider.CompareTag("Player"))

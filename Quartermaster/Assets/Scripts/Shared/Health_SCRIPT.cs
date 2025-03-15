@@ -23,6 +23,8 @@ public class Health : NetworkBehaviour {
     public float GetRatio() => CurrentHealth.Value / MaxHealth;
     public bool IsCritical() => GetRatio() <= CriticalHealthRatio;
 
+    private bool _wasCritical = false;
+    [SerializeField] private FullScreenTestController _damageEffect;
     bool IsDead;
 
     public override void OnNetworkSpawn() {
@@ -32,6 +34,39 @@ public class Health : NetworkBehaviour {
         }
 
         CurrentHealth.Value = MaxHealth;
+
+        if (IsLocalPlayer) {
+            CurrentHealth.OnValueChanged += OnHealthChanged;
+            CheckCriticalState();
+        }
+    }
+
+    public override void OnNetworkDespawn() {
+        base.OnNetworkDespawn();
+
+        if (IsLocalPlayer) {
+            CurrentHealth.OnValueChanged -= OnHealthChanged;
+
+            if (_damageEffect != null) {
+                _damageEffect.SetCriticalState(false);
+            }
+        }
+    }
+
+    private void OnHealthChanged(float oldHealth, float newHealth) {
+        if (IsCritical() && _damageEffect != null) {
+            StartCoroutine(_damageEffect.Hurt());
+        }
+    }
+
+    private void CheckCriticalState() {
+        bool isCritical = IsCritical(); // health at 20 so true
+
+        // If critical state changed
+        if (isCritical != _wasCritical && _damageEffect != null) {
+            _wasCritical = isCritical;      // wascrit is now true
+            _damageEffect.SetCriticalState(isCritical);
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]

@@ -74,6 +74,10 @@ public class EnemySpawner : NetworkBehaviour {
     }
 
 
+    /// <summary>
+    /// If we add pack spawning, place spawn points in the scene and uncomment this method and use it
+    /// Make sure to change SpawnEnemyPackAtRandomPoint and its server RPC to use this method
+    /// </summary>
     //private Vector3 GetRandomPackSpawnPoint() {
     //    if (_enemyPackSpawnPoints == null || _enemyPackSpawnPoints.Count == 0) {
     //        Debug.LogError("No enemy pack spawn points found.");

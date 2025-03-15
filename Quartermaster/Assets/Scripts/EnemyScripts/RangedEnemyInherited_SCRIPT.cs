@@ -3,18 +3,18 @@ using Unity.Netcode;
 using System.Collections;
 
 public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
+    #region Variables for GameManager
     protected override float GetAttackCooldown() => GameManager.instance.RangedEnemy_AttackCooldown;
     protected override float GetAttackRange() => GameManager.instance.RangedEnemy_AttackRange;
     protected override int GetDamage() => GameManager.instance.RangedEnemy_AttackDamage;
-    protected override float GetAttackRadius() => 0f; // Ranged enemies might not use this
+    protected override float GetAttackRadius() => 0f; // Ranged enemies don't use this, but it's required by the base class
     protected override bool GetUseGlobalTarget() => GameManager.instance.RangedEnemy_UseGlobalTarget;
     protected override float GetInitialHealth() => GameManager.instance.RangedEnemy_Health;
-    protected override float GetSpeed() => GameManager.instance.RangedEnemy_Speed;
+    #endregion
 
     [Header("Ranged Attack Settings")]
     [SerializeField] private float _maxAttackDistance = 10f;
-    [SerializeField] private float _minAttackDistance = 4f; // Minimum distance to maintain from player
-    [SerializeField] private float _hoveredHeight = 3f; // Height abov/e ground level
+    [SerializeField] private float _hoveredHeight = 4f; // Height above ground level
     [SerializeField] private Transform _firePoint; // Where projectiles originate from
     [SerializeField] private TrailRenderer _bulletTrailPrefab;
     [SerializeField] private float _trailDuration = 0.3f; // How long the trail effect lasts
@@ -33,23 +33,16 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     [SerializeField] private Transform _leftGun;
     [SerializeField] private Transform _rightGun;
 
-    //protected override float attackCooldown => 3f;
-    //protected override float attackRange => 10f;
-    //protected override int damage => 8;
-    //protected override bool useGlobalTarget => true;
-
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
         
         animator = GetComponentInChildren<Animator>();
         soundEmitters = GetComponents<SoundEmitter>();
 
-
-
-
         if (IsServer) {
-            _hoverOffset = Random.Range(0f, 2f * Mathf.PI);
+            _hoverOffset = Random.Range(0f, 3f * Mathf.PI);     // makes the hovering look more natural
 
+            // Create a fire point if one isn't assigned
             if (_firePoint == null) {
                 GameObject firePointObj = new GameObject("FirePoint");
                 firePointObj.transform.parent = transform;
@@ -64,6 +57,7 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
         if (!IsServer) return;
 
+        // Make sure ranged enemies always face the player
         Vector3 lookPosition = target.position;
         lookPosition.y = transform.position.y;
         transform.LookAt(lookPosition);
@@ -73,6 +67,7 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         UpdateWeaponAngle();
     }
 
+    // makes drone hover up and down
     private void ApplyHovering() {
         if (agent != null && agent.enabled) {
             float verticalOffset = _hoverAmplitude * Mathf.Sin(Time.time + _hoverOffset) * _hoverFrequency;
@@ -107,6 +102,7 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             FireBulletServerRpc(target.GetComponent<NetworkObject>().NetworkObjectId);
         }
 
+        // Change to timer?
         StartCoroutine(ResetAttackCooldown());
     }
 
@@ -118,13 +114,16 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         }
 
         Transform targetTransform = targetNetworkObject.transform;
-        Vector3 targetDirection = (targetTransform.position - _firePoint.position).normalized;
+        Vector3 targetDirection = (targetTransform.position - _firePoint.position).normalized;  // enemy won't miss if in range, perhaps change?
+
+        // Masks to make sure enemies cant shoot through walls
         int playerLayerMask = LayerMask.GetMask("Player");
         int buildingLayerMask = LayerMask.GetMask("Building");
         int combinedLayerMask = playerLayerMask | buildingLayerMask;
 
         RaycastHit hit;
         if (Physics.Raycast(_firePoint.position, targetDirection, out hit, _maxAttackDistance, combinedLayerMask)) {
+            // Just instantiates bullet trail effect
             CreateVisualEffectClientRpc(_firePoint.position, hit.point);
 
             if (hit.collider.gameObject.layer == buildingLayerMask) {
@@ -168,13 +167,15 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             PlaySoundForEmitter("flying_die", transform.position); 
         } catch (System.Exception e) {
             Debug.LogError("Error playing sound for emitter: " + e.Message);
-        }    
-        
+        }
+
+        // nate did this, change to timer?, this is so ranged enemy doesn't get destroyed from scene before sound finishes
         StartCoroutine(WaitOneSecond());
         base.OnDie();
 
     }
 
+    // Will change to timer later, this just makes enemies not attack over and over
     private IEnumerator ResetAttackCooldown() {
         yield return new WaitForSeconds(attackCooldown);
         _canAttack = true;

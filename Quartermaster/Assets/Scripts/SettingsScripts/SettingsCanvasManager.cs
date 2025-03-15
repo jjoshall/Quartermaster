@@ -2,25 +2,51 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
-public class SettingsCanvasManager : MonoBehaviour {
-
+public class SettingsCanvasManager : MonoBehaviour
+{
     [SerializeField] private Button returnToPrevBtn;
+    
+    [SerializeField] private bool isMainMenuContext = false;
+    
+    [SerializeField] private Canvas pauseCanvas;
 
-    private void Awake() {
+    private void Awake()
+    {
+        if (returnToPrevBtn != null)
+        {
+            returnToPrevBtn.onClick.AddListener(ReturnToPrevious);
+        }
+        else
+        {
+            Debug.LogError("Return button is not assigned in SettingsCanvasManager.");
+        }
+    }
 
-        //when button clicked disable canvas
-        returnToPrevBtn.onClick.AddListener(() => {
-            gameObject.SetActive(false);
+    private void ReturnToPrevious()
+    {
+        if (isMainMenuContext)
+        {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
-        });
-    } 
+            SceneManager.LoadScene("MainMenu_SCENE");
+        }
+        else
+        {
+            if (pauseCanvas != null)
+            {
+                pauseCanvas.gameObject.SetActive(true);
+            }
+            gameObject.SetActive(false);
+        }
+    }
 
-    private void AddHoverEffect(Button button) {
+    private void AddHoverEffect(Button button)
+    {
         TextMeshProUGUI buttonText = button.GetComponentInChildren<TextMeshProUGUI>();
-
-        if (buttonText == null) {
+        if (buttonText == null)
+        {
             Debug.LogWarning($"No TextMeshProUGUI found in {button.name}'s children.");
             return;
         }
@@ -39,7 +65,9 @@ public class SettingsCanvasManager : MonoBehaviour {
         trigger.triggers.Add(entryExit);
     }
 
-    private void ChangeTextColor(TextMeshProUGUI text, Color color) {
+    private void ChangeTextColor(TextMeshProUGUI text, Color color)
+    {
         text.color = color;
     }
 }
+

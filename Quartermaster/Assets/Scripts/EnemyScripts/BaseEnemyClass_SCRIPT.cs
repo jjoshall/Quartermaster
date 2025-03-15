@@ -5,57 +5,54 @@ using System.Collections;
 using TMPro;
 
 public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
+    // THIS IS FOR GAME MANAGER, you can change values in the
+    // inspector on the 'GameManager' gameobject for each enemy
+    #region Enemy Values For Game Manager
     protected abstract float GetAttackCooldown();
     protected abstract float GetAttackRange();
     protected abstract int GetDamage();
     protected abstract float GetAttackRadius();
     protected abstract bool GetUseGlobalTarget();
     protected abstract float GetInitialHealth();
-    protected abstract float GetSpeed();
-    
-    [Header("Enemy Settings")]
+
+    // Assigning values from GameManager to the enemy
     protected virtual float attackCooldown => GetAttackCooldown();
     protected virtual float attackRange => GetAttackRange();
     protected virtual int damage => GetDamage();
     protected virtual float attackRadius => GetAttackRadius();
     protected virtual bool useGlobalTarget => GetUseGlobalTarget();
-    protected virtual float speed => GetSpeed();
 
-    public EnemyType enemyType;
+    #endregion
+
+    [Header("Separation Pathing")]
     [SerializeField] private float _separationRadius = 10f;
     [SerializeField] private float _separationStrength = 3f;
+    private Vector3 enemySeparationVector;
+
+    [Header("Required Scripts for Enemies")]
     protected NavMeshAgent agent;
     protected Health health;
-    protected Renderer renderer;
     public EnemySpawner enemySpawner;
 
-    [SerializeField] private GameObject floatingTextPrefab;
-    private bool _isAttacking = false;
-    private Vector3 enemySeparationVector;
-    protected Transform target;
-
-    // Speed run-time variables
-    protected float _baseSpeed = 0.0f;      // grabbed and stored from agent at run-time.
+    // Speed run-time variables, think Norman added this
+    protected float _baseSpeed = 0.0f;
     protected float _baseAcceleration = 0.0f;
     protected NetworkVariable<int> n_isSlowed = new NetworkVariable<int>(0); // int is used in case of multiple slow traps.
     protected NetworkVariable<float> n_slowMultiplier = new NetworkVariable<float>(0.0f);
-    [HideInInspector] public float AISpeedMultiplier = 1.0f;
 
-
-    // Used to sync color across clients
-    private NetworkVariable<float> healthRatio = new NetworkVariable<float>(1f,
-        NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server);
-
+    [SerializeField] private GameObject floatingTextPrefab;     // to spawn floating damage numbers
+    private bool _isAttacking = false;      // to prevent multiple attacks happening at once
+    private float _attackTimer = 0.0f;      // to prevent attacks happening too quickly
+    public EnemyType enemyType;     // two enemy types at the moment: Melee and Ranged
+    protected Transform target;     // for pathing to player
 
     public override void OnNetworkSpawn() {
+       
         agent = GetComponent<NavMeshAgent>();
         _baseSpeed = agent.speed;
         _baseAcceleration = agent.acceleration;
 
-
         health = GetComponent<Health>();
-        renderer = GetComponent<Renderer>();
 
         if (!IsServer) {
             agent.enabled = false;
@@ -70,15 +67,9 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
                 health.CurrentHealth.Value = GetInitialHealth();
             }
             enemySpawner = EnemySpawner.instance;
-        }
 
-        // Subscribe to the network variable change event on all clients
-        healthRatio.OnValueChanged += OnHealthRatioChanged;
-    }
-
-    private void OnHealthRatioChanged(float previousValue, float newValue) {
-        if (renderer != null) {
-            renderer.material.color = new Color(newValue, 0f, 0f);
+            // used to switch out coroutine for timer (got confused bc of explosive enemy anims lol and its 4 am so ill figure it out later)
+            _attackTimer = attackCooldown;
         }
     }
 
@@ -89,25 +80,36 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected virtual void Update() {
         if (!IsServer) return;
 
-        if (health != null) {
-            healthRatio.Value = health.GetRatio();
-        }
-
         UpdateTarget();
 
         if (target != null) {
+            // Each enemy has a different attack range
             bool inRange = Vector3.Distance(transform.position, target.position) <= attackRange;
 
+            // If a player's in range for that enemy, attack.
             if (inRange && !_isAttacking) {
                 // Add a delay before attacking
+                /// Changing to timer instead of coroutine (WIP)
+                //if (_attackTimer <= 0) {
+                //    _isAttacking = true;
+                //    OnAttackStart();    // for explosive enemy, sets isBlinking to true to make sound/animation synced
+                //    Attack();
+                //    _isAttacking = false;
+                //    _attackTimer = attackCooldown;
+                //}
+                //_attackTimer -= Time.deltaTime;
+
                 StartCoroutine(DelayAttack());
             }
             else {
+                // If not in range, path to target
                 CalculateSeparationOffset();
+                // Ranged and explosive enemies use global target, so they'll go to past positions of player
                 if (useGlobalTarget) {
                     Vector3 destination = enemySpawner.GetGlobalAggroTarget();
                     agent.SetDestination(destination);
                 }
+                // Normal melee enemies will just follow closest player
                 else {
                     agent.SetDestination(target.position);
                 }              
@@ -117,12 +119,15 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         }
     }
 
-    // IMPLEMENT THIS METHOD FOR NEW ENEMIES
+    // IMPLEMENT THIS METHOD FOR NEW/EACH ENEMIES
     protected abstract void Attack();
 
+    // How enemies find their target player
     protected virtual void UpdateTarget() {
         if (enemySpawner == null || enemySpawner.playerList == null) return;
 
+        // Norman's global aggro: ranged and explosive enemies use this,
+        // will make enemies pick a random player's position every 10 seconds to go to that position
         if (useGlobalTarget) {
             GameObject closestPlayerToGlobalTarget = null;
             float closestDistance = float.MaxValue;
@@ -140,6 +145,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
             target = closestPlayerToGlobalTarget != null ? closestPlayerToGlobalTarget.transform : null;
         }
+        // Melee enemies use this, just follows closest player
         else {
             GameObject closestPlayer = null;
             float closestDistance = float.MaxValue;
@@ -156,6 +162,10 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         }
     }
 
+    // Can use this to do anything you need before attacking, like setting a bool for animation
+    //protected virtual void OnAttackStart() {}
+
+    // Changing soon to timer instead of coroutine
     protected virtual IEnumerator DelayAttack() {
         _isAttacking = true;
         yield return new WaitForSeconds(attackCooldown);
@@ -163,9 +173,11 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         _isAttacking = false;
     }
 
+    // Make sure attacks are actually happening on the server, melee and explosive enemies use this
     [ServerRpc(RequireOwnership = false)]
     protected virtual void AttackServerRpc(bool destroyAfterAttack = false) {
         if (!IsServer) return;
+        // OverlapSphere will find all colliders in the attackRadius around the enemy
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
 
         foreach (var hitCollider in hitColliders) {
@@ -174,11 +186,14 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             }
         }
 
+        // For explosive enemies, this will just remove the explosive enemy from scene
         if (destroyAfterAttack) {
             enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
         }
     }
 
+    // Norman's separation pathing: enemies will apply a force to
+    // other enemies in a separation radius to move away from each other
     private void CalculateSeparationOffset() {
         Vector3 separationForce = Vector3.zero;
         int count = 0;
@@ -205,15 +220,13 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         enemySeparationVector = separationForce;
     }
 
+    // Called when enemy takes damage
     protected virtual void OnDamaged(float damage, GameObject damageSource) {
-        //Debug.Log(enemyType + " took " + damage + " damage!");
-
         if (floatingTextPrefab != null) {
-            ShowFloatingTextServerRpc(damage);
+            ShowFloatingTextServerRpc(damage);  // show floating damage numbers on server/client
         }
         
-        GameManager.instance.AddEnemyDamageServerRpc(damage);
-        //Debug.Log("Total damage taken by enemies: " + GameManager.instance.totalDamageDealtToEnemies.Value);
+        GameManager.instance.AddEnemyDamageServerRpc(damage);   // tracks total damage dealt to enemies
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -227,20 +240,15 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         go.GetComponent<TextMeshPro>().SetText(damage.ToString());
     }
 
+    // Called when enemy dies
     protected virtual void OnDie() {
-        ItemManager.instance.ThresholdBurstDrop(transform.position);
-
-        GameManager.instance.IncrementEnemyKillsServerRpc();
-        GameManager.instance.AddScoreServerRpc(50);
-        Debug.Log("Total score " + GameManager.instance.totalScore.Value);
-
-        enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
+        ItemManager.instance.ThresholdBurstDrop(transform.position);    // norman added this, has a chance to burst drop items
+        GameManager.instance.IncrementEnemyKillsServerRpc();    // add to enemy kill count
+        enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());  // remove enemy from scene
     }
 
     public override void OnNetworkDespawn() {
         base.OnNetworkDespawn();
-
-        healthRatio.OnValueChanged -= OnHealthRatioChanged;
 
         if (IsServer && NetworkManager.Singleton != null) {
             NetworkManager.Singleton.OnClientDisconnectCallback -= ClientDisconnected;
@@ -254,18 +262,14 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     #region SpeedChanged
     [ServerRpc(RequireOwnership = false)]   
-    public virtual void UpdateSpeedServerRpc(){
+    protected virtual void UpdateSpeedServerRpc(){
         float finalSpeed = _baseSpeed;
         float finalAcceleration = _baseAcceleration;
 
-        // Checks for slow trap. Int represents number of slow traps affecting unit.
         if (n_isSlowed.Value > 0){
             finalSpeed *= 1 - n_slowMultiplier.Value;
             finalAcceleration *= 1 - n_slowMultiplier.Value;
         }
-
-        finalSpeed *= AISpeedMultiplier;
-        finalAcceleration *= AISpeedMultiplier;
 
         UpdateSpeedClientRpc(finalSpeed, finalAcceleration);
     }
@@ -293,11 +297,10 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         UpdateSpeedServerRpc();
     }
 
-
-
     #endregion
 }
 
+// Might need to add a special enemy type or something for new enemies maybe even explosive enemies
 public enum EnemyType {
     Melee,
     Ranged

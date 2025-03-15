@@ -100,6 +100,7 @@ public class PlayerInputHandler : NetworkBehaviour {
     }
 
     public void Interact(InputAction.CallbackContext ctx){
+        if (PauseMenuToggler.IsPaused) return;
         if (!IsOwner) return;
         if (ctx.started){
             OnInteract?.Invoke(true);
@@ -113,6 +114,7 @@ public class PlayerInputHandler : NetworkBehaviour {
     }
 
     public void DropItem(InputAction.CallbackContext ctx){
+        if (PauseMenuToggler.IsPaused) return;
         if (!IsOwner) return;
         if (ctx.performed){
             isDropping = true;
@@ -123,6 +125,7 @@ public class PlayerInputHandler : NetworkBehaviour {
     }
 
     public void UseItem(InputAction.CallbackContext ctx){
+        if (PauseMenuToggler.IsPaused) return;
         if (!IsOwner) return;
         if (ctx.started){
             OnUse?.Invoke(false);
@@ -138,24 +141,28 @@ public class PlayerInputHandler : NetworkBehaviour {
     }
 
     public void ItemSlot1(InputAction.CallbackContext ctx){
+        if (PauseMenuToggler.IsPaused) return;
         if (ctx.started){
             inventoryIndex = 0;
         }
     }
 
     public void ItemSlot2(InputAction.CallbackContext ctx){
+        if (PauseMenuToggler.IsPaused) return;
         if (ctx.started){
             inventoryIndex = 1;
         }
     }
 
     public void ItemSlot3(InputAction.CallbackContext ctx){
+        if (PauseMenuToggler.IsPaused) return;
         if (ctx.started){
             inventoryIndex = 2;
         }
     }
 
     public void ItemSlot4(InputAction.CallbackContext ctx){
+        if (PauseMenuToggler.IsPaused) return;
         if (ctx.started){
             inventoryIndex = 3;
         }

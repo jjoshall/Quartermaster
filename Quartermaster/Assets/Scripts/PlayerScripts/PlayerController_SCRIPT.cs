@@ -286,6 +286,9 @@ public class PlayerController : NetworkBehaviour {
 
     #region Movement Functions
     void HandleLook() {
+        if (PauseMenuToggler.IsPaused)
+            return;
+            
         transform.Rotate(
             new Vector3(
                 0f,
