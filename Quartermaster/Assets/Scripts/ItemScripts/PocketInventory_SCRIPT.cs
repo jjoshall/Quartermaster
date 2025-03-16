@@ -228,12 +228,18 @@ public class PocketInventory : NetworkBehaviour {
         return _playersInPocket.Contains(playerRef);
     }
 
+    // Deprecated. Use ReturnAllPlayersServerRpc instead.
+    // [ServerRpc(RequireOwnership = false)]
+    // public void ReturnIfInPocketServerRpc (NetworkObjectReference user) {
+    //     // if the player is in the pocket, returnallplayers
+    //     if (PlayerIsInPocket(user)) {
+    //         ReturnAllPlayersClientRpc();
+    //     }
+    // }
+
     [ServerRpc(RequireOwnership = false)]
-    public void ReturnIfInPocketServerRpc (NetworkObjectReference user) {
-        // if the player is in the pocket, returnallplayers
-        if (PlayerIsInPocket(user)) {
-            ReturnAllPlayersClientRpc();
-        }
+    public void ReturnAllPlayersServerRpc() {
+        ReturnAllPlayersClientRpc();
     }
 
     [ClientRpc]

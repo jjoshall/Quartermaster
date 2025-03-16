@@ -51,8 +51,14 @@ public class PocketInventoryPortalKey : InventoryItem {
 
     public override void Use(GameObject user , bool isHeld) {
         NetworkObject n_user = user.GetComponent<NetworkObject>();
+
+        if (isHeld) return; // TEMPORARY. disable if it is a held trigger. so we don't immediately re-teleport.
         
-        PocketInventory.instance.ReturnIfInPocketServerRpc(n_user); // bypass cooldown. async.
+        if (PocketInventory.instance.PlayerIsInPocket(n_user)){
+            PocketInventory.instance.ReturnAllPlayersServerRpc();
+            return;
+        }
+        // PocketInventory.instance.ReturnIfInPocketServerRpc(n_user); // bypass cooldown. async.
 
         string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
         if (lastUsed + cooldown > Time.time) {
