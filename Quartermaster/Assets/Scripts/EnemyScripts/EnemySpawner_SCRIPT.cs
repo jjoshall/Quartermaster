@@ -5,15 +5,26 @@ using UnityEngine;
 using System.Threading.Tasks;
 
 public class EnemySpawner : NetworkBehaviour {
+    [Header("AIDirector Run-time variables")]
+    [HideInInspector] public float aiHpMultiplier = 1.0f;
+    [HideInInspector] public float aiDmgMultiplier = 1.0f;
+    [HideInInspector] public float aiSpdMultiplier = 1.0f;
+    
+    [Header("Spawner Timer")]
+    private float _lastSpawnTime = 0f;
+    public float spawnCooldown = 2f;
+    public float AISpawnDenominator = 1f;
+
     [Header("Spawner Settings")]
+    [HideInInspector] public NetworkVariable<bool> isSpawning = new NetworkVariable<bool>(false);
     public List<EnemySpawnData> _enemySpawnData = new List<EnemySpawnData>();
     [SerializeField] private int _maxEnemyInstanceCount = 20;
-    public NetworkVariable<bool> isSpawning = new NetworkVariable<bool>(true);
-    public float _spawnCooldown = 2f;
     [HideInInspector] public float _totalWeight = 0f;
+
+
     [SerializeField] private float globalAggroUpdateInterval = 10.0f;
     private float globalAggroUpdateTimer = 0.0f;
-    private Vector3 globalAggroTarget = new Vector3(0, 0, 0);
+    public Vector3 globalAggroTarget = new Vector3(0, 0, 0);
 
     [SerializeField] private List<GameObject> _enemySpawnPoints;
     //[SerializeField] private List<GameObject> _enemyPackSpawnPoints;
@@ -52,7 +63,7 @@ public class EnemySpawner : NetworkBehaviour {
         }
 
         CalculateTotalWeight();
-        StartCoroutine(SpawnOverTime());
+        // StartCoroutine(SpawnOverTime());
 
         NetworkManager.Singleton.OnClientConnectedCallback += ClientConnected;
         NetworkManager.Singleton.OnClientDisconnectCallback += ClientDisconnected;
@@ -71,35 +82,7 @@ public class EnemySpawner : NetworkBehaviour {
         if (IsServer) {
             UpdateGlobalAggroTargetTimer();
         }   
-    }
-
-    public void CalculateTotalWeight() {
-        _totalWeight = 0f;
-
-        foreach (var data in _enemySpawnData) {
-            _totalWeight += data.spawnWeight;
-        }
-
-        if (_totalWeight <= 0f) {
-            Debug.LogError("Total weight is less than or equal to 0.");
-            serverDebugMsgServerRpc("Total weight is less than or equal to 0.");
-        }
-    }
-
-    private Vector3 GetSpawnPoint() {
-        if (_enemySpawnPoints.Count == 0) {
-            Debug.LogError("No spawn points found.");
-            serverDebugMsgServerRpc("No spawn points found.");
-            return Vector3.zero;
-        }
-
-        // Choose a random spawn point index
-        GameObject spawnPoint = _enemySpawnPoints[Random.Range(0, _enemySpawnPoints.Count)];
-
-        float spawnX = spawnPoint.transform.position.x;
-        float spawnY = 5f;
-        float spawnZ = spawnPoint.transform.position.z;
-        return new Vector3(spawnX, spawnY, spawnZ);
+        SpawnOverTime();
     }
 
     /// <summary>
@@ -116,7 +99,34 @@ public class EnemySpawner : NetworkBehaviour {
     //    GameObject spawnPoint = _enemyPackSpawnPoints[Random.Range(0, _enemyPackSpawnPoints.Count)];
     //    return spawnPoint.transform.position;
     //}
+    private void SpawnOverTime() {
+        if (!IsServer) return;
 
+        if (Time.time - _lastSpawnTime < spawnCooldown / AISpawnDenominator) return;
+
+        if (enemyList.Count < _maxEnemyInstanceCount && isSpawning.Value) {
+            Transform enemyPrefab = GetWeightedRandomEnemyPrefab();
+            if (enemyPrefab != null) {
+                Transform enemyTransform = Instantiate(enemyPrefab, GetSpawnPoint(), Quaternion.identity);
+                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemySpawner = this;
+                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().AISpeedMultiplier = aiSpdMultiplier;
+                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().AIDmgMultiplier = aiDmgMultiplier;
+
+                Health hpComponent = enemyTransform.GetComponent<Health>();
+                hpComponent.MaxHealth *= aiHpMultiplier;
+                hpComponent.CurrentHealth.Value = hpComponent.MaxHealth;
+
+                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemyType = GetEnemyType(enemyPrefab);
+                enemyTransform.GetComponent<NetworkObject>().Spawn(true);
+                enemyList.Add(enemyTransform);
+                enemyTransform.SetParent(this.gameObject.transform);
+                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().UpdateSpeedServerRpc();    
+
+            }
+        }
+    }
+
+    #region Pack Spawn
     public void SpawnEnemyPackAtRandomPoint(int count, Vector3 position, float spread = 2f) {
         if (!IsServer) return;
 
@@ -130,33 +140,6 @@ public class EnemySpawner : NetworkBehaviour {
         if (!IsServer) return;
         SpawnEnemyPackAtRandomPoint(count, position, spread);
     }
-
-    [ServerRpc]
-    private void serverDebugMsgServerRpc(string msg) {
-        if (!IsServer) { return; }
-        Debug.Log(msg);
-    }
-
-    private IEnumerator SpawnOverTime() {
-        while (true) {
-            if (enemyList.Count < _maxEnemyInstanceCount && isSpawning.Value) {
-                Transform enemyPrefab = GetWeightedRandomEnemyPrefab();
-                if (enemyPrefab != null) {
-                    Transform enemyTransform = Instantiate(enemyPrefab, GetSpawnPoint(), Quaternion.identity);
-                    enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemySpawner = this;
-                    enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemyType = GetEnemyType(enemyPrefab);
-                    enemyTransform.GetComponent<NetworkObject>().Spawn(true);
-                    enemyList.Add(enemyTransform);
-                    enemyTransform.SetParent(this.gameObject.transform);
-
-                    yield return new WaitForSeconds(_spawnCooldown);
-                }
-            }
-
-            yield return null;
-        }
-    }
-
     public void SpawnEnemyPack(int count, Vector3 position, float spread = 2f) {
         if (!IsServer) return;
 
@@ -190,6 +173,9 @@ public class EnemySpawner : NetworkBehaviour {
         SpawnEnemyPack(count, position, spread);
     }
 
+    #endregion 
+
+
     private EnemyType GetEnemyType(Transform enemyPrefab) {
         if (enemyPrefab.GetComponent<MeleeEnemyInherited_SCRIPT>() != null) return EnemyType.Melee;
         if (enemyPrefab.GetComponent<ExplosiveMeleeEnemyInherited_SCRIPT>() != null) return EnemyType.Melee;
@@ -214,6 +200,7 @@ public class EnemySpawner : NetworkBehaviour {
         return _enemySpawnData[0].enemyPrefab;
     }
 
+    #region GlobalAggro
     public Vector3 GetGlobalAggroTarget() {
         return globalAggroTarget;
     }
@@ -237,7 +224,9 @@ public class EnemySpawner : NetworkBehaviour {
             }
         }
     }
+    #endregion 
 
+    #region DestroyEnemy
     [ServerRpc(RequireOwnership = false)]
     public void destroyEnemyServerRpc(NetworkObjectReference enemy) {
         if (!IsServer) { return; }
@@ -246,4 +235,66 @@ public class EnemySpawner : NetworkBehaviour {
             networkObject.Despawn();
         }
     }
+
+
+    #endregion
+    #region Update Enemy Speed
+    public void UpdateEnemySpeed(float speed) {
+        aiSpdMultiplier = speed;
+        foreach (Transform enemy in enemyList) {
+            if (enemy != null) {
+                if (enemy.GetComponent<BaseEnemyClass_SCRIPT>() != null){
+                    enemy.GetComponent<BaseEnemyClass_SCRIPT>().AISpeedMultiplier = aiSpdMultiplier;
+                    enemy.GetComponent<BaseEnemyClass_SCRIPT>().UpdateSpeedServerRpc();
+                }
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+    #endregion 
+
+
+    #region Helpers
+    [ServerRpc]
+    private void serverDebugMsgServerRpc(string msg) {
+        if (!IsServer) { return; }
+        Debug.Log(msg);
+    }
+    public void CalculateTotalWeight() {
+        _totalWeight = 0f;
+
+        foreach (var data in _enemySpawnData) {
+            _totalWeight += data.spawnWeight;
+        }
+
+        if (_totalWeight <= 0f) {
+            Debug.LogError("Total weight is less than or equal to 0.");
+            serverDebugMsgServerRpc("Total weight is less than or equal to 0.");
+        }
+    }
+
+    private Vector3 GetSpawnPoint() {
+        if (_enemySpawnPoints.Count == 0) {
+            Debug.LogError("No spawn points found.");
+            serverDebugMsgServerRpc("No spawn points found.");
+            return Vector3.zero;
+        }
+
+        // Choose a random spawn point index
+        GameObject spawnPoint = _enemySpawnPoints[Random.Range(0, _enemySpawnPoints.Count)];
+
+        float spawnX = spawnPoint.transform.position.x;
+        float spawnY = 5f;
+        float spawnZ = spawnPoint.transform.position.z;
+        return new Vector3(spawnX, spawnY, spawnZ);
+    }
+    #endregion
 }

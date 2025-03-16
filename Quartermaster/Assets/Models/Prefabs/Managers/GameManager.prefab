@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1810372612
+  GlobalObjectIdHash: 4032955809
   InScenePlacedSourceGlobalObjectIdHash: 1810372612
   DeferredDespawnTick: 0
   Ownership: 1
@@ -114,7 +114,27 @@ MonoBehaviour:
   _healSpec_StackLimit: 3
   _healSpec_MultiplierPer: 0.1
   _dmgSpec_StackLimit: 3
-  _dmgSpec_MultiplierPer: 1
+  _dmgSpec_MultiplierPer: 0.2
+  meleeEnemy_Health: 0
+  meleeEnemy_AttackCooldown: 0
+  meleeEnemy_AttackRange: 0
+  meleeEnemy_AttackDamage: 0
+  meleeEnemy_AttackRadius: 0
+  meleeEnemy_UseGlobalTarget: 0
+  meleeEnemy_Speed: 0
+  rangedEnemy_Health: 0
+  rangedEnemy_AttackCooldown: 0
+  rangedEnemy_AttackRange: 0
+  rangedEnemy_AttackDamage: 0
+  rangedEnemy_UseGlobalTarget: 0
+  rangedEnemy_Speed: 0
+  explosiveEnemy_Health: 0
+  explosiveEnemy_AttackCooldown: 0
+  explosiveEnemy_AttackRange: 0
+  explosiveEnemy_AttackDamage: 0
+  explosiveEnemy_AttackRadius: 0
+  explosiveEnemy_UseGlobalTarget: 0
+  explosiveEnemy_Speed: 0
   _playersToEnemyHpMultiplier:
   - 0.1
   - 1
@@ -134,5 +154,9 @@ MonoBehaviour:
     m_InternalValue: 0
   totalPlayerDamageTaken:
     m_InternalValue: 0
+  totalPlayerDeaths:
+    m_InternalValue: 0
   totalPlayers:
+    m_InternalValue: 0
+  totalScore:
     m_InternalValue: 0

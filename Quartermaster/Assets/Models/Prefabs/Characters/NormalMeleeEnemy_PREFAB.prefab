@@ -166,6 +166,7 @@ MonoBehaviour:
   CriticalHealthRatio: 0.3
   CurrentHealth:
     m_InternalValue: 0
+  _damageEffect: {fileID: 0}
 --- !u!114 &4975842382590010180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -193,11 +194,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  enemyType: 0
-  _separationRadius: 10
-  _separationStrength: 5
+  _attackDelay: 2
   enemySpawner: {fileID: 0}
+  _localDetectionRange: 20
+  _separationRadius: 10
+  _separationStrength: 0.1
+  AISpeedMultiplier: 1
+  AIDmgMultiplier: 1
   floatingTextPrefab: {fileID: 550058981611720628, guid: 2f1aa88225abaa94ea335fa199c81f1d, type: 3}
+  enemyType: 0
 --- !u!114 &559437968811191426
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -244,6 +249,7 @@ MonoBehaviour:
   - Enemy/EnemyHurt_1.ogg
   - Enemy/EnemyHurt_2.ogg
   - Enemy/EnemyHurt_3.ogg
+  emitterTypes: []
 --- !u!114 &7565283431715044315
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -260,6 +266,7 @@ MonoBehaviour:
   destinationMixer: SFX
   soundAddressableKeys:
   - Enemy/Melee_Punch.ogg
+  emitterTypes: []
 --- !u!1 &9085996595791581510
 GameObject:
   m_ObjectHideFlags: 0

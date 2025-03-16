@@ -175,6 +175,7 @@ MonoBehaviour:
   CriticalHealthRatio: 0.3
   CurrentHealth:
     m_InternalValue: 0
+  _damageEffect: {fileID: 0}
 --- !u!114 &5353155373365359537
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -202,13 +203,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  enemyType: 1
-  _separationRadius: 10
-  _separationStrength: 3
+  _attackDelay: 2
   enemySpawner: {fileID: 0}
+  _localDetectionRange: 20
+  _separationRadius: 10
+  _separationStrength: 0.1
+  AISpeedMultiplier: 1
+  AIDmgMultiplier: 1
   floatingTextPrefab: {fileID: 550058981611720628, guid: 2f1aa88225abaa94ea335fa199c81f1d, type: 3}
+  enemyType: 1
   _maxAttackDistance: 20
-  _minAttackDistance: 8
   _hoveredHeight: 3
   _firePoint: {fileID: 7757611859912888179}
   _bulletTrailPrefab: {fileID: 3492294749685168360, guid: 97d3b70fbea7c2b418e4753da8bd372e, type: 3}
@@ -246,6 +250,7 @@ MonoBehaviour:
   destinationMixer: SFX
   soundAddressableKeys:
   - Enemy/EnemyDroneDie.ogg
+  emitterTypes: []
 --- !u!114 &3663053498000558810
 MonoBehaviour:
   m_ObjectHideFlags: 0

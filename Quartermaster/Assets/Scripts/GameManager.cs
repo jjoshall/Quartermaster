@@ -72,12 +72,14 @@ public class GameManager : NetworkBehaviour {
     [SerializeField] private int meleeEnemy_AttackDamage;
     [SerializeField] private float meleeEnemy_AttackRadius;
     [SerializeField] private bool meleeEnemy_UseGlobalTarget;
+    [SerializeField] private float meleeEnemy_Speed;
 
     [SerializeField] private float rangedEnemy_Health;
     [SerializeField] private float rangedEnemy_AttackCooldown;
     [SerializeField] private float rangedEnemy_AttackRange;
     [SerializeField] private int rangedEnemy_AttackDamage;
     [SerializeField] private bool rangedEnemy_UseGlobalTarget;
+    [SerializeField] private float rangedEnemy_Speed;
 
     [SerializeField] private float explosiveEnemy_Health;
     [SerializeField] private float explosiveEnemy_AttackCooldown;
@@ -85,6 +87,7 @@ public class GameManager : NetworkBehaviour {
     [SerializeField] private int explosiveEnemy_AttackDamage;
     [SerializeField] private float explosiveEnemy_AttackRadius;
     [SerializeField] private bool explosiveEnemy_UseGlobalTarget;
+    [SerializeField] private float explosiveEnemy_Speed;
 
     [SerializeField] private float[] _playersToEnemyHpMultiplier = new float[10] {  0.1f, 
                                                                                     1.0f, 
@@ -161,26 +164,32 @@ public class GameManager : NetworkBehaviour {
 
     public float DmgSpec_MultiplierPer => _dmgSpec_MultiplierPer;
     public int DmgSpec_StackLimit => _dmgSpec_StackLimit;
+    public float EnemySpeedMultiplier { get; set; } = 1.0f;
+    public float EnemyHealthMultiplier { get; set; } = 1.0f;
+    public float SpawnRateMultiplier { get; set; } = 0.0f;
 
-    public float MeleeEnemy_Health => meleeEnemy_Health;
+    public float MeleeEnemy_Health => meleeEnemy_Health * EnemyHealthMultiplier;
     public float MeleeEnemy_AttackCooldown => meleeEnemy_AttackCooldown;
     public float MeleeEnemy_AttackRange => meleeEnemy_AttackRange;
     public int MeleeEnemy_AttackDamage => meleeEnemy_AttackDamage;
     public float MeleeEnemy_AttackRadius => meleeEnemy_AttackRadius;
     public bool MeleeEnemy_UseGlobalTarget => meleeEnemy_UseGlobalTarget;
+    public float MeleeEnemy_Speed => meleeEnemy_Speed * EnemySpeedMultiplier;
 
-    public float RangedEnemy_Health => rangedEnemy_Health;
+    public float RangedEnemy_Health => rangedEnemy_Health * EnemyHealthMultiplier;
     public float RangedEnemy_AttackCooldown => rangedEnemy_AttackCooldown;
     public float RangedEnemy_AttackRange => rangedEnemy_AttackRange;
     public int RangedEnemy_AttackDamage => rangedEnemy_AttackDamage;
     public bool RangedEnemy_UseGlobalTarget => rangedEnemy_UseGlobalTarget;
+    public float RangedEnemy_Speed => rangedEnemy_Speed * EnemySpeedMultiplier;
 
-    public float ExplosiveEnemy_Health => explosiveEnemy_Health;
+    public float ExplosiveEnemy_Health => explosiveEnemy_Health * EnemyHealthMultiplier;
     public float ExplosiveEnemy_AttackCooldown => explosiveEnemy_AttackCooldown;
     public float ExplosiveEnemy_AttackRange => explosiveEnemy_AttackRange;
     public int ExplosiveEnemy_AttackDamage => explosiveEnemy_AttackDamage;
     public float ExplosiveEnemy_AttackRadius => explosiveEnemy_AttackRadius;
     public bool ExplosiveEnemy_UseGlobalTarget => explosiveEnemy_UseGlobalTarget;
+    public float ExplosiveEnemy_Speed => explosiveEnemy_Speed * EnemySpeedMultiplier;  
 
     #endregion
 

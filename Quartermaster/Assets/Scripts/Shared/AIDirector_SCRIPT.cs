@@ -9,39 +9,65 @@
 //   maybe a combination of stuff, maybe it'l spawn like WAY more than normal
 // - Make objectives the main intensity increaser or maybe if you start objective it goes straight to peak
 
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
 public class AIDirector : NetworkBehaviour {
-    [Header("State Machine Settings")]
+    public enum PeakVariation {
+        HealthBoost,
+        SpeedBoost,
+        SpawnRush,
+        Mixed
+    }
+
+    [Header("DRAMA PHASE timeout transition triggers")]
     [SerializeField] private float _buildUpDuration = 180f; // 3 minutes
     [SerializeField] private float _peakDuration = 30f; // 30 seconds
     [SerializeField] private float _relaxDuration = 45f; // 45 seconds
 
-    [Header("Intensity Settings")]
+    [Header("DRAMA PHASE intensity trigger settings")]
     [SerializeField] private float _baseIntensity = 10f; // Base intensity level
     [SerializeField] private float _intensityDecayRate = 0.5f; // How fast intensity decreases over time
     [SerializeField] private float _peakIntensityThreshold = 60f; // When to trigger peak
     [SerializeField] private float _relaxIntensityThreshold = 30f; // When to end relax phase early
 
-    [Header("Intensity Gain Multipliers")]
-    [SerializeField] private float _enemyKillIntensity = .5f; // Intensity gained per kill
+    [Header("DRAMA PHASE intensity gain modifiers")]
+    [SerializeField] private float _enemyKillIntensity = 0.5f; // Intensity gained per kill
     [SerializeField] private float _damageDealtMultiplier = 0.25f; // Intensity gained per damage dealt
     [SerializeField] private float _damageTakenMultiplier = 0.25f; // Intensity gained per damage taken
 
-    [Header("Spawn Rate Settings")]
+    [Header("DRAMA PHASE BASED spawn rates")]
     [SerializeField] private float _buildUpSpawnRate = 6f; // Seconds between spawns
     [SerializeField] private float _peakSpawnRate = 0.5f; // Seconds between spawns
     [SerializeField] private float _relaxSpawnRate = 10f; // Seconds between spawns
 
-    [Header("Enemy Type Weights")]
+    [Header("DRAMA PHASE BASED enemytype spawn weights")]
     [SerializeField] private List<EnemyWeightData> _buildUpEnemyWeights = new List<EnemyWeightData>();
     [SerializeField] private List<EnemyWeightData> _peakEnemyWeights = new List<EnemyWeightData>();
     [SerializeField] private List<EnemyWeightData> _relaxEnemyWeights = new List<EnemyWeightData>();
 
+    [Header("TIME BASED permanent scaling")]
+    // These settings are the original gradual values.
+    [SerializeField] private float _scalingIncrement = 0.05f; // Increment of scaling each peak
+    private float _scalingRawTotal = 0.0f; // value before curve.
+    private float _lastScaled = 0.0f; // timer. 
+    [SerializeField] private float _scalingIntervalSeconds = 30.0f; // timer.
+    
+    [SerializeField] private float _maxSpeedScale = 0.3f; // 20% max speed increase
+    [SerializeField] private float _maxHealthScale = 0.5f; // 50% max health increase
+    [SerializeField] private float _maxDamageScale = 0.5f; // 50% max damage increase
+    [SerializeField] private float _maxSpawnRateScale = 0.5f; // 50% max spawn rate increase
+
+    [SerializeField] private float _peakBuffMultiplier = 2f;
+
     // State machine properties
+    public enum DirectorState {
+        BuildUp,
+        Peak,
+        Relax
+    }
     public NetworkVariable<DirectorState> _currentState = new NetworkVariable<DirectorState>(
         DirectorState.BuildUp,
         NetworkVariableReadPermission.Everyone,
@@ -61,10 +87,11 @@ public class AIDirector : NetworkBehaviour {
     private EnemySpawner _enemySpawner;
     private GameManager _gameManager;
 
-    // Track last stats to calculate deltas
     private int _lastEnemyKills = 0;
     private float _lastDamageDealt = 0f;
     private float _lastDamageTaken = 0f;
+
+    private PeakVariation _currentPeakVariation;
 
     [System.Serializable]
     public class EnemyWeightData : INetworkSerializable {
@@ -74,23 +101,15 @@ public class AIDirector : NetworkBehaviour {
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter {
             serializer.SerializeValue(ref spawnWeight);
-
             if (serializer.IsReader) {
                 int typeValue = 0;
                 serializer.SerializeValue(ref typeValue);
                 enemyType = (EnemyType)typeValue;
-            }
-            else {
+            } else {
                 int typeValue = (int)enemyType;
                 serializer.SerializeValue(ref typeValue);
             }
         }
-    }
-
-    public enum DirectorState {
-        BuildUp,
-        Peak,
-        Relax
     }
 
     #region Setup
@@ -104,17 +123,13 @@ public class AIDirector : NetworkBehaviour {
         _enemySpawner = EnemySpawner.instance;
         _gameManager = GameManager.instance;
 
-        // Start w/ build up phase
         _currentState.Value = DirectorState.BuildUp;
         _stateTimeRemaining.Value = _buildUpDuration;
 
-        // Subscribe to game manager events
         _gameManager.totalEnemyKills.OnValueChanged += OnEnemyKillsChanged;
         _gameManager.totalDamageDealtToEnemies.OnValueChanged += OnDamageDealtChanged;
         _gameManager.totalPlayerDamageTaken.OnValueChanged += OnDamageTakenChanged;
 
-        // Start the state machine
-        StartCoroutine(StateMachineCoroutine());
 
         UpdateEnemySpawnerSettings();
     }
@@ -130,21 +145,28 @@ public class AIDirector : NetworkBehaviour {
     private void Update() {
         if (!IsServer) return;
 
-        // Decay intensity over time?
         _currentIntensity.Value = Mathf.Max(0, _currentIntensity.Value - (_intensityDecayRate * Time.deltaTime));
+        
+        // Phase state machine. 
+        // Transitions on intensity thresholds or timeouts.
+        // Cyclical. BuildUp -> Peak -> Relax -> BuildUp
+        StateMachineTimer();
 
-        // Update UI with debug info
-        //DebugUIClientRpc(_currentState.Value.ToString(), _currentIntensity.Value, _stateTimeRemaining.Value);
+        // Increase enemy scaling on timer. 
+        // Enemy scaling is asymptotic to max values at top of this file.
+        if (Time.time > _lastScaled + _scalingIntervalSeconds){
+            IncreaseEnemyScaling();
+            _lastScaled = Time.time;
+        }
     }
 
     #endregion
 
     #region Event Handlers
 
-    private void OnEnemyKillsChanged(int oldVal, int newVal)  {
+    private void OnEnemyKillsChanged(int oldVal, int newVal) {
         int killChange = newVal - _lastEnemyKills;
         _lastEnemyKills = newVal;
-
         if (killChange > 0) {
             AddIntensity(killChange * _enemyKillIntensity);
         }
@@ -153,7 +175,6 @@ public class AIDirector : NetworkBehaviour {
     private void OnDamageDealtChanged(float oldVal, float newVal) {
         float damageChange = newVal - _lastDamageDealt;
         _lastDamageDealt = newVal;
-
         if (damageChange > 0) {
             AddIntensity(damageChange * _damageDealtMultiplier);
         }
@@ -162,7 +183,6 @@ public class AIDirector : NetworkBehaviour {
     private void OnDamageTakenChanged(float oldVal, float newVal) {
         float damageChange = newVal - _lastDamageTaken;
         _lastDamageTaken = newVal;
-
         if (damageChange > 0) {
             AddIntensity(damageChange * _damageTakenMultiplier);
         }
@@ -172,35 +192,25 @@ public class AIDirector : NetworkBehaviour {
 
     #region State Machine
 
-    private IEnumerator StateMachineCoroutine() {
-        while (true) {
-            // Update state time remaining
-            _stateTimeRemaining.Value -= Time.deltaTime;
+    private void StateMachineTimer() {
+        _stateTimeRemaining.Value -= Time.deltaTime;
 
-            switch (_currentState.Value) {
-                case DirectorState.BuildUp:
-                    // Check to see if we can transition to peak
-                    if (_currentIntensity.Value >= _peakIntensityThreshold || _stateTimeRemaining.Value <= 0) {
-                        TransitionToPeak();
-                    }
-                    break;
-
-                case DirectorState.Peak:
-                    // Check if peak is over
-                    if (_stateTimeRemaining.Value <= 0) {
-                        TransitionToRelax();
-                    }
-                    break;
-
-                case DirectorState.Relax:
-                    // Check if relax is over or intensity is low enough
-                    if (_currentIntensity.Value <= _relaxIntensityThreshold || _stateTimeRemaining.Value <= 0) {
-                        TransitionToBuildUp();
-                    }
-                    break;
-
-            }
-            yield return null;
+        switch (_currentState.Value) {
+            case DirectorState.BuildUp:
+                if (_currentIntensity.Value >= _peakIntensityThreshold || _stateTimeRemaining.Value <= 0) {
+                    TransitionToPeak();
+                }
+                break;
+            case DirectorState.Peak:
+                if (_stateTimeRemaining.Value <= 0) {
+                    TransitionToRelax();
+                }
+                break;
+            case DirectorState.Relax:
+                if (_currentIntensity.Value <= _relaxIntensityThreshold || _stateTimeRemaining.Value <= 0) {
+                    TransitionToBuildUp();
+                }
+                break;
         }
     }
 
@@ -208,72 +218,155 @@ public class AIDirector : NetworkBehaviour {
         _currentIntensity.Value = _baseIntensity;
         _currentState.Value = DirectorState.BuildUp;
         _stateTimeRemaining.Value = _buildUpDuration;
-        UpdateEnemySpawnerSettings();   
-
+        UpdateEnemySpawnerSettings();
         Debug.Log("AI Director transitioning to Build Up phase");
     }
 
     private void TransitionToPeak() {
         _currentState.Value = DirectorState.Peak;
         _stateTimeRemaining.Value = _peakDuration;
+
+        // System.Array variations = System.Enum.GetValues(typeof(PeakVariation));
+        // _currentPeakVariation = (PeakVariation)variations.GetValue(Random.Range(0, variations.Length));
+        // ApplyPeakVariation(_currentPeakVariation);
+
         UpdateEnemySpawnerSettings();
 
-        Debug.Log("AI Director transitioning to Peak phase");
+        Debug.Log($"AI Director transitioning to Peak phase - Variation: {_currentPeakVariation}, " +
+                  $"Speed: +{GameManager.instance.EnemySpeedMultiplier * 100 - 100:F1}%, " +
+                  $"Health: +{GameManager.instance.EnemyHealthMultiplier * 100 - 100:F1}%, " +
+                  $"Spawn Rate Scale: x{1f / (1f - GameManager.instance.SpawnRateMultiplier):F2}");
     }
 
     private void TransitionToRelax() {
         _currentState.Value = DirectorState.Relax;
         _stateTimeRemaining.Value = _relaxDuration;
         UpdateEnemySpawnerSettings();
-
         Debug.Log("AI Director transitioning to Relax phase");
     }
 
     #endregion
 
+    #region Difficulty Scaling
+
+    private void IncreaseEnemyScaling() { // increase periodically enemy hp scaling based on time.
+        if (!IsServer) return;
+        Debug.Log ("increasing enemy scaling");
+
+        _scalingRawTotal += _scalingIncrement;
+        float curvedHp = ScaledEaseOut(_scalingRawTotal, _maxHealthScale);
+
+
+        float curvedDmg = ScaledEaseOut(_scalingRawTotal, _maxDamageScale);
+        float curvedSpeed = ScaledEaseOut(_scalingRawTotal, _maxSpeedScale);
+
+        float curvedSpawnRate = ScaledEaseOut(_scalingRawTotal, _maxSpawnRateScale);
+
+        // affects new spawns.
+        EnemySpawner.instance.aiDmgMultiplier = 1.0f + curvedDmg;
+        EnemySpawner.instance.aiHpMultiplier = 1.0f + curvedHp;
+
+        // affects all active enemies
+        UpdateEnemySpeedMultiplier(1.0f + curvedSpeed);
+
+        // float currentSpeedScale = gm.EnemySpeedMultiplier - 1f;
+        // float currentHealthScale = gm.EnemyHealthMultiplier - 1f;
+        // float currentSpawnRateScale = gm.SpawnRateMultiplier;
+
+        // float newSpeedScale = ApplyDiminishingReturns(currentSpeedScale + scalingIncrement, _maxSpeedScale);
+        // float newHealthScale = ApplyDiminishingReturns(currentHealthScale + scalingIncrement, _maxHealthScale);
+        // float newSpawnRateScale = ApplyDiminishingReturns(currentSpawnRateScale + scalingIncrement, _maxSpawnRateScale);
+
+        // gm.EnemySpeedMultiplier = 1f + newSpeedScale;
+        // gm.EnemyHealthMultiplier = 1f + newHealthScale;
+        // gm.SpawnRateMultiplier = newSpawnRateScale;
+        Debug.Log ("scaling raw total: " + _scalingRawTotal);   
+    }
+
+    // Asymptotic easing function. 1 - e^(-x). Scaled to maxValue.
+    private float ScaledEaseOut(float x, float maxValue) {
+        float xCoefficient = -0.1f; // -0.1f returns ~0.9 at x = 24
+        float y = 1f - Mathf.Pow(2.71828f, xCoefficient * x);
+        return y * maxValue;
+    }
+    private void UpdateEnemySpeedMultiplier (float speedMultiplier){
+        EnemySpawner.instance.UpdateEnemySpeed(speedMultiplier);
+    }
+
+    // private void ApplyPeakVariation(PeakVariation variation) {
+    //     GameManager gm = GameManager.instance;
+    //     float baseIncrement = _scalingIncrement;
+
+    //     switch (variation) {
+    //         case PeakVariation.HealthBoost:
+    //             {
+    //                 float newHealthScale = ScaledEaseOut(baseIncrement * _peakBuffMultiplier, _maxHealthScale);
+    //                 gm.EnemyHealthMultiplier = 1f + newHealthScale;
+    //             }
+    //             break;
+    //         case PeakVariation.SpeedBoost:
+    //             {
+    //                 float newSpeedScale = ScaledEaseOut(baseIncrement * _peakBuffMultiplier, _maxSpeedScale);
+    //                 // gm.EnemySpeedMultiplier = 1f + newSpeedScale;
+    //                 UpdateEnemySpeedMultiplier(1f + newSpeedScale);
+    //             }
+    //             break;
+    //         case PeakVariation.SpawnRush:
+    //             {
+    //                 float newSpawnRateScale = ScaledEaseOut(baseIncrement * _peakBuffMultiplier, _maxSpawnRateScale);
+    //                 gm.SpawnRateMultiplier = newSpawnRateScale;
+    //             }
+    //             break;
+    //         case PeakVariation.Mixed:
+    //             {
+    //                 IncreaseEnemyScaling();
+    //             }
+    //             break;
+    //     }
+    // }
+
+    #endregion
+
+
     #region Enemy Spawning
 
-    private void UpdateEnemySpawnerSettings() { 
+    private void UpdateEnemySpawnerSettings() {
         if (_enemySpawner == null) return;
 
-        // Update spawn cooldown based on current state
-        float spawnRate = _buildUpSpawnRate;
+        float currBaseSpawnInterval = _buildUpSpawnRate;
         DirectorState currentState = _currentState.Value;
 
         switch (currentState) {
             case DirectorState.BuildUp:
-                spawnRate = _buildUpSpawnRate;
+                currBaseSpawnInterval = _buildUpSpawnRate;
                 break;
-
             case DirectorState.Peak:
-                spawnRate = _peakSpawnRate;
+                currBaseSpawnInterval = _peakSpawnRate;
                 break;
-
             case DirectorState.Relax:
-                spawnRate = _relaxSpawnRate;
+                currBaseSpawnInterval = _relaxSpawnRate;
                 break;
         }
 
-        // Scale w/ how many players are in the game
-        float playerCountScaling = CalculatePlayerCountScaling();
-        spawnRate /= playerCountScaling;
+        float playerCountScaling = CalculatePlayerCountScaling(); 
+        currBaseSpawnInterval /= playerCountScaling; // <---- why are we scaling spawnrate DOWN based on playercount?
 
-        UpdateSpawnerSettingsServerRpc(spawnRate, currentState);
+        if (currentState == DirectorState.BuildUp || currentState == DirectorState.Peak) {
+            currBaseSpawnInterval *= (1f - GameManager.instance.SpawnRateMultiplier);
+        }
+        UpdateSpawnerSettingsServerRpc(currBaseSpawnInterval, currentState);
     }
 
     private float CalculatePlayerCountScaling() {
         int playerCount = _gameManager.totalPlayers.Value;
-
         if (playerCount < 1) playerCount = 1;
-
-        // More players = more enemies
         return Mathf.Sqrt(playerCount);
     }
 
     [ServerRpc]
     private void UpdateSpawnerSettingsServerRpc(float spawnRate, DirectorState state) {
         if (!IsServer) return;
-        _enemySpawner._spawnCooldown = spawnRate;
+        _enemySpawner.spawnCooldown = spawnRate;
         _enemySpawner._enemySpawnData.Clear();
 
         List<EnemyWeightData> weights;
@@ -281,15 +374,12 @@ public class AIDirector : NetworkBehaviour {
             case DirectorState.BuildUp:
                 weights = _buildUpEnemyWeights;
                 break;
-
             case DirectorState.Peak:
                 weights = _peakEnemyWeights;
                 break;
-
             case DirectorState.Relax:
                 weights = _relaxEnemyWeights;
                 break;
-
             default:
                 weights = _buildUpEnemyWeights;
                 break;
@@ -300,7 +390,6 @@ public class AIDirector : NetworkBehaviour {
                 enemyPrefab = weightData.enemyPrefab,
                 spawnWeight = weightData.spawnWeight
             };
-
             _enemySpawner._enemySpawnData.Add(spawnData);
         }
 
@@ -312,7 +401,6 @@ public class AIDirector : NetworkBehaviour {
     #region Intensity
 
     private void AddIntensity(float amount) {
-        // Scale with players (less players = faster intensity gain)
         float playerCount = _gameManager.totalPlayers.Value;
         float playerScaling = 1f / Mathf.Sqrt(playerCount);
         _currentIntensity.Value += amount * playerScaling;

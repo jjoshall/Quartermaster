@@ -71,6 +71,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  aiHpMultiplier: 1
+  aiDmgMultiplier: 1
+  aiSpdMultiplier: 1
+  _spawnCooldown: 1
   _enemySpawnData:
   - enemyPrefab: {fileID: 6449858844552445292, guid: f9e0d41d7de8cf940b0224449f9fdaa3, type: 3}
     spawnWeight: 4
@@ -81,8 +85,8 @@ MonoBehaviour:
   _maxEnemyInstanceCount: 100
   isSpawning:
     m_InternalValue: 0
-  _spawnCooldown: 1
   _totalWeight: 0
+  globalAggroUpdateInterval: 10
   _enemySpawnPoints:
   - {fileID: 0}
   - {fileID: 0}

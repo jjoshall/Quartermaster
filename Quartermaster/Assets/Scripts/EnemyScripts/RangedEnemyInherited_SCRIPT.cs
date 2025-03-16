@@ -58,7 +58,7 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         if (!IsServer) return;
 
         // Make sure ranged enemies always face the player
-        Vector3 lookPosition = target.position;
+        Vector3 lookPosition = targetPosition;
         lookPosition.y = transform.position.y;
         transform.LookAt(lookPosition);
 
@@ -84,7 +84,7 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     private void UpdateWeaponAngle() {
         if (_leftGun != null && _rightGun != null) {
-            Vector3 directionToTarget = (target.position - transform.position).normalized;
+            Vector3 directionToTarget = (targetPosition - transform.position).normalized;
             Debug.DrawRay(_firePoint.position, directionToTarget * 10f, Color.red);
             Quaternion lookRotation = Quaternion.LookRotation(directionToTarget) * Quaternion.Euler(90f, 0f, 0f);
 
@@ -94,32 +94,35 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     }
 
     protected override void Attack() {
-        if (!_canAttack) return;
-        if (target == null) return;
-        _canAttack = false;
+        if (!IsServer) return;
+        Debug.Log ("Flying attack");
+        // if (!_canAttack) return;
+        if (targetPosition == null) return;
+        // _canAttack = false;
 
-        if (IsServer) {
-            FireBulletServerRpc(target.GetComponent<NetworkObject>().NetworkObjectId);
+        Collider[] playersAroundTargetPosition = Physics.OverlapSphere(targetPosition, 2f, LayerMask.GetMask("Player"));
+        if (playersAroundTargetPosition.Length > 0) {
+            // pick random one
+            int randomIndex = Random.Range(0, playersAroundTargetPosition.Length);
+            // raycasts at given position
+            FireBulletServerRpc(playersAroundTargetPosition[randomIndex].transform.position);
         }
 
         // Change to timer?
-        StartCoroutine(ResetAttackCooldown());
+        // StartCoroutine(ResetAttackCooldown());
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void FireBulletServerRpc(ulong targetNetworkId) {
-        if (!NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetNetworkId, out NetworkObject targetNetworkObject)) {
-            Debug.LogWarning("Target not found.");
-            return;
-        }
-
-        Transform targetTransform = targetNetworkObject.transform;
-        Vector3 targetDirection = (targetTransform.position - _firePoint.position).normalized;  // enemy won't miss if in range, perhaps change?
+    private void FireBulletServerRpc(Vector3 targetPosition) {
+        Vector3 targetDirection = (targetPosition - _firePoint.position).normalized;  // enemy won't miss if in range, perhaps change?
 
         // Masks to make sure enemies cant shoot through walls
         int playerLayerMask = LayerMask.GetMask("Player");
         int buildingLayerMask = LayerMask.GetMask("Building");
         int combinedLayerMask = playerLayerMask | buildingLayerMask;
+
+        float aiDmgScaled = damage * AIDmgMultiplier;
+        Debug.Log ("dmgAiScaled is: " + aiDmgScaled);
 
         RaycastHit hit;
         if (Physics.Raycast(_firePoint.position, targetDirection, out hit, _maxAttackDistance, combinedLayerMask)) {
@@ -131,7 +134,7 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
                 return;
             }
             else if (hit.collider.CompareTag("Player")) {
-                hit.collider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
+                hit.collider.GetComponent<Damageable>().InflictDamage(aiDmgScaled, false, gameObject);
             }
         }
         else {
@@ -176,10 +179,10 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     }
 
     // Will change to timer later, this just makes enemies not attack over and over
-    private IEnumerator ResetAttackCooldown() {
-        yield return new WaitForSeconds(attackCooldown);
-        _canAttack = true;
-    }
+    // private IEnumerator ResetAttackCooldown() {
+    //     yield return new WaitForSeconds(attackCooldown);
+    //     _canAttack = true;
+    // }
 
     private IEnumerator WaitOneSecond() {
         yield return new WaitForSeconds(1f);
