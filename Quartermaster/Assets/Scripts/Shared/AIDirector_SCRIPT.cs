@@ -250,12 +250,17 @@ public class AIDirector : NetworkBehaviour {
     #region Difficulty Scaling
 
     private void IncreaseEnemyScaling() { // increase periodically enemy hp scaling based on time.
+        if (!IsServer) return;
         Debug.Log ("increasing enemy scaling");
 
         _scalingRawTotal += _scalingIncrement;
         float curvedHp = ScaledEaseOut(_scalingRawTotal, _maxHealthScale);
+
+
         float curvedDmg = ScaledEaseOut(_scalingRawTotal, _maxDamageScale);
         float curvedSpeed = ScaledEaseOut(_scalingRawTotal, _maxSpeedScale);
+
+        float curvedSpawnRate = ScaledEaseOut(_scalingRawTotal, _maxSpawnRateScale);
 
         // affects new spawns.
         EnemySpawner.instance.aiDmgMultiplier = 1.0f + curvedDmg;
@@ -361,7 +366,7 @@ public class AIDirector : NetworkBehaviour {
     [ServerRpc]
     private void UpdateSpawnerSettingsServerRpc(float spawnRate, DirectorState state) {
         if (!IsServer) return;
-        _enemySpawner._spawnCooldown = spawnRate;
+        _enemySpawner.spawnCooldown = spawnRate;
         _enemySpawner._enemySpawnData.Clear();
 
         List<EnemyWeightData> weights;

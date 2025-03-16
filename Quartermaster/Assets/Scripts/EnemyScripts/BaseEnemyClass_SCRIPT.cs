@@ -24,15 +24,23 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     #endregion
 
-    [Header("Separation Pathing")]
-    [SerializeField] private float _separationRadius = 10f;
-    [SerializeField] private float _separationStrength = 3f;
-    private Vector3 enemySeparationVector;
+    [Header("Enemy Settings")]
+    [SerializeField] private float _attackDelay = 2.0f;
+    private float _lastAttackTime = 0.0f;
+
 
     [Header("Required Scripts for Enemies")]
     protected NavMeshAgent agent;
     protected Health health;
     public EnemySpawner enemySpawner;
+
+    [Header("Enemy pathing")]
+    [SerializeField] private float _localDetectionRange = 20f; // how far to switch from global to direct aggro
+    
+    [Header("Separation Pathing")]
+    [SerializeField] private float _separationRadius = 10f;
+    [SerializeField] private float _separationStrength = 3f;
+    private Vector3 _velocityVector = Vector3.zero; // used for boids separation
 
     // Speed run-time variables, think Norman added this
     // Yes I did - Norman
@@ -47,13 +55,14 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     private bool _isAttacking = false;      // to prevent multiple attacks happening at once
     private float _attackTimer = 0.0f;      // to prevent attacks happening too quickly
     public EnemyType enemyType;     // two enemy types at the moment: Melee and Ranged
-    protected Transform target;     // for pathing to player
+    protected Vector3 targetPosition; 
 
     public override void OnNetworkSpawn() {
        
         agent = GetComponent<NavMeshAgent>();
         _baseSpeed = agent.speed;
         _baseAcceleration = agent.acceleration;
+        _velocityVector = Vector3.zero;
 
         health = GetComponent<Health>();
 
@@ -77,152 +86,108 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     }
 
     private void ClientDisconnected(ulong u) {
-        target = null;
+        // target = null;
     }
 
     protected virtual void Update() {
         if (!IsServer) return;
+        // Debug.Log ("BaseEnemy Update()");
+        UpdateTarget(); // sets targetPosition to closest player within localDetectionRange, else global target
 
-        UpdateTarget();
-
-        if (target != null) {
+        if (targetPosition != null) {
             // Each enemy has a different attack range
-            bool inRange = Vector3.Distance(transform.position, target.position) <= attackRange;
+            bool inRange = Vector3.Distance(transform.position, targetPosition) <= attackRange;
 
             // If a player's in range for that enemy, attack.
-            if (inRange && !_isAttacking) {
-                // Add a delay before attacking
-                /// Changing to timer instead of coroutine (WIP)
-                //if (_attackTimer <= 0) {
-                //    _isAttacking = true;
-                //    OnAttackStart();    // for explosive enemy, sets isBlinking to true to make sound/animation synced
-                //    Attack();
-                //    _isAttacking = false;
-                //    _attackTimer = attackCooldown;
-                //}
-                //_attackTimer -= Time.deltaTime;
-
-                StartCoroutine(DelayAttack());
+            if (inRange && _lastAttackTime + attackCooldown < Time.time) {
+                Debug.Log ("BaseEnemy Update() in range for attack.");
+                Attack();
+                _lastAttackTime = Time.time;
             }
             else {
-                // If not in range, path to target
-                CalculateSeparationOffset();
-                // Ranged and explosive enemies use global target, so they'll go to past positions of player
-                if (useGlobalTarget) {
-                    Vector3 destination = enemySpawner.GetGlobalAggroTarget();
-                    agent.SetDestination(destination);
-                }
-                // Normal melee enemies will just follow closest player
-                else {
-                    agent.SetDestination(target.position);
-                }              
-
-                this.gameObject.transform.position += enemySeparationVector * Time.deltaTime;
+                // Debug.Log ("BaseEnemy Update(), not in range: " + attackRange + ", calling SetDestination()");
+                agent.SetDestination(targetPosition);  
             }
         }
+    }
+    private void LateUpdate() {
+        ApplySeparationForce(); // boids separation, capped to X neighbors    
     }
 
     // IMPLEMENT THIS METHOD FOR NEW/EACH ENEMIES
     protected abstract void Attack();
 
-    // How enemies find their target player
-    protected virtual void UpdateTarget() {
+    // If player in localDetectionRange, target closest.
+    // Else target global.
+    protected void UpdateTarget() {
         if (enemySpawner == null || enemySpawner.playerList == null) return;
+        // Debug.Log ("BaseEnemy UpdateTarget()"); 
 
-        // Norman's global aggro: ranged and explosive enemies use this,
-        // will make enemies pick a random player's position every 10 seconds to go to that position
-        if (useGlobalTarget) {
-            GameObject closestPlayerToGlobalTarget = null;
-            float closestDistance = float.MaxValue;
-            Vector3 globalTarget = enemySpawner.GetGlobalAggroTarget();
-
-            foreach (GameObject player in enemySpawner.playerList) {
-                if (player == null) continue;
-
-                float distance = Vector3.Distance(player.transform.position, globalTarget);
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    closestPlayerToGlobalTarget = player;
-                }
-            }
-
-            target = closestPlayerToGlobalTarget != null ? closestPlayerToGlobalTarget.transform : null;
-        }
-        // Melee enemies use this, just follows closest player
-        else {
-            GameObject closestPlayer = null;
-            float closestDistance = float.MaxValue;
-
-            foreach (GameObject obj in enemySpawner.playerList) {
-                float distance = Vector3.Distance(transform.position, obj.transform.position);
-                if (distance < closestDistance) {
+        GameObject closestPlayer = null;
+        foreach (GameObject obj in enemySpawner.playerList) {
+            if (Vector3.Distance(transform.position, obj.transform.position) <= _localDetectionRange) {
+                if (closestPlayer == null) {
                     closestPlayer = obj;
-                    closestDistance = distance;
+                }
+                else if (Vector3.Distance(transform.position, obj.transform.position) < Vector3.Distance(transform.position, closestPlayer.transform.position)) {
+                    closestPlayer = obj;
                 }
             }
+        }
 
-            target = closestPlayer != null ? closestPlayer.transform : null;
+        if (closestPlayer == null){
+            targetPosition = EnemySpawner.instance.globalAggroTarget;
+        } else {
+            targetPosition = closestPlayer.transform.position;
         }
     }
 
-    // Can use this to do anything you need before attacking, like setting a bool for animation
-    //protected virtual void OnAttackStart() {}
 
-    // Changing soon to timer instead of coroutine
-    protected virtual IEnumerator DelayAttack() {
-        _isAttacking = true;
-        yield return new WaitForSeconds(attackCooldown);
-        Attack();
-        _isAttacking = false;
-    }
-
-    // Make sure attacks are actually happening on the server, melee and explosive enemies use this
-    [ServerRpc(RequireOwnership = false)]
-    protected virtual void AttackServerRpc(bool destroyAfterAttack = false) {
-        if (!IsServer) return;
-        // OverlapSphere will find all colliders in the attackRadius around the enemy
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
-
-        float dmgAiScaled = damage * AIDmgMultiplier;
-
-        foreach (var hitCollider in hitColliders) {
-            if (hitCollider.CompareTag("Player")) {
-                hitCollider.GetComponent<Damageable>().InflictDamage(dmgAiScaled, false, gameObject);
-            }
-        }
-
-        // For explosive enemies, this will just remove the explosive enemy from scene
-        if (destroyAfterAttack) {
-            enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
-        }
-    }
-
-    // Norman's separation pathing: enemies will apply a force to
-    // other enemies in a separation radius to move away from each other
-    private void CalculateSeparationOffset() {
-        Vector3 separationForce = Vector3.zero;
+    // Apply boids separation for fluid-like emergent behavior.
+    private void ApplySeparationForce() {
+        // Vector3 separationForce = Vector3.zero;
         int count = 0;
+        int maxCount = 20; // cap it in case of performance issues.
         int enemyLayer = LayerMask.NameToLayer("Enemy");
+        int enemyLayerMask = 1 << enemyLayer;
 
-        Collider[] neighbors = Physics.OverlapSphere(transform.position, _separationRadius, enemyLayer);
+        if (_velocityVector == null) {
+            // Debug.Log ("SeparationForce() velocityVector is null, setting to Vector3.zero");
+            _velocityVector = Vector3.zero;
+        }
+        Vector3 separationVector = Vector3.zero;
 
+        Collider[] neighbors = Physics.OverlapSphere(transform.position, _separationRadius, enemyLayerMask);
+        if (neighbors.Length == 0) return; // no neighbors, no separation
+        // combine the current velocity vector 
         foreach (var neighbor in neighbors) {
-            if (neighbor.gameObject == gameObject) continue;
+            if (neighbor.gameObject == gameObject) continue; // don't apply force to self.
+            if (!neighbor.gameObject.CompareTag("Enemy")) continue;
 
-            var dir = neighbor.transform.position - transform.position;
-            var distance = dir.magnitude;
-            if (distance < _separationRadius && distance > 0.1f) {
-                var away = -dir.normalized;
-                separationForce += (away / distance) * _separationStrength;
-                count++;
-            }
+            Vector3 dir = transform.position - neighbor.transform.position; // direction towards neighbor
+            float magnitude = dir.magnitude;
+            if (magnitude <= 0.1) magnitude = 0.1f;
+            Vector3 separationForce = dir.normalized / magnitude;       // inverse proportional to distance
+            
+            separationVector += separationForce;
+            // neighbor.transform.GetComponent<Rigidbody>().AddForce(separationForce); 
+
+            count++;
+            if (count > maxCount) break;
         }
 
-        if (count > 0) {
-            separationForce /= count;
-        }
+        separationVector *= _separationStrength;
 
-        enemySeparationVector = separationForce;
+        // apply the separation vector with the current velocity vector of the navmesh agent, agent.velocity
+        _velocityVector *= 0.5f;
+        _velocityVector += separationVector;
+
+        // Debug.Log ("velocityVector is now: " + _velocityVector);
+
+        agent.Move(_velocityVector * Time.deltaTime);  // move the agent with the velocity vector
+
+        // agent.velocity is constantly the path direction after calling setDestination
+        // velocityVector stores the separation force 
     }
 
     // Called when enemy takes damage
@@ -281,11 +246,11 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     [ClientRpc]
     private void UpdateSpeedClientRpc(float finalSpeed, float finalAcceleration){
-        Debug.Log ("Updating speed client rpc, original speed & acceleration: " + agent.speed + ", " + agent.acceleration);
+        // Debug.Log ("Updating speed client rpc, original speed & acceleration: " + agent.speed + ", " + agent.acceleration);
         agent.speed = finalSpeed;
         agent.acceleration = finalAcceleration;
         agent.velocity = agent.velocity.normalized * finalSpeed;
-        Debug.Log ("Updated speed & acceleration: " + agent.speed + ", " + agent.acceleration);
+        // Debug.Log ("Updated speed & acceleration: " + agent.speed + ", " + agent.acceleration);
     }
 
     [ServerRpc(RequireOwnership = false)]   

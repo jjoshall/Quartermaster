@@ -286,9 +286,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   MaxHealth: 10
-  CriticalHealthRatio: 0.3
+  CriticalHealthRatio: 0.1
   CurrentHealth:
     m_InternalValue: 0
+  _damageEffect: {fileID: 0}
 --- !u!114 &6073005085154520232
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -316,13 +317,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  enemyType: 0
-  _separationRadius: 10
-  _separationStrength: 3
+  _attackDelay: 2
   enemySpawner: {fileID: 0}
+  _localDetectionRange: 20
+  _separationRadius: 10
+  _separationStrength: 0.3
+  AISpeedMultiplier: 1
+  AIDmgMultiplier: 1
   floatingTextPrefab: {fileID: 550058981611720628, guid: 2f1aa88225abaa94ea335fa199c81f1d, type: 3}
-  blinkSpeed: 5
-  blinkingSpeedMultiplier: 1.3
+  enemyType: 0
+  _explosionDelay: 2
+  _blinkSpeed: 5
+  _blinkingSpeedMultiplier: 1.3
   _wheels: {fileID: 5241816417500308710}
 --- !u!114 &3496285695615514000
 MonoBehaviour:

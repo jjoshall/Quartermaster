@@ -12,7 +12,8 @@ public class EnemySpawner : NetworkBehaviour {
     
     [Header("Spawner Timer")]
     private float _lastSpawnTime = 0f;
-    public float _spawnCooldown = 2f;
+    public float spawnCooldown = 2f;
+    public float AISpawnDenominator = 1f;
 
     [Header("Spawner Settings")]
     public List<EnemySpawnData> _enemySpawnData = new List<EnemySpawnData>();
@@ -23,7 +24,7 @@ public class EnemySpawner : NetworkBehaviour {
 
     [SerializeField] private float globalAggroUpdateInterval = 10.0f;
     private float globalAggroUpdateTimer = 0.0f;
-    private Vector3 globalAggroTarget = new Vector3(0, 0, 0);
+    public Vector3 globalAggroTarget = new Vector3(0, 0, 0);
 
     [SerializeField] private List<GameObject> _enemySpawnPoints;
     //[SerializeField] private List<GameObject> _enemyPackSpawnPoints;
@@ -101,7 +102,7 @@ public class EnemySpawner : NetworkBehaviour {
     private void SpawnOverTime() {
         if (!IsServer) return;
 
-        if (Time.time - _lastSpawnTime < _spawnCooldown) return;
+        if (Time.time - _lastSpawnTime < spawnCooldown / AISpawnDenominator) return;
 
         if (enemyList.Count < _maxEnemyInstanceCount && isSpawning.Value) {
             Transform enemyPrefab = GetWeightedRandomEnemyPrefab();

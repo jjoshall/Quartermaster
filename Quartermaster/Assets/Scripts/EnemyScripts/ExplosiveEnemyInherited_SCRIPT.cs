@@ -20,9 +20,10 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
-    [SerializeField] private float blinkSpeed = 5f;
+    [SerializeField] private float _explosionDelay;
+    [SerializeField] private float _blinkSpeed = 5f;
     [Range(1f, 3f)]
-    [SerializeField] private float blinkingSpeedMultiplier = 1.3f;  // Uses a range for 
+    [SerializeField] private float _blinkingSpeedMultiplier = 1.3f;  // Uses a range for 
 
     private Animator animator;
     private SoundEmitter[] soundEmitters;
@@ -65,8 +66,8 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         finalAcceleration *= AISpeedMultiplier;
 
         if (isBlinking.Value){
-            finalSpeed *= blinkingSpeedMultiplier;
-            finalAcceleration *= blinkingSpeedMultiplier;
+            finalSpeed *= _blinkingSpeedMultiplier;
+            finalAcceleration *= _blinkingSpeedMultiplier;
         }
 
         agent.speed = finalSpeed;
@@ -75,21 +76,6 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     #endregion
 
-    // This method is for when the explosive enemy is killed
-    public void TriggerExplosion() {
-        if (!IsServer || _isExploding) return;
-
-        isBlinking.Value = true;
-
-        // Change to timer?
-        StartCoroutine(ExplodeAfterDelay(attackCooldown));
-    }
-
-    private IEnumerator ExplodeAfterDelay(float delay) {
-        yield return new WaitForSeconds(delay);
-        Attack();
-    }
-
     protected override void OnDie() {
         try {
             PlaySoundForEmitter("explode_die", transform.position);
@@ -97,7 +83,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         catch (System.Exception e) {
             Debug.LogError("Error play sound for emitter: " + e.Message);
         }
-        TriggerExplosion();
+        Attack(); // exploding enemy instantly explodes on death.
 
         // Change to timer?, this is so explosive enemy doesn't get destroyed from scene before sound finishes
         StartCoroutine(DelayedBaseDie());
@@ -107,35 +93,33 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         yield return new WaitForSeconds(3.0f);
         base.OnDie();
     }
-
-    //protected override void OnAttackStart() {
-    //    isBlinking.Value = true;
-    //    base.OnAttackStart();
-    //}
-
-    // This method is for when the explosive enemy is attacking, change to timer?
-    protected override IEnumerator DelayAttack() {
-        isBlinking.Value = true;
-
-        yield return new WaitForSeconds(attackCooldown);
-        Attack();
-    }
-
+    // Called by base class attack cooldown.
     protected override void Attack() {
         if (!IsServer || _isExploding) return;
+        Debug.Log("Explosive Attack");
         _isExploding = true;
+        isBlinking.Value = true;
 
-        ParticleManager.instance.SpawnSelfThenAll("EnemyExplosion", transform.position, Quaternion.identity);
+        StartCoroutine (DelayedExplosion(_explosionDelay));
+    }    
+
+    // delay
+    protected virtual IEnumerator DelayedExplosion(float delay) {
+        yield return new WaitForSeconds(delay);
         AttackServerRpc(true);
+
     }
 
+    // the actual attack
     [ServerRpc(RequireOwnership = false)]
-    protected override void AttackServerRpc(bool destroyAfterAttack = false)
+    private void AttackServerRpc(bool destroyAfterAttack = false)
     {
         if (!IsServer) return;
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
+        ParticleManager.instance.SpawnSelfThenAll("EnemyExplosion", transform.position, Quaternion.identity);
 
         float dmgAiScaled = damage * AIDmgMultiplier;
+        Debug.Log ("dmgAiScaled is: " + dmgAiScaled);
 
         // Explosion hurts players and enemies, but enemies only take 1/3 of the damage
         foreach (var hitCollider in hitColliders)
@@ -155,6 +139,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
         }
     }
+
 
     public override void OnNetworkDespawn() {
         isBlinking.OnValueChanged -= OnBlinkingStateChanged;
