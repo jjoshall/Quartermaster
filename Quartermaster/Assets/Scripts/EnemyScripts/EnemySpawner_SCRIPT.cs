@@ -16,9 +16,9 @@ public class EnemySpawner : NetworkBehaviour {
     public float AISpawnDenominator = 1f;
 
     [Header("Spawner Settings")]
+    [HideInInspector] public NetworkVariable<bool> isSpawning = new NetworkVariable<bool>(false);
     public List<EnemySpawnData> _enemySpawnData = new List<EnemySpawnData>();
     [SerializeField] private int _maxEnemyInstanceCount = 20;
-    public NetworkVariable<bool> isSpawning = new NetworkVariable<bool>(true);
     [HideInInspector] public float _totalWeight = 0f;
 
 
