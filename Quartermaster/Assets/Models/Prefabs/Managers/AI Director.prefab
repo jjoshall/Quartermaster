@@ -45,8 +45,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1412214570
-  InScenePlacedSourceGlobalObjectIdHash: 0
+  GlobalObjectIdHash: 2199361728
+  InScenePlacedSourceGlobalObjectIdHash: 1412214570
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
@@ -105,6 +105,13 @@ MonoBehaviour:
   - enemyPrefab: {fileID: 6449858844552445292, guid: f9e0d41d7de8cf940b0224449f9fdaa3, type: 3}
     enemyType: 0
     spawnWeight: 1
+  _scalingIncrement: 0.05
+  _scalingIntervalSeconds: 30
+  _maxSpeedScale: 0.3
+  _maxHealthScale: 0.5
+  _maxDamageScale: 0.5
+  _maxSpawnRateScale: 0.5
+  _peakBuffMultiplier: 2
   _currentState:
     m_InternalValue: 0
   _currentIntensity:

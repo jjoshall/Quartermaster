@@ -250,11 +250,12 @@ public class AIDirector : NetworkBehaviour {
     #region Difficulty Scaling
 
     private void IncreaseEnemyScaling() { // increase periodically enemy hp scaling based on time.
+        Debug.Log ("increasing enemy scaling");
+
         _scalingRawTotal += _scalingIncrement;
         float curvedHp = ScaledEaseOut(_scalingRawTotal, _maxHealthScale);
         float curvedDmg = ScaledEaseOut(_scalingRawTotal, _maxDamageScale);
         float curvedSpeed = ScaledEaseOut(_scalingRawTotal, _maxSpeedScale);
-
 
         // affects new spawns.
         EnemySpawner.instance.aiDmgMultiplier = 1.0f + curvedDmg;
@@ -262,7 +263,6 @@ public class AIDirector : NetworkBehaviour {
 
         // affects all active enemies
         UpdateEnemySpeedMultiplier(1.0f + curvedSpeed);
-        
 
         // float currentSpeedScale = gm.EnemySpeedMultiplier - 1f;
         // float currentHealthScale = gm.EnemyHealthMultiplier - 1f;
@@ -275,6 +275,7 @@ public class AIDirector : NetworkBehaviour {
         // gm.EnemySpeedMultiplier = 1f + newSpeedScale;
         // gm.EnemyHealthMultiplier = 1f + newHealthScale;
         // gm.SpawnRateMultiplier = newSpawnRateScale;
+        Debug.Log ("scaling raw total: " + _scalingRawTotal);   
     }
 
     // Asymptotic easing function. 1 - e^(-x). Scaled to maxValue.

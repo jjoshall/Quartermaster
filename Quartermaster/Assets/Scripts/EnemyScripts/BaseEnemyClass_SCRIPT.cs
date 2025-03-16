@@ -184,7 +184,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
 
         float dmgAiScaled = damage * AIDmgMultiplier;
-        
+
         foreach (var hitCollider in hitColliders) {
             if (hitCollider.CompareTag("Player")) {
                 hitCollider.GetComponent<Damageable>().InflictDamage(dmgAiScaled, false, gameObject);
