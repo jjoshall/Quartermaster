@@ -41,6 +41,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected NetworkVariable<int> n_isSlowed = new NetworkVariable<int>(0); // int is used in case of multiple slow traps.
     protected NetworkVariable<float> n_slowMultiplier = new NetworkVariable<float>(0.0f);
     [HideInInspector] public float AISpeedMultiplier = 1.0f; // don't change. set by AIDirector at run-time.
+    [HideInInspector] public float AIDmgMultiplier = 1.0f;
 
     [SerializeField] private GameObject floatingTextPrefab;     // to spawn floating damage numbers
     private bool _isAttacking = false;      // to prevent multiple attacks happening at once
@@ -182,9 +183,11 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         // OverlapSphere will find all colliders in the attackRadius around the enemy
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
 
+        float dmgAiScaled = damage * AIDmgMultiplier;
+        
         foreach (var hitCollider in hitColliders) {
             if (hitCollider.CompareTag("Player")) {
-                hitCollider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
+                hitCollider.GetComponent<Damageable>().InflictDamage(dmgAiScaled, false, gameObject);
             }
         }
 

@@ -135,16 +135,18 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         if (!IsServer) return;
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
 
+        float dmgAiScaled = damage * AIDmgMultiplier;
+
         // Explosion hurts players and enemies, but enemies only take 1/3 of the damage
         foreach (var hitCollider in hitColliders)
         {
             if (hitCollider.CompareTag("Player"))
             {
-                hitCollider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
+                hitCollider.GetComponent<Damageable>().InflictDamage(dmgAiScaled, false, gameObject);
             }
             else if (hitCollider.CompareTag("Enemy"))
             {
-                hitCollider.GetComponent<Damageable>().InflictDamage(damage / 3, false, gameObject);
+                hitCollider.GetComponent<Damageable>().InflictDamage(dmgAiScaled / 3, false, gameObject);
             }
         }
 

@@ -121,6 +121,8 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         int buildingLayerMask = LayerMask.GetMask("Building");
         int combinedLayerMask = playerLayerMask | buildingLayerMask;
 
+        float aiDmgScaled = damage * AIDmgMultiplier;
+
         RaycastHit hit;
         if (Physics.Raycast(_firePoint.position, targetDirection, out hit, _maxAttackDistance, combinedLayerMask)) {
             // Just instantiates bullet trail effect
@@ -131,7 +133,7 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
                 return;
             }
             else if (hit.collider.CompareTag("Player")) {
-                hit.collider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
+                hit.collider.GetComponent<Damageable>().InflictDamage(aiDmgScaled, false, gameObject);
             }
         }
         else {

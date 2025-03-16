@@ -10,13 +10,17 @@ public class EnemySpawner : NetworkBehaviour {
     [HideInInspector] public float aiDmgMultiplier = 1.0f;
     [HideInInspector] public float aiSpdMultiplier = 1.0f;
     
+    [Header("Spawner Timer")]
+    private float _lastSpawnTime = 0f;
+    public float _spawnCooldown = 2f;
 
     [Header("Spawner Settings")]
     public List<EnemySpawnData> _enemySpawnData = new List<EnemySpawnData>();
     [SerializeField] private int _maxEnemyInstanceCount = 20;
     public NetworkVariable<bool> isSpawning = new NetworkVariable<bool>(true);
-    public float _spawnCooldown = 2f;
     [HideInInspector] public float _totalWeight = 0f;
+
+
     [SerializeField] private float globalAggroUpdateInterval = 10.0f;
     private float globalAggroUpdateTimer = 0.0f;
     private Vector3 globalAggroTarget = new Vector3(0, 0, 0);
@@ -58,7 +62,7 @@ public class EnemySpawner : NetworkBehaviour {
         }
 
         CalculateTotalWeight();
-        StartCoroutine(SpawnOverTime());
+        // StartCoroutine(SpawnOverTime());
 
         NetworkManager.Singleton.OnClientConnectedCallback += ClientConnected;
         NetworkManager.Singleton.OnClientDisconnectCallback += ClientDisconnected;
@@ -77,6 +81,7 @@ public class EnemySpawner : NetworkBehaviour {
         if (IsServer) {
             UpdateGlobalAggroTargetTimer();
         }   
+        SpawnOverTime();
     }
 
     /// <summary>
@@ -93,23 +98,30 @@ public class EnemySpawner : NetworkBehaviour {
     //    GameObject spawnPoint = _enemyPackSpawnPoints[Random.Range(0, _enemyPackSpawnPoints.Count)];
     //    return spawnPoint.transform.position;
     //}
-    private IEnumerator SpawnOverTime() {
-        while (true) {
-            if (enemyList.Count < _maxEnemyInstanceCount && isSpawning.Value) {
-                Transform enemyPrefab = GetWeightedRandomEnemyPrefab();
-                if (enemyPrefab != null) {
-                    Transform enemyTransform = Instantiate(enemyPrefab, GetSpawnPoint(), Quaternion.identity);
-                    enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemySpawner = this;
-                    enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemyType = GetEnemyType(enemyPrefab);
-                    enemyTransform.GetComponent<NetworkObject>().Spawn(true);
-                    enemyList.Add(enemyTransform);
-                    enemyTransform.SetParent(this.gameObject.transform);
+    private void SpawnOverTime() {
+        if (!IsServer) return;
 
-                    yield return new WaitForSeconds(_spawnCooldown);
-                }
+        if (Time.time - _lastSpawnTime < _spawnCooldown) return;
+
+        if (enemyList.Count < _maxEnemyInstanceCount && isSpawning.Value) {
+            Transform enemyPrefab = GetWeightedRandomEnemyPrefab();
+            if (enemyPrefab != null) {
+                Transform enemyTransform = Instantiate(enemyPrefab, GetSpawnPoint(), Quaternion.identity);
+                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemySpawner = this;
+                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().AISpeedMultiplier = aiSpdMultiplier;
+                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().AIDmgMultiplier = aiDmgMultiplier;
+
+                Health hpComponent = enemyTransform.GetComponent<Health>();
+                hpComponent.MaxHealth *= aiHpMultiplier;
+                hpComponent.CurrentHealth.Value = hpComponent.MaxHealth;
+
+                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemyType = GetEnemyType(enemyPrefab);
+                enemyTransform.GetComponent<NetworkObject>().Spawn(true);
+                enemyList.Add(enemyTransform);
+                enemyTransform.SetParent(this.gameObject.transform);
+                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().UpdateSpeedServerRpc();    
+
             }
-
-            yield return null;
         }
     }
 
