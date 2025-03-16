@@ -95,8 +95,11 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         UpdateTarget(); // sets targetPosition to closest player within localDetectionRange, else global target
 
         if (targetPosition != null) {
+            Debug.Log ("BaseEnemy Update() targetPosition is: " + targetPosition);
+            Debug.Log ("BaseEnemy Update() attackRange is " + attackRange);
             // Each enemy has a different attack range
             bool inRange = Vector3.Distance(transform.position, targetPosition) <= attackRange;
+            Debug.Log ("BaseEnemy Update() distance is " + Vector3.Distance(transform.position, targetPosition));
 
             // If a player's in range for that enemy, attack.
             if (inRange && _lastAttackTime + attackCooldown < Time.time) {
@@ -105,6 +108,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
                 _lastAttackTime = Time.time;
             }
             else {
+                Debug.Log ("BaseEnemy Update() not in range for attack.");
                 // Debug.Log ("BaseEnemy Update(), not in range: " + attackRange + ", calling SetDestination()");
                 agent.SetDestination(targetPosition);  
             }
