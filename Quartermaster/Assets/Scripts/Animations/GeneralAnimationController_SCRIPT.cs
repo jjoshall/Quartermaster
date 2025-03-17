@@ -49,7 +49,6 @@ public class GeneralAnimationController : NetworkBehaviour
         if(!gatesOpened){
             // trigger poolmanager spawning start.
             gatesOpened = true;
-            // EnemySpawner.instance.SetSpawningServerRpc(true);
         }
     }
 

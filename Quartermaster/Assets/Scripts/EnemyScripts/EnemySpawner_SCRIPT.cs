@@ -30,7 +30,11 @@ public class EnemySpawner : NetworkBehaviour {
     //[SerializeField] private List<GameObject> _enemyPackSpawnPoints;
 
     public List<Transform> enemyList = new List<Transform>();
-    public List<GameObject> playerList;
+    private List<GameObject> playerList; // players in game.
+    public List<GameObject> activePlayerList; // players in active playable area.
+    public List<GameObject> inactiveAreas; // pathable areas that are not playable. set in inspector.
+                                           // players in these areas will be occluded from activePlayerList.
+                                           // for pathing / enemyspawner / aidirector purposes.
 
     // static 
     public static EnemySpawner instance;
@@ -50,11 +54,12 @@ public class EnemySpawner : NetworkBehaviour {
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void SetSpawningServerRpc(bool value) {
-        if (!IsServer) { return; }
-        isSpawning.Value = value;
-    }
+    // Deprecated. Now checking against activePlayerList.Count > 0 for spawning.
+    // [ServerRpc(RequireOwnership = false)]
+    // public void SetSpawningServerRpc(bool value) {
+    //     if (!IsServer) { return; }
+    //     isSpawning.Value = value;
+    // }
 
     public override void OnNetworkSpawn() {
         if (!IsServer) {
@@ -65,18 +70,29 @@ public class EnemySpawner : NetworkBehaviour {
         CalculateTotalWeight();
         // StartCoroutine(SpawnOverTime());
 
-        NetworkManager.Singleton.OnClientConnectedCallback += ClientConnected;
-        NetworkManager.Singleton.OnClientDisconnectCallback += ClientDisconnected;
+        NetworkManager.Singleton.OnClientConnectedCallback += RefreshPlayerLists;
+        NetworkManager.Singleton.OnClientDisconnectCallback += RefreshPlayerLists;
     }
 
-    private void ClientConnected(ulong u) {
+    private void RefreshPlayerLists(ulong u) {
         playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
+
+        activePlayerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
+        foreach (GameObject area in inactiveAreas){
+            foreach (GameObject player in activePlayerList){
+                Collider areaCollider = area.GetComponent<Collider>();
+                if (areaCollider != null && areaCollider.bounds.Contains(player.transform.position)){
+                    activePlayerList.Remove(player);
+                }
+            }
+        }
     }
 
-    private async void ClientDisconnected(ulong u) {
-        await Task.Yield();
-        playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
-    }
+    // Deprecated for redundancy.
+    // private async void ClientDisconnected(ulong u) {
+    //     await Task.Yield();
+    //     playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
+    // }
 
     private void Update() {
         if (IsServer) {
@@ -104,7 +120,9 @@ public class EnemySpawner : NetworkBehaviour {
 
         if (Time.time - _lastSpawnTime < spawnCooldown / AISpawnDenominator) return;
 
-        if (enemyList.Count < _maxEnemyInstanceCount && isSpawning.Value) {
+        // less than max enemies, and more than 0 players in playable area.
+        // Managed by InactiveAreaCollider s adding/removing from activePlayerList
+        if (enemyList.Count < _maxEnemyInstanceCount && activePlayerList.Count > 0) {
             Transform enemyPrefab = GetWeightedRandomEnemyPrefab();
             if (enemyPrefab != null) {
                 Transform enemyTransform = Instantiate(enemyPrefab, GetSpawnPoint(), Quaternion.identity);
@@ -112,12 +130,12 @@ public class EnemySpawner : NetworkBehaviour {
                 enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().AISpeedMultiplier = aiSpdMultiplier;
                 enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().AIDmgMultiplier = aiDmgMultiplier;
 
-                Health hpComponent = enemyTransform.GetComponent<Health>();
-                hpComponent.MaxHealth *= aiHpMultiplier;
-                hpComponent.CurrentHealth.Value = hpComponent.MaxHealth;
 
                 enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemyType = GetEnemyType(enemyPrefab);
                 enemyTransform.GetComponent<NetworkObject>().Spawn(true);
+                Health hpComponent = enemyTransform.GetComponent<Health>();
+                hpComponent.MaxHealth *= aiHpMultiplier;
+                hpComponent.CurrentHealth.Value = hpComponent.MaxHealth;
                 enemyList.Add(enemyTransform);
                 enemyTransform.SetParent(this.gameObject.transform);
                 enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().UpdateSpeedServerRpc();    

@@ -101,15 +101,6 @@ public class Flamethrower : IWeapon
             _flamethrowerPS.Play();
         }    
 
-        // soundEmitters = user.GetComponents<SoundEmitter>();
-        // string emitterId = "flamethrower_spray";
-
-        // foreach (SoundEmitter emitter in soundEmitters){
-        //     if (emitter.emitterID == emitterId){
-        //         emitter.PlayNetworkedSound(shotOrigin.transform.position, isLooped: true);
-        //     }
-        // }
-        
     }
 
 
@@ -126,15 +117,6 @@ public class Flamethrower : IWeapon
             Debug.Log ("stopping flamethrowerPS play");
             _flamethrowerPS.Stop();
         }
-
-        // soundEmitters = user.GetComponents<SoundEmitter>();
-        // string emitterId = "flamethrower_spray";
-
-        // foreach (SoundEmitter emitter in soundEmitters){
-        //     if (emitter.emitterID == emitterId){
-        //         Debug.Log("nah");
-        //     }
-        // }
 
     }
 

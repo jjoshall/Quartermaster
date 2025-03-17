@@ -60,13 +60,15 @@ public class PocketInventory : NetworkBehaviour {
     }
     #endregion
     // Update is called once per frame
-    void Update() {
-        if (_playersInPocket.Count > 0) {
-            if (NetworkManager.Singleton.ServerTime.Time - n_timeEnteredPocketNetworkVar.Value > MAX_TIME_IN_POCKET) {
-                ReturnAllPlayersClientRpc();
-            }
-        }
-    }
+
+    // Disabled. Update() only necessary if pocket inventory has a timeout. 
+    // void Update() {
+    //     if (_playersInPocket.Count > 0) {
+    //         if (NetworkManager.Singleton.ServerTime.Time - n_timeEnteredPocketNetworkVar.Value > MAX_TIME_IN_POCKET) {
+    //             ReturnAllPlayersClientRpc();
+    //         }
+    //     }
+    // }
 
     #region Teleport
     
@@ -228,12 +230,18 @@ public class PocketInventory : NetworkBehaviour {
         return _playersInPocket.Contains(playerRef);
     }
 
+    // Deprecated. Use ReturnAllPlayersServerRpc instead.
+    // [ServerRpc(RequireOwnership = false)]
+    // public void ReturnIfInPocketServerRpc (NetworkObjectReference user) {
+    //     // if the player is in the pocket, returnallplayers
+    //     if (PlayerIsInPocket(user)) {
+    //         ReturnAllPlayersClientRpc();
+    //     }
+    // }
+
     [ServerRpc(RequireOwnership = false)]
-    public void ReturnIfInPocketServerRpc (NetworkObjectReference user) {
-        // if the player is in the pocket, returnallplayers
-        if (PlayerIsInPocket(user)) {
-            ReturnAllPlayersClientRpc();
-        }
+    public void ReturnAllPlayersServerRpc() {
+        ReturnAllPlayersClientRpc();
     }
 
     [ClientRpc]

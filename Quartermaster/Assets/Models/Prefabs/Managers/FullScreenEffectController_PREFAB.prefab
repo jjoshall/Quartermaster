@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7293863448802893182}
   - component: {fileID: 6591959652708000829}
-  - component: {fileID: 4450742066630693504}
+  - component: {fileID: 6771842211892781596}
   m_Layer: 0
   m_Name: FullScreenEffectController_PREFAB
   m_TagString: Untagged
@@ -54,7 +54,7 @@ MonoBehaviour:
   _material: {fileID: 2100000, guid: 865388399bda7c0459e28d436d7a9087, type: 2}
   _voronoiIntensityStat: 2.5
   _vignetteIntensityStat: 1.25
---- !u!114 &4450742066630693504
+--- !u!114 &6771842211892781596
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -66,7 +66,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 0
+  GlobalObjectIdHash: 1089646469
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1

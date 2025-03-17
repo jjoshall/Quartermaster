@@ -145,6 +145,13 @@ public class AIDirector : NetworkBehaviour {
     private void Update() {
         if (!IsServer) return;
 
+        // Exit if all players in rest area (either inventory or start room), 
+        // Managed by colliders adding/removing from activePlayerList
+        if (EnemySpawner.instance.activePlayerList.Count <= 0){
+            _lastScaled += Time.deltaTime;
+            return;
+        }
+
         _currentIntensity.Value = Mathf.Max(0, _currentIntensity.Value - (_intensityDecayRate * Time.deltaTime));
         
         // Phase state machine. 
