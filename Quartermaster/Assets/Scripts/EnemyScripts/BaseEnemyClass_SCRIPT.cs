@@ -39,8 +39,8 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [SerializeField] private float _localDetectionRange = 20f; // how far to switch from global to direct aggro
     
     [Header("Separation Pathing")]
-    [SerializeField] private bool _useSeparation = false;
-    [SerializeField] private int _maxNeighbors = 3; // max number of neighbors to consider for separation
+    [SerializeField, Tooltip("Higher neighbor counts computation heavy.")] private bool _useSeparation = false;
+    [SerializeField, Tooltip("Higher neighbor counts computation heavy.")] private int _maxNeighbors = 3; // max number of neighbors to consider for separation
     [SerializeField] private float _separationRadius = 10f;
     [SerializeField] private float _separationStrength = 3f;
     [SerializeField, Range(0.0f, 1.0f)] private float _separationDecay = 0.9f; // per frame multiplier on velocity vector
@@ -126,8 +126,10 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     #region BoidSeparation
     private void LateUpdate() {
         if (!IsServer) return;
-        if (!_useSeparation) return;
-        ApplySeparationForce(); // boids separation, capped to X neighbors    
+        if (_useSeparation) {
+            ApplySeparationForce(); // Max neighbors also parameterized. Higher values computation heavy.
+                                    // Creates slight fluid-like expansion of enemy packs.
+        }
     }
     // Apply boids separation for fluid-like emergent behavior.
     private void ApplySeparationForce() {
