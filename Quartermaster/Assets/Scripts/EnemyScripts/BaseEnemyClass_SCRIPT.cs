@@ -39,6 +39,8 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [SerializeField] private float _localDetectionRange = 20f; // how far to switch from global to direct aggro
     
     [Header("Separation Pathing")]
+    [SerializeField] private bool _useSeparation = false;
+    [SerializeField] private int _maxNeighbors = 3; // max number of neighbors to consider for separation
     [SerializeField] private float _separationRadius = 10f;
     [SerializeField] private float _separationStrength = 3f;
     [SerializeField, Range(0.0f, 1.0f)] private float _separationDecay = 0.9f; // per frame multiplier on velocity vector
@@ -123,13 +125,14 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     #endregion 
     #region BoidSeparation
     private void LateUpdate() {
+        if (!IsServer) return;
+        if (!_useSeparation) return;
         ApplySeparationForce(); // boids separation, capped to X neighbors    
     }
     // Apply boids separation for fluid-like emergent behavior.
     private void ApplySeparationForce() {
         // Vector3 separationForce = Vector3.zero;
         int count = 0;
-        int maxCount = 20; // cap it in case of performance issues.
         int enemyLayer = LayerMask.NameToLayer("Enemy");
         int enemyLayerMask = 1 << enemyLayer;
 
@@ -153,7 +156,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             separationVector += separationForce;
 
             count++;
-            if (count > maxCount) break;
+            if (count > _maxNeighbors) break;
         }
 
         separationVector *= _separationStrength;
@@ -183,15 +186,19 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         // WIP: We can possibly abstract this function to create enemies that can propagate aggro.
         if (playersThatHitMe.Count > 0) {
             closestPlayer = ClosestInPlayersThatHitMe();
-            targetPosition = closestPlayer.transform.position;
-            targetIsPlayer = true;
+            if (closestPlayer){
+                targetPosition = closestPlayer.transform.position;
+                targetIsPlayer = true;
+            }
         }
         
         // Highest priority = closest player in localDetectionRange.
         if (enemySpawner.activePlayerList.Count > 0){
             closestPlayer = ClosestPlayerInLocalDetectionRange();
-            targetPosition = closestPlayer.transform.position;
-            targetIsPlayer = true;
+            if (closestPlayer){
+                targetPosition = closestPlayer.transform.position;
+                targetIsPlayer = true;
+            }
         }
     }
 

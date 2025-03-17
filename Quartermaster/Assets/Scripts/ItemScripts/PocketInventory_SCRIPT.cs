@@ -60,13 +60,15 @@ public class PocketInventory : NetworkBehaviour {
     }
     #endregion
     // Update is called once per frame
-    void Update() {
-        if (_playersInPocket.Count > 0) {
-            if (NetworkManager.Singleton.ServerTime.Time - n_timeEnteredPocketNetworkVar.Value > MAX_TIME_IN_POCKET) {
-                ReturnAllPlayersClientRpc();
-            }
-        }
-    }
+
+    // Disabled. Update() only necessary if pocket inventory has a timeout. 
+    // void Update() {
+    //     if (_playersInPocket.Count > 0) {
+    //         if (NetworkManager.Singleton.ServerTime.Time - n_timeEnteredPocketNetworkVar.Value > MAX_TIME_IN_POCKET) {
+    //             ReturnAllPlayersClientRpc();
+    //         }
+    //     }
+    // }
 
     #region Teleport
     

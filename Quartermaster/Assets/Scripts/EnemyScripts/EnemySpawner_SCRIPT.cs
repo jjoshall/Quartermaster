@@ -54,11 +54,12 @@ public class EnemySpawner : NetworkBehaviour {
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void SetSpawningServerRpc(bool value) {
-        if (!IsServer) { return; }
-        isSpawning.Value = value;
-    }
+    // Deprecated. Now checking against activePlayerList.Count > 0 for spawning.
+    // [ServerRpc(RequireOwnership = false)]
+    // public void SetSpawningServerRpc(bool value) {
+    //     if (!IsServer) { return; }
+    //     isSpawning.Value = value;
+    // }
 
     public override void OnNetworkSpawn() {
         if (!IsServer) {
@@ -120,7 +121,8 @@ public class EnemySpawner : NetworkBehaviour {
         if (Time.time - _lastSpawnTime < spawnCooldown / AISpawnDenominator) return;
 
         // less than max enemies, and more than 0 players in playable area.
-        if (enemyList.Count < _maxEnemyInstanceCount && playerList.Count > 0) {
+        // Managed by InactiveAreaCollider s adding/removing from activePlayerList
+        if (enemyList.Count < _maxEnemyInstanceCount && activePlayerList.Count > 0) {
             Transform enemyPrefab = GetWeightedRandomEnemyPrefab();
             if (enemyPrefab != null) {
                 Transform enemyTransform = Instantiate(enemyPrefab, GetSpawnPoint(), Quaternion.identity);
@@ -128,12 +130,12 @@ public class EnemySpawner : NetworkBehaviour {
                 enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().AISpeedMultiplier = aiSpdMultiplier;
                 enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().AIDmgMultiplier = aiDmgMultiplier;
 
-                Health hpComponent = enemyTransform.GetComponent<Health>();
-                hpComponent.MaxHealth *= aiHpMultiplier;
-                hpComponent.CurrentHealth.Value = hpComponent.MaxHealth;
 
                 enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemyType = GetEnemyType(enemyPrefab);
                 enemyTransform.GetComponent<NetworkObject>().Spawn(true);
+                Health hpComponent = enemyTransform.GetComponent<Health>();
+                hpComponent.MaxHealth *= aiHpMultiplier;
+                hpComponent.CurrentHealth.Value = hpComponent.MaxHealth;
                 enemyList.Add(enemyTransform);
                 enemyTransform.SetParent(this.gameObject.transform);
                 enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().UpdateSpeedServerRpc();    
