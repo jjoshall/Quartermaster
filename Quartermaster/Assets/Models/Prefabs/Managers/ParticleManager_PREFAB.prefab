@@ -1,0 +1,104 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5341081937763403480
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6020120971162084910}
+  - component: {fileID: -7642481029217837201}
+  - component: {fileID: -7445736928070269210}
+  m_Layer: 0
+  m_Name: ParticleManager_PREFAB
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6020120971162084910
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5341081937763403480}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-7642481029217837201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5341081937763403480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2283088156
+  InScenePlacedSourceGlobalObjectIdHash: 823819638
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &-7445736928070269210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5341081937763403480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f6cf95cac72ced4fb426df526dda7d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  particleTypesPrefabList:
+  - key: Sample
+    duration: 2
+    particlePrefab: {fileID: 8038196586517577084, guid: 20aff5e8ee3c5974cbf0848cfae5da26, type: 3}
+  - key: Healing
+    duration: 2.3
+    particlePrefab: {fileID: 8038196586517577084, guid: f4e6f4a7113f9224b94f62c300e588c5, type: 3}
+  - key: PistolBarrelFire
+    duration: 0.5
+    particlePrefab: {fileID: 8038196586517577084, guid: af3a2ba58d696b64c93a62c6d51ff326, type: 3}
+  - key: RingEmission
+    duration: 2
+    particlePrefab: {fileID: 8038196586517577084, guid: 1d6930ad97206094f99816d995aa5967, type: 3}
+  - key: SlowTrapAoe
+    duration: -1
+    particlePrefab: {fileID: 3886726516580340517, guid: 0124a3093deb5f14b9f1b8b3b059ab72, type: 3}
+  - key: TeleportParticles
+    duration: 3
+    particlePrefab: {fileID: 8038196586517577084, guid: 15db1031c4c475947b309118251a741d, type: 3}
+  - key: RailgunExplosion
+    duration: 1
+    particlePrefab: {fileID: 7334061216524104456, guid: 99c3dee9a7df56b40a02c97e719e28bb, type: 3}
+  - key: GrenadeExplosion
+    duration: 5
+    particlePrefab: {fileID: 6526317916832142444, guid: 6b95aacb26e52554ba0b302206a3cac6, type: 3}
+  - key: EnemyExplosion
+    duration: 5
+    particlePrefab: {fileID: 2502488514472684386, guid: bfea1162a9e3174458da9d8f6a56d7d3, type: 3}
+  - key: TeleportSphere
+    duration: 1
+    particlePrefab: {fileID: 5713332824094285282, guid: ef1d0af0496146c4ea0cfe6dcb212b3f, type: 3}

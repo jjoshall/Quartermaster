@@ -7,6 +7,10 @@ TagManager:
   - Item
   - Enemy
   - Wall
+  - DamageIndicatorCanvas
+  - PlayerProjectile
+  - Environment
+  - PlayerHealCollider
   layers:
   - Default
   - TransparentFX
@@ -16,16 +20,16 @@ TagManager:
   - UI
   - Items
   - Enemy
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Player
+  - Indicators
+  - Building
+  - MiniMap Icons
+  - ItemAcquisition
+  - navmesh mods
+  - PlayerProjectiles
+  - PlayerAlliedProjectiles
+  - PlayerHealCollider
+  - EditorOnly
   - 
   - 
   - 
@@ -43,6 +47,9 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Top
+    uniqueID: 2034145211
     locked: 0
   m_RenderingLayers:
   - Default

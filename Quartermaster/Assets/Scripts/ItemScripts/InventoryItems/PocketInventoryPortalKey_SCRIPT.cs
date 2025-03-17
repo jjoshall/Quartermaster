@@ -1,8 +1,14 @@
+using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class PocketInventoryPortalKey : InventoryItem {
+    [Header("Item Configuration")]
+    private float _teleportRadius = 20.0f;
+
+
     [Header("Backing Fields")]
-    private int _id = 0;
+    // private int _id = 0;
     private int _pocketInventoryQuantity = 0;
     private float _lastUsedTime = float.MinValue;
     private static float _itemCooldown = 10f;
@@ -23,10 +29,6 @@ public class PocketInventoryPortalKey : InventoryItem {
         set => _pocketInventoryQuantity = value;
     }
 
-    public override float lastUsed {
-        get => _lastUsedTime;
-        set => _lastUsedTime = value;
-    }
 
     public override bool IsWeapon(){
         return false;
@@ -41,7 +43,23 @@ public class PocketInventoryPortalKey : InventoryItem {
         return 1;
     }
 
-    public override void Use(GameObject user) {
+    public override void InitializeFromGameManager()
+    {
+        _teleportRadius = GameManager.instance.PortalKey_TeleportRadius;
+        _itemCooldown = GameManager.instance.PortalKey_Cooldown;
+    }
+
+    public override void Use(GameObject user , bool isHeld) {
+        NetworkObject n_user = user.GetComponent<NetworkObject>();
+
+        if (isHeld) return; // TEMPORARY. disable if it is a held trigger. so we don't immediately re-teleport.
+        
+        if (PocketInventory.instance.PlayerIsInPocket(n_user)){
+            PocketInventory.instance.ReturnAllPlayersServerRpc();
+            return;
+        }
+        // PocketInventory.instance.ReturnIfInPocketServerRpc(n_user); // bypass cooldown. async.
+
         string itemStr = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
         if (lastUsed + cooldown > Time.time) {
             Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
@@ -57,11 +75,30 @@ public class PocketInventoryPortalKey : InventoryItem {
 
         lastUsed = Time.time;
 
-        ItemEffect(user);
+        List<GameObject> nearbyPlayers;
+        // use physics overlap sphere with radius _TELEPORT_RADIUS to grab nearby players
+        nearbyPlayers = GetNearbyPlayers(user, _teleportRadius);
+        Debug.Log ("Nearby players to teleport: " + nearbyPlayers.Count);
+        foreach (GameObject player in nearbyPlayers) {
+            TeleportPlayer(player);
+        }
+        // TeleportPlayer(user);
 
     }
 
-    private void ItemEffect(GameObject user) {
+    private List<GameObject> GetNearbyPlayers (GameObject user, float radius) {
+        List<GameObject> nearbyPlayers = new List<GameObject>();
+        Collider[] colliders = Physics.OverlapSphere(user.transform.position, radius);
+        foreach (Collider col in colliders) {
+            if (col.gameObject.tag == "Player") {
+                Debug.Log ("Player detected: " + col.gameObject);
+                nearbyPlayers.Add(col.gameObject);
+            }
+        }
+        return nearbyPlayers;
+    }
+
+    private void TeleportPlayer(GameObject user) {
         PocketInventory.instance.TeleportToPocketServerRpc(user);
     }
 
