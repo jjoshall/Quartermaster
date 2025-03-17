@@ -57,11 +57,6 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
         if (!IsServer) return;
 
-        // Make sure ranged enemies always face the player
-        Vector3 lookPosition = targetPosition;
-        lookPosition.y = transform.position.y;
-        transform.LookAt(lookPosition);
-
         ApplyHovering();
         UpdateAnimation();
         UpdateWeaponAngle();
@@ -130,7 +125,6 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             CreateVisualEffectClientRpc(_firePoint.position, hit.point);
 
             if (hit.collider.gameObject.layer == buildingLayerMask) {
-                //Debug.Log("Ranged enemy hit building layer.");
                 return;
             }
             else if (hit.collider.CompareTag("Player")) {

@@ -3,6 +3,7 @@ using UnityEngine.AI;
 using Unity.Netcode;
 using System.Collections;
 using TMPro;
+using System.Collections.Generic;
 
 public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     // THIS IS FOR GAME MANAGER, you can change values in the
@@ -40,6 +41,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [Header("Separation Pathing")]
     [SerializeField] private float _separationRadius = 10f;
     [SerializeField] private float _separationStrength = 3f;
+    [SerializeField, Range(0.0f, 1.0f)] private float _separationDecay = 0.9f; // per frame multiplier on velocity vector
     private Vector3 _velocityVector = Vector3.zero; // used for boids separation
 
     // Speed run-time variables, think Norman added this
@@ -55,7 +57,11 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     private bool _isAttacking = false;      // to prevent multiple attacks happening at once
     private float _attackTimer = 0.0f;      // to prevent attacks happening too quickly
     public EnemyType enemyType;     // two enemy types at the moment: Melee and Ranged
+
     protected Vector3 targetPosition; 
+    protected bool targetIsPlayer;
+
+    protected List<GameObject> playersThatHitMe;
 
     public override void OnNetworkSpawn() {
        
@@ -66,12 +72,13 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
         health = GetComponent<Health>();
 
+        playersThatHitMe = new List<GameObject>();
+
         if (!IsServer) {
             agent.enabled = false;
             enabled = false;
         }
         else {
-            NetworkManager.Singleton.OnClientDisconnectCallback += ClientDisconnected;
 
             if (health != null) {
                 health.OnDamaged += OnDamaged;
@@ -85,68 +92,39 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         }
     }
 
-    private void ClientDisconnected(ulong u) {
-        // target = null;
-    }
-
+    #region PathingLogic
     protected virtual void Update() {
         if (!IsServer) return;
-        // Debug.Log ("BaseEnemy Update()");
         UpdateTarget(); // sets targetPosition to closest player within localDetectionRange, else global target
+        Pathing(); // if in attackRange
 
+    }
+
+    private void Pathing(){        
         if (targetPosition != null) {
-            Debug.Log ("BaseEnemy Update() targetPosition is: " + targetPosition);
-            Debug.Log ("BaseEnemy Update() attackRange is " + attackRange);
             // Each enemy has a different attack range
             bool inRange = Vector3.Distance(transform.position, targetPosition) <= attackRange;
-            Debug.Log ("BaseEnemy Update() distance is " + Vector3.Distance(transform.position, targetPosition));
 
             // If a player's in range for that enemy, attack.
-            if (inRange && _lastAttackTime + attackCooldown < Time.time) {
-                Debug.Log ("BaseEnemy Update() in range for attack.");
+            if (targetIsPlayer && inRange && _lastAttackTime + attackCooldown < Time.time) {
+                // Enemies in range to attack look at the player.
+                Vector3 lookPosition = targetPosition;
+                lookPosition.y = transform.position.y;
+                transform.LookAt(lookPosition);
+                // Attack & set last attack time for timer.
                 Attack();
                 _lastAttackTime = Time.time;
             }
             else {
-                Debug.Log ("BaseEnemy Update() not in range for attack.");
-                // Debug.Log ("BaseEnemy Update(), not in range: " + attackRange + ", calling SetDestination()");
                 agent.SetDestination(targetPosition);  
             }
         }
     }
+    #endregion 
+    #region BoidSeparation
     private void LateUpdate() {
         ApplySeparationForce(); // boids separation, capped to X neighbors    
     }
-
-    // IMPLEMENT THIS METHOD FOR NEW/EACH ENEMIES
-    protected abstract void Attack();
-
-    // If player in localDetectionRange, target closest.
-    // Else target global.
-    protected void UpdateTarget() {
-        if (enemySpawner == null || enemySpawner.playerList == null) return;
-        // Debug.Log ("BaseEnemy UpdateTarget()"); 
-
-        GameObject closestPlayer = null;
-        foreach (GameObject obj in enemySpawner.playerList) {
-            if (Vector3.Distance(transform.position, obj.transform.position) <= _localDetectionRange) {
-                if (closestPlayer == null) {
-                    closestPlayer = obj;
-                }
-                else if (Vector3.Distance(transform.position, obj.transform.position) < Vector3.Distance(transform.position, closestPlayer.transform.position)) {
-                    closestPlayer = obj;
-                }
-            }
-        }
-
-        if (closestPlayer == null){
-            targetPosition = EnemySpawner.instance.globalAggroTarget;
-        } else {
-            targetPosition = closestPlayer.transform.position;
-        }
-    }
-
-
     // Apply boids separation for fluid-like emergent behavior.
     private void ApplySeparationForce() {
         // Vector3 separationForce = Vector3.zero;
@@ -156,7 +134,6 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         int enemyLayerMask = 1 << enemyLayer;
 
         if (_velocityVector == null) {
-            // Debug.Log ("SeparationForce() velocityVector is null, setting to Vector3.zero");
             _velocityVector = Vector3.zero;
         }
         Vector3 separationVector = Vector3.zero;
@@ -174,7 +151,6 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             Vector3 separationForce = dir.normalized / magnitude;       // inverse proportional to distance
             
             separationVector += separationForce;
-            // neighbor.transform.GetComponent<Rigidbody>().AddForce(separationForce); 
 
             count++;
             if (count > maxCount) break;
@@ -183,16 +159,74 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         separationVector *= _separationStrength;
 
         // apply the separation vector with the current velocity vector of the navmesh agent, agent.velocity
-        _velocityVector *= 0.5f;
+        _velocityVector *= _separationDecay;
         _velocityVector += separationVector;
 
-        // Debug.Log ("velocityVector is now: " + _velocityVector);
-
         agent.Move(_velocityVector * Time.deltaTime);  // move the agent with the velocity vector
-
-        // agent.velocity is constantly the path direction after calling setDestination
-        // velocityVector stores the separation force 
     }
+    #endregion
+
+    // IMPLEMENT THIS METHOD FOR NEW/EACH ENEMIES
+    protected abstract void Attack();
+
+    // If player in localDetectionRange, target closest.
+    // Else target global.
+    protected void UpdateTarget() {
+        if (enemySpawner == null || enemySpawner.activePlayerList == null) return;
+
+        // Lowest priority = global target.
+        GameObject closestPlayer = null;
+        targetPosition = EnemySpawner.instance.globalAggroTarget;
+        targetIsPlayer = false;
+
+        // Second priority = any players that have hit this enemy, possibly outside of detection range.
+        // WIP: We can possibly abstract this function to create enemies that can propagate aggro.
+        if (playersThatHitMe.Count > 0) {
+            closestPlayer = ClosestInPlayersThatHitMe();
+            targetPosition = closestPlayer.transform.position;
+            targetIsPlayer = true;
+        }
+        
+        // Highest priority = closest player in localDetectionRange.
+        if (enemySpawner.activePlayerList.Count > 0){
+            closestPlayer = ClosestPlayerInLocalDetectionRange();
+            targetPosition = closestPlayer.transform.position;
+            targetIsPlayer = true;
+        }
+    }
+
+    private GameObject ClosestInPlayersThatHitMe(){
+        GameObject closestPlayer = null;
+
+        foreach (GameObject obj in playersThatHitMe) {
+            if (obj == null) continue;
+            if (closestPlayer == null) {
+                closestPlayer = obj;
+            }
+            else if (Vector3.Distance(transform.position, obj.transform.position) < Vector3.Distance(transform.position, closestPlayer.transform.position)) {
+                closestPlayer = obj;
+            }
+        }
+        return closestPlayer;
+    }
+
+    private GameObject ClosestPlayerInLocalDetectionRange(){
+        GameObject closestPlayer = null;
+
+        foreach (GameObject obj in enemySpawner.activePlayerList) {
+            if (obj == null) continue;
+            if (Vector3.Distance(transform.position, obj.transform.position) <= _localDetectionRange) {
+                if (closestPlayer == null) {
+                    closestPlayer = obj;
+                }
+                else if (Vector3.Distance(transform.position, obj.transform.position) < Vector3.Distance(transform.position, closestPlayer.transform.position)) {
+                    closestPlayer = obj;
+                }
+            }
+        }
+        return closestPlayer;
+    }
+
 
     // Called when enemy takes damage
     protected virtual void OnDamaged(float damage, GameObject damageSource) {
@@ -201,6 +235,9 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         }
         
         GameManager.instance.AddEnemyDamageServerRpc(damage);   // tracks total damage dealt to enemies
+        if (!playersThatHitMe.Contains(damageSource)) {
+            playersThatHitMe.Add(damageSource);
+        } // prevent multiple hits from same player
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -224,9 +261,9 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     public override void OnNetworkDespawn() {
         base.OnNetworkDespawn();
 
-        if (IsServer && NetworkManager.Singleton != null) {
-            NetworkManager.Singleton.OnClientDisconnectCallback -= ClientDisconnected;
-        }
+        // if (IsServer && NetworkManager.Singleton != null) {
+        //     NetworkManager.Singleton.OnClientDisconnectCallback -= ClientDisconnected;
+        // }
 
         if (health != null) {
             health.OnDamaged -= OnDamaged;
@@ -250,11 +287,9 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     [ClientRpc]
     private void UpdateSpeedClientRpc(float finalSpeed, float finalAcceleration){
-        // Debug.Log ("Updating speed client rpc, original speed & acceleration: " + agent.speed + ", " + agent.acceleration);
         agent.speed = finalSpeed;
         agent.acceleration = finalAcceleration;
         agent.velocity = agent.velocity.normalized * finalSpeed;
-        // Debug.Log ("Updated speed & acceleration: " + agent.speed + ", " + agent.acceleration);
     }
 
     [ServerRpc(RequireOwnership = false)]   
