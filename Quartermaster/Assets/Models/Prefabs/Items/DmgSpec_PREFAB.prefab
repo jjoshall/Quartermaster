@@ -200,11 +200,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62d419665ed6d7a41b7dc591a5a37b4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startPos: {x: -400, y: 100}
-  finalPos: {x: 100, y: 100}
-  holdDuration: 3
-  message: +DMG Chip. DMG +10%. Stacks with itself. Only one TYPE of chip can be
-    held.
+  holdDuration: 5
+  key: DMGSPEC
 --- !u!1001 &4451628267990871832
 PrefabInstance:
   m_ObjectHideFlags: 0

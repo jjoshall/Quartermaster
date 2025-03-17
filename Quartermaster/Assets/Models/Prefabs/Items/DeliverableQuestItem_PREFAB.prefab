@@ -272,11 +272,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62d419665ed6d7a41b7dc591a5a37b4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startPos: {x: -400, y: 100}
-  finalPos: {x: 100, y: 100}
-  holdDuration: 3
-  message: Deliverable Quest Item. You deliver it to the mailbox. For the quest.
-    Yeah.
+  holdDuration: 5
+  key: DeliverableQuestItem
 --- !u!1001 &3949646970496887825
 PrefabInstance:
   m_ObjectHideFlags: 0
