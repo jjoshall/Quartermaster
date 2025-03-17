@@ -197,8 +197,11 @@ MonoBehaviour:
   _attackDelay: 2
   enemySpawner: {fileID: 0}
   _localDetectionRange: 20
-  _separationRadius: 10
+  _useSeparation: 1
+  _maxNeighbors: 3
+  _separationRadius: 4
   _separationStrength: 0.1
+  _separationDecay: 0.106
   AISpeedMultiplier: 1
   AIDmgMultiplier: 1
   floatingTextPrefab: {fileID: 550058981611720628, guid: 2f1aa88225abaa94ea335fa199c81f1d, type: 3}
