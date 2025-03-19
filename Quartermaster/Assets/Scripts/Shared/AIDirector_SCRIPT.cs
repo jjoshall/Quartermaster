@@ -103,25 +103,21 @@ public class AIDirector : NetworkBehaviour {
         float timeBelowMinHpRatio = phaseData.timeBelowMinHp / phaseData.phaseDuration;
 
         // Fitness++ if combat time is within min/max ratio of phase time. 
-        if (combatTimeRatio < minCombatTimeRatio) {
-            fitness -= (minCombatTimeRatio - combatTimeRatio) * 10f * buildUpWeights.combatTimeWeight;
-        } else if (combatTimeRatio > maxCombatTimeRatio) {
-            fitness -= (combatTimeRatio - maxCombatTimeRatio) * 10f * buildUpWeights.combatTimeWeight;
-        } else {
+        if (combatTimeRatio >= minCombatTimeRatio && combatTimeRatio <= maxCombatTimeRatio) {
             fitness += buildUpWeights.combatTimeWeight;
         }
 
         // Fitness++ if above minimum time where enemies are greater than min count ratio. 
         if (timeAboveMinEnemiesRatio > minTimeAboveMinEnemies){
             fitness += buildUpWeights.timeAboveMinEnemiesWeight;
-        } else {
-            fitness -= (minTimeAboveMinEnemies - timeAboveMinEnemiesRatio) * 10f * buildUpWeights.timeAboveMinEnemiesWeight;
+        } 
+
+        if (timeAboveMaxHpRatio > target_timeAboveMaxHp){
+            fitness += buildUpWeights.timeAboveMaxHpWeight;
         }
-
-        // Fitness-- for distance away from target time for above max hp and below min hp. 
-        fitness -= Mathf.Abs((target_timeAboveMaxHp - timeAboveMaxHpRatio)) * 10f * buildUpWeights.timeAboveMaxHpWeight;
-        fitness -= Mathf.Abs((target_timeBelowMinHp - timeBelowMinHpRatio)) * 10f * buildUpWeights.timeBelowMinHpWeight;
-
+        if (timeBelowMinHpRatio < target_timeBelowMinHp){
+            fitness += buildUpWeights.timeBelowMinHpWeight;
+        }
         return fitness;
     }
 
@@ -147,20 +143,18 @@ public class AIDirector : NetworkBehaviour {
         float combatTimeRatio = phaseData.combatTime / phaseData.phaseDuration;
         float timeAboveMaxHpRatio = phaseData.timeAboveMaxHp / phaseData.phaseDuration;
         float timeBelowMinHpRatio = phaseData.timeBelowMinHp / phaseData.phaseDuration;
-
+        
         // Fitness++ if combat time is within min/max ratio of phase time. 
-        if (combatTimeRatio < minCombatTimeRatio) {
-            fitness -= (minCombatTimeRatio - combatTimeRatio) * 10f * buildUpWeights.combatTimeWeight;
-        } else if (combatTimeRatio > maxCombatTimeRatio) {
-            fitness -= (combatTimeRatio - maxCombatTimeRatio) * 10f * buildUpWeights.combatTimeWeight;
-        } else {
+        if (combatTimeRatio >= minCombatTimeRatio && combatTimeRatio <= maxCombatTimeRatio) {
             fitness += buildUpWeights.combatTimeWeight;
         }
 
-        // Fitness-- for distance away from target time for above max hp and below min hp. 
-        fitness -= Mathf.Abs((target_timeAboveMaxHp - timeAboveMaxHpRatio)) * 10f * buildUpWeights.timeAboveMaxHpWeight;
-        fitness -= Mathf.Abs((target_timeBelowMinHp - timeBelowMinHpRatio)) * 10f * buildUpWeights.timeBelowMinHpWeight;
-
+        if (timeAboveMaxHpRatio > target_timeAboveMaxHp){
+            fitness += buildUpWeights.timeAboveMaxHpWeight;
+        }
+        if (timeBelowMinHpRatio < target_timeBelowMinHp){
+            fitness += buildUpWeights.timeBelowMinHpWeight;
+        }
         return fitness;
     }
 
