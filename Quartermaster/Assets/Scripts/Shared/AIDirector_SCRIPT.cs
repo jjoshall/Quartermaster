@@ -13,6 +13,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Localization.PropertyVariants.TrackedProperties;
 
 public class AIDirector : NetworkBehaviour {
     public enum PeakVariation {
@@ -22,6 +23,145 @@ public class AIDirector : NetworkBehaviour {
         Mixed
     }
 
+    public float lastTimeDamageTaken;
+
+    #region GeneticData
+    public struct FitnessWeights {
+        public float combatTimeWeight;
+        public float timeBelowMinHpWeight;
+        public float timeAboveMaxHpWeight;
+        public float timeAboveMinEnemiesWeight;
+    }
+
+    public static readonly FitnessWeights buildUpWeights = new FitnessWeights {
+        combatTimeWeight = 1.0f,
+        timeBelowMinHpWeight = 0.5f,
+        timeAboveMaxHpWeight = 0.5f,
+        timeAboveMinEnemiesWeight = 0.5f
+    };
+    public static readonly FitnessWeights peakWeights = new FitnessWeights {
+        combatTimeWeight = 1.0f,
+        timeBelowMinHpWeight = 0.5f,
+        timeAboveMaxHpWeight = 0.5f,
+        timeAboveMinEnemiesWeight = 0.5f
+    };
+
+    public struct PhaseData{ // data used to collect fitness.
+        // Collect Data
+        public float combatTime;
+        public float timeBelowMinHp; // affect enemies
+        public float timeAboveMaxHp;
+        public float timeAboveMinEnemies;
+        public float phaseDuration;
+
+        // Settings
+        public float minHp;
+        public float maxHp;
+        public float minEnemies;
+    }
+
+    public struct PhaseParameters{ // data used to adjust gameplay. mutated after comparing curr and updating best.
+        public float enemyHealthMultiplier;
+        public float enemySpeedMultiplier;
+        public float enemyDamageMultiplier;
+        public float enemyGlobalTargetInterval; // lower = better global tracking
+        public float enemyLocalDetectionRange; // local is direct tracking
+        // spawn rate handled elsewhere.
+    }
+
+    private float EvalFitnessForBuildUp(PhaseData phaseData){
+        float fitness = 0.0f;
+        float minCombatTimeRatio = 0.2f; // 20% of phase time
+        float maxCombatTimeRatio = 0.4f; // 40% of phase time
+        float minTimeAboveMinEnemies = 0.6f; // 60% of phase time
+        float target_timeAboveMaxHp = 0.1f;
+        float target_timeBelowMinHp = 0.1f;
+        float combatTimeRatio = phaseData.combatTime / phaseData.phaseDuration;
+        float timeAboveMinEnemiesRatio = phaseData.timeAboveMinEnemies / phaseData.phaseDuration;
+        float timeAboveMaxHpRatio = phaseData.timeAboveMaxHp / phaseData.phaseDuration;
+        float timeBelowMinHpRatio = phaseData.timeBelowMinHp / phaseData.phaseDuration;
+
+        // Fitness++ if combat time is within min/max ratio of phase time. 
+        if (combatTimeRatio < minCombatTimeRatio) {
+            fitness -= (minCombatTimeRatio - combatTimeRatio) * 10f * buildUpWeights.combatTimeWeight;
+        } else if (combatTimeRatio > maxCombatTimeRatio) {
+            fitness -= (combatTimeRatio - maxCombatTimeRatio) * 10f * buildUpWeights.combatTimeWeight;
+        } else {
+            fitness += buildUpWeights.combatTimeWeight;
+        }
+
+        // Fitness++ if above minimum time where enemies are greater than min count ratio. 
+        if (timeAboveMinEnemiesRatio > minTimeAboveMinEnemies){
+            fitness += buildUpWeights.timeAboveMinEnemiesWeight;
+        } else {
+            fitness -= (minTimeAboveMinEnemies - timeAboveMinEnemiesRatio) * 10f * buildUpWeights.timeAboveMinEnemiesWeight;
+        }
+
+        // Fitness-- for distance away from target time for above max hp and below min hp. 
+        fitness -= Mathf.Abs((target_timeAboveMaxHp - timeAboveMaxHpRatio)) * 10f * buildUpWeights.timeAboveMaxHpWeight;
+        fitness -= Mathf.Abs((target_timeBelowMinHp - timeBelowMinHpRatio)) * 10f * buildUpWeights.timeBelowMinHpWeight;
+
+        return fitness;
+    }
+
+    // weighted towards predicted relevant values for buildup
+    private PhaseParameters MutateParamsTowardBuildup(PhaseParameters p){
+        PhaseParameters newParams = p;
+        newParams.enemyHealthMultiplier += Random.Range(-0.1f, 0.3f);
+        newParams.enemySpeedMultiplier += Random.Range(-0.1f, 0.1f);
+        newParams.enemyDamageMultiplier += Random.Range(-0.1f, 0.1f);
+        newParams.enemyGlobalTargetInterval += Random.Range(-0.1f, 0.5f);
+        newParams.enemyLocalDetectionRange += Random.Range(-0.5f, 0.1f);
+        return newParams;
+    }
+
+    private float EvalFitnessForPeak(PhaseData phaseData){
+        float fitness = 0.0f;
+        float minCombatTimeRatio = 0.8f; // 20% of phase time
+        float maxCombatTimeRatio = 1.0f; // 40% of phase time
+        float target_timeAboveMaxHp = 0.1f;
+        float target_timeBelowMinHp = 0.3f;
+        float combatTimeRatio = phaseData.combatTime / phaseData.phaseDuration;
+        float timeAboveMaxHpRatio = phaseData.timeAboveMaxHp / phaseData.phaseDuration;
+        float timeBelowMinHpRatio = phaseData.timeBelowMinHp / phaseData.phaseDuration;
+
+        // Fitness++ if combat time is within min/max ratio of phase time. 
+        if (combatTimeRatio < minCombatTimeRatio) {
+            fitness -= (minCombatTimeRatio - combatTimeRatio) * 10f * buildUpWeights.combatTimeWeight;
+        } else if (combatTimeRatio > maxCombatTimeRatio) {
+            fitness -= (combatTimeRatio - maxCombatTimeRatio) * 10f * buildUpWeights.combatTimeWeight;
+        } else {
+            fitness += buildUpWeights.combatTimeWeight;
+        }
+
+        // Fitness-- for distance away from target time for above max hp and below min hp. 
+        fitness -= Mathf.Abs((target_timeAboveMaxHp - timeAboveMaxHpRatio)) * 10f * buildUpWeights.timeAboveMaxHpWeight;
+        fitness -= Mathf.Abs((target_timeBelowMinHp - timeBelowMinHpRatio)) * 10f * buildUpWeights.timeBelowMinHpWeight;
+
+        return fitness;
+    }
+
+    private PhaseParameters MutateParamsTowardPeak(PhaseParameters p){
+        PhaseParameters newParams = p;
+        // newParams.enemyHealthMultiplier += Random.Range(-0.1f, 0.1f);
+        // newParams.enemySpeedMultiplier += Random.Range(-0.1f, 0.1f);
+        // newParams.enemyDamageMultiplier += Random.Range(-0.1f, 0.1f);
+        // newParams.enemyGlobalTargetInterval += Random.Range(-0.1f, 0.1f);
+        // newParams.enemyLocalDetectionRange += Random.Range(-0.1f, 0.1f);
+        return newParams;
+    }
+
+    private PhaseData currPhaseData;
+    private PhaseData bestBuildupData;
+    private PhaseData bestPeakData;
+    private PhaseParameters bestBuildupParams;
+    private PhaseParameters bestPeakParams;
+    private PhaseParameters currPhaseParams;
+
+    #endregion
+
+    #region DramaPhases
+    // affects spawnrate primarily.
     [Header("DRAMA PHASE timeout transition triggers")]
     [SerializeField] private float _buildUpDuration = 180f; // 3 minutes
     [SerializeField] private float _peakDuration = 30f; // 30 seconds
@@ -48,6 +188,7 @@ public class AIDirector : NetworkBehaviour {
     [SerializeField] private List<EnemyWeightData> _peakEnemyWeights = new List<EnemyWeightData>();
     [SerializeField] private List<EnemyWeightData> _relaxEnemyWeights = new List<EnemyWeightData>();
 
+    #endregion 
     [Header("TIME BASED permanent scaling")]
     // These settings are the original gradual values.
     [SerializeField] private float _scalingIncrement = 0.05f; // Increment of scaling each peak

@@ -224,7 +224,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
         foreach (GameObject obj in enemySpawner.activePlayerList) {
             if (obj == null) continue;
-            if (Vector3.Distance(transform.position, obj.transform.position) <= _localDetectionRange) {
+            if (Vector3.Distance(transform.position, obj.transform.position) <= GetLocalDetectionRange()) {
                 if (closestPlayer == null) {
                     closestPlayer = obj;
                 }
@@ -234,6 +234,11 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             }
         }
         return closestPlayer;
+    }
+
+    private float GetLocalDetectionRange(){
+        // if we are in peak phase, we can alter this logic to be higher or lower based on AI director values.
+        return _localDetectionRange;
     }
 
 
