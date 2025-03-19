@@ -488,6 +488,9 @@ public class AIDirector : NetworkBehaviour {
 
 
         currPhaseParams = MutateParamsTowardBuildup(_bestBuildupParams);
+        DebugPrintCurrParams(currPhaseParams);
+
+        
         UpdateEnemySpeedMultiplier(currPhaseParams.enemySpeedMultiplier);
         UpdateEnemyHpMultiplier(currPhaseParams.enemyHealthMultiplier);
         UpdateEnemyDmgMultiplier(currPhaseParams.enemyDamageMultiplier);
