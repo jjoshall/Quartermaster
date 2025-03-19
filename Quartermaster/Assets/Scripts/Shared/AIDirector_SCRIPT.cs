@@ -502,7 +502,11 @@ public class AIDirector : NetworkBehaviour {
     private void EvalBuildUp(){
         float currFitness = EvalFitnessForBuildUp(_currPhaseData);
         float bestBuildUpFitness = EvalFitnessForBuildUp(_bestBuildupData);
-        if (currFitness > bestBuildUpFitness){
+        
+        Debug.Log("EvalBuildUp: Current Phase Fitness = " + currFitness + "; Best BuildUp Fitness = " + bestBuildUpFitness);
+    
+        if (currFitness > bestBuildUpFitness){ 
+            Debug.Log("EvalBuildUp: Found a better buildup phase. Updating best buildup parameters.");
             _bestBuildupData = _currPhaseData;
             _bestBuildupParams = currPhaseParams;
         }
@@ -512,7 +516,11 @@ public class AIDirector : NetworkBehaviour {
     private void EvalPeak(){
         float currFitness = EvalFitnessForPeak(_currPhaseData);
         float bestPeakFitness = EvalFitnessForPeak(_bestPeakData);
+        
+        Debug.Log("EvalPeak: Current Phase Fitness = " + currFitness + "; Best Peak Fitness = " + bestPeakFitness);
+    
         if (currFitness > bestPeakFitness){
+            Debug.Log("EvalPeak: Found a better peak phase. Updating best peak parameters.");
             _bestPeakData = _currPhaseData;
             _bestPeakParams = currPhaseParams;
         }
