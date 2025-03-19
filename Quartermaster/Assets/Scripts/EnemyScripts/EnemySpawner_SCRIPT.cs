@@ -18,7 +18,7 @@ public class EnemySpawner : NetworkBehaviour {
     [Header("Spawner Settings")]
     [HideInInspector] public NetworkVariable<bool> isSpawning = new NetworkVariable<bool>(false);
     public List<EnemySpawnData> _enemySpawnData = new List<EnemySpawnData>();
-    [SerializeField] private int _maxEnemyInstanceCount = 20;
+    [SerializeField] public int maxEnemyInstanceCount = 20;
     [HideInInspector] public float _totalWeight = 0f;
 
 
@@ -122,7 +122,7 @@ public class EnemySpawner : NetworkBehaviour {
 
         // less than max enemies, and more than 0 players in playable area.
         // Managed by InactiveAreaCollider s adding/removing from activePlayerList
-        if (enemyList.Count < _maxEnemyInstanceCount && activePlayerList.Count > 0) {
+        if (enemyList.Count < maxEnemyInstanceCount && activePlayerList.Count > 0) {
             Transform enemyPrefab = GetWeightedRandomEnemyPrefab();
             if (enemyPrefab != null) {
                 Transform enemyTransform = Instantiate(enemyPrefab, GetSpawnPoint(), Quaternion.identity);

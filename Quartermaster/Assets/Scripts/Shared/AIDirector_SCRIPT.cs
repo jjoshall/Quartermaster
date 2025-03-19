@@ -13,19 +13,28 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Localization.PropertyVariants.TrackedProperties;
 
 public class AIDirector : NetworkBehaviour {
-    public enum PeakVariation {
-        HealthBoost,
-        SpeedBoost,
-        SpawnRush,
-        Mixed
-    }
+    // public enum PeakVariation {
+    //     HealthBoost,
+    //     SpeedBoost,
+    //     SpawnRush,
+    //     Mixed
+    // }
 
     public float lastTimeDamageTaken;
+    public float outOfCombatThreshold = 5f; // seconds before we consider the player out of combat.
+    private PhaseData _bestBuildupData;
+    private PhaseData _bestPeakData;
+    private PhaseParameters _bestBuildupParams;
+    private PhaseParameters _bestPeakParams;
+    [HideInInspector] public PhaseParameters currPhaseParams;
+    private PhaseData _currPhaseData;
+    [SerializeField] private float minHpThreshold = 0.2f;
+    [SerializeField] private float maxHpThreshold = 0.8f;
+    [SerializeField] private float minEnemiesThreshold = 0.5f;
 
-    #region GeneticData
+    #region GeneticAlgo
     public struct FitnessWeights {
         public float combatTimeWeight;
         public float timeBelowMinHpWeight;
@@ -54,10 +63,6 @@ public class AIDirector : NetworkBehaviour {
         public float timeAboveMinEnemies;
         public float phaseDuration;
 
-        // Settings
-        public float minHp;
-        public float maxHp;
-        public float minEnemies;
     }
 
     public struct PhaseParameters{ // data used to adjust gameplay. mutated after comparing curr and updating best.
@@ -70,6 +75,8 @@ public class AIDirector : NetworkBehaviour {
     }
 
     private float EvalFitnessForBuildUp(PhaseData phaseData){
+        if (phaseData.phaseDuration <= 0) return 0f; // Avoid division by zero
+
         float fitness = 0.0f;
         float minCombatTimeRatio = 0.2f; // 20% of phase time
         float maxCombatTimeRatio = 0.4f; // 40% of phase time
@@ -116,6 +123,8 @@ public class AIDirector : NetworkBehaviour {
     }
 
     private float EvalFitnessForPeak(PhaseData phaseData){
+        if (phaseData.phaseDuration <= 0) return 0f; // Avoid division by zero
+        
         float fitness = 0.0f;
         float minCombatTimeRatio = 0.8f; // 20% of phase time
         float maxCombatTimeRatio = 1.0f; // 40% of phase time
@@ -143,20 +152,14 @@ public class AIDirector : NetworkBehaviour {
 
     private PhaseParameters MutateParamsTowardPeak(PhaseParameters p){
         PhaseParameters newParams = p;
-        // newParams.enemyHealthMultiplier += Random.Range(-0.1f, 0.1f);
-        // newParams.enemySpeedMultiplier += Random.Range(-0.1f, 0.1f);
-        // newParams.enemyDamageMultiplier += Random.Range(-0.1f, 0.1f);
-        // newParams.enemyGlobalTargetInterval += Random.Range(-0.1f, 0.1f);
-        // newParams.enemyLocalDetectionRange += Random.Range(-0.1f, 0.1f);
+        newParams.enemyHealthMultiplier += Random.Range(-0.1f, 0.1f);
+        newParams.enemySpeedMultiplier += Random.Range(-0.1f, 0.2f);
+        newParams.enemyDamageMultiplier += Random.Range(-0.1f, 0.2f);
+        newParams.enemyGlobalTargetInterval += Random.Range(-0.3f, 0.1f);
+        newParams.enemyLocalDetectionRange += Random.Range(-0.1f, 0.3f);
         return newParams;
     }
 
-    private PhaseData currPhaseData;
-    private PhaseData bestBuildupData;
-    private PhaseData bestPeakData;
-    private PhaseParameters bestBuildupParams;
-    private PhaseParameters bestPeakParams;
-    private PhaseParameters currPhaseParams;
 
     #endregion
 
@@ -189,20 +192,6 @@ public class AIDirector : NetworkBehaviour {
     [SerializeField] private List<EnemyWeightData> _relaxEnemyWeights = new List<EnemyWeightData>();
 
     #endregion 
-    [Header("TIME BASED permanent scaling")]
-    // These settings are the original gradual values.
-    [SerializeField] private float _scalingIncrement = 0.05f; // Increment of scaling each peak
-    private float _scalingRawTotal = 0.0f; // value before curve.
-    private float _lastScaled = 0.0f; // timer. 
-    [SerializeField] private float _scalingIntervalSeconds = 30.0f; // timer.
-    
-    [SerializeField] private float _maxSpeedScale = 0.3f; // 20% max speed increase
-    [SerializeField] private float _maxHealthScale = 0.5f; // 50% max health increase
-    [SerializeField] private float _maxDamageScale = 0.5f; // 50% max damage increase
-    [SerializeField] private float _maxSpawnRateScale = 0.5f; // 50% max spawn rate increase
-
-    [SerializeField] private float _peakBuffMultiplier = 2f;
-
     // State machine properties
     public enum DirectorState {
         BuildUp,
@@ -232,7 +221,7 @@ public class AIDirector : NetworkBehaviour {
     private float _lastDamageDealt = 0f;
     private float _lastDamageTaken = 0f;
 
-    private PeakVariation _currentPeakVariation;
+    // private PeakVariation _currentPeakVariation;
 
     [System.Serializable]
     public class EnemyWeightData : INetworkSerializable {
@@ -273,6 +262,12 @@ public class AIDirector : NetworkBehaviour {
 
 
         UpdateEnemySpawnerSettings();
+
+
+        // Genetic algo setup
+        _bestBuildupData = InitNewPhaseData();
+        _bestPeakData = InitNewPhaseData();
+        _bestBuildupParams = new PhaseParameters();
     }
 
     public override void OnNetworkDespawn() {
@@ -285,27 +280,17 @@ public class AIDirector : NetworkBehaviour {
 
     private void Update() {
         if (!IsServer) return;
-
-        // Exit if all players in rest area (either inventory or start room), 
-        // Managed by colliders adding/removing from activePlayerList
-        if (EnemySpawner.instance.activePlayerList.Count <= 0){
-            _lastScaled += Time.deltaTime;
-            return;
-        }
-
-        _currentIntensity.Value = Mathf.Max(0, _currentIntensity.Value - (_intensityDecayRate * Time.deltaTime));
-        
         // Phase state machine. 
         // Transitions on intensity thresholds or timeouts.
         // Cyclical. BuildUp -> Peak -> Relax -> BuildUp
-        StateMachineTimer();
-
-        // Increase enemy scaling on timer. 
-        // Enemy scaling is asymptotic to max values at top of this file.
-        if (Time.time > _lastScaled + _scalingIntervalSeconds){
-            IncreaseEnemyScaling();
-            _lastScaled = Time.time;
+        if (EnemySpawner.instance.activePlayerList.Count > 0){
+            DecayIntensity();
+            StateMachineTimer();
         }
+    }
+
+    private void DecayIntensity(){
+        _currentIntensity.Value = Mathf.Max(0, _currentIntensity.Value - (_intensityDecayRate * Time.deltaTime));
     }
 
     #endregion
@@ -360,30 +345,69 @@ public class AIDirector : NetworkBehaviour {
                 }
                 break;
         }
+        PhaseDataUpdate();
     }
 
-    private void TransitionToBuildUp() {
-        _currentIntensity.Value = _baseIntensity;
-        _currentState.Value = DirectorState.BuildUp;
-        _stateTimeRemaining.Value = _buildUpDuration;
-        UpdateEnemySpawnerSettings();
-        Debug.Log("AI Director transitioning to Build Up phase");
+    #region GeneticAlgoDataUpdate
+    // Increment time variables in _currPhaseData 
+    private void PhaseDataUpdate(){
+
+        // Increment combatTimeData if out of combat (last dmg taken was before threshold)
+        if (lastTimeDamageTaken + outOfCombatThreshold < Time.time){
+            _currPhaseData.combatTime += Time.deltaTime;
+        }
+
+        // Increment playerhpdata based on player health ratio averaged across players.
+        foreach (GameObject player in EnemySpawner.instance.activePlayerList){
+            // Null checks + get variables.
+            if (player == null) continue;
+            Health playerHp = player.GetComponent<Health>();
+            if (playerHp == null) continue;
+            float hpRatio = playerHp.GetRatio();
+            int playerCount = EnemySpawner.instance.activePlayerList.Count;
+            // Increment data if conditions met.
+            if (hpRatio < minHpThreshold){
+                _currPhaseData.timeBelowMinHp += Time.deltaTime / playerCount;
+            }
+            if (hpRatio > maxHpThreshold){
+                _currPhaseData.timeAboveMaxHp += Time.deltaTime / playerCount;
+            }
+        }
+
+        // Increment enemyMinCount time data if above threshold.
+        if (EnemySpawner.instance.enemyList.Count / EnemySpawner.instance.maxEnemyInstanceCount > minEnemiesThreshold){
+            _currPhaseData.timeAboveMinEnemies += Time.deltaTime;
+        }
+
+        // Increment total phase time.
+        _currPhaseData.phaseDuration += Time.deltaTime;
+    }
+    #endregion
+    private PhaseData InitNewPhaseData(){
+        PhaseData newPhaseData = new PhaseData();
+        newPhaseData.combatTime = 0f;
+        newPhaseData.timeBelowMinHp = 0f;
+        newPhaseData.timeAboveMaxHp = 0f;
+        newPhaseData.timeAboveMinEnemies = 0f;
+        newPhaseData.phaseDuration = 0f;
+        return newPhaseData;
     }
 
     private void TransitionToPeak() {
         _currentState.Value = DirectorState.Peak;
         _stateTimeRemaining.Value = _peakDuration;
-
-        // System.Array variations = System.Enum.GetValues(typeof(PeakVariation));
-        // _currentPeakVariation = (PeakVariation)variations.GetValue(Random.Range(0, variations.Length));
-        // ApplyPeakVariation(_currentPeakVariation);
-
         UpdateEnemySpawnerSettings();
+        Debug.Log ("AI Director transitioning to Peak phase");
 
-        Debug.Log($"AI Director transitioning to Peak phase - Variation: {_currentPeakVariation}, " +
-                  $"Speed: +{GameManager.instance.EnemySpeedMultiplier * 100 - 100:F1}%, " +
-                  $"Health: +{GameManager.instance.EnemyHealthMultiplier * 100 - 100:F1}%, " +
-                  $"Spawn Rate Scale: x{1f / (1f - GameManager.instance.SpawnRateMultiplier):F2}");
+        EvalBuildUp();
+
+        currPhaseParams = MutateParamsTowardPeak(_bestPeakParams);
+        UpdateEnemySpeedMultiplier(currPhaseParams.enemySpeedMultiplier);
+        UpdateEnemyHpMultiplier(currPhaseParams.enemyHealthMultiplier);
+        UpdateEnemyDmgMultiplier(currPhaseParams.enemyDamageMultiplier);
+
+        _currPhaseData = InitNewPhaseData();
+
     }
 
     private void TransitionToRelax() {
@@ -391,87 +415,56 @@ public class AIDirector : NetworkBehaviour {
         _stateTimeRemaining.Value = _relaxDuration;
         UpdateEnemySpawnerSettings();
         Debug.Log("AI Director transitioning to Relax phase");
+
+        EvalPeak();
+    }
+    private void TransitionToBuildUp() {
+        _currentIntensity.Value = _baseIntensity;
+        _currentState.Value = DirectorState.BuildUp;
+        _stateTimeRemaining.Value = _buildUpDuration;
+        UpdateEnemySpawnerSettings();
+        Debug.Log("AI Director transitioning to Build Up phase");
+
+        currPhaseParams = MutateParamsTowardBuildup(_bestBuildupParams);
+        UpdateEnemySpeedMultiplier(currPhaseParams.enemySpeedMultiplier);
+        UpdateEnemyHpMultiplier(currPhaseParams.enemyHealthMultiplier);
+        UpdateEnemyDmgMultiplier(currPhaseParams.enemyDamageMultiplier);
+
+        _currPhaseData = InitNewPhaseData();
+    }
+
+    private void EvalBuildUp(){
+        float currFitness = EvalFitnessForBuildUp(_currPhaseData);
+        float bestBuildUpFitness = EvalFitnessForBuildUp(_bestBuildupData);
+        if (currFitness > bestBuildUpFitness){
+            _bestBuildupData = _currPhaseData;
+            _bestBuildupParams = currPhaseParams;
+        }
+    }
+
+    private void EvalPeak(){
+        float currFitness = EvalFitnessForPeak(_currPhaseData);
+        float bestPeakFitness = EvalFitnessForPeak(_bestPeakData);
+        if (currFitness > bestPeakFitness){
+            _bestPeakData = _currPhaseData;
+            _bestPeakParams = currPhaseParams;
+        }
     }
 
     #endregion
 
     #region Difficulty Scaling
-
-    private void IncreaseEnemyScaling() { // increase periodically enemy hp scaling based on time.
-        if (!IsServer) return;
-        Debug.Log ("increasing enemy scaling");
-
-        _scalingRawTotal += _scalingIncrement;
-        float curvedHp = ScaledEaseOut(_scalingRawTotal, _maxHealthScale);
-
-
-        float curvedDmg = ScaledEaseOut(_scalingRawTotal, _maxDamageScale);
-        float curvedSpeed = ScaledEaseOut(_scalingRawTotal, _maxSpeedScale);
-
-        float curvedSpawnRate = ScaledEaseOut(_scalingRawTotal, _maxSpawnRateScale);
-
-        // affects new spawns.
-        EnemySpawner.instance.aiDmgMultiplier = 1.0f + curvedDmg;
-        EnemySpawner.instance.aiHpMultiplier = 1.0f + curvedHp;
-
-        // affects all active enemies
-        UpdateEnemySpeedMultiplier(1.0f + curvedSpeed);
-
-        // float currentSpeedScale = gm.EnemySpeedMultiplier - 1f;
-        // float currentHealthScale = gm.EnemyHealthMultiplier - 1f;
-        // float currentSpawnRateScale = gm.SpawnRateMultiplier;
-
-        // float newSpeedScale = ApplyDiminishingReturns(currentSpeedScale + scalingIncrement, _maxSpeedScale);
-        // float newHealthScale = ApplyDiminishingReturns(currentHealthScale + scalingIncrement, _maxHealthScale);
-        // float newSpawnRateScale = ApplyDiminishingReturns(currentSpawnRateScale + scalingIncrement, _maxSpawnRateScale);
-
-        // gm.EnemySpeedMultiplier = 1f + newSpeedScale;
-        // gm.EnemyHealthMultiplier = 1f + newHealthScale;
-        // gm.SpawnRateMultiplier = newSpawnRateScale;
-        Debug.Log ("scaling raw total: " + _scalingRawTotal);   
-    }
-
-    // Asymptotic easing function. 1 - e^(-x). Scaled to maxValue.
-    private float ScaledEaseOut(float x, float maxValue) {
-        float xCoefficient = -0.1f; // -0.1f returns ~0.9 at x = 24
-        float y = 1f - Mathf.Pow(2.71828f, xCoefficient * x);
-        return y * maxValue;
-    }
     private void UpdateEnemySpeedMultiplier (float speedMultiplier){
         EnemySpawner.instance.UpdateEnemySpeed(speedMultiplier);
     }
 
-    // private void ApplyPeakVariation(PeakVariation variation) {
-    //     GameManager gm = GameManager.instance;
-    //     float baseIncrement = _scalingIncrement;
+    private void UpdateEnemyHpMultiplier (float hpMultiplier){
+        EnemySpawner.instance.aiHpMultiplier = hpMultiplier; // assumes hpMultiplier is 1.0f + increase.
+    }
 
-    //     switch (variation) {
-    //         case PeakVariation.HealthBoost:
-    //             {
-    //                 float newHealthScale = ScaledEaseOut(baseIncrement * _peakBuffMultiplier, _maxHealthScale);
-    //                 gm.EnemyHealthMultiplier = 1f + newHealthScale;
-    //             }
-    //             break;
-    //         case PeakVariation.SpeedBoost:
-    //             {
-    //                 float newSpeedScale = ScaledEaseOut(baseIncrement * _peakBuffMultiplier, _maxSpeedScale);
-    //                 // gm.EnemySpeedMultiplier = 1f + newSpeedScale;
-    //                 UpdateEnemySpeedMultiplier(1f + newSpeedScale);
-    //             }
-    //             break;
-    //         case PeakVariation.SpawnRush:
-    //             {
-    //                 float newSpawnRateScale = ScaledEaseOut(baseIncrement * _peakBuffMultiplier, _maxSpawnRateScale);
-    //                 gm.SpawnRateMultiplier = newSpawnRateScale;
-    //             }
-    //             break;
-    //         case PeakVariation.Mixed:
-    //             {
-    //                 IncreaseEnemyScaling();
-    //             }
-    //             break;
-    //     }
-    // }
+    private void UpdateEnemyDmgMultiplier (float dmgMultiplier){
+        EnemySpawner.instance.aiDmgMultiplier = 1.0f + dmgMultiplier; // assumes dmgMultiplier is 1.0f + increase.
+    }
 
     #endregion
 
