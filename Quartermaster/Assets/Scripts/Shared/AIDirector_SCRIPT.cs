@@ -444,13 +444,16 @@ public class AIDirector : NetworkBehaviour {
     }
 
     private void TransitionToPeak() {
+        // Buildup stuff.
+        DebugPrintCurrPhaseData(_currPhaseData); // will print buildup phase data.
+        EvalBuildUp(); // Calculates fitness, then chooses & stores new(?) best params and data.
+
+        // Changing state to peak stuff.
         _currentState.Value = DirectorState.Peak;
         _stateTimeRemaining.Value = _peakDuration;
         UpdateEnemySpawnerSettings();
         Debug.Log ("AIDirector: transitioning to Peak phase");
 
-        DebugPrintCurrPhaseData(_currPhaseData);
-        EvalBuildUp(); // Calculates fitness, then chooses & stores new(?) best params and data.
 
         currPhaseParams = MutateParamsTowardPeak(_bestPeakParams);
         DebugPrintCurrParams(currPhaseParams);
@@ -463,19 +466,26 @@ public class AIDirector : NetworkBehaviour {
     }
 
     private void TransitionToRelax() {
+        // Peak stuff.
+        EvalPeak(); // Calculates fitness, then chooses & stores new(?) best params and data.
+
+        // Changing state to relax 
         _currentState.Value = DirectorState.Relax;
         _stateTimeRemaining.Value = _relaxDuration;
         UpdateEnemySpawnerSettings();
         Debug.Log("AIDirector: transitioning to Relax phase");
 
-        EvalPeak(); // Calculates fitness, then chooses & stores new(?) best params and data.
     }
     private void TransitionToBuildUp() {
+        // Nothing to do from relax, no data collected/set.
+
+        // Changing state to buildup stuff.
         _currentIntensity.Value = _baseIntensity;
         _currentState.Value = DirectorState.BuildUp;
         _stateTimeRemaining.Value = _buildUpDuration;
         UpdateEnemySpawnerSettings();
         Debug.Log("AIDirector: transitioning to Build Up phase");
+
 
         currPhaseParams = MutateParamsTowardBuildup(_bestBuildupParams);
         UpdateEnemySpeedMultiplier(currPhaseParams.enemySpeedMultiplier);
