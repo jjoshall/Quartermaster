@@ -37,6 +37,8 @@ public class Damageable : MonoBehaviour {
                 NetworkObjectReference damageSourceRef = damageNetworkObject;
                 Health.TakeDamageServerRpc(totalDamage, damageSourceRef);
             }
+
+            AIDirector.instance.lastTimeDamageTaken = Time.time;
         }
     }
 }

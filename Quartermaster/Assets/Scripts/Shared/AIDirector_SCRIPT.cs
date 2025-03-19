@@ -391,8 +391,8 @@ public class AIDirector : NetworkBehaviour {
     // Increment time variables in _currPhaseData 
     private void PhaseDataUpdate(){
 
-        // Increment combatTimeData if out of combat (last dmg taken was before threshold)
-        if (lastTimeDamageTaken + outOfCombatThreshold < Time.time){
+        // Increment combatTimeData if in combat (expire time is greater than current time)
+        if (lastTimeDamageTaken + outOfCombatThreshold > Time.time){
             _currPhaseData.combatTime += Time.deltaTime;
         }
 
