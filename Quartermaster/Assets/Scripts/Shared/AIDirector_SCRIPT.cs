@@ -75,6 +75,9 @@ public class AIDirector : NetworkBehaviour {
         public float timeBelowMinHp; // affect enemies
         public float timeAboveMaxHp;
         public float timeAboveMinEnemies;
+
+
+
         public float phaseDuration;
 
     }
@@ -143,7 +146,7 @@ public class AIDirector : NetworkBehaviour {
         float combatTimeRatio = phaseData.combatTime / phaseData.phaseDuration;
         float timeAboveMaxHpRatio = phaseData.timeAboveMaxHp / phaseData.phaseDuration;
         float timeBelowMinHpRatio = phaseData.timeBelowMinHp / phaseData.phaseDuration;
-        
+
         // Fitness++ if combat time is within min/max ratio of phase time. 
         if (combatTimeRatio >= minCombatTimeRatio && combatTimeRatio <= maxCombatTimeRatio) {
             fitness += buildUpWeights.combatTimeWeight;
@@ -577,33 +580,33 @@ public class AIDirector : NetworkBehaviour {
     private void UpdateSpawnerSettingsServerRpc(float spawnRate, DirectorState state) {
         if (!IsServer) return;
         _enemySpawner.spawnCooldown = spawnRate;
-        _enemySpawner._enemySpawnData.Clear();
+        // _enemySpawner._enemySpawnData.Clear();
 
-        List<EnemyWeightData> weights;
-        switch (state) {
-            case DirectorState.BuildUp:
-                weights = _buildUpEnemyWeights;
-                break;
-            case DirectorState.Peak:
-                weights = _peakEnemyWeights;
-                break;
-            case DirectorState.Relax:
-                weights = _relaxEnemyWeights;
-                break;
-            default:
-                weights = _buildUpEnemyWeights;
-                break;
-        }
+        // List<EnemyWeightData> weights;
+        // switch (state) {
+        //     case DirectorState.BuildUp:
+        //         weights = _buildUpEnemyWeights;
+        //         break;
+        //     case DirectorState.Peak:
+        //         weights = _peakEnemyWeights;
+        //         break;
+        //     case DirectorState.Relax:
+        //         weights = _relaxEnemyWeights;
+        //         break;
+        //     default:
+        //         weights = _buildUpEnemyWeights;
+        //         break;
+        // }
 
-        foreach (var weightData in weights) {
-            EnemySpawner.EnemySpawnData spawnData = new EnemySpawner.EnemySpawnData {
-                enemyPrefab = weightData.enemyPrefab,
-                spawnWeight = weightData.spawnWeight
-            };
-            _enemySpawner._enemySpawnData.Add(spawnData);
-        }
+        // foreach (var weightData in weights) {
+        //     EnemySpawner.EnemySpawnData spawnData = new EnemySpawner.EnemySpawnData {
+        //         enemyPrefab = weightData.enemyPrefab,
+        //         spawnWeight = weightData.spawnWeight
+        //     };
+        //     _enemySpawner._enemySpawnData.Add(spawnData);
+        // }
 
-        _enemySpawner.CalculateTotalWeight();
+        // _enemySpawner.CalculateTotalWeight();
     }
 
     #endregion
