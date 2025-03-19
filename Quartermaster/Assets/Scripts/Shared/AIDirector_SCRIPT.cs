@@ -22,6 +22,20 @@ public class AIDirector : NetworkBehaviour {
     //     Mixed
     // }
 
+    public static AIDirector instance;
+    void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+
     public float lastTimeDamageTaken;
     public float outOfCombatThreshold = 5f; // seconds before we consider the player out of combat.
     private PhaseData _bestBuildupData;
@@ -124,7 +138,7 @@ public class AIDirector : NetworkBehaviour {
 
     private float EvalFitnessForPeak(PhaseData phaseData){
         if (phaseData.phaseDuration <= 0) return 0f; // Avoid division by zero
-        
+
         float fitness = 0.0f;
         float minCombatTimeRatio = 0.8f; // 20% of phase time
         float maxCombatTimeRatio = 1.0f; // 40% of phase time
@@ -267,7 +281,29 @@ public class AIDirector : NetworkBehaviour {
         // Genetic algo setup
         _bestBuildupData = InitNewPhaseData();
         _bestPeakData = InitNewPhaseData();
-        _bestBuildupParams = new PhaseParameters();
+        _currPhaseData = InitNewPhaseData();
+
+        currPhaseParams = InitDefaultPhaseParameters();
+        _bestPeakParams = InitDefaultPhaseParameters();
+        _bestBuildupParams = InitDefaultPhaseParameters();
+    }
+    private PhaseData InitNewPhaseData(){
+        PhaseData newPhaseData = new PhaseData();
+        newPhaseData.combatTime = 0f;
+        newPhaseData.timeBelowMinHp = 0f;
+        newPhaseData.timeAboveMaxHp = 0f;
+        newPhaseData.timeAboveMinEnemies = 0f;
+        newPhaseData.phaseDuration = 0f;
+        return newPhaseData;
+    }
+    private PhaseParameters InitDefaultPhaseParameters(){
+        PhaseParameters defaultParams = new PhaseParameters();
+        defaultParams.enemyHealthMultiplier = 1.0f;
+        defaultParams.enemySpeedMultiplier = 1.0f;
+        defaultParams.enemyDamageMultiplier = 1.0f;
+        defaultParams.enemyGlobalTargetInterval = 10.0f;
+        defaultParams.enemyLocalDetectionRange = 20.0f;
+        return defaultParams;
     }
 
     public override void OnNetworkDespawn() {
@@ -346,6 +382,9 @@ public class AIDirector : NetworkBehaviour {
                 break;
         }
         PhaseDataUpdate();
+        // DebugPrintCurrPhaseData(_currPhaseData);
+        Debug.Log ("AITimerDirector: Current intensity: " + _currentIntensity.Value + "\n" + 
+                    "Current time remaining in state: " + _stateTimeRemaining.Value);
     }
 
     #region GeneticAlgoDataUpdate
@@ -383,47 +422,60 @@ public class AIDirector : NetworkBehaviour {
         _currPhaseData.phaseDuration += Time.deltaTime;
     }
     #endregion
-    private PhaseData InitNewPhaseData(){
-        PhaseData newPhaseData = new PhaseData();
-        newPhaseData.combatTime = 0f;
-        newPhaseData.timeBelowMinHp = 0f;
-        newPhaseData.timeAboveMaxHp = 0f;
-        newPhaseData.timeAboveMinEnemies = 0f;
-        newPhaseData.phaseDuration = 0f;
-        return newPhaseData;
+
+    private void DebugPrintCurrParams(PhaseParameters p){
+        Debug.Log("AIDirector: Current Phase Parameters: \n" +
+            "Curr Phase Type: " + _currentState.Value + "\n" + 
+            ", Enemy Health Multiplier: " + p.enemyHealthMultiplier + "\n" + 
+            ", Enemy Speed Multiplier: " + p.enemySpeedMultiplier + "\n" + 
+            ", Enemy Damage Multiplier: " + p.enemyDamageMultiplier + "\n" + 
+            ", Enemy Global Target Interval: " + p.enemyGlobalTargetInterval + "\n" + 
+            ", Enemy Local Detection Range: " + p.enemyLocalDetectionRange);
+    }
+
+    private void DebugPrintCurrPhaseData(PhaseData p){
+        Debug.Log("AIDirector: Current Phase Data: " + "\n" + 
+            "Curr Phase Type: " + _currentState.Value + "\n" + 
+            ", Combat Time: " + p.combatTime + "\n" + 
+            ", Time Below Min HP: " + p.timeBelowMinHp + "\n" + 
+            ", Time Above Max HP: " + p.timeAboveMaxHp + "\n" + 
+            ", Time Above Min Enemies: " + p.timeAboveMinEnemies + "\n" + 
+            ", Phase Duration: " + p.phaseDuration);
     }
 
     private void TransitionToPeak() {
         _currentState.Value = DirectorState.Peak;
         _stateTimeRemaining.Value = _peakDuration;
         UpdateEnemySpawnerSettings();
-        Debug.Log ("AI Director transitioning to Peak phase");
+        Debug.Log ("AIDirector: transitioning to Peak phase");
 
-        EvalBuildUp();
+        DebugPrintCurrPhaseData(_currPhaseData);
+        EvalBuildUp(); // Calculates fitness, then chooses & stores new(?) best params and data.
 
         currPhaseParams = MutateParamsTowardPeak(_bestPeakParams);
+        DebugPrintCurrParams(currPhaseParams);
+
         UpdateEnemySpeedMultiplier(currPhaseParams.enemySpeedMultiplier);
         UpdateEnemyHpMultiplier(currPhaseParams.enemyHealthMultiplier);
         UpdateEnemyDmgMultiplier(currPhaseParams.enemyDamageMultiplier);
 
         _currPhaseData = InitNewPhaseData();
-
     }
 
     private void TransitionToRelax() {
         _currentState.Value = DirectorState.Relax;
         _stateTimeRemaining.Value = _relaxDuration;
         UpdateEnemySpawnerSettings();
-        Debug.Log("AI Director transitioning to Relax phase");
+        Debug.Log("AIDirector: transitioning to Relax phase");
 
-        EvalPeak();
+        EvalPeak(); // Calculates fitness, then chooses & stores new(?) best params and data.
     }
     private void TransitionToBuildUp() {
         _currentIntensity.Value = _baseIntensity;
         _currentState.Value = DirectorState.BuildUp;
         _stateTimeRemaining.Value = _buildUpDuration;
         UpdateEnemySpawnerSettings();
-        Debug.Log("AI Director transitioning to Build Up phase");
+        Debug.Log("AIDirector: transitioning to Build Up phase");
 
         currPhaseParams = MutateParamsTowardBuildup(_bestBuildupParams);
         UpdateEnemySpeedMultiplier(currPhaseParams.enemySpeedMultiplier);
@@ -433,6 +485,7 @@ public class AIDirector : NetworkBehaviour {
         _currPhaseData = InitNewPhaseData();
     }
 
+    // Calculates fitness, then chooses & stores new(?) best params and data.
     private void EvalBuildUp(){
         float currFitness = EvalFitnessForBuildUp(_currPhaseData);
         float bestBuildUpFitness = EvalFitnessForBuildUp(_bestBuildupData);
@@ -442,6 +495,7 @@ public class AIDirector : NetworkBehaviour {
         }
     }
 
+    // Calculates fitness, then chooses & stores new(?) best params and data.
     private void EvalPeak(){
         float currFitness = EvalFitnessForPeak(_currPhaseData);
         float bestPeakFitness = EvalFitnessForPeak(_bestPeakData);

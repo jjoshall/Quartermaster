@@ -238,7 +238,8 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     private float GetLocalDetectionRange(){
         // if we are in peak phase, we can alter this logic to be higher or lower based on AI director values.
-        return _localDetectionRange;
+        // return _localDetectionRange;
+        return AIDirector.instance.currPhaseParams.enemyLocalDetectionRange;
     }
 
 

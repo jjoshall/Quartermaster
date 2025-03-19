@@ -22,7 +22,7 @@ public class EnemySpawner : NetworkBehaviour {
     [HideInInspector] public float _totalWeight = 0f;
 
 
-    [SerializeField] private float globalAggroUpdateInterval = 10.0f;
+    [SerializeField] public float globalAggroUpdateInterval = 10.0f;
     private float globalAggroUpdateTimer = 0.0f;
     public Vector3 globalAggroTarget = new Vector3(0, 0, 0);
 
@@ -223,9 +223,13 @@ public class EnemySpawner : NetworkBehaviour {
         return globalAggroTarget;
     }
 
+    private float GetGlobalAggroUpdateInterval(){
+        return AIDirector.instance.currPhaseParams.enemyGlobalTargetInterval;
+    }
+
     private void UpdateGlobalAggroTargetTimer() {
         globalAggroUpdateTimer += Time.deltaTime;
-        if (globalAggroUpdateTimer >= globalAggroUpdateInterval) {
+        if (globalAggroUpdateTimer >= GetGlobalAggroUpdateInterval()) {
             globalAggroUpdateTimer = 0.0f;
             serverDebugMsgServerRpc("Player list count: " + playerList.Count);
 
