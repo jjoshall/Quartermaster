@@ -65,6 +65,10 @@ public class ItemAcquisitionRange : MonoBehaviour {
             float closestDistance = Mathf.Infinity;
 
             foreach (GameObject item in _itemsInRange) {
+                if (!item) {
+                    _itemsInRange.Remove(item);
+                    continue;
+                }
                 float distance = Vector3.Distance(_playerObj.transform.position, item.transform.position);
                 if (distance < closestDistance) {
                     localClosest = item;
