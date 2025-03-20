@@ -51,6 +51,7 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         foreach (var hitCollider in hitColliders) {
             if (hitCollider.CompareTag("Player")) {
                 hitCollider.GetComponent<Damageable>().InflictDamage(dmgAiScaled, false, gameObject);
+                AIDirector.instance.currPhaseData.damageTaken += dmgAiScaled;
             }
         }
     }

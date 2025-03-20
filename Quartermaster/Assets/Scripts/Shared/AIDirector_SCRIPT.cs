@@ -43,10 +43,8 @@ public class AIDirector : NetworkBehaviour {
     private PhaseParameters _bestBuildupParams;
     private PhaseParameters _bestPeakParams;
     [HideInInspector] public PhaseParameters currPhaseParams;
-    private PhaseData _currPhaseData;
-    [SerializeField] private float minHpThreshold = 0.2f;
-    [SerializeField] private float maxHpThreshold = 0.8f;
-    [SerializeField] private float minEnemiesThreshold = 0.5f;
+    [HideInInspector] public PhaseData currPhaseData;
+    [SerializeField] private float targetDamageTakenPerEnemy = 10f;
 
     #region GeneticAlgo
     public struct FitnessWeights {
@@ -72,13 +70,13 @@ public class AIDirector : NetworkBehaviour {
     public struct PhaseData{ // data used to collect fitness.
         // Collect Data
         public float combatTime;
-        public float timeBelowMinHp; // affect enemies
-        public float timeAboveMaxHp;
-        public float timeAboveMinEnemies;
 
-
+        public float enemyKills;
+        public float damageTaken;
 
         public float phaseDuration;
+
+        // other data to collect (?) 
 
     }
 
@@ -95,32 +93,24 @@ public class AIDirector : NetworkBehaviour {
         if (phaseData.phaseDuration <= 0) return 0f; // Avoid division by zero
 
         float fitness = 0.0f;
-        float minCombatTimeRatio = 0.2f; // 20% of phase time
-        float maxCombatTimeRatio = 0.4f; // 40% of phase time
-        float minTimeAboveMinEnemies = 0.6f; // 60% of phase time
-        float target_timeAboveMaxHp = 0.1f;
-        float target_timeBelowMinHp = 0.1f;
-        float combatTimeRatio = phaseData.combatTime / phaseData.phaseDuration;
-        float timeAboveMinEnemiesRatio = phaseData.timeAboveMinEnemies / phaseData.phaseDuration;
-        float timeAboveMaxHpRatio = phaseData.timeAboveMaxHp / phaseData.phaseDuration;
-        float timeBelowMinHpRatio = phaseData.timeBelowMinHp / phaseData.phaseDuration;
 
-        // Fitness++ if combat time is within min/max ratio of phase time. 
-        if (combatTimeRatio >= minCombatTimeRatio && combatTimeRatio <= maxCombatTimeRatio) {
-            fitness += buildUpWeights.combatTimeWeight;
+        // Step function.
+        if (phaseData.phaseDuration > 0){
+            float minCombatTimeRatio = 0.2f; // 20% of phase time
+            float combatTimeRatio = phaseData.combatTime / phaseData.phaseDuration;
+            if (combatTimeRatio > minCombatTimeRatio){
+                fitness += buildUpWeights.combatTimeWeight;
+            }
         }
 
-        // Fitness++ if above minimum time where enemies are greater than min count ratio. 
-        if (timeAboveMinEnemiesRatio > minTimeAboveMinEnemies){
-            fitness += buildUpWeights.timeAboveMinEnemiesWeight;
-        } 
+        // Gradient towards target. 
+        if (phaseData.enemyKills > 0){
+            float damageTakenPerEnemy = phaseData.damageTaken / phaseData.enemyKills;
+            float differenceFromTarget = Mathf.Abs(targetDamageTakenPerEnemy - damageTakenPerEnemy);
+            // add fitness for how close it is to the target
+            fitness += 100.0f - differenceFromTarget;
+        }
 
-        if (timeAboveMaxHpRatio > target_timeAboveMaxHp){
-            fitness += buildUpWeights.timeAboveMaxHpWeight;
-        }
-        if (timeBelowMinHpRatio < target_timeBelowMinHp){
-            fitness += buildUpWeights.timeBelowMinHpWeight;
-        }
         return fitness;
     }
 
@@ -139,25 +129,24 @@ public class AIDirector : NetworkBehaviour {
         if (phaseData.phaseDuration <= 0) return 0f; // Avoid division by zero
 
         float fitness = 0.0f;
-        float minCombatTimeRatio = 0.8f; // 20% of phase time
-        float maxCombatTimeRatio = 1.0f; // 40% of phase time
-        float target_timeAboveMaxHp = 0.1f;
-        float target_timeBelowMinHp = 0.3f;
-        float combatTimeRatio = phaseData.combatTime / phaseData.phaseDuration;
-        float timeAboveMaxHpRatio = phaseData.timeAboveMaxHp / phaseData.phaseDuration;
-        float timeBelowMinHpRatio = phaseData.timeBelowMinHp / phaseData.phaseDuration;
 
-        // Fitness++ if combat time is within min/max ratio of phase time. 
-        if (combatTimeRatio >= minCombatTimeRatio && combatTimeRatio <= maxCombatTimeRatio) {
-            fitness += buildUpWeights.combatTimeWeight;
+        // Step function.
+        if (phaseData.phaseDuration > 0){
+            float minCombatTimeRatio = 0.2f; // 20% of phase time
+            float combatTimeRatio = phaseData.combatTime / phaseData.phaseDuration;
+            if (combatTimeRatio > minCombatTimeRatio){
+                fitness += buildUpWeights.combatTimeWeight;
+            }
         }
 
-        if (timeAboveMaxHpRatio > target_timeAboveMaxHp){
-            fitness += buildUpWeights.timeAboveMaxHpWeight;
+        // Gradient towards target. 
+        if (phaseData.enemyKills > 0){
+            float damageTakenPerEnemy = phaseData.damageTaken / phaseData.enemyKills;
+            float differenceFromTarget = Mathf.Abs(targetDamageTakenPerEnemy - damageTakenPerEnemy);
+            // add fitness for how close it is to the target
+            fitness += 100.0f - differenceFromTarget;
         }
-        if (timeBelowMinHpRatio < target_timeBelowMinHp){
-            fitness += buildUpWeights.timeBelowMinHpWeight;
-        }
+
         return fitness;
     }
 
@@ -278,7 +267,7 @@ public class AIDirector : NetworkBehaviour {
         // Genetic algo setup
         _bestBuildupData = InitNewPhaseData();
         _bestPeakData = InitNewPhaseData();
-        _currPhaseData = InitNewPhaseData();
+        currPhaseData = InitNewPhaseData();
 
         currPhaseParams = InitDefaultPhaseParameters();
         _bestPeakParams = InitDefaultPhaseParameters();
@@ -287,9 +276,8 @@ public class AIDirector : NetworkBehaviour {
     private PhaseData InitNewPhaseData(){
         PhaseData newPhaseData = new PhaseData();
         newPhaseData.combatTime = 0f;
-        newPhaseData.timeBelowMinHp = 0f;
-        newPhaseData.timeAboveMaxHp = 0f;
-        newPhaseData.timeAboveMinEnemies = 0f;
+        newPhaseData.enemyKills = 0f;
+        newPhaseData.damageTaken = 0f;
         newPhaseData.phaseDuration = 0f;
         return newPhaseData;
     }
@@ -390,33 +378,33 @@ public class AIDirector : NetworkBehaviour {
 
         // Increment combatTimeData if in combat (expire time is greater than current time)
         if (lastTimeDamageTaken + outOfCombatThreshold > Time.time){
-            _currPhaseData.combatTime += Time.deltaTime;
+            currPhaseData.combatTime += Time.deltaTime;
         }
 
-        // Increment playerhpdata based on player health ratio averaged across players.
-        foreach (GameObject player in EnemySpawner.instance.activePlayerList){
-            // Null checks + get variables.
-            if (player == null) continue;
-            Health playerHp = player.GetComponent<Health>();
-            if (playerHp == null) continue;
-            float hpRatio = playerHp.GetRatio();
-            int playerCount = EnemySpawner.instance.activePlayerList.Count;
-            // Increment data if conditions met.
-            if (hpRatio < minHpThreshold){
-                _currPhaseData.timeBelowMinHp += Time.deltaTime / playerCount;
-            }
-            if (hpRatio > maxHpThreshold){
-                _currPhaseData.timeAboveMaxHp += Time.deltaTime / playerCount;
-            }
-        }
+        // // Increment playerhpdata based on player health ratio averaged across players.
+        // foreach (GameObject player in EnemySpawner.instance.activePlayerList){
+        //     // Null checks + get variables.
+        //     if (player == null) continue;
+        //     Health playerHp = player.GetComponent<Health>();
+        //     if (playerHp == null) continue;
+        //     float hpRatio = playerHp.GetRatio();
+        //     int playerCount = EnemySpawner.instance.activePlayerList.Count;
+        //     // Increment data if conditions met.
+        //     if (hpRatio < minHpThreshold){
+        //         currPhaseData.timeBelowMinHp += Time.deltaTime / playerCount;
+        //     }
+        //     if (hpRatio > maxHpThreshold){
+        //         currPhaseData.timeAboveMaxHp += Time.deltaTime / playerCount;
+        //     }
+        // }
 
-        // Increment enemyMinCount time data if above threshold.
-        if (EnemySpawner.instance.enemyList.Count / EnemySpawner.instance.maxEnemyInstanceCount > minEnemiesThreshold){
-            _currPhaseData.timeAboveMinEnemies += Time.deltaTime;
-        }
+        // // Increment enemyMinCount time data if above threshold.
+        // if (EnemySpawner.instance.enemyList.Count / EnemySpawner.instance.maxEnemyInstanceCount > minEnemiesThreshold){
+        //     currPhaseData.timeAboveMinEnemies += Time.deltaTime;
+        // }
 
         // Increment total phase time.
-        _currPhaseData.phaseDuration += Time.deltaTime;
+        currPhaseData.phaseDuration += Time.deltaTime;
     }
     #endregion
 
@@ -434,15 +422,14 @@ public class AIDirector : NetworkBehaviour {
         Debug.Log("AIDirector: Current Phase Data: " + "\n" + 
             "Curr Phase Type: " + _currentState.Value + "\n" + 
             ", Combat Time: " + p.combatTime + "\n" + 
-            ", Time Below Min HP: " + p.timeBelowMinHp + "\n" + 
-            ", Time Above Max HP: " + p.timeAboveMaxHp + "\n" + 
-            ", Time Above Min Enemies: " + p.timeAboveMinEnemies + "\n" + 
+            ", Enemy Kills: " + p.enemyKills + "\n" +
+            ", Damage Taken: " + p.damageTaken + "\n" +
             ", Phase Duration: " + p.phaseDuration);
     }
 
     private void TransitionToPeak() {
         // Buildup stuff.
-        DebugPrintCurrPhaseData(_currPhaseData); // will print buildup phase data.
+        DebugPrintCurrPhaseData(currPhaseData); // will print buildup phase data.
         EvalBuildUp(); // Calculates fitness, then chooses & stores new(?) best params and data.
 
         // Changing state to peak stuff.
@@ -459,7 +446,7 @@ public class AIDirector : NetworkBehaviour {
         UpdateEnemyHpMultiplier(currPhaseParams.enemyHealthMultiplier);
         UpdateEnemyDmgMultiplier(currPhaseParams.enemyDamageMultiplier);
 
-        _currPhaseData = InitNewPhaseData();
+        currPhaseData = InitNewPhaseData();
     }
 
     private void TransitionToRelax() {
@@ -492,33 +479,33 @@ public class AIDirector : NetworkBehaviour {
         UpdateEnemyHpMultiplier(currPhaseParams.enemyHealthMultiplier);
         UpdateEnemyDmgMultiplier(currPhaseParams.enemyDamageMultiplier);
 
-        _currPhaseData = InitNewPhaseData();
+        currPhaseData = InitNewPhaseData();
     }
 
     // Calculates fitness, then chooses & stores new(?) best params and data.
     private void EvalBuildUp(){
-        float currFitness = EvalFitnessForBuildUp(_currPhaseData);
+        float currFitness = EvalFitnessForBuildUp(currPhaseData);
         float bestBuildUpFitness = EvalFitnessForBuildUp(_bestBuildupData);
         
         Debug.Log("EvalBuildUp: Current Phase Fitness = " + currFitness + "; Best BuildUp Fitness = " + bestBuildUpFitness);
     
         if (currFitness > bestBuildUpFitness){ 
             Debug.Log("EvalBuildUp: Found a better buildup phase. Updating best buildup parameters.");
-            _bestBuildupData = _currPhaseData;
+            _bestBuildupData = currPhaseData;
             _bestBuildupParams = currPhaseParams;
         }
     }
 
     // Calculates fitness, then chooses & stores new(?) best params and data.
     private void EvalPeak(){
-        float currFitness = EvalFitnessForPeak(_currPhaseData);
+        float currFitness = EvalFitnessForPeak(currPhaseData);
         float bestPeakFitness = EvalFitnessForPeak(_bestPeakData);
         
         Debug.Log("EvalPeak: Current Phase Fitness = " + currFitness + "; Best Peak Fitness = " + bestPeakFitness);
     
         if (currFitness > bestPeakFitness){
             Debug.Log("EvalPeak: Found a better peak phase. Updating best peak parameters.");
-            _bestPeakData = _currPhaseData;
+            _bestPeakData = currPhaseData;
             _bestPeakParams = currPhaseParams;
         }
     }

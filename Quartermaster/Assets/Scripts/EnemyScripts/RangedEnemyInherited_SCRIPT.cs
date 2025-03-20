@@ -129,6 +129,7 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             }
             else if (hit.collider.CompareTag("Player")) {
                 hit.collider.GetComponent<Damageable>().InflictDamage(aiDmgScaled, false, gameObject);
+                AIDirector.instance.currPhaseData.damageTaken += aiDmgScaled;
             }
         }
         else {
