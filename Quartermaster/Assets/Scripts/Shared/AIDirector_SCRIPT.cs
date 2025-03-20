@@ -12,6 +12,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class AIDirector : NetworkBehaviour {
@@ -94,21 +95,18 @@ public class AIDirector : NetworkBehaviour {
 
         float fitness = 0.0f;
 
-        // Step function.
-        if (phaseData.phaseDuration > 0){
-            float minCombatTimeRatio = 0.2f; // 20% of phase time
-            float combatTimeRatio = phaseData.combatTime / phaseData.phaseDuration;
-            if (combatTimeRatio > minCombatTimeRatio){
-                fitness += buildUpWeights.combatTimeWeight;
-            }
-        }
+        // We want consistent combat engagement during buildup
+        float combatTimeRatio = phaseData.combatTime / phaseData.phaseDuration;
+        fitness += buildUpWeights.combatTimeWeight * Mathf.Clamp01(combatTimeRatio / 0.5f); // Target 50% combat time
 
-        // Gradient towards target. 
-        if (phaseData.enemyKills > 0){
+        // Reward appropriate damage per enemy (not too hard, not too easy)
+        if (phaseData.enemyKills > 0)
+        {
             float damageTakenPerEnemy = phaseData.damageTaken / phaseData.enemyKills;
-            float differenceFromTarget = Mathf.Abs(targetDamageTakenPerEnemy - damageTakenPerEnemy);
-            // add fitness for how close it is to the target
-            fitness += 100.0f - differenceFromTarget;
+            // Compare with target damage taken
+            float damageRatio = Mathf.Abs(targetDamageTakenPerEnemy - damageTakenPerEnemy);
+            // Closer to target = higher fitness (use your existing formula pattern)
+            fitness += 100.0f - damageRatio;
         }
 
         return fitness;
@@ -117,11 +115,14 @@ public class AIDirector : NetworkBehaviour {
     // weighted towards predicted relevant values for buildup
     private PhaseParameters MutateParamsTowardBuildup(PhaseParameters p){
         PhaseParameters newParams = p;
-        newParams.enemyHealthMultiplier += Random.Range(-0.1f, 0.3f);
-        newParams.enemySpeedMultiplier += Random.Range(-0.1f, 0.1f);
-        newParams.enemyDamageMultiplier += Random.Range(-0.1f, 0.1f);
-        newParams.enemyGlobalTargetInterval += Random.Range(-0.1f, 0.5f);
-        newParams.enemyLocalDetectionRange += Random.Range(-0.5f, 0.1f);
+
+        // More controlled ranges
+        newParams.enemyHealthMultiplier = Mathf.Clamp(p.enemyHealthMultiplier + Random.Range(-0.1f, 0.3f), 0.7f, 1.5f);
+        newParams.enemySpeedMultiplier = Mathf.Clamp(p.enemySpeedMultiplier + Random.Range(-0.1f, 0.1f), 0.8f, 1.3f);
+        newParams.enemyDamageMultiplier = Mathf.Clamp(p.enemyDamageMultiplier + Random.Range(-0.1f, 0.1f), 0.8f, 1.3f);
+        newParams.enemyGlobalTargetInterval = Mathf.Clamp(p.enemyGlobalTargetInterval + Random.Range(-0.1f, 0.5f), 5f, 15f);
+        newParams.enemyLocalDetectionRange = Mathf.Clamp(p.enemyLocalDetectionRange + Random.Range(-0.5f, 0.1f), 15f, 25f);
+
         return newParams;
     }
 
@@ -130,21 +131,34 @@ public class AIDirector : NetworkBehaviour {
 
         float fitness = 0.0f;
 
-        // Step function.
-        if (phaseData.phaseDuration > 0){
-            float minCombatTimeRatio = 0.2f; // 20% of phase time
-            float combatTimeRatio = phaseData.combatTime / phaseData.phaseDuration;
-            if (combatTimeRatio > minCombatTimeRatio){
-                fitness += buildUpWeights.combatTimeWeight;
-            }
-        }
+        // We want almost constant combat during peak
+        float combatTimeRatio = phaseData.combatTime / phaseData.phaseDuration;
+        fitness += peakWeights.combatTimeWeight * Mathf.Clamp01(combatTimeRatio / 0.8f); // Target 80% combat time
 
-        // Gradient towards target. 
-        if (phaseData.enemyKills > 0){
+        // For peak, we actually want slightly higher damage per enemy(more challenging)
+    if (phaseData.enemyKills > 0)
+        {
             float damageTakenPerEnemy = phaseData.damageTaken / phaseData.enemyKills;
-            float differenceFromTarget = Mathf.Abs(targetDamageTakenPerEnemy - damageTakenPerEnemy);
-            // add fitness for how close it is to the target
-            fitness += 100.0f - differenceFromTarget;
+            // For peak, we want to be slightly above target (more challenging)
+            if (damageTakenPerEnemy >= targetDamageTakenPerEnemy)
+            {
+                // But not too much above (within 50% higher is ideal)
+                float excessDamage = damageTakenPerEnemy - targetDamageTakenPerEnemy;
+                if (excessDamage <= targetDamageTakenPerEnemy * 0.5f)
+                {
+                    fitness += 100.0f;
+                }
+                else
+                {
+                    // Gradually reduce fitness if it's too far above target
+                    fitness += 100.0f - (excessDamage - targetDamageTakenPerEnemy * 0.5f);
+                }
+            }
+            else
+            {
+                // Below target, fitness scales with how close it is
+                fitness += 100.0f - (targetDamageTakenPerEnemy - damageTakenPerEnemy);
+            }
         }
 
         return fitness;
@@ -152,11 +166,14 @@ public class AIDirector : NetworkBehaviour {
 
     private PhaseParameters MutateParamsTowardPeak(PhaseParameters p){
         PhaseParameters newParams = p;
-        newParams.enemyHealthMultiplier += Random.Range(-0.1f, 0.1f);
-        newParams.enemySpeedMultiplier += Random.Range(-0.1f, 0.2f);
-        newParams.enemyDamageMultiplier += Random.Range(-0.1f, 0.2f);
-        newParams.enemyGlobalTargetInterval += Random.Range(-0.3f, 0.1f);
-        newParams.enemyLocalDetectionRange += Random.Range(-0.1f, 0.3f);
+
+        // Make peak mutations slightly more aggressive
+        newParams.enemyHealthMultiplier = Mathf.Clamp(p.enemyHealthMultiplier + Random.Range(-0.1f, 0.4f), 1.0f, 2.0f);
+        newParams.enemySpeedMultiplier = Mathf.Clamp(p.enemySpeedMultiplier + Random.Range(0f, 0.3f), 1.0f, 1.8f);
+        newParams.enemyDamageMultiplier = Mathf.Clamp(p.enemyDamageMultiplier + Random.Range(0f, 0.3f), 1.0f, 1.8f);
+        newParams.enemyGlobalTargetInterval = Mathf.Clamp(p.enemyGlobalTargetInterval + Random.Range(-0.3f, 0.1f), 3f, 10f);
+        newParams.enemyLocalDetectionRange = Mathf.Clamp(p.enemyLocalDetectionRange + Random.Range(0f, 0.4f), 18f, 30f);
+
         return newParams;
     }
 
