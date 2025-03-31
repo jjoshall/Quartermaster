@@ -14,28 +14,16 @@ public class Inventory : NetworkBehaviour {
 
     [Header("Inventory Keybinds")]
     private PlayerInputHandler _InputHandler;
-    public KeyCode pickupKey = KeyCode.E;
-    public KeyCode dropItemKey = KeyCode.Q;
-    public KeyCode useItemKey = KeyCode.F;
-    public KeyCode selectItemOneKey = KeyCode.Alpha1;
-    public KeyCode selectItemTwoKey = KeyCode.Alpha2;
-    public KeyCode selectItemThreeKey = KeyCode.Alpha3;
-    public KeyCode selectItemFourKey = KeyCode.Alpha4;
+    // public KeyCode pickupKey = KeyCode.E;
+    // public KeyCode dropItemKey = KeyCode.Q;
+    // public KeyCode useItemKey = KeyCode.F;
+    // public KeyCode selectItemOneKey = KeyCode.Alpha1;
+    // public KeyCode selectItemTwoKey = KeyCode.Alpha2;
+    // public KeyCode selectItemThreeKey = KeyCode.Alpha3;
+    // public KeyCode selectItemFourKey = KeyCode.Alpha4;
 
     private UIManager _uiManager;
 
-    [Header("Item Materials")]
-    [SerializeField] public Texture medkitMaterial;
-    [SerializeField] public Texture keyMaterial;
-    [SerializeField] public Texture pistolMaterial;
-    [SerializeField] public Texture emptyMaterial;
-    [SerializeField] public Texture railgunMaterial;
-    [SerializeField] public Texture flamethrowerMaterial;
-    [SerializeField] public Texture grenadeMaterial;
-    [SerializeField] public Texture slowTrapMaterial;
-    [SerializeField] public Texture deliverableMaterial;
-    [SerializeField] public Texture healSpecMaterial;
-    [SerializeField] public Texture dmgSpecMaterial;
 
     [Header("Weapon Holdable Setup")]
     public GameObject weaponSlot;
@@ -43,6 +31,8 @@ public class Inventory : NetworkBehaviour {
     private GameObject currentHoldable;
 
     private InventoryItem[] _inventory;
+
+    private GameObject[] _inventoryMono;
     private int _currentInventoryIndex = 0;
     private int _oldInventoryIndex = 0;
     private int _currentHeldItems = 0;
@@ -57,12 +47,14 @@ public class Inventory : NetworkBehaviour {
         _uiManager = GameObject.Find("UI Manager").GetComponent<UIManager>();
         if (IsOwner){
             if (!_InputHandler) _InputHandler = _playerObj.GetComponent<PlayerInputHandler>();
-            _InputHandler.OnUse += UseItem;
+            _InputHandler.OnUse += PlayerInputHandlerUseEvent;
             _InputHandler.OnRelease += ReleaseItem;
             _InputHandler.OnInteract += PickUpClosest;
             _inventory = new InventoryItem[_maxInventorySize];
+            _inventoryMono = new GameObject[_maxInventorySize];
             for (int i = 0; i < _maxInventorySize; i++) {
                 _inventory[i] = null;
+                _inventoryMono[i] = null;
             }
             UpdateAllInventoryUI();
             UpdateHeldItem();
@@ -74,10 +66,10 @@ public class Inventory : NetworkBehaviour {
     void Update() {
         if (IsOwner){
             MyInput();
-            if (_inventory[_currentInventoryIndex] != null)
-                currentHeldItemId.Value = _inventory[_currentInventoryIndex].itemID;
-            else
-                currentHeldItemId.Value = -1;
+            // if (_inventory[_currentInventoryIndex] != null)
+            //     currentHeldItemId.Value = _inventory[_currentInventoryIndex].itemID;
+            // else
+            //     currentHeldItemId.Value = -1;
             UpdateWeaponCooldownUI();
         }
         UpdateHeldItem();
@@ -98,35 +90,78 @@ public class Inventory : NetworkBehaviour {
         _uiManager.HighlightSlot(_currentInventoryIndex);
     }
 
-    #region UseEvents
-    void UseItem(bool isHeld) {
+    // Abstracting away from isHeld bool. 
+    // If isHeld is unnecessary in playerinputhandler, we can just call UseItem() and HeldItem() directly.
+    void PlayerInputHandlerUseEvent(bool isHeld) {
+        if (isHeld){
+            HeldItem();
+        } else {
+            UseItem();
+        }
+    }
+
+    #region UseItem
+    #endregion
+    void UseItem(){
         if (!IsOwner) return;
         if (PauseMenuToggler.IsPaused) return;
         if (!ValidIndexCheck()) return;
 
-        _inventory[_currentInventoryIndex].AttemptUse(_playerObj, isHeld);
-
-        if (_inventory[_currentInventoryIndex].quantity <= 0) {
-            _inventory[_currentInventoryIndex] = null;
-            _currentHeldItems--;
+        MonoItem itemComponent = _inventoryMono[_currentInventoryIndex].GetComponent<MonoItem>();
+        if (itemComponent != null) {
+            itemComponent.Use(_playerObj);
+        } else {
+            // Do nothing.
         }
+
+        QuantityCheck();
         UpdateAllInventoryUI();
     }
 
+    #region HeldItem
+    #endregion
+    void HeldItem(){
+        if (!IsOwner) return;
+        if (PauseMenuToggler.IsPaused) return;
+        if (!ValidIndexCheck()) return;
+
+        MonoItem itemComponent = _inventoryMono[_currentInventoryIndex].GetComponent<MonoItem>();
+        if (itemComponent != null) {
+            itemComponent.Held(_playerObj);
+        } else {
+            // Do nothing.
+        }
+        // _inventory[_currentInventoryIndex].AttemptUse(_playerObj, isHeld);
+
+        QuantityCheck();
+        UpdateAllInventoryUI();
+    }
+
+    #region ReleaseItem
+    #endregion
     void ReleaseItem(bool b) {
         if (!IsOwner) return;
         if (PauseMenuToggler.IsPaused) return;
         if (!ValidIndexCheck()) return;
 
-        _inventory[_currentInventoryIndex].Release(_playerObj);
+        // _inventory[_currentInventoryIndex].Release(_playerObj);
+        MonoItem itemComponent = _inventoryMono[_currentInventoryIndex].GetComponent<MonoItem>();
+        if (itemComponent != null) {
+            itemComponent.Release(_playerObj);
+        } else {
+            // Do nothing.
+        }
 
+        QuantityCheck();
+        UpdateAllInventoryUI();
+    }
+
+    void QuantityCheck(){
         if (_inventory[_currentInventoryIndex].quantity <= 0) {
             _inventory[_currentInventoryIndex] = null;
             _currentHeldItems--;
         }
-        UpdateAllInventoryUI();
     }
-    #endregion
 
     #region PickUpEvents
     void PickUpClosest(bool discardBool) {
@@ -140,72 +175,66 @@ public class Inventory : NetworkBehaviour {
     void PickUpItem(GameObject pickedUp) {
         if (!IsOwner) return;
 
-        int itemID = pickedUp.GetComponent<WorldItem>().GetItemID();
-        string stringID = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
-        if (stringID == "PocketInventoryPortalKey") {
-            if (PocketInventory.instance.PlayerIsInPocket(_playerObj.GetComponent<NetworkObject>())) {
-                PocketInventory.instance.clearDroppedKeyServerRpc();
-            }
+        // Try to stack the item in any existing item stacks
+        if (pickedUp != null && 
+            pickedUp.GetComponent<MonoItem>() != null &&
+            TryStackItem(pickedUp)) {
+
+                CallPickUp(pickedUp.GetComponent<MonoItem>());
+                Destroy(pickedUp);
+                return;
         }
 
-        int stackQuantity = pickedUp.GetComponent<WorldItem>().GetStackQuantity();
-        float lastUsed = pickedUp.GetComponent<WorldItem>().GetLastUsed();
-
-        InventoryItem newItem = ItemManager.instance.SpawnInventoryItem(_playerObj, stringID, stackQuantity, lastUsed);
-
-        if (TryStackItem(newItem)) {
-            UpdateAllInventoryUI();
-            _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().RemoveItem(pickedUp);
-            ItemManager.instance.DestroyWorldItemServerRpc(pickedUp.GetComponent<NetworkObject>());
-            return;
-        }
-        if (newItem.quantity <= 0) {
-            newItem = null;
+        // CHECK: INVENTORY FULL
+        if (_currentHeldItems >= _maxInventorySize){
             return;
         }
 
-        if (newItem.IsWeapon()){
-            int weaponSlotIndex = HasWeapon();
-            if (weaponSlotIndex != -1) {
-                DropItem(weaponSlotIndex);
-            }
-        }
+        // parent the pickedup item to weaponSlot
+        pickedUp.transform.SetParent(weaponSlot.transform);
+        pickedUp.transform.localPosition = Vector3.zero;
+        pickedUp.transform.localRotation = Quaternion.identity;
 
-        if (newItem.IsClassSpec()){
-            DropAllOtherClassSpecs(InventoryItemToString(newItem));
-        }
+        // CHECK: CURRENT SLOT EMPTY
+        if (_inventoryMono[_currentInventoryIndex] == null) {
+            // put in curr slot
+            _inventoryMono[_currentInventoryIndex] = pickedUp;
+            _inventoryMono[_currentInventoryIndex].GetComponent<MonoItem>().PickUp(_playerObj);
 
-        if (_currentHeldItems < _maxInventorySize) {
-            if (_inventory[_currentInventoryIndex] == null) {
-                _inventory[_currentInventoryIndex] = newItem;
-                _currentHeldItems++;
-                CallPickUp(newItem);
-            } else {
-                bool success = AddToFirstEmptySlot(newItem);
-                if (!success){
-                    newItem = null;
-                }
-            }
-            UpdateAllInventoryUI();
-            _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>().RemoveItem(pickedUp);
-            ItemManager.instance.DestroyWorldItemServerRpc(pickedUp.GetComponent<NetworkObject>());
-        }
+            _currentHeldItems++;
+            return;
+        } 
+        
+
+
+        _inventoryMono[_currentInventoryIndex] = pickedUp;
     }
     #endregion
 
     #region PickupHelpers
-    bool TryStackItem(InventoryItem newItem) {
-        for (int i = 0; i < _inventory.Length; i++){
-            if (_inventory[i] == null) continue;
-            if (_inventory[i].itemID == newItem.itemID) {
-                int quantityBefore = _inventory[i].quantity;
-                _inventory[i].quantity += newItem.quantity;
-                if (_inventory[i].quantity > _inventory[i].StackLimit()) {
-                    newItem.quantity = _inventory[i].quantity - _inventory[i].StackLimit();
-                    _inventory[i].quantity = _inventory[i].StackLimit();
-                    CallPickUp(newItem);
+    bool TryStackItem(GameObject newItem) {
+        MonoItem newMono = newItem.GetComponent<MonoItem>();
+
+        // FOR ITEM IN INVENTORY
+        for (int i = 0; i < _inventoryMono.Length; i++){
+
+            // GET CURR
+            GameObject curr = _inventoryMono[i];
+            MonoItem currMono = curr.GetComponent<MonoItem>();
+    
+            if (curr == null) continue;
+
+            // IF SAME ITEM, STACK NEW INTO CURR
+            if (currMono.uniqueID == newMono.uniqueID) {
+
+                int quantityBefore = currMono.quantity;
+                currMono.quantity += newMono.quantity;
+
+                // IF CURR STACK EXCEEDS STACKLIMIT, PUT EXCESS IN NEW
+                if (currMono.quantity > currMono.StackLimit) {
+                    newMono.quantity = currMono.quantity - currMono.StackLimit;
+                    currMono.quantity = currMono.StackLimit;
                 } else {
-                    CallPickUp(newItem);
                     return true;
                 }
             }
@@ -218,7 +247,7 @@ public class Inventory : NetworkBehaviour {
         return _inventory[slot].quantity;
     }
 
-    void CallPickUp(InventoryItem newItem) {
+    void CallPickUp(MonoItem newItem) {
         newItem.PickUp(_playerObj);
     }
 
@@ -388,49 +417,9 @@ public class Inventory : NetworkBehaviour {
 
     private void UpdateAllInventoryUI() {
         for (int i = 0; i < _maxInventorySize; i++) {
-            Texture textureToSet = emptyMaterial;
-            int quantity = 0;
-            int stackLimit = 1; // default for non-stackable items
-            InventoryItem item = _inventory[i];
-            if (item != null) {
-                quantity = item.quantity;
-                stackLimit = item.StackLimit();
-                switch (item.itemID) {
-                    case 0:
-                        textureToSet = keyMaterial;
-                        break;
-                    case 1:
-                        textureToSet = medkitMaterial;
-                        break;
-                    case 2:
-                        textureToSet = pistolMaterial;
-                        break;
-                    case 3:
-                        textureToSet = railgunMaterial;
-                        break;
-                    case 4:
-                        textureToSet = flamethrowerMaterial;
-                        break;
-                    case 5:
-                        textureToSet = deliverableMaterial;
-                        break;
-                    case 6:
-                        textureToSet = grenadeMaterial;
-                        break;
-                    case 7:
-                        textureToSet = slowTrapMaterial;
-                        break;
-                    case 9:
-                        textureToSet = healSpecMaterial;
-                        break;
-                    case 10:
-                        textureToSet = dmgSpecMaterial;
-                        break;
-                    default:
-                        textureToSet = emptyMaterial;
-                        break;
-                }
-            }
+            Texture textureToSet = _inventoryMono[i].GetComponent<MonoItem>().icon;;
+            int quantity = _inventoryMono[i].GetComponent<MonoItem>().quantity;
+            int stackLimit = _inventoryMono[i].GetComponent<MonoItem>().StackLimit;
             _uiManager.SetInventorySlotTexture(i, textureToSet);
             _uiManager.SetInventorySlotQuantity(i, quantity, stackLimit);
         }
