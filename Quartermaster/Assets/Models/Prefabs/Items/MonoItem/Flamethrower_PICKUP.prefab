@@ -146,8 +146,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 972432862
-  InScenePlacedSourceGlobalObjectIdHash: 2643298771
+  GlobalObjectIdHash: 3324835702
+  InScenePlacedSourceGlobalObjectIdHash: 972432862
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
@@ -179,9 +179,9 @@ MonoBehaviour:
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
-  SyncRotAngleX: 0
-  SyncRotAngleY: 0
-  SyncRotAngleZ: 0
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
   SyncScaleX: 0
   SyncScaleY: 0
   SyncScaleZ: 0
@@ -242,6 +242,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  uniqueID: flamethrower
   IsConsumable: 0
   IsWeapon: 1
   IsClassSpec: 0
@@ -251,6 +252,7 @@ MonoBehaviour:
   quantity: 1
   icon: {fileID: 2800000, guid: c6b290b5717566144b7f057edceadffc, type: 3}
   soundEmitters: []
+  IsPickedUp: 0
   userRef: {fileID: 0}
   _flamethrowerDamage: 6
   _capsuleRadius: 4

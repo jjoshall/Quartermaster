@@ -433,24 +433,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   orientation: {fileID: 5437704285612138240}
-  pickupKey: 101
-  dropItemKey: 113
-  useItemKey: 102
-  selectItemOneKey: 49
-  selectItemTwoKey: 50
-  selectItemThreeKey: 51
-  selectItemFourKey: 52
-  medkitMaterial: {fileID: 2800000, guid: 35e041898aa85fa4ca178edf0c747b31, type: 3}
-  keyMaterial: {fileID: 2800000, guid: fdc8d072b61478a4ea92d5bac7ecaf39, type: 3}
-  pistolMaterial: {fileID: 2800000, guid: a002029af78d6c64ca5345ef4598ac37, type: 3}
-  emptyMaterial: {fileID: 2800000, guid: 22641cf7c6dd62d4a9bc6abe83714ec7, type: 3}
-  railgunMaterial: {fileID: 2800000, guid: 2a980c474bcfc804c8c1714aa1ac5659, type: 3}
-  flamethrowerMaterial: {fileID: 2800000, guid: c6b290b5717566144b7f057edceadffc, type: 3}
-  grenadeMaterial: {fileID: 2800000, guid: bf1ed58d660f427479999ac377cbb09a, type: 3}
-  slowTrapMaterial: {fileID: 2800000, guid: 2263076bda62b18478952a7bcc0644d1, type: 3}
-  deliverableMaterial: {fileID: 2800000, guid: 0b4580a8cfef587469bf4639d7bec309, type: 3}
-  healSpecMaterial: {fileID: 2800000, guid: e2ff992b8bfca034b817d47086fbf850, type: 3}
-  dmgSpecMaterial: {fileID: 2800000, guid: 295d4b06478496141854d630d2b0c0d2, type: 3}
   weaponSlot: {fileID: 5079399718664646750}
   holdablePrefabs:
   - {fileID: 8350377457489554618, guid: 83d9e3b59728a384e92d02a0f6f67371, type: 3}
@@ -1084,6 +1066,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6510128164420213327}
+  - component: {fileID: 2032256897419509004}
+  - component: {fileID: 7367988332959940110}
   m_Layer: 8
   m_Name: WeaponSlot
   m_TagString: Untagged
@@ -1106,6 +1090,67 @@ Transform:
   m_Children: []
   m_Father: {fileID: 9178118900874394549}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2032256897419509004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5079399718664646750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &7367988332959940110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5079399718664646750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkTransformExpanded: 0
+  AuthorityMode: 0
+  TickSyncChildren: 0
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
+  SyncScaleX: 0
+  SyncScaleY: 0
+  SyncScaleZ: 0
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 0
+  SwitchTransformSpaceWhenParented: 0
+  Interpolate: 1
+  SlerpPosition: 0
 --- !u!1 &6069712773202572352
 GameObject:
   m_ObjectHideFlags: 0

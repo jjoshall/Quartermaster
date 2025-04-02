@@ -8,23 +8,23 @@ public abstract class MonoItem : NetworkBehaviour
    // Static dictionary mapping each item type to a unique id. 
    // NOTE: Unique Type/ID maps constructed locally, and used locally for player cooldown lookup.
    //       Do not try to sync these IDs across network.
-    private static Dictionary<Type, int> typeToIdMap = new Dictionary<Type, int>();
-    private static int nextId = 1;
+    // private static Dictionary<Type, int> typeToIdMap = new Dictionary<Type, int>();
+    // private static int nextId = 1;
 
-    // Unique id for this item’s type.
-    public int UniqueTypeId { get; private set; } = 0;
+    // // Unique id for this item’s type.
+    // public int UniqueTypeId { get; private set; } = 0;
 
-    protected virtual void Awake()
-    {
-        // Register or retrieve a unique id for this item type.
-        Type itemType = this.GetType();
-        if (!typeToIdMap.TryGetValue(itemType, out int id))
-        {
-            id = nextId++;
-            typeToIdMap[itemType] = id;
-        }
-        UniqueTypeId = id;
-    }
+    // protected virtual void Awake()
+    // {
+    //     // Register or retrieve a unique id for this item type.
+    //     Type itemType = this.GetType();
+    //     if (!typeToIdMap.TryGetValue(itemType, out int id))
+    //     {
+    //         id = nextId++;
+    //         typeToIdMap[itemType] = id;
+    //     }
+    //     UniqueTypeId = id;
+    // }
 
     #region SUBCLASS PROPERTIES
     // DEFINITIONS ========================================================================================
@@ -39,6 +39,8 @@ public abstract class MonoItem : NetworkBehaviour
     [Tooltip("Current stack quantity, also modified during runtime")]       public int quantity = 1;
     [Tooltip("Item icon")]                                                  public Texture icon = null;
     [Tooltip("OnUse sound emitters")]                                       public SoundEmitter[] soundEmitters = null;
+    [HideInInspector]                                                       public bool IsPickedUp = false;
+    [HideInInspector]                                                       public NetworkObject weaponSlot = null;
 
     #endregion
 
@@ -51,8 +53,8 @@ public abstract class MonoItem : NetworkBehaviour
     // RUNTIME VARIABLES ===================================================================================================
     [HideInInspector] public GameObject userRef;
     public float lastUsed {
-        get => userRef.GetComponent<PlayerStatus>().GetLastUsed(UniqueTypeId);
-        set => userRef.GetComponent<PlayerStatus>().SetLastUsed(UniqueTypeId, value);
+        get => userRef.GetComponent<PlayerStatus>().GetLastUsed(uniqueID);
+        set => userRef.GetComponent<PlayerStatus>().SetLastUsed(uniqueID, value);
     }
 
     #endregion

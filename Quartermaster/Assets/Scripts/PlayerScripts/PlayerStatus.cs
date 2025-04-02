@@ -8,7 +8,7 @@ public class PlayerStatus : NetworkBehaviour
 {
 
     // Cooldown
-    private List<float> _lastUsed = new List<float>();
+    private Dictionary<string, float> _lastUsed = new Dictionary<string, float>();
 
     // Status Effects
     private NetworkVariable<bool> n_stimActive = new NetworkVariable<bool>(false); // runtime var
@@ -34,7 +34,7 @@ public class PlayerStatus : NetworkBehaviour
     #region Startup
     public override void OnNetworkSpawn(){
         InitValuesFromGameManager();
-        InitLastUsedList();
+        // InitLastUsedList();
     }
 
     void InitValuesFromGameManager(){
@@ -43,10 +43,10 @@ public class PlayerStatus : NetworkBehaviour
 
     void InitLastUsedList(){
         // n_lastUsed = new NetworkList<float>();
-        for (int i = 0; i < ItemManager.instance.itemEntries.Count; i++)
-        {
-            _lastUsed.Add(float.MinValue);
-        }
+        // for (int i = 0; i < ItemManager.instance.itemEntries.Count; i++)
+        // {
+        //     _lastUsed.Add(ItemManager.instance.itemEntries[i].id, float.MinValue);
+        // }
     }
 
 
@@ -81,11 +81,11 @@ public class PlayerStatus : NetworkBehaviour
 
     #endregion
     #region CooldownHelpers
-    public float GetLastUsed(int itemID){
+    public float GetLastUsed(string itemID){
         return _lastUsed[itemID];
     }
 
-    public void SetLastUsed(int itemID, float time){
+    public void SetLastUsed(string itemID, float time){
         _lastUsed[itemID] = time;
     }
 
