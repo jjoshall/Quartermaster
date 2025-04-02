@@ -165,7 +165,7 @@ public class Inventory : NetworkBehaviour {
     void PickUpClosest() {
         if (!IsOwner) return;
 
-        GameObject pickedUp = ReturnClosestItem();
+        GameObject pickedUp = ReturnClosestItem();  
 
         // Try to stack the item in any existing item stacks
         if (pickedUp != null && 
@@ -183,10 +183,10 @@ public class Inventory : NetworkBehaviour {
             return;
         }
 
-        // update held item position locally.
-        // every player has a local understanding of every other player's helditem, if exists, 
-        // and the attached weaponSlot
-
+        PropagateItemAttachmentServerRpc(pickedUp.GetComponent<NetworkObject>(), _playerObj.GetComponent<NetworkObject>());
+        pickedUp.GetComponent<MonoItem>().IsPickedUp = true; // prevent items in inventory from being picked up
+        pickedUp.GetComponent<MonoItem>().attachedWeaponSlot = weaponSlot; // local. 
+        pickedUp.GetComponent<MonoItem>().userRef = _playerObj; // local.
 
         // CHECK: CURRENT SLOT EMPTY
         if (_inventoryMono[_currentInventoryIndex] == null) {
@@ -200,6 +200,37 @@ public class Inventory : NetworkBehaviour {
 
         // ELSE: ADD TO FIRST EMPTY SLOT
         AddToFirstEmptySlot(pickedUp);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void PropagateItemAttachmentServerRpc(NetworkObjectReference item, NetworkObjectReference n_player){
+        if (!IsServer) return;
+        // Attach the item to the weapon slot on the server
+        AttachItemClientRpc(item, n_player);
+    }
+
+    [ClientRpc]
+    private void AttachItemClientRpc(NetworkObjectReference itemRef, NetworkObjectReference n_playerRef){
+        // Get the item and weapon slot GameObjects
+        NetworkObject n_item = itemRef.TryGet(out NetworkObject itemObj) ? itemObj : null;
+        GameObject item = n_item != null ? n_item.gameObject : null;
+        NetworkObject n_player = n_playerRef.TryGet(out NetworkObject weaponSlotObj) ? weaponSlotObj : null;
+        GameObject player = n_player != null ? weaponSlotObj.gameObject : null;
+        
+        if (!player || !item){
+            return;
+        }
+
+        GameObject weaponSlot = player.GetComponent<Inventory>().weaponSlot;
+
+        if (!weaponSlot){
+            return;
+        }
+        
+        item.transform.SetParent(weaponSlot.transform);
+        item.transform.localPosition = Vector3.zero;
+        item.transform.localRotation = Quaternion.identity;
+
     }
 
     GameObject ReturnClosestItem(){

@@ -40,7 +40,7 @@ public abstract class MonoItem : NetworkBehaviour
     [Tooltip("Item icon")]                                                  public Texture icon = null;
     [Tooltip("OnUse sound emitters")]                                       public SoundEmitter[] soundEmitters = null;
     [HideInInspector]                                                       public bool IsPickedUp = false;
-    [HideInInspector]                                                       public NetworkObject weaponSlot = null;
+    [HideInInspector]                                                       public GameObject attachedWeaponSlot = null;
 
     #endregion
 
@@ -55,6 +55,16 @@ public abstract class MonoItem : NetworkBehaviour
     public float lastUsed {
         get => userRef.GetComponent<PlayerStatus>().GetLastUsed(uniqueID);
         set => userRef.GetComponent<PlayerStatus>().SetLastUsed(uniqueID, value);
+    }
+
+    void Update(){
+        if (IsPickedUp && attachedWeaponSlot != null){
+            // Update the position of the item to match the weapon slot.
+            transform.position = attachedWeaponSlot.transform.position;
+            transform.rotation = attachedWeaponSlot.transform.rotation;
+            transform.Rotate(0, 90, 0); // add 90 degree y axis rotation
+            // add 90 degree y axis rotation
+        }
     }
 
     #endregion
