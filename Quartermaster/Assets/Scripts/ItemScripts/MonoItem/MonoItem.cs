@@ -58,13 +58,18 @@ public abstract class MonoItem : NetworkBehaviour
     }
 
     void Update(){
+        UpdateHoldablePosition();
+    }
+
+    void UpdateHoldablePosition(){
         if (IsPickedUp && attachedWeaponSlot != null){
             // Update the position of the item to match the weapon slot.
             transform.position = attachedWeaponSlot.transform.position;
             transform.rotation = attachedWeaponSlot.transform.rotation;
             transform.Rotate(0, 90, 0); // add 90 degree y axis rotation
-            // add 90 degree y axis rotation
+            // rotate for vertical camera view. 
         }
+
     }
 
     #endregion
