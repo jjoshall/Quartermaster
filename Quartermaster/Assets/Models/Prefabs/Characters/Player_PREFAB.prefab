@@ -434,20 +434,6 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   orientation: {fileID: 5437704285612138240}
   weaponSlot: {fileID: 5079399718664646750}
-  holdablePrefabs:
-  - {fileID: 8350377457489554618, guid: 83d9e3b59728a384e92d02a0f6f67371, type: 3}
-  - {fileID: 7845268297896390631, guid: 128d7e289f110d746ae5c0ebbdcac8d9, type: 3}
-  - {fileID: 8214988673966322452, guid: 98896561af7a3ee46953905c5a2055e3, type: 3}
-  - {fileID: 670930991722643377, guid: 0369d2544b8a67447a02a2f182b83760, type: 3}
-  - {fileID: 7575857999763451099, guid: 36c2adef9b87b974a8d2165862a3159e, type: 3}
-  - {fileID: 8350377457489554618, guid: bc4c29eca8b61c147a60abf32c41e71c, type: 3}
-  - {fileID: 8350377457489554618, guid: 63e221bda962679469f5e189551fddce, type: 3}
-  - {fileID: 8350377457489554618, guid: 1ca1a90bed264944a951312de771f270, type: 3}
-  - {fileID: 8350377457489554618, guid: b482fba2a62e21c4f94455286fe42427, type: 3}
-  - {fileID: 8350377457489554618, guid: ae627312e1fbf524ea15247e272bb83a, type: 3}
-  - {fileID: 8350377457489554618, guid: 438bd288fd8c986469dd68e023a6c3ec, type: 3}
-  currentHeldItemId:
-    m_InternalValue: -1
 --- !u!114 &3204480622593929652
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1066,8 +1052,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6510128164420213327}
-  - component: {fileID: 2032256897419509004}
-  - component: {fileID: 7367988332959940110}
   m_Layer: 8
   m_Name: WeaponSlot
   m_TagString: Untagged
@@ -1090,67 +1074,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 9178118900874394549}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2032256897419509004
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5079399718664646750}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 0
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  DeferredDespawnTick: 0
-  Ownership: 1
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
-  SyncOwnerTransformWhenParented: 1
-  AllowOwnerToParent: 0
---- !u!114 &7367988332959940110
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5079399718664646750}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  NetworkTransformExpanded: 0
-  AuthorityMode: 0
-  TickSyncChildren: 0
-  UseUnreliableDeltas: 0
-  SyncPositionX: 1
-  SyncPositionY: 1
-  SyncPositionZ: 1
-  SyncRotAngleX: 1
-  SyncRotAngleY: 1
-  SyncRotAngleZ: 1
-  SyncScaleX: 0
-  SyncScaleY: 0
-  SyncScaleZ: 0
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
-  UseQuaternionSynchronization: 0
-  UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
-  InLocalSpace: 0
-  SwitchTransformSpaceWhenParented: 0
-  Interpolate: 1
-  SlerpPosition: 0
 --- !u!1 &6069712773202572352
 GameObject:
   m_ObjectHideFlags: 0

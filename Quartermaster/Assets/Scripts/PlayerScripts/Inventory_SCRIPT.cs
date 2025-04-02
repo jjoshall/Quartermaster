@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using Unity.Netcode.Components; // Add this for NetworkTransform
 using UnityEngine.AI;
 
 [RequireComponent(typeof(PlayerInputHandler))]
@@ -28,7 +29,7 @@ public class Inventory : NetworkBehaviour {
     [Header("Weapon Holdable Setup")]
     public GameObject weaponSlot;
     // public GameObject[] holdablePrefabs;
-    public GameObject currentHoldable;
+    // public GameObject currentHoldable;
 
     // private InventoryItem[] _inventory;
 
@@ -38,8 +39,8 @@ public class Inventory : NetworkBehaviour {
     private int _currentHeldItems = 0;
     private int _maxInventorySize = 4;
 
-    public NetworkVariable<int> currentHeldItemId = new NetworkVariable<int>(-1, 
-        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    // public NetworkVariable<int> currentHeldItemId = new NetworkVariable<int>(-1, 
+    //     NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     public override void OnNetworkSpawn(){
         _playerObj = this.gameObject;
@@ -64,10 +65,6 @@ public class Inventory : NetworkBehaviour {
     void Update() {
         if (IsOwner){
             MyInput();
-            // if (_inventory[_currentInventoryIndex] != null)
-            //     currentHeldItemId.Value = _inventory[_currentInventoryIndex].itemID;
-            // else
-            //     currentHeldItemId.Value = -1;
             UpdateWeaponCooldownUI();
         }
         UpdateHeldItem();
@@ -107,7 +104,7 @@ public class Inventory : NetworkBehaviour {
 
         MonoItem itemComponent = _inventoryMono[_currentInventoryIndex].GetComponent<MonoItem>();
         if (itemComponent != null) {
-            itemComponent.Use(_playerObj);
+            itemComponent.ButtonUse(_playerObj);
         } else {
             // Do nothing.
         }
@@ -125,7 +122,7 @@ public class Inventory : NetworkBehaviour {
 
         MonoItem itemComponent = _inventoryMono[_currentInventoryIndex].GetComponent<MonoItem>();
         if (itemComponent != null) {
-            itemComponent.Held(_playerObj);
+            itemComponent.ButtonHeld(_playerObj);
         } else {
             // Do nothing.
         }
@@ -145,7 +142,7 @@ public class Inventory : NetworkBehaviour {
         // _inventory[_currentInventoryIndex].Release(_playerObj);
         MonoItem itemComponent = _inventoryMono[_currentInventoryIndex].GetComponent<MonoItem>();
         if (itemComponent != null) {
-            itemComponent.Release(_playerObj);
+            itemComponent.ButtonRelease(_playerObj);
         } else {
             // Do nothing.
         }
@@ -202,36 +199,6 @@ public class Inventory : NetworkBehaviour {
         AddToFirstEmptySlot(pickedUp);
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void PropagateItemAttachmentServerRpc(NetworkObjectReference item, NetworkObjectReference n_player){
-        if (!IsServer) return;
-        // Attach the item to the weapon slot on the server
-        AttachItemClientRpc(item, n_player);
-    }
-
-    [ClientRpc]
-    private void AttachItemClientRpc(NetworkObjectReference itemRef, NetworkObjectReference n_playerRef){
-        // Get the item and weapon slot GameObjects
-        NetworkObject n_item = itemRef.TryGet(out NetworkObject itemObj) ? itemObj : null;
-        GameObject item = n_item != null ? n_item.gameObject : null;
-        NetworkObject n_player = n_playerRef.TryGet(out NetworkObject weaponSlotObj) ? weaponSlotObj : null;
-        GameObject player = n_player != null ? weaponSlotObj.gameObject : null;
-        
-        if (!player || !item){
-            return;
-        }
-
-        GameObject weaponSlot = player.GetComponent<Inventory>().weaponSlot;
-
-        if (!weaponSlot){
-            return;
-        }
-        
-        item.transform.SetParent(weaponSlot.transform);
-        item.transform.localPosition = Vector3.zero;
-        item.transform.localRotation = Quaternion.identity;
-
-    }
 
     GameObject ReturnClosestItem(){
         GameObject closestItem = _itemAcquisitionRange.
@@ -304,75 +271,43 @@ public class Inventory : NetworkBehaviour {
     #endregion
 
     #region DropEvents
-    void DropSelectedItem() {
-        if (_inventoryMono[_currentInventoryIndex] == null) return;
+    void DropSelectedItem() { // trigger on hotkey
+        if (!IsOwner) return;
         if (PauseMenuToggler.IsPaused) return;
+        if (!ValidIndexCheck()) return;
+
+        // Drop the item in the current slot
+        DropItem(_currentInventoryIndex);
+    }
+
+    void DropItem(int slot) { // called directly to drop additional ClassSpecs / Weapons
+        if (!IsOwner) return;
+        if (_inventoryMono[slot] == null) return;
+        if (PauseMenuToggler.IsPaused) return;
+        if (!ValidIndexCheck()) return;
         
         // int itemId = _inventory[_currentInventoryIndex].itemID;
         // float lastUsed = _inventory[_currentInventoryIndex].lastUsed;
-        // NetworkObjectReference n_playerObj = _playerObj.GetComponent<NetworkObject>();
-        // Vector3 initVelocity = orientation.forward * GameManager.instance.DropItemVelocity;
+        NetworkObjectReference n_playerObj = _playerObj.GetComponent<NetworkObject>();
+        Vector3 initVelocity = orientation.forward * GameManager.instance.DropItemVelocity;
 
-        // if (_inventory[_currentInventoryIndex].quantity > 1) {
-        //     _inventory[_currentInventoryIndex].quantity -= 1;
-        //     ItemManager.instance.SpawnWorldItemServerRpc(
-        //         itemId,
-        //         1,
-        //         lastUsed,
-        //         this.transform.position,
-        //         initVelocity,
-        //         n_playerObj
-        //     );
-        // } else {
-        //     int stackQuantity = _inventory[_currentInventoryIndex].quantity; 
-        //     _inventory[_currentInventoryIndex].Drop(_playerObj);
-        //     _inventory[_currentInventoryIndex] = null;
-        //     ItemManager.instance.SpawnWorldItemServerRpc(
-        //         itemId,
-        //         stackQuantity,
-        //         lastUsed,
-        //         this.transform.position,
-        //         initVelocity,
-        //         n_playerObj
-        //     );
-        //     _currentHeldItems--;
-        // }
-        UpdateAllInventoryUI();
-    }
-
-
-    void DropItem(int slot) {
-        // if (_inventory[slot] == null) return;
-        // if (PauseMenuToggler.IsPaused) return;
+        // detach the current held item
+        PropagateItemDetachServerRpc(_inventoryMono[_currentInventoryIndex].GetComponent<NetworkObject>(), n_playerObj);
         
-        // int itemId = _inventory[slot].itemID;
-        // float lastUsed = _inventory[slot].lastUsed;
-        // NetworkObjectReference n_playerObj = _playerObj.GetComponent<NetworkObject>();
+        // Give it velocity
+        Rigidbody rb = _inventoryMono[_currentInventoryIndex].GetComponent<Rigidbody>();
+        if (rb != null) {
+            rb.isKinematic = false;
+            rb.useGravity = true;
+            rb.constraints = RigidbodyConstraints.None;
+            rb.linearVelocity = initVelocity;
+        }
 
-        // if (_inventory[slot].quantity > 1) {
-        //     _inventory[slot].quantity -= 1;
-        //     ItemManager.instance.SpawnWorldItemServerRpc(
-        //         itemId,
-        //         1,
-        //         lastUsed,
-        //         this.transform.position,
-        //         Vector3.zero,
-        //         n_playerObj
-        //     );
-        // } else {
-        //     int stackQuantity = _inventory[slot].quantity;
-        //     _inventory[slot].Drop(_playerObj);
-        //     _inventory[slot] = null;
-        //     ItemManager.instance.SpawnWorldItemServerRpc(
-        //         itemId,
-        //         stackQuantity,
-        //         lastUsed,
-        //         this.transform.position,
-        //         Vector3.zero,
-        //         n_playerObj
-        //     );
-        //     _currentHeldItems--;
-        // }
+        _inventoryMono[slot].GetComponent<MonoItem>().Drop(_playerObj); // Call the item's onDrop function
+
+        _inventoryMono[slot] = null;
+        _currentHeldItems--;
+
         UpdateAllInventoryUI();
     }
 
@@ -420,49 +355,116 @@ public class Inventory : NetworkBehaviour {
     }
 
     void UpdateHeldItem() {
-        // int heldItemId = currentHeldItemId.Value;
-        // if (heldItemId == -1) {
-        //     if (currentHoldable != null) {
-        //         Destroy(currentHoldable);
-        //         currentHoldable = null;
-        //         animator.SetBool("WeaponEquipped", false);
-        //     }
-        //     return;
-        // }
-        // if (currentHoldable != null) {
-        //     HoldableIdentifer identifier = currentHoldable.GetComponent<HoldableIdentifer>();
-        //     if (identifier != null && identifier.itemID == heldItemId) {
-        //         return;
-        //     } else {
-        //         Destroy(currentHoldable);
-        //         currentHoldable = null;
-        //     }
-        // }
-        // if (heldItemId < holdablePrefabs.Length && holdablePrefabs[heldItemId] != null) {
-        //     currentHoldable = Instantiate(holdablePrefabs[heldItemId], weaponSlot.transform);
-        //     currentHoldable.transform.localPosition = Vector3.zero;
-        //     currentHoldable.transform.localRotation = Quaternion.identity;
-        //     HoldableIdentifer identifier = currentHoldable.GetComponent<HoldableIdentifer>();
-        //     if (identifier != null) {
-        //         identifier.itemID = heldItemId;
-        //     }
-        // }
 
-        if (animator != null) {
-            animator.SetBool("WeaponEquipped", true);
+        if (_inventoryMono[_currentInventoryIndex] == null){
+            if (animator) 
+                animator.SetBool("WeaponEquipped", false);
+            return;
         }
+        if (animator)
+            animator.SetBool("WeaponEquipped", true);
 
     }
 
     private void UpdateAllInventoryUI() {
         for (int i = 0; i < _maxInventorySize; i++) {
-            Texture textureToSet = _inventoryMono[i].GetComponent<MonoItem>().icon;;
+            if (_inventoryMono[i] == null || _inventoryMono[i].GetComponent<MonoItem>() == null) {
+                _uiManager.SetInventorySlotTexture(i, null);
+                _uiManager.SetInventorySlotQuantity(i, 0, 0);
+                continue;
+            }
+            Texture textureToSet = _inventoryMono[i].GetComponent<MonoItem>().icon;
             int quantity = _inventoryMono[i].GetComponent<MonoItem>().quantity;
             int stackLimit = _inventoryMono[i].GetComponent<MonoItem>().StackLimit;
             _uiManager.SetInventorySlotTexture(i, textureToSet);
             _uiManager.SetInventorySlotQuantity(i, quantity, stackLimit);
         }
     }
+
+    #region HoldingItem
+    [ServerRpc(RequireOwnership = false)]
+    private void PropagateItemAttachmentServerRpc(NetworkObjectReference item, NetworkObjectReference n_player){
+        if (!IsServer) return;
+        // Attach the item to the weapon slot on the server
+        AttachItemClientRpc(item, n_player);
+    }
+
+    [ClientRpc]
+    private void AttachItemClientRpc(NetworkObjectReference itemRef, NetworkObjectReference n_playerRef){
+        // Get the item and weapon slot GameObjects
+        NetworkObject n_item = itemRef.TryGet(out NetworkObject itemObj) ? itemObj : null;
+        GameObject item = n_item != null ? n_item.gameObject : null;
+        NetworkObject n_player = n_playerRef.TryGet(out NetworkObject weaponSlotObj) ? weaponSlotObj : null;
+        GameObject player = n_player != null ? weaponSlotObj.gameObject : null;
+        
+        if (!player || !item){
+            return;
+        }
+
+        GameObject weaponSlot = player.GetComponent<Inventory>().weaponSlot;
+
+        if (!weaponSlot){
+            return;
+        }
+        
+        // toggle OFF networktransform
+        item.GetComponent<NetworkTransform>().enabled = false;
+        // item.transform.SetParent(weaponSlot.transform, worldPositionStays: false);
+        item.transform.localPosition = Vector3.zero;
+        item.transform.localRotation = Quaternion.identity;
+
+        // freeze rigidbody position / rotation
+        Rigidbody rb = item.GetComponent<Rigidbody>();
+        if (rb != null){
+            rb.isKinematic = false;
+            rb.useGravity = false;
+            rb.constraints = RigidbodyConstraints.FreezeAll;
+        }
+    }
+    [ServerRpc(RequireOwnership = false)]
+    private void PropagateItemDetachServerRpc(NetworkObjectReference item, NetworkObjectReference n_player){
+        if (!IsServer) return;
+        // Attach the item to the weapon slot on the server
+        DetachItemClientRpc(item, n_player);
+    }
+    [ClientRpc]
+    private void DetachItemClientRpc(NetworkObjectReference itemRef, NetworkObjectReference n_playerRef){
+        // Get the item and weapon slot GameObjects
+        NetworkObject n_item = itemRef.TryGet(out NetworkObject itemObj) ? itemObj : null;
+        GameObject item = n_item != null ? n_item.gameObject : null;
+        NetworkObject n_player = n_playerRef.TryGet(out NetworkObject weaponSlotObj) ? weaponSlotObj : null;
+        GameObject player = n_player != null ? weaponSlotObj.gameObject : null;
+
+        if (!player || !item){
+            return;
+        }
+
+        item.GetComponent<NetworkTransform>().enabled = true;
+        item.GetComponent<MonoItem>().IsPickedUp = false; // prevent items in inventory from being picked up
+        item.GetComponent<MonoItem>().attachedWeaponSlot = null; // local.
+        item.GetComponent<MonoItem>().userRef = null; // local.
+
+
+    }
+
+    void FreezeRigidbody(GameObject obj){
+        Rigidbody rb = obj.GetComponent<Rigidbody>();
+        if (rb != null){
+            rb.isKinematic = false;
+            rb.useGravity = false;
+            rb.constraints = RigidbodyConstraints.FreezeAll;
+        }
+
+    }
+    void UnfreezeRigidbody(GameObject obj){
+        Rigidbody rb = obj.GetComponent<Rigidbody>();
+        if (rb != null){
+            rb.isKinematic = false;
+            rb.useGravity = true;
+            rb.constraints = RigidbodyConstraints.None;
+        }
+    }
+    #endregion
 
 
     #region Helpers

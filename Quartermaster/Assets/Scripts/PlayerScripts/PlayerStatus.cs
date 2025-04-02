@@ -82,6 +82,9 @@ public class PlayerStatus : NetworkBehaviour
     #endregion
     #region CooldownHelpers
     public float GetLastUsed(string itemID){
+        if (!_lastUsed.ContainsKey(itemID)){
+            _lastUsed[itemID] = float.MinValue;
+        }
         return _lastUsed[itemID];
     }
 

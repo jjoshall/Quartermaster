@@ -57,19 +57,21 @@ public abstract class MonoItem : NetworkBehaviour
         set => userRef.GetComponent<PlayerStatus>().SetLastUsed(uniqueID, value);
     }
 
-    void Update(){
-        UpdateHoldablePosition();
+    void LateUpdate(){
+        if (IsPickedUp)
+            UpdateHoldablePosition(); // causes jitter if placed in Update() instead.
     }
 
     void UpdateHoldablePosition(){
-        if (IsPickedUp && attachedWeaponSlot != null){
-            // Update the position of the item to match the weapon slot.
-            transform.position = attachedWeaponSlot.transform.position;
-            transform.rotation = attachedWeaponSlot.transform.rotation;
-            transform.Rotate(0, 90, 0); // add 90 degree y axis rotation
-            // rotate for vertical camera view. 
-        }
+        if (attachedWeaponSlot == null)
+            return;
 
+        // Update the position of the item to match the weapon slot.
+        transform.position = attachedWeaponSlot.transform.position;
+        transform.rotation = attachedWeaponSlot.transform.rotation;
+        transform.Rotate(0, -90, 0); // add 90 degree y axis rotation
+
+        // WIP: rotate for vertical camera view. 
     }
 
     #endregion
@@ -87,15 +89,15 @@ public abstract class MonoItem : NetworkBehaviour
         // On drop.
         Debug.Log("Dropped item: " + gameObject.name);
     }
-    public virtual void Use(GameObject user){
+    public virtual void ButtonUse(GameObject user){
         // Fire once when use is pressed.
         Debug.Log("Used item: " + gameObject.name);
     }
-    public virtual void Held(GameObject user){
+    public virtual void ButtonHeld(GameObject user){
         // Fire every frame when use is held.
         Debug.Log("Held item: " + gameObject.name);
     }
-    public virtual void Release(GameObject user){
+    public virtual void ButtonRelease(GameObject user){
         // Fire once when use is released.
         Debug.Log("Released item: " + gameObject.name);
     }

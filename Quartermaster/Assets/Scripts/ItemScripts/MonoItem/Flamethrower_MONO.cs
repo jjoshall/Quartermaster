@@ -25,7 +25,7 @@ public class Flamethrower_MONO : MonoItem
 
 
 
-    public override void Use(GameObject user) {
+    public override void ButtonUse(GameObject user) {
         if (lastUsed + cooldown > Time.time) {
             return;
         }
@@ -40,7 +40,7 @@ public class Flamethrower_MONO : MonoItem
     }
 
     // Same as Use() for flamethrower.
-    public override void Held(GameObject user)
+    public override void ButtonHeld(GameObject user)
     {
         if (lastUsed + cooldown > Time.time) {
             return;
@@ -55,7 +55,7 @@ public class Flamethrower_MONO : MonoItem
         lastUsed = Time.time;
     }
 
-    public override void Release(GameObject user){
+    public override void ButtonRelease(GameObject user){
         if (_isFireStarted){
             _isFireStarted = false; 
             StopFireEffect(user); // stop continuous fire effect.
