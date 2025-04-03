@@ -15,13 +15,6 @@ public class Inventory : NetworkBehaviour {
 
     [Header("Inventory Keybinds")]
     private PlayerInputHandler _InputHandler;
-    // public KeyCode pickupKey = KeyCode.E;
-    // public KeyCode dropItemKey = KeyCode.Q;
-    // public KeyCode useItemKey = KeyCode.F;
-    // public KeyCode selectItemOneKey = KeyCode.Alpha1;
-    // public KeyCode selectItemTwoKey = KeyCode.Alpha2;
-    // public KeyCode selectItemThreeKey = KeyCode.Alpha3;
-    // public KeyCode selectItemFourKey = KeyCode.Alpha4;
 
     private UIManager _uiManager;
 
@@ -29,14 +22,14 @@ public class Inventory : NetworkBehaviour {
     [Header("Weapon Holdable Setup")]
     public GameObject weaponSlot;
 
+    public NetworkVariable<NetworkObjectReference> n_currentHoldable = new NetworkVariable<NetworkObjectReference>();
+    public NetworkVariable<NetworkObjectReference> n_prevHoldable = new NetworkVariable<NetworkObjectReference>();
+
     private GameObject[] _inventoryMono;
     private int _currentInventoryIndex = 0;
     private int _oldInventoryIndex = 0;
     private int _currentHeldItems = 0;
     private int _maxInventorySize = 4;
-
-    // public NetworkVariable<int> currentHeldItemId = new NetworkVariable<int>(-1, 
-    //     NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     public override void OnNetworkSpawn(){
         _playerObj = this.gameObject;
@@ -77,6 +70,7 @@ public class Inventory : NetworkBehaviour {
         if (_currentInventoryIndex != _oldInventoryIndex) {
             UpdateAllInventoryUI();
             _oldInventoryIndex = _currentInventoryIndex;
+            n_currentHoldable.Value = _inventoryMono[_currentInventoryIndex] != null ? _inventoryMono[_currentInventoryIndex].GetComponent<NetworkObject>() : null;
         }
         _uiManager.HighlightSlot(_currentInventoryIndex);
     }
@@ -96,9 +90,7 @@ public class Inventory : NetworkBehaviour {
     }
 
     void UseItem(){
-        if (!IsOwner) return;
-        if (PauseMenuToggler.IsPaused) return;
-        if (!ValidIndexCheck()) return;
+        if (!IsOwnerValidIndexAndPauseMenuCheck()) return;
 
         MonoItem itemComponent = _inventoryMono[_currentInventoryIndex].GetComponent<MonoItem>();
         if (itemComponent != null) {
@@ -107,14 +99,12 @@ public class Inventory : NetworkBehaviour {
             // Do nothing.
         }
 
-        QuantityCheck();
+        QuantityCheck(); 
         UpdateAllInventoryUI();
     }
 
     void HeldItem(){
-        if (!IsOwner) return;
-        if (PauseMenuToggler.IsPaused) return;
-        if (!ValidIndexCheck()) return;
+        if (!IsOwnerValidIndexAndPauseMenuCheck()) return;
 
         MonoItem itemComponent = _inventoryMono[_currentInventoryIndex].GetComponent<MonoItem>();
         if (itemComponent != null) {
@@ -127,9 +117,7 @@ public class Inventory : NetworkBehaviour {
     }
 
     void ReleaseItem(bool b) {
-        if (!IsOwner) return;
-        if (PauseMenuToggler.IsPaused) return;
-        if (!ValidIndexCheck()) return;
+        if (!IsOwnerValidIndexAndPauseMenuCheck()) return;
 
         MonoItem itemComponent = _inventoryMono[_currentInventoryIndex].GetComponent<MonoItem>();
         if (itemComponent != null) {
@@ -180,14 +168,8 @@ public class Inventory : NetworkBehaviour {
 
     private void AddToInventory(GameObject pickedUp){
 
-        // Attach the item to 
+        // Locally attach the item to the player on each client
         PropagateItemAttachmentServerRpc(pickedUp.GetComponent<NetworkObject>(), _playerObj.GetComponent<NetworkObject>());
-        pickedUp.GetComponent<MonoItem>().IsPickedUp = true; // prevent items in inventory from being picked up
-        pickedUp.GetComponent<MonoItem>().attachedWeaponSlot = weaponSlot; // local. 
-        pickedUp.GetComponent<MonoItem>().userRef = _playerObj; // local.
-        if (pickedUp.GetComponent<Outline>() != null) {
-            pickedUp.GetComponent<Outline>().enabled = false;
-        }
 
         // CHECK: CURRENT SLOT EMPTY
         if (_inventoryMono[_currentInventoryIndex] == null) {
@@ -279,18 +261,14 @@ public class Inventory : NetworkBehaviour {
     #endregion
 
     void DropSelectedItem() { // trigger on hotkey. calls DropItem on current slot.
-        if (!IsOwner) return;
-        if (PauseMenuToggler.IsPaused) return;
-        if (!ValidIndexCheck()) return;
+        if (!IsOwnerValidIndexAndPauseMenuCheck()) return;
 
         DropItem(_currentInventoryIndex);
     }
 
     void DropItem(int slot) { // called directly to drop additional ClassSpecs / Weapons
-        if (!IsOwner) return;
         if (_inventoryMono[slot] == null) return;
-        if (PauseMenuToggler.IsPaused) return;
-        if (!ValidIndexCheck()) return;
+        if (!IsOwnerValidIndexAndPauseMenuCheck()) return;
         
         NetworkObjectReference n_playerObj = _playerObj.GetComponent<NetworkObject>();
         Vector3 initVelocity = orientation.forward * GameManager.instance.DropItemVelocity;
@@ -342,15 +320,36 @@ public class Inventory : NetworkBehaviour {
     }
 
     void UpdateHeldItem() {
+        // Retrieve the current and previous held network objects.
+        NetworkObject currentNetObj = n_currentHoldable.Value;
+        NetworkObject previousNetObj = n_prevHoldable.Value;
 
-        if (_inventoryMono[_currentInventoryIndex] == null){
-            if (animator) 
-                animator.SetBool("WeaponEquipped", false);
-            return;
+        // Check if the held item has changed.
+        if (currentNetObj != previousNetObj) {
+            // If there was a previously held item, disable all its renderers.
+            if (previousNetObj != null) {
+                GameObject previousObject = previousNetObj.gameObject;
+                foreach (Renderer r in previousObject.GetComponentsInChildren<Renderer>()) {
+                    r.enabled = false;
+                }
+            }
+            // Update the previous held network object to the new one.
+            n_prevHoldable.Value = currentNetObj;
+
+            GameObject currentObject = currentNetObj != null ? currentNetObj.gameObject : null;
+            if (currentObject != null) {
+                // Enable all renderers for the current held item.
+                foreach (Renderer r in currentObject.GetComponentsInChildren<Renderer>()) {
+                    r.enabled = true;
+                }
+            }
         }
-        if (animator)
-            animator.SetBool("WeaponEquipped", true);
 
+        // Update the animator based on whether there is a current holdable.
+        bool isHoldingItem = currentNetObj != null;
+        if (animator != null) {
+            animator.SetBool("WeaponEquipped", isHoldingItem);
+        }
     }
 
     private void UpdateAllInventoryUI() {
@@ -365,24 +364,14 @@ public class Inventory : NetworkBehaviour {
             int stackLimit = _inventoryMono[i].GetComponent<MonoItem>().StackLimit;
             _uiManager.SetInventorySlotTexture(i, textureToSet);
             _uiManager.SetInventorySlotQuantity(i, quantity, stackLimit);
-
-            if (i == _currentInventoryIndex){
-                foreach (Renderer r in _inventoryMono[i].GetComponentsInChildren<Renderer>()){
-                    r.enabled = true;
-                }
-            } else {
-                foreach (Renderer r in _inventoryMono[i].GetComponentsInChildren<Renderer>()){
-                    r.enabled = false;
-                }
-            }
         }
     }
 
-    #region HoldingItem
+
+    #region ItemAttachment
     [ServerRpc(RequireOwnership = false)]
     private void PropagateItemAttachmentServerRpc(NetworkObjectReference item, NetworkObjectReference n_player){
         if (!IsServer) return;
-        // Attach the item to the weapon slot on the server
         AttachItemClientRpc(item, n_player);
     }
 
@@ -406,9 +395,15 @@ public class Inventory : NetworkBehaviour {
         
         // toggle OFF networktransform
         item.GetComponent<NetworkTransform>().enabled = false;
-        // item.transform.SetParent(weaponSlot.transform, worldPositionStays: false);
         item.transform.localPosition = Vector3.zero;
         item.transform.localRotation = Quaternion.identity;
+
+        item.GetComponent<MonoItem>().IsPickedUp = true; // prevent items in inventory from being picked up
+        item.GetComponent<MonoItem>().attachedWeaponSlot = weaponSlot; // local. 
+        item.GetComponent<MonoItem>().userRef = _playerObj; // local.
+        if (item.GetComponent<Outline>() != null) {
+            item.GetComponent<Outline>().enabled = false;
+        }
 
         // freeze rigidbody while held
         Rigidbody rb = item.GetComponent<Rigidbody>();
@@ -473,6 +468,13 @@ public class Inventory : NetworkBehaviour {
                 DropItem(i);
             }
         }
+    }
+    bool IsOwnerValidIndexAndPauseMenuCheck(){
+        if (!IsOwner) return false;
+        if (PauseMenuToggler.IsPaused) return false;
+        if (!ValidIndexCheck()) return false;
+
+        return true;
     }
     bool ValidIndexCheck(){
         if (_currentInventoryIndex < 0 || _currentInventoryIndex >= _inventoryMono.Length) {

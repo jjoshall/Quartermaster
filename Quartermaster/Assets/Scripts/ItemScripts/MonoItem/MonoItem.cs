@@ -41,6 +41,7 @@ public abstract class MonoItem : NetworkBehaviour
     [Tooltip("OnUse sound emitters")]                                       public SoundEmitter[] soundEmitters = null;
     [HideInInspector]                                                       public bool IsPickedUp = false;
     [HideInInspector]                                                       public GameObject attachedWeaponSlot = null;
+    [HideInInspector]                                                       public NetworkVariable<bool> CurrentlySelected = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     #endregion
 
