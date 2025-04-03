@@ -22,7 +22,10 @@ public class Inventory : NetworkBehaviour {
     [Header("Weapon Holdable Setup")]
     public GameObject weaponSlot;
 
-    public NetworkVariable<NetworkObjectReference> n_currentHoldable = new NetworkVariable<NetworkObjectReference>();
+    public NetworkVariable<NetworkObjectReference> n_currentHoldable = new NetworkVariable<NetworkObjectReference>(
+                                                                                default, 
+                                                                                NetworkVariableReadPermission.Everyone, 
+                                                                                NetworkVariableWritePermission.Owner);
     public NetworkVariable<NetworkObjectReference> n_prevHoldable = new NetworkVariable<NetworkObjectReference>();
 
     private GameObject[] _inventoryMono;
@@ -63,16 +66,30 @@ public class Inventory : NetworkBehaviour {
     void MyInput() {
         if (!IsOwner) return;
 
+        // Handle drop input first.
         if (_InputHandler.isDropping) {
             DropSelectedItem();
         }
+
+        // Clamp the inventory index to a valid range.
         _currentInventoryIndex = Mathf.Clamp(_InputHandler.inventoryIndex, 0, _maxInventorySize - 1);
 
+        // If the selection has changed, update the UI and the networked current holdable.
         if (_currentInventoryIndex != _oldInventoryIndex) {
             UpdateAllInventoryUI();
             _oldInventoryIndex = _currentInventoryIndex;
-            n_currentHoldable.Value = _inventoryMono[_currentInventoryIndex] != null ? _inventoryMono[_currentInventoryIndex].GetComponent<NetworkObject>() : null;
+
+            GameObject selectedItem = _inventoryMono[_currentInventoryIndex];
+            if (selectedItem != null) {
+                // Retrieve the NetworkObject and then its NetworkObjectReference.
+                NetworkObject netObj = selectedItem.GetComponent<NetworkObject>();
+                n_currentHoldable.Value = netObj != null ? netObj : default;
+            } else {
+                n_currentHoldable.Value = default;
+            }
         }
+
+        // Update the UI highlight for the current slot.
         _uiManager.HighlightSlot(_currentInventoryIndex);
     }
 
@@ -172,6 +189,8 @@ public class Inventory : NetworkBehaviour {
         // Locally attach the item to the player on each client
         PropagateItemAttachmentServerRpc(pickedUp.GetComponent<NetworkObject>(), _playerObj.GetComponent<NetworkObject>());
 
+        pickedUp.GetComponent<MonoItem>().userRef = _playerObj; // local.
+
         // CHECK: CURRENT SLOT EMPTY
         if (_inventoryMono[_currentInventoryIndex] == null) {
             // put in curr slot
@@ -183,7 +202,9 @@ public class Inventory : NetworkBehaviour {
             return;
         } else {
             // ELSE: ADD TO FIRST EMPTY SLOT
-            AddToFirstEmptySlot(pickedUp);
+            AddToFirstEmptySlot(pickedUp); 
+
+            _currentHeldItems++;
             UpdateAllInventoryUI();
         }
 
@@ -237,7 +258,6 @@ public class Inventory : NetworkBehaviour {
         for (int i = 0; i < _inventoryMono.Length; i++) {
             if (_inventoryMono[i] == null) {
                 _inventoryMono[i] = item;
-                _currentHeldItems++;
                 item.GetComponent<MonoItem>().PickUp(_playerObj);
                 return true;
             }
