@@ -46,6 +46,10 @@ public class Flamethrower_MONO : MonoItem
             return;
         }
 
+        if (!CanAutoFire){
+            return;
+        }
+
         if (!_isFireStarted){
             StartFireEffect(user); // continuous fire effect.
             _isFireStarted = true;
