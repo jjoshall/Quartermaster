@@ -43,7 +43,6 @@ public class Inventory : NetworkBehaviour {
             _InputHandler.OnUse += PlayerInputHandlerUseEvent;
             _InputHandler.OnRelease += ReleaseItem;
             _InputHandler.OnInteract += PickUpClosest;
-            _InputHandler.InventoryIndexChanged += UpdateHeldItem;
             _inventoryMono = new GameObject[_maxInventorySize];
             for (int i = 0; i < _maxInventorySize; i++) {
                 _inventoryMono[i] = null;
@@ -52,6 +51,11 @@ public class Inventory : NetworkBehaviour {
             UpdateHeldItem();
 
             animator = _playerObj.GetComponentInChildren<Animator>();
+
+            // Subscribe to network variable changes so that updates propagate immediately.
+            n_currentHoldable.OnValueChanged += (oldVal, newVal) => {
+                UpdateHeldItem();
+            };
         }
     }
 
@@ -79,18 +83,22 @@ public class Inventory : NetworkBehaviour {
             UpdateAllInventoryUI();
             _oldInventoryIndex = _currentInventoryIndex;
 
-            GameObject selectedItem = _inventoryMono[_currentInventoryIndex];
-            if (selectedItem != null) {
-                // Retrieve the NetworkObject and then its NetworkObjectReference.
-                NetworkObject netObj = selectedItem.GetComponent<NetworkObject>();
-                n_currentHoldable.Value = netObj != null ? netObj : default;
-            } else {
-                n_currentHoldable.Value = default;
-            }
+            UpdateHoldableNetworkReference();
         }
 
         // Update the UI highlight for the current slot.
         _uiManager.HighlightSlot(_currentInventoryIndex);
+    }
+
+        // Helper method to update the network variable based on the current index.
+    void UpdateHoldableNetworkReference(){
+        GameObject selectedItem = _inventoryMono[_currentInventoryIndex];
+        if (selectedItem != null) {
+            NetworkObject netObj = selectedItem.GetComponent<NetworkObject>();
+            n_currentHoldable.Value = netObj != null ? netObj : default;
+        } else {
+            n_currentHoldable.Value = default;
+        }
     }
 
     // -------------------------------------------------------------------------------------------------------------------------
@@ -199,6 +207,7 @@ public class Inventory : NetworkBehaviour {
 
             _currentHeldItems++;
             UpdateAllInventoryUI();
+            UpdateHoldableNetworkReference();
             return;
         } else {
             // ELSE: ADD TO FIRST EMPTY SLOT

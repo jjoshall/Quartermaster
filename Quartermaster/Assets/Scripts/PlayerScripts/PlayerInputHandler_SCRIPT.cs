@@ -24,7 +24,6 @@ public class PlayerInputHandler : NetworkBehaviour {
     public UnityAction OnInteract;
     public UnityAction<bool> OnRelease;
 
-    public UnityAction InventoryIndexChanged;
 
     
 
@@ -146,7 +145,6 @@ public class PlayerInputHandler : NetworkBehaviour {
         if (PauseMenuToggler.IsPaused) return;
         if (ctx.started){
             inventoryIndex = 0;
-            InventoryIndexChanged?.Invoke();
         }
     }
 
@@ -154,7 +152,6 @@ public class PlayerInputHandler : NetworkBehaviour {
         if (PauseMenuToggler.IsPaused) return;
         if (ctx.started){
             inventoryIndex = 1;
-            InventoryIndexChanged?.Invoke();
         }
     }
 
@@ -162,7 +159,6 @@ public class PlayerInputHandler : NetworkBehaviour {
         if (PauseMenuToggler.IsPaused) return;
         if (ctx.started){
             inventoryIndex = 2;
-            InventoryIndexChanged?.Invoke();
         }
     }
 
@@ -170,7 +166,6 @@ public class PlayerInputHandler : NetworkBehaviour {
         if (PauseMenuToggler.IsPaused) return;
         if (ctx.started){
             inventoryIndex = 3;
-            InventoryIndexChanged?.Invoke();
         }
     }
 }
