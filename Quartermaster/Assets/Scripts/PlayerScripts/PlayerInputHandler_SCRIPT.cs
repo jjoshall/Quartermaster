@@ -16,16 +16,11 @@ public class PlayerInputHandler : NetworkBehaviour {
     public bool isInteracting {get; private set;} = false;
     public bool isDropping {get; private set;} = false;
 
-    /*public bool isUsingPressed {get; private set;} = false;
-    public bool isUsingHeld {get; private set;} = false;*/
-
     public bool isUsing {get; private set;} = false;
     public UnityAction<bool> OnUse;
     public UnityAction OnInteract;
     public UnityAction<bool> OnRelease;
 
-
-    
 
     void Start() {
         if (!IsOwner) return;
