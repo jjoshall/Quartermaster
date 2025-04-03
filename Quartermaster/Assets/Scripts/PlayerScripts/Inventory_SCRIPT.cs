@@ -27,7 +27,7 @@ public class Inventory : NetworkBehaviour {
 
     private GameObject[] _inventoryMono;
     private int _currentInventoryIndex = 0;
-    private int _oldInventoryIndex = 0;
+    private int _oldInventoryIndex = 0; 
     private int _currentHeldItems = 0;
     private int _maxInventorySize = 4;
 
@@ -40,6 +40,7 @@ public class Inventory : NetworkBehaviour {
             _InputHandler.OnUse += PlayerInputHandlerUseEvent;
             _InputHandler.OnRelease += ReleaseItem;
             _InputHandler.OnInteract += PickUpClosest;
+            _InputHandler.InventoryIndexChanged += UpdateHeldItem;
             _inventoryMono = new GameObject[_maxInventorySize];
             for (int i = 0; i < _maxInventorySize; i++) {
                 _inventoryMono[i] = null;
@@ -56,7 +57,7 @@ public class Inventory : NetworkBehaviour {
             MyInput();
             UpdateWeaponCooldownUI();
         }
-        UpdateHeldItem();
+        // UpdateHeldItem();
     }
 
     void MyInput() {
@@ -320,35 +321,68 @@ public class Inventory : NetworkBehaviour {
     }
 
     void UpdateHeldItem() {
-        // Retrieve the current and previous held network objects.
-        NetworkObject currentNetObj = n_currentHoldable.Value;
-        NetworkObject previousNetObj = n_prevHoldable.Value;
-
-        // Check if the held item has changed.
-        if (currentNetObj != previousNetObj) {
-            // If there was a previously held item, disable all its renderers.
-            if (previousNetObj != null) {
-                GameObject previousObject = previousNetObj.gameObject;
-                foreach (Renderer r in previousObject.GetComponentsInChildren<Renderer>()) {
-                    r.enabled = false;
-                }
+        for (int i =0; i < _inventoryMono.Length; i++){
+            if (_inventoryMono[i] == null){
+                continue;
             }
-            // Update the previous held network object to the new one.
-            n_prevHoldable.Value = currentNetObj;
-
-            GameObject currentObject = currentNetObj != null ? currentNetObj.gameObject : null;
-            if (currentObject != null) {
-                // Enable all renderers for the current held item.
-                foreach (Renderer r in currentObject.GetComponentsInChildren<Renderer>()) {
-                    r.enabled = true;
-                }
+            if (i != _currentInventoryIndex){
+                NetworkObject n_item = _inventoryMono[i].GetComponent<NetworkObject>();
+                PropagateHoldableHideServerRpc(n_item);
+            } else {
+                NetworkObject n_item = _inventoryMono[i].GetComponent<NetworkObject>();
+                PropagateHoldableShowServerRpc(n_item);
             }
         }
+    }
 
-        // Update the animator based on whether there is a current holdable.
-        bool isHoldingItem = currentNetObj != null;
-        if (animator != null) {
-            animator.SetBool("WeaponEquipped", isHoldingItem);
+    [ServerRpc(RequireOwnership = false)]
+    private void PropagateHoldableShowServerRpc(NetworkObjectReference item){
+        if (!IsServer) return;
+        // Attach the item to the weapon slot on the server
+        PropagateHoldableShowClientRpc(item);
+    }
+    [ClientRpc]
+    private void PropagateHoldableShowClientRpc(NetworkObjectReference itemRef){
+        // Get the item and weapon slot GameObjects
+        NetworkObject n_item = itemRef.TryGet(out NetworkObject itemObj) ? itemObj : null;
+        GameObject item = n_item != null ? n_item.gameObject : null;
+        if (item == null) return;
+
+        // Show the item in the weapon slot
+        foreach (Renderer r in item.GetComponentsInChildren<Renderer>()) {
+            r.enabled = true;
+        }
+
+        if (animator){
+            animator.SetBool("WeaponEquipped", true);
+        } else {
+            Debug.LogWarning("Animator is null. Cannot set WeaponEquipped parameter.");
+        }
+    }
+
+    //PropagateHoldableHide
+    [ServerRpc(RequireOwnership = false)]
+    private void PropagateHoldableHideServerRpc(NetworkObjectReference item){
+        if (!IsServer) return;
+        // Attach the item to the weapon slot on the server
+        PropagateHoldableHideClientRpc(item);
+    }
+    [ClientRpc]
+    private void PropagateHoldableHideClientRpc(NetworkObjectReference itemRef){
+        // Get the item and weapon slot GameObjects
+        NetworkObject n_item = itemRef.TryGet(out NetworkObject itemObj) ? itemObj : null;
+        GameObject item = n_item != null ? n_item.gameObject : null;
+        if (item == null) return;
+
+        // Hide the item in the weapon slot
+        foreach (Renderer r in item.GetComponentsInChildren<Renderer>()) {
+            r.enabled = false;
+        }
+
+        if (animator){
+            animator.SetBool("WeaponEquipped", false);
+        } else {
+            Debug.LogWarning("Animator is null. Cannot set WeaponEquipped parameter.");
         }
     }
 
