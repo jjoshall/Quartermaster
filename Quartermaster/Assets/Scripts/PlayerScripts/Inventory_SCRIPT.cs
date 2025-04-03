@@ -85,8 +85,8 @@ public class Inventory : NetworkBehaviour {
         _uiManager.HighlightSlot(_currentInventoryIndex);
     }
 
-    // Abstracting away from isHeld bool. 
-    // If isHeld is unnecessary in playerinputhandler, we can just call UseItem() and HeldItem() directly.
+    // PlayerInputHandler uses same event and a Held bool to distinguish OnPress and OnHold.
+    // This function is to split the two events.
     void PlayerInputHandlerUseEvent(bool isHeld) {
         if (isHeld){
             HeldItem();
@@ -184,6 +184,9 @@ public class Inventory : NetworkBehaviour {
         pickedUp.GetComponent<MonoItem>().IsPickedUp = true; // prevent items in inventory from being picked up
         pickedUp.GetComponent<MonoItem>().attachedWeaponSlot = weaponSlot; // local. 
         pickedUp.GetComponent<MonoItem>().userRef = _playerObj; // local.
+        if (pickedUp.GetComponent<Outline>() != null) {
+            pickedUp.GetComponent<Outline>().enabled = false;
+        }
 
         // CHECK: CURRENT SLOT EMPTY
         if (_inventoryMono[_currentInventoryIndex] == null) {

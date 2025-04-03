@@ -101,7 +101,7 @@ public class ItemAcquisitionRange : MonoBehaviour {
     private void RemoveOutline(GameObject item) {
         Outline outline = item.GetComponent<Outline>();
         if (outline != null) {
-            outline.OutlineWidth = 0f;
+            Destroy(item.GetComponent<Outline>());
         }
     }
 
