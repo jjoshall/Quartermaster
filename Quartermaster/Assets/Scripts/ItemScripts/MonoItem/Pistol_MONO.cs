@@ -147,9 +147,8 @@ public class Pistol_MONO : MonoItem
         float damage = _pistolDamage;
         PlayerStatus s = user.GetComponent<PlayerStatus>();
         if (s != null){
-            float bonusPerSpec = GameManager.instance.DmgSpec_MultiplierPer;
-            int dmgSpecLvl = s.GetDmgSpecLvl();
-            damage = damage * (1 + bonusPerSpec * dmgSpecLvl);
+            float bonus = s.GetDmgBonus();
+            damage = damage * (1 + bonus);
         }
         d?.InflictDamage(damage, isExplosiveDmgType, user);
     }

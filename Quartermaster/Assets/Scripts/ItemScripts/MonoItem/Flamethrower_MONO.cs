@@ -166,7 +166,8 @@ public class Flamethrower_MONO : MonoItem
         float damage = _flamethrowerDamage;
         PlayerStatus s = user.GetComponent<PlayerStatus>();
         if (s != null){
-            damage = damage * (1 + s.GetDmgBonus());
+            float bonus = s.GetDmgBonus();
+            damage = damage * (1 + bonus);
         }
         d?.InflictDamage(damage, isExplosiveDmgType, user);
     }

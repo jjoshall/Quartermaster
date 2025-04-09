@@ -150,7 +150,7 @@ public class MedKit_MONO : MonoItem
             return;
         }
 
-        float healSpecBonus = 1.0f; // Get bonus from PlayerStatus.
+        float healSpecBonus = s.GetHealBonus(); // Get bonus from PlayerStatus.
 
         float bonus = 1.0f + healSpecBonus;
         float totalHeal = _healAmount * bonus;
