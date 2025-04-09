@@ -72,7 +72,7 @@ public class PocketInventory : NetworkBehaviour {
 
     #region Teleport
     public Vector3 GetTeleportDestination(NetworkObjectReference user){
-        if (_playerReturnPositions.ContainsKey(user)) {
+        if (PlayerIsInPocket(user)) {
             PlayerPosition p = _playerReturnPositions[user];
             return p.position;
         } else {

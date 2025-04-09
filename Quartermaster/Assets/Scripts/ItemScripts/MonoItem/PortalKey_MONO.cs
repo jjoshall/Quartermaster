@@ -15,8 +15,8 @@ public class PortalKey_MONO : MonoItem
 
     #region InternalVars
     private GameObject _playerCamera;
-    private List<GameObject> _playersToTeleport;
-    private List<GameObject> _itemsToTeleport;
+    private List<GameObject> _playersToTeleport = new List<GameObject>();
+    private List<GameObject> _itemsToTeleport = new List<GameObject>();
     private bool _isTeleporting = false;
     #endregion
 
@@ -42,7 +42,7 @@ public class PortalKey_MONO : MonoItem
         if (!_isTeleporting) return; // occurs if swapped into item while holding.
 
         Transform camera = user.GetComponent<Inventory>().orientation;
-        LayerMask validTpTargets = LayerMask.GetMask("Player", "Item"); // Add teleportable layer to teleportable items.
+        LayerMask validTpTargets = LayerMask.GetMask("Player", "Items"); // Add teleportable layer to teleportable items.
         AddRaycastToTp(camera, _teleportRange, validTpTargets);
     }
 
@@ -62,28 +62,33 @@ public class PortalKey_MONO : MonoItem
             return;
         }
         if (PocketInventory.instance.PlayerIsInPocket(n_user)){
+            Debug.Log ("PortalKey_MONO: ButtonRelease() Teleporting players to world.");
             Vector3 itemDestination = PocketInventory.instance.GetTeleportDestination(n_user);
             TeleportItems(itemDestination);
             Return();
+            RemoveAllObjs();
         }
         else {
+            Debug.Log ("PortalKey_MONO: ButtonRelease() Teleporting players to pocket.");
             Vector3 itemDestination = PocketInventory.instance.GetTeleportDestination(n_user);
             TeleportItems(itemDestination);
-            Teleport();
+            Teleport(user);
+            RemoveAllObjs();
         }
         _isTeleporting = false;
     }
 
-    private void Teleport(){
+    private void Teleport(GameObject user){
         foreach (GameObject player in _playersToTeleport){
             NetworkObject n_player = player.GetComponent<NetworkObject>();
             if (n_player == null) {
                 Debug.LogError("PortalKey_MONO: Teleport() player has no NetworkObject component.");
                 continue;
             }
-            PocketInventory.instance.TeleportToPocketServerRpc (n_player);
+            PocketInventory.instance.TeleportToPocketServerRpc (player);
         }
         _playersToTeleport.Clear();
+        PocketInventory.instance.TeleportToPocketServerRpc (user);
     }
     private void Return(){
         PocketInventory.instance.ReturnAllPlayersServerRpc();
@@ -93,8 +98,6 @@ public class PortalKey_MONO : MonoItem
         foreach (GameObject item in _itemsToTeleport){
             item.transform.position = destination;
         }
-
-        _itemsToTeleport.Clear();
     }
 
     public override void SwapCancel(GameObject user)
@@ -111,13 +114,29 @@ public class PortalKey_MONO : MonoItem
     #endregion 
 
     public void AddRaycastToTp(Transform camera, float distance, LayerMask layerMask){
-        if (camera == null) {
+        if (camera == null) {   
             Debug.LogError ("PortalKey_MONO: RaycastFromCamera() camera is null.");
             return;
         }
 
-        RaycastHit hit;
-        if (Physics.Raycast(camera.position, camera.forward, out hit, distance, layerMask)){
+        RaycastHit[] hits = Physics.RaycastAll(camera.position, camera.forward, distance, layerMask);
+        if (hits.Length == 0) return; // no hits.
+        foreach (RaycastHit hit in hits){
+            GameObject hitObj = hit.collider.gameObject;
+
+            if (_playersToTeleport.Contains(hitObj) || _itemsToTeleport.Contains(hitObj)){
+                Debug.Log ("PortalKey_MONO: AddRaycastToTp() obj already in teleport list, ignoring.");
+                continue;
+            }
+
+            MonoItem item = hitObj.GetComponent<MonoItem>();
+            if (item != null){
+                if (item.IsPickedUp){
+                    Debug.Log ("PortalKey_MONO: AddRaycastToTp() item is picked up, ignoring.");
+                    continue;
+                }
+            }
+
             AddObjToTp(hit.collider.gameObject);
         }
     }
@@ -133,19 +152,13 @@ public class PortalKey_MONO : MonoItem
             return;
         }
 
-        if (_playersToTeleport == null) {
-            _playersToTeleport = new List<GameObject>();
-        }
-        if (_itemsToTeleport == null) {
-            _itemsToTeleport = new List<GameObject>();
-        }
-
         if (obj.CompareTag("Player")){
             _playersToTeleport.Add(obj);
-            AddBlueOutline(obj);
+            AddTpOutline(obj);
         } else if (obj.CompareTag("Item")){
             _itemsToTeleport.Add(obj);
-            AddBlueOutline(obj);
+            Debug.Log ("PortalKey_MONO: AddObjToTp() item, " + obj.GetComponent<MonoItem>().uniqueID + ", added to teleport list.");
+            AddTpOutline(obj);
         } else {
             Debug.LogWarning ("PortalKey_MONO: AddObjToTp() obj is not a player or item.");
         }
@@ -155,29 +168,58 @@ public class PortalKey_MONO : MonoItem
     // Remove single objs from TP list. 
     // For teleport execute and swapcancel, delete entire list instead
     public void RemoveObjFromTp(GameObject obj){
-
-        RemoveBlueOutline (obj);
+        if (obj == null) {
+            Debug.LogError ("PortalKey_MONO: RemoveObjFromTp() obj is null.");
+            return;
+        }
+        if (_playersToTeleport.Contains(obj)){
+            _playersToTeleport.Remove(obj);
+            Debug.Log ("PortalKey_MONO: RemoveObjFromTp() player removed from teleport list.");
+        } else if (_itemsToTeleport.Contains(obj)){
+            _itemsToTeleport.Remove(obj);
+            Debug.Log ("PortalKey_MONO: RemoveObjFromTp() item removed from teleport list.");
+        } else {
+            Debug.LogWarning ("PortalKey_MONO: RemoveObjFromTp() obj not in teleport list.");
+        }
+        RemoveTpOutline (obj);
     }
 
     public void RemoveAllObjs(){
 
         foreach (GameObject obj in _playersToTeleport){
-            RemoveBlueOutline(obj);
+            RemoveTpOutline(obj);
         }
 
         foreach (GameObject obj in _itemsToTeleport){
-            RemoveBlueOutline(obj);
+            RemoveTpOutline(obj);
+        }
+
+        _playersToTeleport.Clear();
+        _itemsToTeleport.Clear();
+    }
+
+    private void AddTpOutline(GameObject obj){
+        TeleportOutline outline = obj.GetComponent<TeleportOutline>();
+        if (outline == null) {
+            outline = obj.AddComponent<TeleportOutline>();
+        }
+        outline.OutlineWidth = 15f;
+    }
+
+    private void RemoveTpOutline(GameObject obj){
+        TeleportOutline outline = obj.GetComponent<TeleportOutline>();
+        if (outline != null) {
+            Destroy(obj.GetComponent<TeleportOutline>());
         }
     }
 
-    private void AddBlueOutline(GameObject obj){
-
+    void OnTriggerExit(Collider other){
+        if (other.gameObject.CompareTag("Player")){
+            RemoveObjFromTp(other.gameObject);
+        } else if (other.gameObject.CompareTag("Item")){
+            RemoveObjFromTp(other.gameObject);
+        }
     }
-
-    private void RemoveBlueOutline(GameObject obj){
-
-    }
-
     
     private bool NullChecks(GameObject user){
         if (user == null) {

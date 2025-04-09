@@ -123,6 +123,7 @@ public class Inventory : NetworkBehaviour {
 
     void UseItem(){
         if (!IsOwnerValidIndexAndPauseMenuCheck()) return;
+        if  (_inventoryMono[_currentInventoryIndex] == null) return;
 
         MonoItem itemComponent = _inventoryMono[_currentInventoryIndex].GetComponent<MonoItem>();
         if (itemComponent != null) {
@@ -137,6 +138,7 @@ public class Inventory : NetworkBehaviour {
 
     void HeldItem(){
         if (!IsOwnerValidIndexAndPauseMenuCheck()) return;
+        if (_inventoryMono[_currentInventoryIndex] == null) return;
 
         MonoItem itemComponent = _inventoryMono[_currentInventoryIndex].GetComponent<MonoItem>();
         if (itemComponent != null) {
@@ -150,6 +152,7 @@ public class Inventory : NetworkBehaviour {
 
     void ReleaseItem(bool b) {
         if (!IsOwnerValidIndexAndPauseMenuCheck()) return;
+        if  (_inventoryMono[_currentInventoryIndex] == null) return;
 
         MonoItem itemComponent = _inventoryMono[_currentInventoryIndex].GetComponent<MonoItem>();
         if (itemComponent != null) {
@@ -194,6 +197,8 @@ public class Inventory : NetworkBehaviour {
                 // TryStack returns true if fully stacked into existing stacks.
                 pickedUp.GetComponent<MonoItem>().PickUp(_playerObj); // Call the item's onPickUp function
                 Destroy(pickedUp);
+
+                RemoveFromItemAcq(pickedUp);
                 return;
         }
 
@@ -203,6 +208,27 @@ public class Inventory : NetworkBehaviour {
         }
 
         AddToInventory(pickedUp); 
+        RemoveFromItemAcq(pickedUp);
+    }
+
+    private void RemoveFromItemAcq(GameObject itemPickedUp){
+        // Remove the item from the ItemAcquisitionRange
+        ItemAcquisitionRange itemAcquisitionRange = _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>();
+        if (itemAcquisitionRange != null) {
+            itemAcquisitionRange.RemoveItem(itemPickedUp);
+        } else {
+            Debug.LogError("ItemAcquisitionRange component not found on _itemAcquisitionRange.");
+        }
+    }
+
+    private void AddToItemAcq(GameObject itemDropped){
+        // Add the item to the ItemAcquisitionRange
+        ItemAcquisitionRange itemAcquisitionRange = _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>();
+        if (itemAcquisitionRange != null) {
+            itemAcquisitionRange.AddItem(itemDropped);
+        } else {
+            Debug.LogError("ItemAcquisitionRange component not found on _itemAcquisitionRange.");
+        }
     }
 
     private void AddToInventory(GameObject pickedUp){
@@ -211,6 +237,15 @@ public class Inventory : NetworkBehaviour {
         PropagateItemAttachmentServerRpc(pickedUp.GetComponent<NetworkObject>(), _playerObj.GetComponent<NetworkObject>());
 
         pickedUp.GetComponent<MonoItem>().userRef = _playerObj; // local.
+
+        if (pickedUp.GetComponent<MonoItem>().IsClassSpec){
+            // Drop all other class specs
+            DropAllOtherClassSpecs(pickedUp.GetComponent<MonoItem>().uniqueID);
+        } else if (pickedUp.GetComponent<MonoItem>().IsWeapon) {
+            // Drop all other weapons
+            Debug.Log ("Dropping all other weapons.");
+            DropAllOtherWeapons();
+        } 
 
         // CHECK: CURRENT SLOT EMPTY
         if (_inventoryMono[_currentInventoryIndex] == null) {
@@ -329,10 +364,10 @@ public class Inventory : NetworkBehaviour {
         Vector3 initVelocity = orientation.forward * GameManager.instance.DropItemVelocity;
 
         // detach the current held item
-        PropagateItemDetachServerRpc(_inventoryMono[_currentInventoryIndex].GetComponent<NetworkObject>(), n_playerObj);
+        PropagateItemDetachServerRpc(_inventoryMono[slot].GetComponent<NetworkObject>(), n_playerObj);
         
         // Give it velocity
-        Rigidbody rb = _inventoryMono[_currentInventoryIndex].GetComponent<Rigidbody>();
+        Rigidbody rb = _inventoryMono[slot].GetComponent<Rigidbody>();
         if (rb != null) {
             rb.isKinematic = false;
             rb.useGravity = true;
@@ -340,12 +375,15 @@ public class Inventory : NetworkBehaviour {
             rb.linearVelocity = initVelocity;
         }
 
+        AddToItemAcq(_inventoryMono[slot]); // add to item acquisition range
+
         _inventoryMono[slot].GetComponent<MonoItem>().Drop(_playerObj); // Call the item's onDrop function
 
         _inventoryMono[slot] = null;
         _currentHeldItems--;
 
         UpdateAllInventoryUI();
+        UpdateHeldItem();
     }
 
     // -------------------------------------------------------------------------------------------------------------------------
@@ -524,6 +562,11 @@ public class Inventory : NetworkBehaviour {
         item.GetComponent<MonoItem>().attachedWeaponSlot = null; // local.
         item.GetComponent<MonoItem>().userRef = null; // local.
 
+        MeshRenderer[] renderers = item.GetComponentsInChildren<MeshRenderer>();
+        foreach (MeshRenderer r in renderers) {
+            r.enabled = true;
+        }
+
         // unfreeze the rigidbody
         Rigidbody rb = item.GetComponent<Rigidbody>();
         if (rb != null){
@@ -568,9 +611,9 @@ public class Inventory : NetworkBehaviour {
         if (_currentInventoryIndex < 0 || _currentInventoryIndex >= _inventoryMono.Length) {
             return false;
         }
-        if (_inventoryMono[_currentInventoryIndex] == null) {
-            return false;
-        }
+        // if (_inventoryMono[_currentInventoryIndex] == null) {
+        //     return false;
+        // }
         if (_playerObj == null) {
             _playerObj = transform.parent.gameObject;
         }

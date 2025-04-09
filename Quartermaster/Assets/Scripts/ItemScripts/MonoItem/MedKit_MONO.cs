@@ -106,12 +106,24 @@ public class MedKit_MONO : MonoItem
         _medKitTapped = false;
     }
 
+    public override void Drop(GameObject user)
+    {
+        ProjectileManager.instance.DestroyLineRenderer();
+        _medKitVelocity = _medKitBaseVelocity;
+        _medKitChargeTime = 0.0f;
+        _medKitTapped = false;
+    }
+
     public override void SwapCancel(GameObject user){
         if (NullChecks(user)) {
             Debug.LogError("MedKit_MONO: SwapCancel() NullChecks failed.");
             return;
         }
 
+        ProjectileManager.instance.DestroyLineRenderer();
+        _medKitVelocity = _medKitBaseVelocity;
+        _medKitChargeTime = 0.0f;
+        _medKitTapped = false;
     }
 
 

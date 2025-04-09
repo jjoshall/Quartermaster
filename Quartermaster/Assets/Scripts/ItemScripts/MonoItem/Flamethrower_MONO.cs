@@ -22,7 +22,7 @@ public class Flamethrower_MONO : MonoItem
     #region InternalVars
     private bool _isFireStarted = false;
     #endregion
-    
+
     public override void ButtonUse(GameObject user) {
         if (lastUsed + cooldown > Time.time) {
             return;
@@ -63,6 +63,22 @@ public class Flamethrower_MONO : MonoItem
             StopFireEffect(user); // stop continuous fire effect.
         }
         lastUsed = float.MinValue;
+    }
+
+    public override void Drop(GameObject user)
+    {
+        if (_isFireStarted){
+            _isFireStarted = false; 
+            StopFireEffect(user); // stop continuous fire effect.
+        }
+    }
+
+    public override void SwapCancel(GameObject user)
+    {
+        if (_isFireStarted){
+            _isFireStarted = false; 
+            StopFireEffect(user); // stop continuous fire effect.
+        }
     }
 
 

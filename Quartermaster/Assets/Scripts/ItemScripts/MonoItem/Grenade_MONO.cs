@@ -80,11 +80,23 @@ public class Grenade_MONO : MonoItem
         _isCharging = false; // set charging to false.
     }
 
+    public override void Drop(GameObject user)
+    {
+        ProjectileManager.instance.DestroyLineRenderer();
+        _grenadeVelocity = _grenadeBaseVelocity; // reset velocity.
+        _grenadeChargeTime = 0f; // reset charge time.
+        _isCharging = false; // set charging to false.
+    }
+
     public override void SwapCancel(GameObject user){
         if (NullChecks(user)) {
             Debug.LogError("Grenade_MONO: SwapCancel() NullChecks failed.");
             return;
         }
+        ProjectileManager.instance.DestroyLineRenderer();
+        _grenadeVelocity = _grenadeBaseVelocity; // reset velocity.
+        _grenadeChargeTime = 0f; // reset charge time.
+        _isCharging = false; // set charging to false.
 
     }
 
