@@ -22,9 +22,7 @@ public class Flamethrower_MONO : MonoItem
     #region InternalVars
     private bool _isFireStarted = false;
     #endregion
-
-
-
+    
     public override void ButtonUse(GameObject user) {
         if (lastUsed + cooldown > Time.time) {
             return;
@@ -152,9 +150,7 @@ public class Flamethrower_MONO : MonoItem
         float damage = _flamethrowerDamage;
         PlayerStatus s = user.GetComponent<PlayerStatus>();
         if (s != null){
-            float bonusPerSpec = GameManager.instance.DmgSpec_MultiplierPer;
-            int dmgSpecLvl = s.GetDmgSpecLvl();
-            damage = damage * (1 + bonusPerSpec * dmgSpecLvl);
+            damage = damage * (1 + s.GetDmgBonus());
         }
         d?.InflictDamage(damage, isExplosiveDmgType, user);
     }

@@ -42,7 +42,7 @@ public class DmgSpec : InventoryItem
         if (slot != -1) {
             quantity = i.GetSlotQuantity (slot);
         }
-        status.UpdateDmgSpecServerRpc(quantity);
+        // status.UpdateDmgSpecServerRpc(quantity);
         Debug.Log ("picked up healSpec, new healSpec = " + status.GetDmgSpecLvl());  
     }
 

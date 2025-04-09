@@ -146,7 +146,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3324835702
+  GlobalObjectIdHash: 972432862
   InScenePlacedSourceGlobalObjectIdHash: 972432862
   DeferredDespawnTick: 0
   Ownership: 1
@@ -253,6 +253,9 @@ MonoBehaviour:
   icon: {fileID: 2800000, guid: c6b290b5717566144b7f057edceadffc, type: 3}
   soundEmitters: []
   IsPickedUp: 0
+  attachedWeaponSlot: {fileID: 0}
+  CurrentlySelected:
+    m_InternalValue: 0
   userRef: {fileID: 0}
   _flamethrowerDamage: 6
   _capsuleRadius: 4

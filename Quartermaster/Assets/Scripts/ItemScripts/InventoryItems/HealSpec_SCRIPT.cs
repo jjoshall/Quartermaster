@@ -46,7 +46,7 @@ public class HealSpec : InventoryItem
         if (slot != -1) {
             count = i.GetSlotQuantity (slot);
         }
-        status.UpdateHealSpecServerRpc(count);
+        // status.UpdateHealSpecServerRpc(count);
         Debug.Log ("picked up healSpec, new healSpec = " + status.GetHealSpecLvl());  
     }
 

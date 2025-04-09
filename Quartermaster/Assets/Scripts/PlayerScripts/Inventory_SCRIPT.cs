@@ -64,7 +64,6 @@ public class Inventory : NetworkBehaviour {
             MyInput();
             UpdateWeaponCooldownUI();
         }
-        // UpdateHeldItem();
     }
 
     void MyInput() {
@@ -207,7 +206,8 @@ public class Inventory : NetworkBehaviour {
 
             _currentHeldItems++;
             UpdateAllInventoryUI();
-            UpdateHoldableNetworkReference();
+            UpdateHoldableNetworkReference();   // updates network var for current item
+            UpdateHeldItem();                   // show currSlot, hides others
             return;
         } else {
             // ELSE: ADD TO FIRST EMPTY SLOT
@@ -215,6 +215,7 @@ public class Inventory : NetworkBehaviour {
 
             _currentHeldItems++;
             UpdateAllInventoryUI();
+            UpdateHeldItem();
         }
 
     }
@@ -261,6 +262,16 @@ public class Inventory : NetworkBehaviour {
     public int GetSlotQuantity (int slot) {
         if (_inventoryMono[slot] == null) return 0;
         return _inventoryMono[slot].GetComponent<MonoItem>().quantity;
+    }
+
+    public int GetItemQuantity (string uniqueID) {
+        int total = 0;
+        for (int i = 0; i < _inventoryMono.Length; i++) {
+            if (_inventoryMono[i] != null && _inventoryMono[i].GetComponent<MonoItem>().uniqueID == uniqueID) {
+                total += _inventoryMono[i].GetComponent<MonoItem>().quantity;
+            }
+        }
+        return total;
     }
 
     bool AddToFirstEmptySlot(GameObject item) {

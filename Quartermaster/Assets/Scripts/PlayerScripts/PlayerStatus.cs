@@ -18,6 +18,8 @@ public class PlayerStatus : NetworkBehaviour
     // Carried SpecItems   
     private NetworkVariable<int> n_healSpecLvl = new NetworkVariable<int>(0);
     private NetworkVariable<int> n_dmgSpecLvl = new NetworkVariable<int>(0);
+    private NetworkVariable<float> n_healBonus = new NetworkVariable<float>(0.0f); // heal bonus from healSpec
+    private NetworkVariable<float> n_dmgBonus = new NetworkVariable<float>(0.0f); // damage bonus from dmgSpec
     // 172 stuff: private NetworkList<int> n_tankSpecLvl = new NetworkList<int>(); // increase aggro range, hp, movespeed.
 
 
@@ -101,14 +103,22 @@ public class PlayerStatus : NetworkBehaviour
     public int GetDmgSpecLvl(){
         return n_dmgSpecLvl.Value;
     }
+    public float GetHealBonus(){
+        return n_healBonus.Value;
+    }
+    public float GetDmgBonus(){
+        return n_dmgBonus.Value;
+    }
     // Pickup Specitems
     [ServerRpc(RequireOwnership = false)]
-    public void UpdateDmgSpecServerRpc(int quantity){
+    public void UpdateDmgSpecServerRpc(int quantity, float bonus){
         n_dmgSpecLvl.Value = quantity;
+        n_dmgBonus.Value = bonus;
     }
     [ServerRpc(RequireOwnership = false)]
-    public void UpdateHealSpecServerRpc(int quantity){
+    public void UpdateHealSpecServerRpc(int quantity, float bonus){
         n_healSpecLvl.Value = quantity;
+        n_healBonus.Value = bonus;
     }
 
     #endregion
