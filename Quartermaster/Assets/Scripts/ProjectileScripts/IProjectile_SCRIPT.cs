@@ -18,6 +18,10 @@ public abstract class IProjectile : MonoBehaviour
 
     }
 
+    public virtual void InitializeData (params object[] args) {
+        // 
+    }
+
     protected abstract void Update();
 
 }

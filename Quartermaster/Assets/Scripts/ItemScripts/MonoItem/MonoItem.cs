@@ -21,7 +21,7 @@ public abstract class MonoItem : NetworkBehaviour
     [Tooltip("OnUse sound emitters")]                                       public SoundEmitter[] soundEmitters = null;
     [HideInInspector]                                                       public bool IsPickedUp = false;
     [HideInInspector]                                                       public GameObject attachedWeaponSlot = null;
-    [HideInInspector]                                                       public NetworkVariable<bool> CurrentlySelected = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    // [HideInInspector]                                                       public NetworkVariable<bool> CurrentlySelected = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     #endregion
 
@@ -81,6 +81,10 @@ public abstract class MonoItem : NetworkBehaviour
     public virtual void ButtonRelease(GameObject user){
         // Fire once when use is released.
         Debug.Log("Released item: " + gameObject.name);
+    }
+    public virtual void SwapCancel(GameObject user){
+        // Called when the item is swapped out.
+        Debug.Log("Switched items, charge cancelled for: " + gameObject.name);
     }
 
 

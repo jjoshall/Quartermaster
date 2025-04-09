@@ -79,6 +79,13 @@ public class Inventory : NetworkBehaviour {
 
         // If the selection has changed, update the UI and the networked current holdable.
         if (_currentInventoryIndex != _oldInventoryIndex) {
+            if (_inventoryMono[_oldInventoryIndex] != null){
+                MonoItem old = _inventoryMono[_oldInventoryIndex].GetComponent<MonoItem>();
+                if (old == null){
+                    Debug.LogError("Inventory: MyInput() - Old item is null.");
+                } 
+                old.SwapCancel(_playerObj); // resets any charging state.
+            }
             UpdateAllInventoryUI();
             _oldInventoryIndex = _currentInventoryIndex;
 
@@ -157,6 +164,13 @@ public class Inventory : NetworkBehaviour {
 
     void QuantityCheck(){
         if (_inventoryMono[_currentInventoryIndex].GetComponent<MonoItem>().quantity <= 0) {
+            // despawn network item 
+            NetworkObject n_item = _inventoryMono[_currentInventoryIndex].GetComponent<NetworkObject>();
+            if (n_item != null) {
+                n_item.Despawn(true); // despawn the item on all clients
+            } else {
+                Debug.LogError("Inventory: QuantityCheck() - Item is null.");
+            }
             _inventoryMono[_currentInventoryIndex] = null;
             _currentHeldItems--;
         }

@@ -136,7 +136,8 @@ public class ProjectileManager : NetworkBehaviour
 
     // Calls local spawn for self, then calls serverRpc which tells others to local spawn.
     public void SpawnSelfThenAll(string key, Vector3 position, Quaternion rotation, 
-                                 Vector3 direction, float velocity, GameObject user)
+                                 Vector3 direction, float velocity, GameObject user,
+                                 params object[] args)
     {
         ulong localClientId = NetworkManager.Singleton.LocalClientId;
         if (!projectilePool.ContainsKey(key))
@@ -144,7 +145,7 @@ public class ProjectileManager : NetworkBehaviour
             Debug.LogError("Projectile key not found in ProjectileManager: " + key);
             return;
         }
-        SpawnProjectileLocal(key, position, rotation, direction, velocity, user);
+        SpawnProjectileLocal(key, position, rotation, direction, velocity, user, args);
         // Call SpawnDummyForOtherClientsServerRpc with the calling player's client id
         SpawnDummyForOthersServerRpc(key, position, rotation, direction, velocity, localClientId);
     }
@@ -187,7 +188,8 @@ public class ProjectileManager : NetworkBehaviour
     // ==============================================================================================
     #region = PoolingHelpers
     public void SpawnProjectileLocal(string key, Vector3 position, Quaternion rotation, 
-                                     Vector3 direction, float velocity, GameObject user)
+                                     Vector3 direction, float velocity, GameObject user,
+                                     params object[] args)
     {
         if (!projectilePool.ContainsKey(key))
         {
@@ -218,6 +220,8 @@ public class ProjectileManager : NetworkBehaviour
 
         Rigidbody rb = projectileObj.GetComponent<Rigidbody>();
         rb.linearVelocity = direction * velocity;
+
+        projectileObj.GetComponent<IProjectile>().InitializeData(args);
     }
     public void SpawnDummyLocal(string key, Vector3 position, Quaternion rotation,
                                 Vector3 direction, float velocity)

@@ -71,6 +71,14 @@ public class PocketInventory : NetworkBehaviour {
     // }
 
     #region Teleport
+    public Vector3 GetTeleportDestination(NetworkObjectReference user){
+        if (_playerReturnPositions.ContainsKey(user)) {
+            PlayerPosition p = _playerReturnPositions[user];
+            return p.position;
+        } else {
+            return _teleportPosition;
+        }   
+    }
     
     [ServerRpc(RequireOwnership = false)]
     public void TeleportToPocketServerRpc(NetworkObjectReference userRef){
@@ -107,13 +115,13 @@ public class PocketInventory : NetworkBehaviour {
             }
 
             // Is owner check of teleporting player to avoid null on HasItem() condition.
-            if (userRef.TryGet(out NetworkObject userObj)){
-                if (userObj.OwnerClientId == NetworkManager.Singleton.LocalClientId) {
-                    if (playerInventory.HasItem("PocketInventoryPortalKey") != -1) {
-                        TpNearbyItemsServerRpc(userRef, teleportPosition.position);
-                    }
-                }
-            }
+            // if (userRef.TryGet(out NetworkObject userObj)){
+            //     if (userObj.OwnerClientId == NetworkManager.Singleton.LocalClientId) {
+            //         if (playerInventory.HasItem("PocketInventoryPortalKey") != -1) {
+            //             TpNearbyItemsServerRpc(userRef, teleportPosition.position);
+            //         }
+            //     }
+            // }
 
             playerObj.GetComponentInChildren<PlayerDissolveAnimator>().AnimateSolidifyServerRpc();
             ParticleManager.instance.SpawnSelfThenAll("TeleportSphere", 
