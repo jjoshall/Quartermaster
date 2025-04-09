@@ -68,7 +68,7 @@ public class ParticleManager : NetworkBehaviour
     #region = ParticleStuff
 
     // Calls local spawn for self, then calls serverRpc which tells others to local spawn.
-    public void SpawnSelfThenAll(string key, Vector3 position, Quaternion rotation)
+    public void SpawnSelfThenAll(string key, Vector3 position, Quaternion rotation, float scale = 1.0f)
     {
         ulong localClientId = NetworkManager.Singleton.LocalClientId;
         if (!particlePool.ContainsKey(key))
@@ -76,13 +76,13 @@ public class ParticleManager : NetworkBehaviour
             Debug.LogError("Particle key not found in ParticleManager: " + key);
             return;
         }
-        SpawnParticleLocal(key, position, rotation);
+        SpawnParticleLocal(key, position, rotation, scale);
         // Call SpawnParticleForOtherClientsServerRpc with the calling player's client id
-        SpawnParticleForOthersServerRpc(key, position, rotation, localClientId);
+        SpawnParticleForOthersServerRpc(key, position, rotation, scale, localClientId);
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SpawnParticleForOthersServerRpc(string key, Vector3 position, Quaternion rotation, ulong clientId)
+    public void SpawnParticleForOthersServerRpc(string key, Vector3 position, Quaternion rotation, float scale, ulong clientId)
     {        
         List<ulong> targetClients = new List<ulong>();
         foreach (ulong id in NetworkManager.Singleton.ConnectedClientsIds)
@@ -104,14 +104,14 @@ public class ParticleManager : NetworkBehaviour
         // {
         //     if (client.ClientId == clientId) continue;
         // }
-        SpawnParticleClientRpc(key, position, rotation, clientRpcParams);
+        SpawnParticleClientRpc(key, position, rotation, scale, clientRpcParams);
     }
 
     [ClientRpc]
-    public void SpawnParticleClientRpc(string key, Vector3 position, Quaternion rotation, ClientRpcParams clientRpcParams = default)
+    public void SpawnParticleClientRpc(string key, Vector3 position, Quaternion rotation, float scale, ClientRpcParams clientRpcParams = default)
     {
         // call local spawnparticle for this client
-        SpawnParticleLocal(key, position, rotation);
+        SpawnParticleLocal(key, position, rotation, scale);
     }
 
     #endregion
@@ -120,7 +120,7 @@ public class ParticleManager : NetworkBehaviour
 
     // ==============================================================================================
     #region = PoolingHelpers
-    public void SpawnParticleLocal(string key, Vector3 position, Quaternion rotation)
+    public void SpawnParticleLocal(string key, Vector3 position, Quaternion rotation, float scale)
     {
         if (!particlePool.ContainsKey(key))
         {
@@ -137,16 +137,8 @@ public class ParticleManager : NetworkBehaviour
             particleObj = Instantiate(typePrefab, position, rotation);
             particleObj.transform.SetParent(this.gameObject.transform);
             float typeDuration = particleTypesPrefabList.Find(x => x.key == key).duration;
-            if (key == "SlowTrapAoe"){
-                typeDuration = GameManager.instance.SlowTrap_Duration;
-                particleObj.GetComponent<BubbleAnimator>().BUBBLE_SCALE_MAX_RANGE = 
-                    GameManager.instance.SlowTrap_AoERadius * 2.0f;
-                // particleObj.transform.localScale = new Vector3(
-                //                                     GameManager.instance.SlowTrap_AoERadius * 2.0f, 
-                //                                     GameManager.instance.SlowTrap_AoERadius * 2.0f,
-                //                                     GameManager.instance.SlowTrap_AoERadius * 2.0f);
-                
-            }
+            Debug.Log ("ParticleManager: Scaling particle to: " + scale);
+            particleObj.transform.localScale = new Vector3(scale, scale, scale);
             PlayParticle(particleObj, key, typeDuration);
         }
         else // else grab from pool.
@@ -159,16 +151,11 @@ public class ParticleManager : NetworkBehaviour
             particleObj.SetActive(true);
 
             float typeDuration = particleTypesPrefabList.Find(x => x.key == key).duration;
-            if (key == "SlowTrapAoe"){
-                typeDuration = GameManager.instance.SlowTrap_Duration;
-                particleObj.transform.localScale = new Vector3(
-                                                    GameManager.instance.SlowTrap_AoERadius * 2.0f, 
-                                                    GameManager.instance.SlowTrap_AoERadius * 2.0f, 
-                                                    GameManager.instance.SlowTrap_AoERadius * 2.0f);
-
-            }
+            Debug.Log ("ParticleManager: Scaling particle to: " + scale);
+            particleObj.transform.localScale = new Vector3(scale, scale, scale);
             PlayParticle(particleObj, key, typeDuration);
         }
+
     }
 
     public void DespawnParticleLocal(string key, GameObject particleObj)

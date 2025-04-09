@@ -14,11 +14,11 @@ public class Railgun_MONO : MonoItem
     // Make an effect string = "" to disable spawning an effect.
     [SerializeField] private string _enemyHitEffect = "Sample"; // effect spawned on center of every enemy hit.
     [SerializeField] private string _explosionEffect = "RailgunExplosion";
-    [SerializeField] private string _barrelLaserEffect = "PistolBarrelFire"; // effect at player
+    [SerializeField] private string _barrelLaserEffect = ""; // effect at player
 
     [SerializeField] private GameObject shotOrigin;
 
-    [SerializeField] private int itemID = 0; // REFACTOR THIS TO BE A DIRECT REFERENCE TO TRAILRENDERER OBJECT
+    [SerializeField] private int trailRenderID = 0; // REFACTOR THIS TO BE A DIRECT REFERENCE TO TRAILRENDERER OBJECT
                                              // where is weaponEffects attached to?
                                              // weaponEffects uses itemID to index an inspector assigned list of trailrenderer prefabs.
     #endregion
@@ -76,10 +76,6 @@ public class Railgun_MONO : MonoItem
         // piercing raycast
         List<Transform> targetsHit = new List<Transform>();
 
-        GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
-        GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
-        GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
-
         soundEmitters = user.GetComponents<SoundEmitter>();
         string emitterId = "railgun_shot";
 
@@ -98,10 +94,6 @@ public class Railgun_MONO : MonoItem
     #region LineAoE()
 
     private void LineAoe(GameObject user, GameObject camera, List<Transform> targetsHit, int combinedLayerMask){
-        GameObject p_weaponSlot = user.transform.Find("WeaponSlot").gameObject;
-        GameObject p_heldWeapon = p_weaponSlot.transform.GetChild(0).gameObject;
-        GameObject shotOrigin = p_heldWeapon.transform.Find("ShotOrigin").gameObject;
-
         
         RaycastHit[] hits;
         hits = Physics.RaycastAll(camera.transform.position, camera.transform.forward, 100.0f, combinedLayerMask);
@@ -122,13 +114,14 @@ public class Railgun_MONO : MonoItem
             NetworkObject userNetObj = user.GetComponent<NetworkObject>();
 
             if (effects != null && userNetObj != null) {
+                Debug.Log ("spawning trail");
                 if (NetworkManager.Singleton.IsServer) {
                     // If the user (player) is the server, spawn the trail directly.
-                    effects.SpawnBulletTrailClientRpc(shotOrigin.transform.position, hits[0].point, itemID);
+                    effects.SpawnBulletTrailClientRpc(shotOrigin.transform.position, hits[0].point, trailRenderID);
                 }
                 else {
                     // If the user is a client, request the server to spawn the trail.
-                    effects.RequestSpawnBulletTrailServerRpc(shotOrigin.transform.position, hits[0].point, itemID);
+                    effects.RequestSpawnBulletTrailServerRpc(shotOrigin.transform.position, hits[0].point, trailRenderID);
                 }
             }
 
@@ -173,7 +166,7 @@ public class Railgun_MONO : MonoItem
 
     private void SpawnExplosion(Vector3 position, float aoeRadius, List<Transform> targetsHit){
         if (_explosionEffect != ""){
-            ParticleManager.instance.SpawnSelfThenAll(_explosionEffect, position, Quaternion.Euler(0, 0, 0));
+            ParticleManager.instance.SpawnSelfThenAll(_explosionEffect, position, Quaternion.Euler(0, 0, 0), _explosionRadius);
         }
         
         Collider[] collisions = Physics.OverlapSphere(position, aoeRadius, LayerMask.GetMask("Enemy"), QueryTriggerInteraction.Collide);

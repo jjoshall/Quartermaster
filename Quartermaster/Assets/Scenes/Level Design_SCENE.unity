@@ -2283,6 +2283,10 @@ PrefabInstance:
       propertyPath: GlobalObjectIdHash
       value: 2283088156
       objectReference: {fileID: 0}
+    - target: {fileID: -7445736928070269210, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
+      propertyPath: particleTypesPrefabList.Array.data[4].particlePrefab
+      value: 
+      objectReference: {fileID: 5421792803391344478, guid: 55bda41e9d2b0894483c6cd757c269b5, type: 3}
     - target: {fileID: 5341081937763403480, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
       propertyPath: m_Name
       value: ParticleManager_PREFAB
@@ -2337,6 +2341,75 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4334222927529626911, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
   m_PrefabInstance: {fileID: 267678452}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1783181974
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -3167123653091355442, guid: 5523809b3e9f8654f8d46da3fa5188a2, type: 3}
+      propertyPath: trailRenderID
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 478685167350655974, guid: 5523809b3e9f8654f8d46da3fa5188a2, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 2725358976
+      objectReference: {fileID: 0}
+    - target: {fileID: 478685167350655974, guid: 5523809b3e9f8654f8d46da3fa5188a2, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 3563738278
+      objectReference: {fileID: 0}
+    - target: {fileID: 616982515812466235, guid: 5523809b3e9f8654f8d46da3fa5188a2, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.820866
+      objectReference: {fileID: 0}
+    - target: {fileID: 616982515812466235, guid: 5523809b3e9f8654f8d46da3fa5188a2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.023
+      objectReference: {fileID: 0}
+    - target: {fileID: 616982515812466235, guid: 5523809b3e9f8654f8d46da3fa5188a2, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 4.7006516
+      objectReference: {fileID: 0}
+    - target: {fileID: 616982515812466235, guid: 5523809b3e9f8654f8d46da3fa5188a2, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 616982515812466235, guid: 5523809b3e9f8654f8d46da3fa5188a2, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 616982515812466235, guid: 5523809b3e9f8654f8d46da3fa5188a2, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 616982515812466235, guid: 5523809b3e9f8654f8d46da3fa5188a2, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 616982515812466235, guid: 5523809b3e9f8654f8d46da3fa5188a2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 616982515812466235, guid: 5523809b3e9f8654f8d46da3fa5188a2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 616982515812466235, guid: 5523809b3e9f8654f8d46da3fa5188a2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6213748935702998764, guid: 5523809b3e9f8654f8d46da3fa5188a2, type: 3}
+      propertyPath: m_Name
+      value: Railgun_PICKUP
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5523809b3e9f8654f8d46da3fa5188a2, type: 3}
 --- !u!1001 &1785292498
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4098,3 +4171,4 @@ SceneRoots:
   - {fileID: 826706299}
   - {fileID: 68187067}
   - {fileID: 960494316}
+  - {fileID: 1783181974}

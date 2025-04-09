@@ -15,7 +15,7 @@ public class Pistol_MONO : MonoItem
 
     [SerializeField] private GameObject shotOrigin;
 
-    [SerializeField] private int itemID = 0; // REFACTOR THIS TO BE A DIRECT REFERENCE TO TRAILRENDERER OBJECT
+    [SerializeField] private int trailRenderID = 0; // REFACTOR THIS TO BE A DIRECT REFERENCE TO TRAILRENDERER OBJECT
                                              // where is weaponEffects attached to?
                                              // weaponEffects uses itemID to index an inspector assigned list of trailrenderer prefabs.
     #endregion
@@ -98,14 +98,15 @@ public class Pistol_MONO : MonoItem
                     //ParticleManager.instance.SpawnSelfThenAll(_barrelFireEffect, shotOrigin.transform.position, attackRotation);
                 }
 
-                // if (NetworkManager.Singleton.IsServer) {
-                //     // If the user (player) is the server, spawn the trail directly.
-                //     effects.SpawnBulletTrailClientRpc(shotOrigin.transform.position, hit.point, itemID);
-                // }
-                // else {
-                //     // If the user is a client, request the server to spawn the trail.
-                //     effects.RequestSpawnBulletTrailServerRpc(shotOrigin.transform.position, hit.point, itemID);
-                // }
+                Debug.Log ("spawning trail");
+                if (NetworkManager.Singleton.IsServer) {
+                    // If the user (player) is the server, spawn the trail directly.
+                    effects.SpawnBulletTrailClientRpc(shotOrigin.transform.position, hit.point, trailRenderID);
+                }
+                else {
+                    // If the user is a client, request the server to spawn the trail.
+                    effects.RequestSpawnBulletTrailServerRpc(shotOrigin.transform.position, hit.point, trailRenderID);
+                }
 
             }
 
