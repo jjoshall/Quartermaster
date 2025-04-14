@@ -167,6 +167,7 @@ public class Inventory : NetworkBehaviour {
 
     void QuantityCheck(){
         if (_inventoryMono[_currentInventoryIndex].GetComponent<MonoItem>().quantity <= 0) {
+            Debug.Log ("Inventory: QuantityCheck() - Item quantity is 0. Despawning item");
             // despawn network item 
             NetworkObject n_item = _inventoryMono[_currentInventoryIndex].GetComponent<NetworkObject>();
             if (n_item != null) {
@@ -640,9 +641,5 @@ public class Inventory : NetworkBehaviour {
         return -1;
     }
 
-    public string InventoryItemToString(InventoryItem item){
-        if (item == null) return "null";
-        return ItemManager.instance.itemEntries[item.itemID].inventoryItemClass;
-    }
     #endregion
 }

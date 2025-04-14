@@ -10,7 +10,6 @@ public abstract class MonoItem : NetworkBehaviour
     // DEFINITIONS ========================================================================================
     [Header("Item Type")]
     [Tooltip("Used for player CD dict and IDing the item on pickup")]       public string uniqueID = "";
-    [Tooltip("Causes quantity-- on use.")]                                  public bool IsConsumable = false;
     [Tooltip("Drops current held weapon when picking up second weapon")]    public bool IsWeapon = false;
     [Tooltip("Causes item drop on picking up unique class spec")]           public bool IsClassSpec = false;
     [Tooltip("Enables repeated use on holding left click")]                 public bool CanAutoFire = false;
@@ -62,6 +61,10 @@ public abstract class MonoItem : NetworkBehaviour
 
     #region FUNCTIONS
     // FUNCTION ABSTRACTS ===============================================================================================
+    public virtual void OnSpawn(){
+        Debug.Log("Spawned item: " + gameObject.name);
+    }
+    
     public virtual void PickUp(GameObject user){
         // On pickup.
         Debug.Log("Picked up item: " + gameObject.name);

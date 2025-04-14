@@ -176,7 +176,7 @@ public class PocketInventory : NetworkBehaviour {
         Collider[] colliders = Physics.OverlapSphere(userGameObj.transform.position, tpRadius);
         
         foreach (Collider col in colliders) {
-            if (col.gameObject.GetComponent<WorldItem>() != null) {
+            if (col.gameObject.GetComponent<MonoItem>() != null) {
                 NetworkObjectReference itemRef = col.gameObject.GetComponent<NetworkObject>();
                 TpItemToPositionClientRpc(itemRef, targetPosition);
 
@@ -226,10 +226,12 @@ public class PocketInventory : NetworkBehaviour {
         // physics overlap sphere, find dropped key
         Collider[] colliders = Physics.OverlapSphere(_teleportPosition, RADIUS_OF_POCKET_DETECTION);
         foreach (Collider col in colliders) {
-            if (col.gameObject.GetComponent<PocketInventoryPortalKey>() != null) {
-                n_storedKeyObj = col.gameObject.GetComponent<NetworkObject>().GetComponent<NetworkObjectReference>();
-                Debug.Log ("found dropped key: " + n_storedKeyObj);
-                return;
+            if (col.gameObject.GetComponent<MonoItem>() != null) {
+                if (col.gameObject.GetComponent<MonoItem>().uniqueID == "PocketInventoryPortalKey") {
+                    n_storedKeyObj = col.gameObject.GetComponent<NetworkObject>().GetComponent<NetworkObjectReference>();
+                    Debug.Log ("found dropped key: " + n_storedKeyObj);
+                    return;
+                }
             }
         }
     }

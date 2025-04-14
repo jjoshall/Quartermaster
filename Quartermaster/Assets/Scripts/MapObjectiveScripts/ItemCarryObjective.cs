@@ -26,38 +26,37 @@ public class ItemCarryObjective : IObjective
     // OnTriggerEnter check for item DeliverableQuestItem
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("ItemCarry: OnTriggerEnter");
-        if (other.gameObject.CompareTag("Item"))
-        {
-            Debug.Log ("ItemCarry: OnTriggerEnter. Found DeliverableQuestItem");
-            int itemID = other.gameObject.GetComponent<WorldItem>().GetItemID();
-            string stringID = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
+        // Debug.Log("ItemCarry: OnTriggerEnter");
+        // if (other.gameObject.CompareTag("Item"))
+        // {
+        //     Debug.Log ("ItemCarry: OnTriggerEnter. Found DeliverableQuestItem");
+        //     int itemID = other.gameObject.GetComponent<WorldItem>().GetItemID();
+        //     string stringID = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
 
-            if (stringID == "DeliverableQuestItem"){
-                if (n_itemsToDeliver.Value > 0){
-                    StartCoroutine (_DelayedDespawn(other.gameObject, 1.0f));  
-                }   
-            }
-        }
-
-        // other. GetComponentInChildren<PlayerDissolveAnimator>().AnimateDissolveServerRpc();
-    }
+        //     if (stringID == "DeliverableQuestItem"){
+        //         if (n_itemsToDeliver.Value > 0){
+        //             StartCoroutine (_DelayedDespawn(other.gameObject, 1.0f));  
+        //         }   
+        //     }
+        // }
+}
 
     #region = DespawnItem
     private IEnumerator _DelayedDespawn(GameObject obj, float delay)
     {
-        Debug.Log ("ItemCarry: _DelayedDespawn");
-        obj.GetComponentInChildren<PlayerDissolveAnimator>().AnimateDissolveServerRpc();
-        yield return new WaitForSeconds(delay);
-        Debug.Log ("ItemCarry: Despawning item");
-        if (obj == null) { yield break; }
-        n_itemsToDeliver.Value--;
-        NetworkObjectReference objRef = new NetworkObjectReference(obj.GetComponent<NetworkObject>());
-        ItemManager.instance.DestroyWorldItemServerRpc(objRef);
-        // ParticleManager.instance.SpawnSelfThenAll(1, obj.transform.position, Quaternion.Euler(0, 0, 0));
-        if (n_itemsToDeliver.Value <= 0){
-            ClearObjective();
-        }
+        // Debug.Log ("ItemCarry: _DelayedDespawn");
+        // obj.GetComponentInChildren<PlayerDissolveAnimator>().AnimateDissolveServerRpc();
+        // yield return new WaitForSeconds(delay);
+        // Debug.Log ("ItemCarry: Despawning item");
+        // if (obj == null) { yield break; }
+        // n_itemsToDeliver.Value--;
+        // NetworkObjectReference objRef = new NetworkObjectReference(obj.GetComponent<NetworkObject>());
+        // ItemManager.instance.DestroyWorldItemServerRpc(objRef);
+        // // ParticleManager.instance.SpawnSelfThenAll(1, obj.transform.position, Quaternion.Euler(0, 0, 0));
+        // if (n_itemsToDeliver.Value <= 0){
+        //     ClearObjective();
+        // }
+        yield return null;
     }
     #endregion
 }

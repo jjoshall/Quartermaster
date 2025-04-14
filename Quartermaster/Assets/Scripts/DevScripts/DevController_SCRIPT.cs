@@ -213,7 +213,7 @@ public class DevController : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.F))
         {
             // spawn item 12
-            ItemManager.instance.DropItems(RaycastGround());
+            ItemManager.instance.RollDropTable(RaycastGround());
         }
     }
 

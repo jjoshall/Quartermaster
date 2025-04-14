@@ -262,7 +262,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     // Called when enemy dies
     protected virtual void OnDie() {
-        ItemManager.instance.ThresholdBurstDrop(transform.position);    // norman added this, has a chance to burst drop items
+        ItemManager.instance.RollDropTable(transform.position);    // norman added this, has a chance to burst drop items
         GameManager.instance.IncrementEnemyKillsServerRpc();    // add to enemy kill count
         enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());  // remove enemy from scene
     }

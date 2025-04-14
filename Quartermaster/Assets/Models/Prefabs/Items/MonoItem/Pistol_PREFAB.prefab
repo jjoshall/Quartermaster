@@ -242,9 +242,9 @@ MonoBehaviour:
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
-  SyncRotAngleX: 0
-  SyncRotAngleY: 0
-  SyncRotAngleZ: 0
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
   SyncScaleX: 0
   SyncScaleY: 0
   SyncScaleZ: 0
@@ -310,7 +310,7 @@ MonoBehaviour:
   IsWeapon: 1
   IsClassSpec: 0
   CanAutoFire: 0
-  cooldown: 0.128
+  cooldown: 0.4
   StackLimit: 1
   quantity: 1
   icon: {fileID: 2800000, guid: a002029af78d6c64ca5345ef4598ac37, type: 3}
@@ -318,11 +318,11 @@ MonoBehaviour:
   IsPickedUp: 0
   attachedWeaponSlot: {fileID: 0}
   userRef: {fileID: 0}
-  _pistolDamage: 17
+  _pistolDamage: 40
   _enemyHitEffect: Sample
   _barrelFireEffect: PistolBarrelFire
   shotOrigin: {fileID: 7617768287357453825}
-  itemID: 2
+  trailRenderID: 2
 --- !u!1001 &4164805173475431474
 PrefabInstance:
   m_ObjectHideFlags: 0

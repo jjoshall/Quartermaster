@@ -542,6 +542,22 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
+      propertyPath: dropTable.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
+      propertyPath: dropTable.Array.data[0].quantity
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
+      propertyPath: dropTable.Array.data[0].dropChance
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
+      propertyPath: dropTable.Array.data[0].itemPrefab
+      value: 
+      objectReference: {fileID: 8519617277999394602, guid: 71b297f5108d1b84197b3aa4db2f9ffb, type: 3}
+    - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
       propertyPath: dropEntries.Array.data[0].dropChance
       value: 0.7
       objectReference: {fileID: 0}
@@ -553,6 +569,22 @@ PrefabInstance:
       propertyPath: dropEntries.Array.data[6].dropChance
       value: 0.4
       objectReference: {fileID: 0}
+    - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
+      propertyPath: dropTable.Array.data[0].dropChancePercent
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
+      propertyPath: dropTable.Array.data[0].itemDrops.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
+      propertyPath: dropTable.Array.data[0].itemDrops.Array.data[0].quantity
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
+      propertyPath: dropTable.Array.data[0].itemDrops.Array.data[0].itemPrefab
+      value: 
+      objectReference: {fileID: 1379869983}
     - target: {fileID: 6946468540148778774, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 3137207832
@@ -2336,6 +2368,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9e1751aada87db64c88bdb7124be5136, type: 3}
+--- !u!1 &1379869983 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8519617277999394602, guid: 71b297f5108d1b84197b3aa4db2f9ffb, type: 3}
+  m_PrefabInstance: {fileID: 1785292498}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1396842504 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4334222927529626911, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}

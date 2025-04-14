@@ -247,17 +247,15 @@ MonoBehaviour:
   IsWeapon: 1
   IsClassSpec: 0
   CanAutoFire: 1
-  cooldown: 0.3
+  cooldown: 0.128
   StackLimit: 1
   quantity: 1
   icon: {fileID: 2800000, guid: c6b290b5717566144b7f057edceadffc, type: 3}
   soundEmitters: []
   IsPickedUp: 0
   attachedWeaponSlot: {fileID: 0}
-  CurrentlySelected:
-    m_InternalValue: 0
   userRef: {fileID: 0}
-  _flamethrowerDamage: 6
+  _flamethrowerDamage: 14
   _capsuleRadius: 4
   _maxRange: 10
   _enemyHitEffect: Sample

@@ -171,9 +171,9 @@ MonoBehaviour:
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
-  SyncRotAngleX: 0
-  SyncRotAngleY: 0
-  SyncRotAngleZ: 0
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
   SyncScaleX: 0
   SyncScaleY: 0
   SyncScaleZ: 0
@@ -267,19 +267,12 @@ MonoBehaviour:
   soundEmitters: []
   IsPickedUp: 0
   attachedWeaponSlot: {fileID: 0}
-  CurrentlySelected:
-    m_InternalValue: 0
   userRef: {fileID: 0}
   _grenadeBaseVelocity: 5
   _grenadeMaxVelocity: 30
   _grenadeMaxChargeTime: 1
   _grenadeDamage: 6
   _capsuleRadius: 4
-  _maxRange: 10
-  _enemyHitEffect: Sample
-  _barrelLaserEffect: PistolBarrelFire
-  flameParticle: {fileID: 0}
-  shotOrigin: {fileID: 0}
 --- !u!1001 &1451973314769325731
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -31,9 +31,9 @@ public class MedKit_MONO : MonoItem
         int healSpecLvl = s.GetHealSpecLvl();
 
         if (healSpecLvl == 0){
+            Debug.Log ("MedKit_MONO: ButtonUse() HealSpecLvl is 0. Immediately use medkit.");
             ImmediateMedKitUsage(user);
         } else {
-            Debug.Log ("MedKit_MONO: ButtonUse() HealSpecLvl > 0, charging throwable MedKit");
 
             // Start charging.
             _medKitVelocity = _medKitBaseVelocity; // reset velocity.
@@ -54,7 +54,9 @@ public class MedKit_MONO : MonoItem
             _medKitChargeTime = 0.0f;
             _medKitTapTime = Time.time;
             _medKitTapped = true;
-            Debug.Log ("TapTime Set to " + _medKitTapTime);
+            return;
+        }
+        if (user.GetComponent<PlayerStatus>().GetHealSpecLvl() == 0){
             return;
         }
         if (Time.time < _medKitTapTime + _medKitTapThreshold) {
@@ -71,7 +73,6 @@ public class MedKit_MONO : MonoItem
 
     public override void ButtonRelease(GameObject user){
         if (NullChecks(user)) {
-            Debug.LogError("MedKit_MONO: ButtonRelease() NullChecks failed.");
             return;
         }
 
@@ -132,7 +133,9 @@ public class MedKit_MONO : MonoItem
 
     
     private void ImmediateMedKitUsage (GameObject user){
+        Debug.Log ("MedKit_MONO: ImmediateMedKitUsage() called. Quantity before: " + quantity.ToString());
         quantity--;
+        Debug.Log ("MedKit_MONO: ImmediateMedKitUsage() called. Quantity after: " + quantity.ToString());
 
         lastUsed = Time.time;
         // user.GetComponent<PlayerHealth>().Heal(HEAL_AMOUNT);

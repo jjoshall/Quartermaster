@@ -210,9 +210,9 @@ MonoBehaviour:
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
-  SyncRotAngleX: 0
-  SyncRotAngleY: 0
-  SyncRotAngleZ: 0
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
   SyncScaleX: 0
   SyncScaleY: 0
   SyncScaleZ: 0
@@ -278,7 +278,7 @@ MonoBehaviour:
   IsWeapon: 1
   IsClassSpec: 0
   CanAutoFire: 0
-  cooldown: 0.3
+  cooldown: 0.128
   StackLimit: 1
   quantity: 1
   icon: {fileID: 2800000, guid: 2a980c474bcfc804c8c1714aa1ac5659, type: 3}
