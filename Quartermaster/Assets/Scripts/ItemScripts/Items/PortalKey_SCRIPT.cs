@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.VisualScripting.ReorderableList;
 
-public class PortalKey_MONO : MonoItem
+public class PortalKey_MONO : Item
 {
 
     #region Item Settings
@@ -129,7 +129,7 @@ public class PortalKey_MONO : MonoItem
                 continue;
             }
 
-            MonoItem item = hitObj.GetComponent<MonoItem>();
+            Item item = hitObj.GetComponent<Item>();
             if (item != null){
                 if (item.IsPickedUp){
                     Debug.Log ("PortalKey_MONO: AddRaycastToTp() item is picked up, ignoring.");
@@ -157,7 +157,7 @@ public class PortalKey_MONO : MonoItem
             AddTpOutline(obj);
         } else if (obj.CompareTag("Item")){
             _itemsToTeleport.Add(obj);
-            Debug.Log ("PortalKey_MONO: AddObjToTp() item, " + obj.GetComponent<MonoItem>().uniqueID + ", added to teleport list.");
+            Debug.Log ("PortalKey_MONO: AddObjToTp() item, " + obj.GetComponent<Item>().uniqueID + ", added to teleport list.");
             AddTpOutline(obj);
         } else {
             Debug.LogWarning ("PortalKey_MONO: AddObjToTp() obj is not a player or item.");

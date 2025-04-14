@@ -1,12 +1,12 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class HealSpec_MONO : MonoItem
+public class DmgSpec_MONO : Item
 {
 
-    #region HealSpec Item Game Settings
-    [Header("HealSpec Settings")]
-    [SerializeField] private float _healIncreasePerLevel = 0.1f;
+    #region DmgSpec Item Game Settings
+    [Header("DmgSpec Settings")]
+    [SerializeField] private float _dmgIncreasePerLevel = 0.1f;
 
     // Make an effect string = "" to disable spawning an effect.
     [SerializeField] private string _pickUpEffect = ""; // effect spawned on pickup.
@@ -22,13 +22,13 @@ public class HealSpec_MONO : MonoItem
 
     public override void PickUp(GameObject user)
     {
-        UpdateHealSpecCount(user);
+        UpdateDmgSpecCount(user);
         // play pick up effect. 
     }
 
     public override void Drop(GameObject user)
     {
-        UpdateHealSpecCount(user);
+        UpdateDmgSpecCount(user);
         // play drop effect.
     }
 
@@ -36,23 +36,23 @@ public class HealSpec_MONO : MonoItem
 
     #endregion 
     #region HELPERS
-    private void UpdateHealSpecCount (GameObject user) {
+    private void UpdateDmgSpecCount (GameObject user) {
         PlayerStatus s = user.GetComponent<PlayerStatus>();
         Inventory i = user.GetComponent<Inventory>();
 
         if (!s){
-            Debug.LogError("HealSpec_MONO: UpdateHealSpecCount() - user or status is null.");
+            Debug.LogError("DmgSpec_MONO: UpdateDmgSpecCount() - user or status is null.");
             return;
         }
         if (!i){
-            Debug.LogError("HealSpec_MONO: UpdateHealSpecCount() - user or inventory is null.");
+            Debug.LogError("DmgSpec_MONO: UpdateDmgSpecCount() - user or inventory is null.");
             return;
         }
 
         int quantity = i.GetItemQuantity(uniqueID);
-        float bonus = quantity * _healIncreasePerLevel;
+        float bonus = quantity * _dmgIncreasePerLevel;
 
-        s.UpdateHealSpecServerRpc(quantity, bonus);
+        s.UpdateDmgSpecServerRpc(quantity, bonus);
     }
 
     #endregion

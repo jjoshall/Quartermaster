@@ -3,7 +3,7 @@ using Unity.Netcode;
 using System.Collections.Generic;
 using System;
 
-public abstract class MonoItem : NetworkBehaviour
+public abstract class Item : NetworkBehaviour
 {
 
     #region SUBCLASS PROPERTIES

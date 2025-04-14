@@ -111,7 +111,7 @@ public class ItemAcquisitionRange : MonoBehaviour {
     }   
 
     bool IsAnItem(GameObject obj) {
-        return obj.CompareTag("Item") && obj.GetComponent<MonoItem>() != null && !obj.GetComponent<MonoItem>().IsPickedUp;
+        return obj.CompareTag("Item") && obj.GetComponent<Item>() != null && !obj.GetComponent<Item>().IsPickedUp;
         // return true; 
     }
 

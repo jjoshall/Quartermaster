@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class MedKit_MONO : MonoItem
+public class MedKit_MONO : Item
 {
     #region ItemSettings
     #endregion

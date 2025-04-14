@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.Netcode;
 
-public class DeliverableQuestItem_MONO : MonoItem
+public class DeliverableQuestItem_MONO : Item
 {
 
     #region Deliverable Item Game Settings

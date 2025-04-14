@@ -73,16 +73,16 @@ public class ItemManager : NetworkBehaviour {
                 Debug.LogError("DropItemServerRpc: itemPrefab is null!");
                 continue;
             }
-            if (item.itemPrefab.GetComponent<MonoItem>() == null){
+            if (item.itemPrefab.GetComponent<Item>() == null){
                 Debug.LogError("DropItemServerRpc: itemPrefab is missing MonoItem component!");
                 continue;
             }
 
-            Debug.Log ("DropItemServerRpc: Spawning item " + item.itemPrefab.GetComponent<MonoItem>().uniqueID + " at " + spawnLoc.ToString() + " with quantity " + item.quantity.ToString() + ".");
+            Debug.Log ("DropItemServerRpc: Spawning item " + item.itemPrefab.GetComponent<Item>().uniqueID + " at " + spawnLoc.ToString() + " with quantity " + item.quantity.ToString() + ".");
             GameObject newItem = Instantiate(item.itemPrefab, spawnLoc, Quaternion.identity);
-            newItem.GetComponent<MonoItem>().quantity = item.quantity; // set quantity to the item stack size.
-            newItem.GetComponent<MonoItem>().userRef = null; // set user ref to the enemy.
-            newItem.GetComponent<MonoItem>().IsPickedUp = false; // set IsPickedUp to false.
+            newItem.GetComponent<Item>().quantity = item.quantity; // set quantity to the item stack size.
+            newItem.GetComponent<Item>().userRef = null; // set user ref to the enemy.
+            newItem.GetComponent<Item>().IsPickedUp = false; // set IsPickedUp to false.
             
             NetworkObject n_newItem = newItem.GetComponent<NetworkObject>();
             if (n_newItem == null) {
@@ -95,7 +95,7 @@ public class ItemManager : NetworkBehaviour {
             n_newItem.GetComponent<Rigidbody>().linearVelocity = initialVelocity;
             n_newItem.Spawn(true); // Spawn the object on the network
             newItem.transform.SetParent(this.gameObject.transform); // Set the parent to this object.
-            newItem.GetComponent<MonoItem>().OnSpawn();
+            newItem.GetComponent<Item>().OnSpawn();
         }
     }
 

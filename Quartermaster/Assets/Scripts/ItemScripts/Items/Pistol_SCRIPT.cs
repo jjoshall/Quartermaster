@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.Netcode;
 
-public class Pistol_MONO : MonoItem
+public class Pistol_MONO : Item
 {
 
     #region Pistol Item Game Settings

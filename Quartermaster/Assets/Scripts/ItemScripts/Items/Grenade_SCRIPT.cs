@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class Grenade_MONO : MonoItem
+public class Grenade_MONO : Item
 {
     #region ItemSettings
     #endregion

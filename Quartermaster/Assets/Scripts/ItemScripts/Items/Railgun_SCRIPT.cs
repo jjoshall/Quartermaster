@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.Netcode;
 
-public class Railgun_MONO : MonoItem
+public class RailgunItem : Item
 {
 
     #region Railgun Item Game Settings

@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class SlowTrap_MONO : MonoItem
+public class SlowTrapItem : Item
 {
     #region ItemSettings
     #endregion

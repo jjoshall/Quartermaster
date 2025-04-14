@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class Flamethrower_MONO : MonoItem
+public class Flamethrower_MONO : Item
 {
 
     #region Flamethrower Item Game Settings
