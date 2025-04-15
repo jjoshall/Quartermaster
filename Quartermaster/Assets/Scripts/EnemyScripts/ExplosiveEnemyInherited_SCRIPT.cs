@@ -93,10 +93,11 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         yield return new WaitForSeconds(3.0f);
         base.OnDie();
     }
+
     // Called by base class attack cooldown.
     protected override void Attack() {
         if (!IsServer || _isExploding) return;
-        Debug.Log("Explosive Attack");
+
         _isExploding = true;
         isBlinking.Value = true;
 
@@ -107,7 +108,6 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     protected virtual IEnumerator DelayedExplosion(float delay) {
         yield return new WaitForSeconds(delay);
         AttackServerRpc(true);
-
     }
 
     // the actual attack
@@ -118,19 +118,16 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
         ParticleManager.instance.SpawnSelfThenAll("EnemyExplosion", transform.position, Quaternion.identity);
 
-        float dmgAiScaled = damage * AIDmgMultiplier;
-        Debug.Log ("dmgAiScaled is: " + dmgAiScaled);
-
         // Explosion hurts players and enemies, but enemies only take 1/3 of the damage
         foreach (var hitCollider in hitColliders)
         {
             if (hitCollider.CompareTag("Player"))
             {
-                hitCollider.GetComponent<Damageable>().InflictDamage(dmgAiScaled, false, gameObject);
+                hitCollider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
             }
             else if (hitCollider.CompareTag("Enemy"))
             {
-                hitCollider.GetComponent<Damageable>().InflictDamage(dmgAiScaled / 3, false, gameObject);
+                hitCollider.GetComponent<Damageable>().InflictDamage(damage / 3, false, gameObject);
             }
         }
 
@@ -157,5 +154,4 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             }
         }
     }
-    
 }

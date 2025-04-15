@@ -33,24 +33,20 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             AttackServerRpc();
         }
 
-        Debug.Log("Melee Attack");
-
         // SWITCH TO TIMER LATER
         StartCoroutine(ResetAttackCooldown());
     }
 
     [ServerRpc(RequireOwnership = false)]   
     private void AttackServerRpc() {
-                if (!IsServer) return;
+        if (!IsServer) return;
+
         // OverlapSphere will find all colliders in the attackRadius around the enemy
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
 
-        float dmgAiScaled = damage * AIDmgMultiplier;
-        Debug.Log ("dmgAiScaled is: " + dmgAiScaled);
-
         foreach (var hitCollider in hitColliders) {
             if (hitCollider.CompareTag("Player")) {
-                hitCollider.GetComponent<Damageable>().InflictDamage(dmgAiScaled, false, gameObject);
+                hitCollider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
             }
         }
     }

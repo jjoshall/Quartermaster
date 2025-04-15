@@ -29,7 +29,6 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [SerializeField] private float _attackDelay = 2.0f;
     private float _lastAttackTime = 0.0f;
 
-
     [Header("Required Scripts for Enemies")]
     protected NavMeshAgent agent;
     protected Health health;
@@ -81,7 +80,6 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             enabled = false;
         }
         else {
-
             if (health != null) {
                 health.OnDamaged += OnDamaged;
                 health.OnDie += OnDie;
@@ -99,7 +97,6 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         if (!IsServer) return;
         UpdateTarget(); // sets targetPosition to closest player within localDetectionRange, else global target
         Pathing(); // if in attackRange
-
     }
 
     private void Pathing(){        
@@ -123,6 +120,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         }
     }
     #endregion 
+
     #region BoidSeparation
     private void LateUpdate() {
         if (!IsServer) return;
@@ -133,7 +131,6 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     }
     // Apply boids separation for fluid-like emergent behavior.
     private void ApplySeparationForce() {
-        // Vector3 separationForce = Vector3.zero;
         int count = 0;
         int enemyLayer = LayerMask.NameToLayer("Enemy");
         int enemyLayerMask = 1 << enemyLayer;
@@ -236,7 +233,6 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         return closestPlayer;
     }
 
-
     // Called when enemy takes damage
     protected virtual void OnDamaged(float damage, GameObject damageSource) {
         if (floatingTextPrefab != null) {
@@ -269,10 +265,6 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     public override void OnNetworkDespawn() {
         base.OnNetworkDespawn();
-
-        // if (IsServer && NetworkManager.Singleton != null) {
-        //     NetworkManager.Singleton.OnClientDisconnectCallback -= ClientDisconnected;
-        // }
 
         if (health != null) {
             health.OnDamaged -= OnDamaged;

@@ -10,8 +10,8 @@ public class DevController : NetworkBehaviour
     [SerializeField] float _sprintMultiplier;
     [SerializeField] private float _devBaseSpeed;
 
-    [SerializeField] private int packSize = 10;
-    [SerializeField] private float enemySpread = 2f;
+    //[SerializeField] private int packSize = 10;
+    //[SerializeField] private float enemySpread = 2f;
     private EnemySpawner enemySpawner;
 
     [SerializeField] float mouseSens = 100.0f;
@@ -54,7 +54,7 @@ public class DevController : NetworkBehaviour
         MouseCameraMovement();
         WASD(); // checks wasd hold for movement.
         ItemSpawn(); // checks 123456qert keydown for item spawn at raycast.
-        EnemySpawn();
+        //EnemySpawn();
         Sprint();
         ReturnToBeingPlayer();
         IncreaseDecreaseSpeed();
@@ -90,17 +90,17 @@ public class DevController : NetworkBehaviour
         
     }
 
-    private void EnemySpawn(){
-        if (Input.GetKeyDown(KeyCode.G)){
-            Vector3 spawnPosition = RaycastGround();
+    //private void EnemySpawn(){
+    //    if (Input.GetKeyDown(KeyCode.G)){
+    //        Vector3 spawnPosition = RaycastGround();
 
-            if (spawnPosition != Vector3.zero) {
-                if (enemySpawner != null) {
-                    enemySpawner.SpawnEnemyPackAtRandomPointServerRpc(packSize, spawnPosition, enemySpread);
-                }
-            }
-        }
-    }
+    //        if (spawnPosition != Vector3.zero) {
+    //            if (enemySpawner != null) {
+    //                enemySpawner.SpawnEnemyPackAtRandomPointServerRpc(packSize, spawnPosition, enemySpread);
+    //            }
+    //        }
+    //    }
+    //}
 
     private void Sprint(){
         if (Input.GetKeyDown(KeyCode.LeftShift)){

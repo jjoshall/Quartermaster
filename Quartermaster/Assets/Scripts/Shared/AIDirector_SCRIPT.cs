@@ -60,7 +60,7 @@ public class AIDirector : NetworkBehaviour {
     [SerializeField] private float _maxDamageScale = 0.5f; // 50% max damage increase
     [SerializeField] private float _maxSpawnRateScale = 0.5f; // 50% max spawn rate increase
 
-    [SerializeField] private float _peakBuffMultiplier = 2f;
+    //[SerializeField] private float _peakBuffMultiplier = 2f;
 
     // State machine properties
     public enum DirectorState {
@@ -270,11 +270,11 @@ public class AIDirector : NetworkBehaviour {
         float curvedSpawnRate = ScaledEaseOut(_scalingRawTotal, _maxSpawnRateScale);
 
         // affects new spawns.
-        EnemySpawner.instance.aiDmgMultiplier = 1.0f + curvedDmg;
-        EnemySpawner.instance.aiHpMultiplier = 1.0f + curvedHp;
+        //EnemySpawner.instance.aiDmgMultiplier = 1.0f + curvedDmg;
+        //EnemySpawner.instance.aiHpMultiplier = 1.0f + curvedHp;
 
-        // affects all active enemies
-        UpdateEnemySpeedMultiplier(1.0f + curvedSpeed);
+        //// affects all active enemies
+        //UpdateEnemySpeedMultiplier(1.0f + curvedSpeed);
 
         // float currentSpeedScale = gm.EnemySpeedMultiplier - 1f;
         // float currentHealthScale = gm.EnemyHealthMultiplier - 1f;
@@ -296,9 +296,9 @@ public class AIDirector : NetworkBehaviour {
         float y = 1f - Mathf.Pow(2.71828f, xCoefficient * x);
         return y * maxValue;
     }
-    private void UpdateEnemySpeedMultiplier (float speedMultiplier){
-        EnemySpawner.instance.UpdateEnemySpeed(speedMultiplier);
-    }
+    //private void UpdateEnemySpeedMultiplier (float speedMultiplier){
+    //    EnemySpawner.instance.UpdateEnemySpeed(speedMultiplier);
+    //}
 
     // private void ApplyPeakVariation(PeakVariation variation) {
     //     GameManager gm = GameManager.instance;
