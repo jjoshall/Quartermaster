@@ -21,9 +21,12 @@ public class PocketInventory : NetworkBehaviour {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     private Vector3 _teleportPosition; // static. doesn't need to be networked.
-    private List<NetworkObjectReference> _playersInPocket = new List<NetworkObjectReference>();
+    private NetworkList<NetworkObjectReference> _playersInPocket = new NetworkList<NetworkObjectReference>();
     // dict mapping networkobjectreference to a vector3 return position
+    // define a struct of networkobjectreference and playerposition and make it serializable
+
     private Dictionary<NetworkObjectReference, PlayerPosition> _playerReturnPositions = new Dictionary<NetworkObjectReference, PlayerPosition>();
+    // private NetworkList<PlayerPosition> _playerReturnPositions = new NetworkList<PlayerPosition>();
 
     private struct PlayerPosition : INetworkSerializable {
         public Vector3 position;
@@ -53,7 +56,7 @@ public class PocketInventory : NetworkBehaviour {
     // Start works here because the PocketInventory prefab is placed in the scene by default.
     // Instead of spawned by the server during runtime. Don't need to move to OnNetworkSpawn()
     void Start() {
-        _playersInPocket = new List<NetworkObjectReference>();
+        _playersInPocket = new NetworkList<NetworkObjectReference>();
         n_timeEnteredPocketNetworkVar.Value = 0;
         _teleportPosition = this.transform.position + new Vector3 (0, 2, 0);
         n_storedKeyObj = new NetworkObjectReference();
@@ -97,6 +100,8 @@ public class PocketInventory : NetworkBehaviour {
             TeleportUserToPositionClientRpc(userRef, teleportSpot); // teleport
             
             _playersInPocket.Add(userRef);
+            Debug.Log ("playersInPocket: " + _playersInPocket.Count);
+            Debug.Log ("playersInPocket added: " + userRef);
             n_timeEnteredPocketNetworkVar.Value = NetworkManager.Singleton.ServerTime.Time;
 
         }
@@ -113,15 +118,6 @@ public class PocketInventory : NetworkBehaviour {
                 Debug.LogError ("player has no inventory"); 
                 return;
             }
-
-            // Is owner check of teleporting player to avoid null on HasItem() condition.
-            // if (userRef.TryGet(out NetworkObject userObj)){
-            //     if (userObj.OwnerClientId == NetworkManager.Singleton.LocalClientId) {
-            //         if (playerInventory.HasItem("PocketInventoryPortalKey") != -1) {
-            //             TpNearbyItemsServerRpc(userRef, teleportPosition.position);
-            //         }
-            //     }
-            // }
 
             playerObj.GetComponentInChildren<PlayerDissolveAnimator>().AnimateSolidifyServerRpc();
             ParticleManager.instance.SpawnSelfThenAll("TeleportSphere", 
@@ -213,7 +209,11 @@ public class PocketInventory : NetworkBehaviour {
     [ClientRpc]
     public void ReturnAllPlayersClientRpc() {
         debugMsgClientRpc("Returning all players, PlayerCount = " + _playersInPocket.Count);
-        List<NetworkObjectReference> playersToRemove = new List<NetworkObjectReference>(_playersInPocket);  
+        // duplicate playersInPocket network list
+        NetworkList<NetworkObjectReference> playersToRemove = new NetworkList<NetworkObjectReference>();
+        foreach (NetworkObjectReference n_player in _playersInPocket) {
+            playersToRemove.Add(n_player);
+        }
         foreach (NetworkObjectReference n_player in playersToRemove){
             debugMsgClientRpc("Returning player: " + n_player);
             ReturnToPreviousPositionClientRpc(n_player);
@@ -239,15 +239,6 @@ public class PocketInventory : NetworkBehaviour {
     public bool PlayerIsInPocket(NetworkObjectReference playerRef) {
         return _playersInPocket.Contains(playerRef);
     }
-
-    // Deprecated. Use ReturnAllPlayersServerRpc instead.
-    // [ServerRpc(RequireOwnership = false)]
-    // public void ReturnIfInPocketServerRpc (NetworkObjectReference user) {
-    //     // if the player is in the pocket, returnallplayers
-    //     if (PlayerIsInPocket(user)) {
-    //         ReturnAllPlayersClientRpc();
-    //     }
-    // }
 
     [ServerRpc(RequireOwnership = false)]
     public void ReturnAllPlayersServerRpc() {

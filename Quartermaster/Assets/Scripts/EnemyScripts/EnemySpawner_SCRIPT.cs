@@ -140,6 +140,7 @@ public class EnemySpawner : NetworkBehaviour {
                 enemyTransform.SetParent(this.gameObject.transform);
                 enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().UpdateSpeedServerRpc();    
 
+                _lastSpawnTime = Time.time;
             }
         }
     }
