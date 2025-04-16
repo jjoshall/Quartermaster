@@ -1741,6 +1741,10 @@ PrefabInstance:
       propertyPath: InScenePlacedSourceGlobalObjectIdHash
       value: 2109511482
       objectReference: {fileID: 0}
+    - target: {fileID: 4057843934452502856, guid: 36303cc5c7f35a34f881a3c59bf109c7, type: 3}
+      propertyPath: _teleportDestination
+      value: 
+      objectReference: {fileID: 1121264821}
     - target: {fileID: 7652172224797702053, guid: 36303cc5c7f35a34f881a3c59bf109c7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.50806
@@ -2027,6 +2031,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a6515497dabeb014790d8b140efc820b, type: 3}
+--- !u!1 &1121264821 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3691139008586363369, guid: fa7d027201ef61d438eebf2caa873998, type: 3}
+  m_PrefabInstance: {fileID: 99544255}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1123313698 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8000073095449397980, guid: d175a29868c362e4c83cd9eff8157693, type: 3}

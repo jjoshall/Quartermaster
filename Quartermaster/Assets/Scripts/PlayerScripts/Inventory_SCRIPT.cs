@@ -22,6 +22,7 @@ public class Inventory : NetworkBehaviour {
     [Header("Weapon Holdable Setup")]
     public GameObject weaponSlot;
 
+    // Reference to currently selected item for this inventory.
     public NetworkVariable<NetworkObjectReference> n_currentHoldable = new NetworkVariable<NetworkObjectReference>(
                                                                                 default, 
                                                                                 NetworkVariableReadPermission.Everyone, 
@@ -71,7 +72,8 @@ public class Inventory : NetworkBehaviour {
 
         // Handle drop input first.
         if (_InputHandler.isDropping) {
-            DropSelectedItem();
+            // DropSelectedItem();
+            DropItem(_currentInventoryIndex);
         }
 
         // Clamp the inventory index to a valid range.
@@ -188,7 +190,9 @@ public class Inventory : NetworkBehaviour {
     void PickUpClosest() {
         if (!IsOwner) return;
 
-        GameObject pickedUp = ReturnClosestItem();  
+        GameObject pickedUp = _itemAcquisitionRange.
+                                    GetComponent<ItemAcquisitionRange>().
+                                    GetClosestItem(); // prioritizes raycast over physical closest.
 
         // Try to stack the item in any existing item stacks
         if (pickedUp != null && 
@@ -309,20 +313,6 @@ public class Inventory : NetworkBehaviour {
         return false;
     }
 
-    public int GetSlotQuantity (int slot) {
-        if (_inventoryMono[slot] == null) return 0;
-        return _inventoryMono[slot].GetComponent<Item>().quantity;
-    }
-
-    public int GetItemQuantity (string uniqueID) {
-        int total = 0;
-        for (int i = 0; i < _inventoryMono.Length; i++) {
-            if (_inventoryMono[i] != null && _inventoryMono[i].GetComponent<Item>().uniqueID == uniqueID) {
-                total += _inventoryMono[i].GetComponent<Item>().quantity;
-            }
-        }
-        return total;
-    }
 
     bool AddToFirstEmptySlot(GameObject item) {
         for (int i = 0; i < _inventoryMono.Length; i++) {
@@ -334,28 +324,11 @@ public class Inventory : NetworkBehaviour {
         }
         return false;
     }
-    GameObject ReturnClosestItem(){
-        GameObject closestItem = _itemAcquisitionRange.
-                                    GetComponent<ItemAcquisitionRange>().
-                                    GetClosestItem(); // prioritizes raycast over physical closest.
-
-        if (closestItem == null) {
-            return null;
-        }
-
-        return closestItem;
-    }
 
     
     // -------------------------------------------------------------------------------------------------------------------------
     #region DropEvents
     #endregion
-
-    void DropSelectedItem() { // trigger on hotkey. calls DropItem on current slot.
-        if (!IsOwnerValidIndexAndPauseMenuCheck()) return;
-
-        DropItem(_currentInventoryIndex);
-    }
 
     void DropItem(int slot) { // called directly to drop additional ClassSpecs / Weapons
         if (_inventoryMono[slot] == null) return;
@@ -581,6 +554,20 @@ public class Inventory : NetworkBehaviour {
 
 
     #region Helpers
+    public int GetSlotQuantity (int slot) {
+        if (_inventoryMono[slot] == null) return 0;
+        return _inventoryMono[slot].GetComponent<Item>().quantity;
+    }
+
+    public int GetItemQuantity (string uniqueID) {
+        int total = 0;
+        for (int i = 0; i < _inventoryMono.Length; i++) {
+            if (_inventoryMono[i] != null && _inventoryMono[i].GetComponent<Item>().uniqueID == uniqueID) {
+                total += _inventoryMono[i].GetComponent<Item>().quantity;
+            }
+        }
+        return total;
+    }
     private void DropAllOtherClassSpecs(string pickedSpec){
         for (int i = 0; i < _inventoryMono.Length; i++){
             if (_inventoryMono[i] == null){
