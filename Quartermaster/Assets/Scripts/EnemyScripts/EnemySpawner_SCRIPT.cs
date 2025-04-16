@@ -116,40 +116,59 @@ public class EnemySpawner : NetworkBehaviour {
         // Managed by InactiveAreaCollider s adding/removing from activePlayerList
         if (enemyList.Count < _maxEnemyInstanceCount && activePlayerList.Count > 0) {
             Transform enemyPrefab = GetWeightedRandomEnemyPrefab();
+
             if (enemyPrefab != null) {
                 Vector3 spawnPosition = GetSpawnPoint();
 
-                // Get a pooled enemy object
-                NetworkObject networkObject = _objectPool.GetNetworkObject(
-                    enemyPrefab.gameObject, 
-                    spawnPosition, 
-                    Quaternion.identity
-                );
+                try {
+                    // Get a pooled enemy object
+                    NetworkObject networkObject = _objectPool.GetNetworkObject(
+                        enemyPrefab.gameObject,
+                        spawnPosition,
+                        Quaternion.identity
+                    );
 
-                Transform enemyTransform = networkObject.transform;
+                    if (networkObject != null) {
+                        Transform enemyTransform = networkObject.transform;
 
-                // Setup enemy properties
-                BaseEnemyClass_SCRIPT enemyScript = enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>();
-                enemyScript.enemySpawner = this;
-                enemyScript.enemyType = GetEnemyType(enemyPrefab);
+                        // Ensure position is correct
+                        enemyTransform.position = spawnPosition;
 
-                // Spawn network object
-                if (!networkObject.IsSpawned) {
-                    networkObject.Spawn(true);
+                        // Setup enemy properties
+                        BaseEnemyClass_SCRIPT enemyScript = enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>();
+                        if (enemyScript != null) {
+                            enemyScript.enemySpawner = this;
+                            enemyScript.enemyType = GetEnemyType(enemyPrefab);
+
+                            UnityEngine.AI.NavMeshAgent agent = enemyTransform.GetComponent<UnityEngine.AI.NavMeshAgent>();
+                            if (agent != null) {
+                                agent.Warp(spawnPosition);  // Warp agent to spawn position
+                                agent.enabled = true; // Enable the agent
+                            }
+
+                            // Spawn network object
+                            if (!networkObject.IsSpawned) {
+                                networkObject.Spawn(true);
+                            }
+
+                            Health hpComponent = enemyTransform.GetComponent<Health>();
+                            if (hpComponent != null) {
+                                hpComponent.CurrentHealth.Value = hpComponent.MaxHealth;
+                            }
+
+                            enemyList.Add(enemyTransform);
+
+                            // Set parent and update speed
+                            enemyTransform.SetParent(this.gameObject.transform);
+                            enemyScript.UpdateSpeedServerRpc();
+
+                            _lastSpawnTime = Time.time; // Update last spawn time
+                        }
+                    }
                 }
-
-                // Reset health to full
-                Health hpComponent = enemyTransform.GetComponent<Health>();
-                hpComponent.CurrentHealth.Value = hpComponent.MaxHealth;
-
-                // Add to tracking list
-                enemyList.Add(enemyTransform);
-
-                // Set parent and update speed
-                enemyTransform.SetParent(this.gameObject.transform);
-                enemyScript.UpdateSpeedServerRpc();
-
-                _lastSpawnTime = Time.time;
+                catch (System.Exception e) {
+                    Debug.LogError("Error spawning enemy: " + e.Message);
+                }
             }
         }
     }

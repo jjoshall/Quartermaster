@@ -99,6 +99,18 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         Pathing(); // if in attackRange
     }
 
+    public void OnEnable() {
+        if (agent != null) {
+            agent.enabled = true;
+        }
+    }
+
+    public void OnDisable() {
+        if (agent != null) {
+            agent.enabled = false;
+        }
+    }
+
     private void Pathing(){        
         if (targetPosition != null) {
             // Each enemy has a different attack range

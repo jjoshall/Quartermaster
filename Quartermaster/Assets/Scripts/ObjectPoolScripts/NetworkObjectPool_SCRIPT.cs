@@ -112,9 +112,21 @@ namespace Unity.BossRoom.Infrastructure {
             NetworkManager.Singleton.PrefabHandler.AddHandler(prefab, new PooledPrefabInstanceHandler(prefab, this));
         }
 
+        [SerializeField] private Transform poolContainer;
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private GameObject CreateInstance(GameObject prefab) {
-            return Instantiate(prefab);
+            // Use poolContainer's position if available
+            Vector3 spawnPosition = poolContainer != null ? poolContainer.position : Vector3.zero;
+
+            // Instantiate at valid position
+            GameObject instance = Instantiate(prefab, spawnPosition, Quaternion.identity);
+
+            // Disable the object immediately
+            instance.SetActive(false);
+
+            // Return the instance
+            return instance;
         }
 
         /// <summary>
