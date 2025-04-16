@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using System.Threading.Tasks;
+using Unity.BossRoom.Infrastructure;    // Add this for network object pooling
 
 public class EnemySpawner : NetworkBehaviour {    
     [Header("Spawner Timer")]
@@ -12,8 +13,11 @@ public class EnemySpawner : NetworkBehaviour {
     [Header("Spawner Settings")]
     [HideInInspector] public NetworkVariable<bool> isSpawning = new NetworkVariable<bool>(false);
     public List<EnemySpawnData> _enemySpawnData = new List<EnemySpawnData>();
-    [SerializeField] private int _maxEnemyInstanceCount = 20;
+    [SerializeField] private int _maxEnemyInstanceCount = 50;
     [HideInInspector] public float _totalWeight = 0f;
+
+    // Pool initialization parameters
+    [SerializeField] private int _initialPoolSize = 10;
 
     [SerializeField] private float globalAggroUpdateInterval = 10.0f;
     private float globalAggroUpdateTimer = 0.0f;
@@ -31,6 +35,9 @@ public class EnemySpawner : NetworkBehaviour {
 
     // static 
     public static EnemySpawner instance;
+
+    // Reference NetworkObjectPool
+    private NetworkObjectPool _objectPool;
 
     [System.Serializable]
     public class EnemySpawnData {
@@ -53,10 +60,27 @@ public class EnemySpawner : NetworkBehaviour {
             return;
         }
 
+        // Get ref to NetworkObjectPool
+        _objectPool = NetworkObjectPool.Singleton;
+        if (_objectPool == null) {
+            Debug.LogError("NetworkObjectPool not found.");
+            return;
+        }
+
+        // Register enemy prefabs to the pool
+        InitializeEnemyPool();
+
         CalculateTotalWeight();
 
         NetworkManager.Singleton.OnClientConnectedCallback += RefreshPlayerLists;
         NetworkManager.Singleton.OnClientDisconnectCallback += RefreshPlayerLists;
+    }
+
+    private void InitializeEnemyPool() {
+        foreach (var enemyData in _enemySpawnData) {
+            GameObject prefab = enemyData.enemyPrefab.gameObject;
+            _objectPool.AddPrefab(prefab, _initialPoolSize);
+        }
     }
 
     private void RefreshPlayerLists(ulong u) {
@@ -77,6 +101,7 @@ public class EnemySpawner : NetworkBehaviour {
         if (IsServer) {
             UpdateGlobalAggroTargetTimer();
         }   
+
         SpawnOverTime();
     }
 
@@ -92,18 +117,37 @@ public class EnemySpawner : NetworkBehaviour {
         if (enemyList.Count < _maxEnemyInstanceCount && activePlayerList.Count > 0) {
             Transform enemyPrefab = GetWeightedRandomEnemyPrefab();
             if (enemyPrefab != null) {
-                Transform enemyTransform = Instantiate(enemyPrefab, GetSpawnPoint(), Quaternion.identity);
-                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemySpawner = this;
-                //enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().AISpeedMultiplier = aiSpdMultiplier;
-                //enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().AIDmgMultiplier = aiDmgMultiplier;
-                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemyType = GetEnemyType(enemyPrefab);
-                enemyTransform.GetComponent<NetworkObject>().Spawn(true);
+                Vector3 spawnPosition = GetSpawnPoint();
+
+                // Get a pooled enemy object
+                NetworkObject networkObject = _objectPool.GetNetworkObject(
+                    enemyPrefab.gameObject, 
+                    spawnPosition, 
+                    Quaternion.identity
+                );
+
+                Transform enemyTransform = networkObject.transform;
+
+                // Setup enemy properties
+                BaseEnemyClass_SCRIPT enemyScript = enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>();
+                enemyScript.enemySpawner = this;
+                enemyScript.enemyType = GetEnemyType(enemyPrefab);
+
+                // Spawn network object
+                if (!networkObject.IsSpawned) {
+                    networkObject.Spawn(true);
+                }
+
+                // Reset health to full
                 Health hpComponent = enemyTransform.GetComponent<Health>();
-                //hpComponent.MaxHealth *= aiHpMultiplier;
                 hpComponent.CurrentHealth.Value = hpComponent.MaxHealth;
+
+                // Add to tracking list
                 enemyList.Add(enemyTransform);
+
+                // Set parent and update speed
                 enemyTransform.SetParent(this.gameObject.transform);
-                enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().UpdateSpeedServerRpc();
+                enemyScript.UpdateSpeedServerRpc();
 
                 _lastSpawnTime = Time.time;
             }
@@ -229,27 +273,30 @@ public class EnemySpawner : NetworkBehaviour {
         if (!IsServer) { return; }
         if (enemy.TryGet(out NetworkObject networkObject)) {
             enemyList.Remove(networkObject.transform);
-            networkObject.Despawn();
+            
+            // Return to pool
+            GameObject prefab = GetPrefabForEnemy(networkObject.gameObject);
+            if (prefab != null) {
+                _objectPool.ReturnNetworkObject(networkObject, prefab);
+            }
+            else {
+                // Fallback to destroy if prefab not found (shouldn't happen)
+                networkObject.Despawn();
+            }
         }
     }
 
+    private GameObject GetPrefabForEnemy(GameObject enemy) {
+        // Find matching prefab for this enemy instance
+        foreach (var enemyData in _enemySpawnData) {
+            if (enemy.name.StartsWith(enemyData.enemyPrefab.name)) {
+                return enemyData.enemyPrefab.gameObject;
+            }
+        }
+        return null;
+    }
 
     #endregion
-
-    //#region Update Enemy Speed
-    //public void UpdateEnemySpeed(float speed) {
-    //    aiSpdMultiplier = speed;
-    //    foreach (Transform enemy in enemyList) {
-    //        if (enemy != null) {
-    //            if (enemy.GetComponent<BaseEnemyClass_SCRIPT>() != null){
-    //                enemy.GetComponent<BaseEnemyClass_SCRIPT>().AISpeedMultiplier = aiSpdMultiplier;
-    //                enemy.GetComponent<BaseEnemyClass_SCRIPT>().UpdateSpeedServerRpc();
-    //            }
-    //        }
-    //    }
-    //}
-
-    //#endregion 
 
     #region Helpers
     [ServerRpc]
