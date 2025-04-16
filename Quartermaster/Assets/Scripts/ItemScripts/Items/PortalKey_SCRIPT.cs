@@ -21,6 +21,9 @@ public class PortalKey_MONO : Item
     private float _destinationRadius = 10.0f; // 
     [SerializeField] 
     private Vector3 _teleportOffset = new Vector3(0, 1, 0); // offset from teleport destination to avoid falling through ground.
+    
+    private NetworkVariable<Vector3> _teleportTarget = new NetworkVariable<Vector3>();
+    
     #endregion
 
     #region InternalVars
@@ -38,6 +41,23 @@ public class PortalKey_MONO : Item
     private List<GameObject> _itemsToTeleport = new List<GameObject>();
     private bool _isTeleporting = false;
 
+    [SerializeField] private string destinationTag = "PortalDestination";
+    public override void OnNetworkSpawn()
+    {
+        // Only once, on both host & clients
+        if (_teleportDestination == null)
+        {
+            _teleportDestination = GameObject.FindWithTag(destinationTag);
+        }
+    }
+
+    void Start() {
+        if (!IsServer) return; // only run on server.
+        n_playersInPocket = new NetworkList<NetworkObjectReference>();
+        // n_timeEnteredPocketNetworkVar.Value = 0;
+        _teleportTarget.Value = _teleportDestination.transform.position + new Vector3 (0, 2, 0);
+        Debug.Log ("PortalKey_MONO: Start() _teleportTarget set to " + _teleportTarget.Value.ToString());
+    }
 
     #endregion
 
@@ -56,8 +76,9 @@ public class PortalKey_MONO : Item
             Debug.LogError("PortalKey_MONO: PickUp() user has no NetworkObject component.");
             return;
         }
-        n_lastOwner.Value = n_user;
+        SetLastOwnerServerRpc(n_user); // set last owner to user.
     }
+
     public override void ButtonUse(GameObject user)
     {
         // Initiate teleportation obj selection
@@ -93,6 +114,12 @@ public class PortalKey_MONO : Item
         }
 
         if (!_isTeleporting) return;
+
+        if (_teleportDestination == null) {
+            Debug.LogError("PortalKey_MONO: ButtonRelease() _teleportDestination is null.");
+            return;
+        }
+
 
         NetworkObject n_user = user.GetComponent<NetworkObject>();
         if (n_user == null) {
@@ -177,6 +204,15 @@ public class PortalKey_MONO : Item
                 Debug.LogError("PortalKey_MONO: Return() n_player is null.");
             }
         }
+        ClearPocketServerRpc();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void ClearPocketServerRpc(){
+        // clear the pocket of the player.
+        n_playersInPocket.Clear();
+        n_returnPositions.Clear();
+        n_returnRotations.Clear();
     }
 
 
@@ -190,7 +226,12 @@ public class PortalKey_MONO : Item
         Quaternion rotation = user.transform.rotation;
 
         // add data to the network lists
-        n_playersInPocket.Add(n_user);
+        AddPlayerToPocketServerRpc(n_user, position, rotation);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void AddPlayerToPocketServerRpc(NetworkObjectReference player, Vector3 position, Quaternion rotation){
+        n_playersInPocket.Add(player);
         n_returnPositions.Add(position);
         n_returnRotations.Add(rotation);
     }
@@ -393,5 +434,12 @@ public class PortalKey_MONO : Item
         }
         return false;
 
+    }
+    #region NetworkVarRpcs
+    #endregion 
+    
+    [ServerRpc(RequireOwnership = false)]
+    private void SetLastOwnerServerRpc(NetworkObjectReference lastOwner){
+        n_lastOwner.Value = lastOwner;
     }
 }
