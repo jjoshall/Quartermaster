@@ -9,270 +9,106 @@ public class ItemManager : NetworkBehaviour {
 
     #region Setup
     public static ItemManager instance; //singleton
-
-    // itemClassMap
-    private Dictionary<string, Func<InventoryItem>> _itemClassMap = new Dictionary<string, Func<InventoryItem>>();
-
-    [Serializable]
-    public struct itemStruct {
-        public GameObject worldPrefab; // assign in inspector
-        public string inventoryItemClass; // string key that should match a InventoryItem class name
-    }
-
-    [Serializable]
-    public struct DropEntry {
-        public string stringID; // index in itemEntries
-        public int quantity; // stack count when dropped. automatically capped to stackLimit of item
-        public float dropChance; // 0-1
-    }
-    #endregion 
-
-
-
-    #region InspectorVars
-    // Constant during runtime.
-    [SerializeField, Range(0, 1), Tooltip("Base drop chance")]
-    public float burstDrop_baseRate;
-    [SerializeField, Range(0, 0.5f), Tooltip("Increment per kill without a drop")]
-    public float burstDrop_dropRateIncrement;
-    [SerializeField, Range(0, 10), Tooltip("Max Drop Count")]
-    public int burstDrop_dropCount;
-    [SerializeField, Range(0, 60.0f), Tooltip("Duration of dropped items")]
-    private float droppedItemDuration;
-    [SerializeField, Range(0, 60.0f), Tooltip("Burst Drop Cooldown")]
-    private float burstDrop_cooldown;
-    private float burstDrop_timer = float.MaxValue;
-    public float burstdrop_targetEnemiesPerItem;    
-
-    // Used for lookup during worlditem & inventoryitem spawn.
-    public List<itemStruct> itemEntries = new List<itemStruct>(); 
-    // When burstdrop triggered, chooses entries from this list.
-    public List<DropEntry> dropEntries = new List<DropEntry>();
-    #endregion
-
-
-
-    #region RuntimeVars
-    // Killcount based drop rate modifier.
-    private float _burstDrop_moddedRate = 0.0f;
-    private List<DropEntry> _modifiedDropRates = new List<DropEntry>();
-    private int _burstDrop_totalEnemiesKilled = 0;
-
-    // Placeholder variables for potential heuristic input:
-    private float _sinceLast_damageTaken = 0.0f; // == Damage taken by players.
-    private float _sinceLast_healingValue = 0.0f; // == MedKitsSpawned * MedKitHealingValue
-                        // Drama. healingValue - damageTaken < 0
-    private float _sinceLast_totalSingleTargetHp = 0; // single target damage
-    private float _sinceLast_totalAoeHp = 0; // melee + explosive enemy hp
-                        // Drama up when: totalSpawnedEnemyHp > teamDps
-
-    // calculate based on current player inventory.
-    private float _playerAoeDps = 0.0f;
-    private float _playerSingleTargetDps = 0.0f;
-
-
-    #endregion
-
-
-
-
-    #region Initialization
-
     void Awake() {
         if(instance == null) {
             instance = this;
         } else {
             Destroy(this);
         }
-
-        // Map each string to a function that creates an instance of the class
-        foreach (itemStruct item in itemEntries) {
-            Type itemType = Type.GetType(item.inventoryItemClass);
-            if (itemType == null) {
-                Debug.LogError("Item class not found: " + item.inventoryItemClass);
-                continue;
-            }
-
-            _itemClassMap[item.inventoryItemClass] = () => (InventoryItem)Activator.CreateInstance(itemType);
-        }
-
-        _burstDrop_moddedRate = burstDrop_baseRate;
-    }
-    #endregion
-
-
-    void Update()
-    {
-        burstDrop_timer += Time.deltaTime;
     }
 
-
-    #region Item Functions
-
-    // spawnWorldItemServerRpc takes a playerobj to give item velocity in direction.
-    [ServerRpc(RequireOwnership = false)]
-    public void SpawnWorldItemServerRpc(int id, 
-                                        int quantity, 
-                                        float lastUsed, 
-                                        Vector3 spawnLoc, 
-                                        Vector3 initialVelocity, 
-                                        NetworkObjectReference n_playerObj) {
-        if (!IsServer) { return; }
-
-        if (!n_playerObj.TryGet(out NetworkObject playerObj)) {
-            Debug.Log ("Could not get player object from reference.");
-        }
-
-        GameObject newWorldItem = Instantiate(itemEntries[id].worldPrefab);
-        NetworkObject netObj = newWorldItem.GetComponent<NetworkObject>();
-
-        if (netObj == null) {
-            Debug.LogError("SpawnWorldItemServerRpc: The spawned object is missing a NetworkObject component!");
-            Destroy(newWorldItem);  // Prevent stray objects in the scene
-            return;
-        }
-
-        netObj.transform.position = spawnLoc;
-        netObj.GetComponent<Rigidbody>().linearVelocity = initialVelocity;
-        netObj.Spawn(true);
-        newWorldItem.transform.SetParent(this.gameObject.transform);
-        newWorldItem.GetComponent<WorldItem>().InitializeItem(id, quantity, lastUsed);
-
-        // map id number to its stringID
-        string stringID = itemEntries[id].inventoryItemClass;
-        if (stringID == "PocketInventoryPortalKey") {
-            if (PocketInventory.instance.PlayerIsInPocket(playerObj)) {
-                PocketInventory.instance.n_droppedPortalKeyInPocket.Value = true;
-                PocketInventory.instance.n_storedKeyObj = netObj;
-                Debug.Log ("dropped portal key inside pocket");
-            }
-        }
-        
+    [Serializable]
+    public struct itemStruct {
+        public GameObject itemPrefab;
+        public int quantity;
     }
 
-    // Base enemy drop function. Called by Enemy OnDie() -> ThresholdBurstDrop() -> DropItems()
-    [ServerRpc(RequireOwnership = false)]
-    private void EnemyDropServerRpc(int id, 
-                                        int quantity, 
-                                        float lastUsed, 
-                                        Vector3 spawnLoc, 
-                                        Vector3 initialVelocity) {
-        if (!IsServer) { return; }
-
-        GameObject newWorldItem = Instantiate(itemEntries[id].worldPrefab);
-        newWorldItem.GetComponent<WorldItem>().selfDestructTimer = droppedItemDuration;
-        newWorldItem.GetComponent<WorldItem>().selfDestructActivated = true;
-
-        NetworkObject netObj = newWorldItem.GetComponent<NetworkObject>();
-
-        if (netObj == null) {
-            Debug.LogError("SpawnWorldItemServerRpc: The spawned object is missing a NetworkObject component!");
-            Destroy(newWorldItem);  // Prevent stray objects in the scene
-            return;
-        }
-
-        netObj.transform.position = spawnLoc;
-        netObj.GetComponent<Rigidbody>().linearVelocity = initialVelocity;
-        netObj.Spawn(true);
-        newWorldItem.transform.SetParent(this.gameObject.transform);
-        newWorldItem.GetComponent<WorldItem>().InitializeItem(id, quantity, lastUsed);
-        
+    [Serializable]
+    public struct DropEntry {
+        public List<itemStruct> itemDrops;
+        public float dropChancePercent; // 0-100
     }
-
-    // Used as a lookup, and returns an instance of InventoryItem
-    public InventoryItem SpawnInventoryItem (GameObject user, string id, int stackQuantity, float timeLastUsed) {
-        InventoryItem newInventoryItem = _itemClassMap[id]();
-        newInventoryItem.itemID = itemEntries.FindIndex(item => item.inventoryItemClass == id);
-        newInventoryItem.quantity = stackQuantity;
-        newInventoryItem.userRef = user;
-        newInventoryItem.lastUsed = timeLastUsed;
-
-        newInventoryItem.InitializeFromGameManager();
-        return newInventoryItem;
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    public void DestroyWorldItemServerRpc(NetworkObjectReference n_worldItem) {
-        if (!IsServer) { return; }
-
-        if (n_worldItem.TryGet(out NetworkObject worldItem)) {
-            worldItem.Despawn();
-            // Destroy(worldItem.gameObject);
-        }
-    }
-
     #endregion 
 
-    #region ThresholdDrop
-    // Rolls a multiplier. All drop entries are multiplied by this value.
-    // If 
-    public void ThresholdBurstDrop(Vector3 position){
-        if (burstDrop_timer < burstDrop_cooldown){
-            return;
-        }
-        burstDrop_timer = 0.0f;
-        // roll for burst drop against modded rate.
-        float dropChanceMultiplier = UnityEngine.Random.Range(0.0f, 1.0f);
-        if (dropChanceMultiplier < _burstDrop_moddedRate){
-            for (int i = 0; i < burstDrop_dropCount; i++){
-                DropItems(position);
-            }
-            _burstDrop_moddedRate = burstDrop_baseRate;
-        } else {
-            _burstDrop_moddedRate += burstDrop_dropRateIncrement;
-        }
-    }
+    [Tooltip("Each entry can have a list of dropped items that are dropped all at once when rolled")] 
+    public List<DropEntry> dropTable = new List<DropEntry>();
 
-    // Does a separate roll for each item in dropEntries against its dropChance.
-    public void DropItems(Vector3 position){
+    #region Roll All
+    // Individually rolls against all entries in the drop table. o(n)
+    public void RollDropTable(Vector3 position){
         float countMultiplier = 1.0f; //_burstDrop_moddedRate / burstDrop_baseRate; // >1 multiplier.
-        foreach (DropEntry entry in dropEntries){
+        for (int i = 0; i < dropTable.Count; i++){
             // roll for each item
             float itemRoll = UnityEngine.Random.Range(0.0f, 1.0f); // 0-1.
-            if (itemRoll * countMultiplier > ( 1 - entry.dropChance )   ){
+            if (itemRoll * countMultiplier > ( 1 - (dropTable[i].dropChancePercent / 100) )   ){
                 Vector3 randomDirection = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0, UnityEngine.Random.Range(-1f, 1f));
                 randomDirection.Normalize();
 
-                string stringID = entry.stringID;
-                int itemID = itemEntries.FindIndex(item => item.inventoryItemClass == stringID);
-                EnemyDropServerRpc(itemID, entry.quantity, 0.0f, position, randomDirection);
+                DropAnEntryInTableServerRpc(i, position, randomDirection);
             }
         }
     }
 
-    // Drop a specific item at a specific position. Written for creative mode / dev function.
-    public void DropSpecificItem(int index, Vector3 position){
-        Vector3 randVelocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0, UnityEngine.Random.Range(-1f, 1f));
-        Vector3 positionYOffsetByOne = new Vector3(position.x, position.y + 1.0f, position.z);
-        EnemyDropServerRpc (index, 1, 0.0f, positionYOffsetByOne, randVelocity);
-    }
 
-    private IEnumerator DestroyItemAfterTime(GameObject expiringDrop, float time){
-        Debug.Log ("destroying itemDrop after time: " + time);
-        yield return new WaitForSeconds(time);
-        if (expiringDrop != null){
-            Debug.Log ("destroying itemDrop after waiting time");
-            NetworkObject netObj = expiringDrop.GetComponent<NetworkObject>();
-            DestroyWorldItemServerRpc(netObj);
+    #endregion 
+    #region Drop function
+
+    // Drops all the items in an entry.
+    [ServerRpc(RequireOwnership = false)]
+    private void DropAnEntryInTableServerRpc(int index,
+                                        Vector3 spawnLoc, 
+                                        Vector3 initialVelocity) {
+        if (!IsServer) { return; }
+        if (spawnLoc == null) {
+            Debug.LogError("DropItemServerRpc: spawnLoc is null!");
+            return;
+        }
+
+        if (initialVelocity == null) {
+            Debug.LogError("DropItemServerRpc: initialVelocity is null!");
+            return;
+        }
+        foreach (itemStruct item in dropTable[index].itemDrops) {
+            if (item.itemPrefab == null) {
+                Debug.LogError("DropItemServerRpc: itemPrefab is null!");
+                continue;
+            }
+            if (item.itemPrefab.GetComponent<Item>() == null){
+                Debug.LogError("DropItemServerRpc: itemPrefab is missing MonoItem component!");
+                continue;
+            }
+
+            Debug.Log ("DropItemServerRpc: Spawning item " + item.itemPrefab.GetComponent<Item>().uniqueID + " at " + spawnLoc.ToString() + " with quantity " + item.quantity.ToString() + ".");
+            GameObject newItem = Instantiate(item.itemPrefab, spawnLoc, Quaternion.identity);
+            newItem.GetComponent<Item>().quantity = item.quantity; // set quantity to the item stack size.
+            newItem.GetComponent<Item>().userRef = null; // set user ref to the enemy.
+            newItem.GetComponent<Item>().IsPickedUp = false; // set IsPickedUp to false.
+            
+            NetworkObject n_newItem = newItem.GetComponent<NetworkObject>();
+            if (n_newItem == null) {
+                Debug.LogError("DropItemServerRpc: The spawned object is missing a NetworkObject component!");
+                Destroy(newItem);  // Prevent stray objects in the scene
+                return;
+            }
+
+            n_newItem.transform.position = spawnLoc;
+            n_newItem.GetComponent<Rigidbody>().linearVelocity = initialVelocity;
+            n_newItem.Spawn(true); // Spawn the object on the network
+            newItem.transform.SetParent(this.gameObject.transform); // Set the parent to this object.
+            newItem.GetComponent<Item>().OnSpawn();
         }
     }
 
     #endregion 
 
-
-
-    #region HeuristicInput
-    // Call on enemy death.
-    [ServerRpc(RequireOwnership = false)]
-    public void IncrementEnemiesKilledServerRpc(){
-        if (!IsServer) { return; }
-        _burstDrop_totalEnemiesKilled++;
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    public void IncrementTotalDamageTakenServerRpc(float damage){
-        if (!IsServer) { return; }
-        _sinceLast_damageTaken += damage;
-    }
+    #region Helper
     #endregion
+    // Drop a specific item at a specific position. Written for creative mode / dev function. 
+    // Drops slightly above ground to avoid slipping through the ground.
+    public void DropSpecificItem(int index, Vector3 position){
+        Vector3 randVelocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0, UnityEngine.Random.Range(-1f, 1f));
+        Vector3 positionYOffsetByOne = new Vector3(position.x, position.y + 1.0f, position.z);
+        
+        DropAnEntryInTableServerRpc (index, positionYOffsetByOne, randVelocity);
+    }
 }

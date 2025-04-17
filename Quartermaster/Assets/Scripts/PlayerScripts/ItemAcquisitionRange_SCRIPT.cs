@@ -58,15 +58,19 @@ public class ItemAcquisitionRange : MonoBehaviour {
 
         // Prioritize raycast over closest.
         Physics.Raycast(_playerCam.transform.position, _playerCam.transform.forward, out RaycastHit hit, Mathf.Infinity);
-        if (hit.collider != null && hit.collider.gameObject.CompareTag("Item") && _itemsInRange.Contains(hit.collider.gameObject)) {
+        if (hit.collider != null && hit.collider.gameObject != null
+                && _itemsInRange.Contains(hit.collider.gameObject)
+                && IsAnItem(hit.collider.gameObject)) {
+
             _closestItem = hit.collider.gameObject;
         } else {
+
             GameObject localClosest = null;
             float closestDistance = Mathf.Infinity;
 
             foreach (GameObject item in _itemsInRange) {
                 float distance = Vector3.Distance(_playerObj.transform.position, item.transform.position);
-                if (distance < closestDistance) {
+                if (distance < closestDistance && IsAnItem(item)) {
                     localClosest = item;
                     closestDistance = distance;
                 }
@@ -97,7 +101,7 @@ public class ItemAcquisitionRange : MonoBehaviour {
     private void RemoveOutline(GameObject item) {
         Outline outline = item.GetComponent<Outline>();
         if (outline != null) {
-            outline.OutlineWidth = 0f;
+            Destroy(item.GetComponent<Outline>());
         }
     }
 
@@ -107,7 +111,7 @@ public class ItemAcquisitionRange : MonoBehaviour {
     }   
 
     bool IsAnItem(GameObject obj) {
-        return obj.CompareTag("Item");
+        return obj.CompareTag("Item") && obj.GetComponent<Item>() != null && !obj.GetComponent<Item>().IsPickedUp;
         // return true; 
     }
 

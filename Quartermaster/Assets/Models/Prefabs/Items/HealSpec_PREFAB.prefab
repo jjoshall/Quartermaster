@@ -182,12 +182,12 @@ GameObject:
   m_Component:
   - component: {fileID: 8280842710075084352}
   - component: {fileID: 84758274916440925}
-  - component: {fileID: 3733827194635872156}
   - component: {fileID: -7118773576801358301}
   - component: {fileID: 1036518241470988294}
   - component: {fileID: 2238640474794710002}
   - component: {fileID: -4868822403234808869}
   - component: {fileID: -263882481023672883}
+  - component: {fileID: -2223687912412953296}
   m_Layer: 6
   m_Name: HealSpec_PREFAB
   m_TagString: Item
@@ -227,7 +227,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3031201447
+  GlobalObjectIdHash: 3198689161
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -240,26 +240,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &3733827194635872156
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3214981217242712164}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 23cb83cd38605294cb9144f021e29753, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  n_stackQuantity:
-    m_InternalValue: 1
-  n_lastUsed:
-    m_InternalValue: 0
-  selfDestructTimer: 10
-  selfDestructActivated: 0
-  itemID: 9
 --- !u!114 &-7118773576801358301
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -280,9 +260,9 @@ MonoBehaviour:
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
-  SyncRotAngleX: 0
-  SyncRotAngleY: 0
-  SyncRotAngleZ: 0
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
   SyncScaleX: 0
   SyncScaleY: 0
   SyncScaleZ: 0
@@ -378,6 +358,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   holdDuration: 5
   key: HEALSPEC
+--- !u!114 &-2223687912412953296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3214981217242712164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 476c0d11f7b3acb44b29b748e8954f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  uniqueID: healspec
+  IsConsumable: 0
+  IsWeapon: 0
+  IsClassSpec: 1
+  CanAutoFire: 0
+  cooldown: 0.1
+  StackLimit: 3
+  quantity: 1
+  icon: {fileID: 2800000, guid: e2ff992b8bfca034b817d47086fbf850, type: 3}
+  soundEmitters: []
+  IsPickedUp: 0
+  attachedWeaponSlot: {fileID: 0}
+  userRef: {fileID: 0}
+  _healIncreasePerLevel: 0.1
+  _pickUpEffect: 
+  _dropEffect: 
+  persistentEffect: {fileID: 0}
 --- !u!1 &5894367003958111586
 GameObject:
   m_ObjectHideFlags: 0

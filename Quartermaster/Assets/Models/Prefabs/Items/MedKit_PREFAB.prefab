@@ -13,10 +13,10 @@ GameObject:
   - component: {fileID: 5036355964304013469}
   - component: {fileID: 2941303876281257134}
   - component: {fileID: -3091473297044448489}
-  - component: {fileID: 8989734153770821658}
   - component: {fileID: -241234100000356255}
   - component: {fileID: 3598719706095241124}
   - component: {fileID: -387337342018685079}
+  - component: {fileID: 2606932685735109037}
   m_Layer: 6
   m_Name: MedKit_PREFAB
   m_TagString: Item
@@ -108,7 +108,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3219452014
+  GlobalObjectIdHash: 2738502857
   InScenePlacedSourceGlobalObjectIdHash: 3219452014
   DeferredDespawnTick: 0
   Ownership: 1
@@ -121,26 +121,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &8989734153770821658
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8519617277999394602}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 23cb83cd38605294cb9144f021e29753, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  n_stackQuantity:
-    m_InternalValue: 1
-  n_lastUsed:
-    m_InternalValue: 0
-  selfDestructTimer: 10
-  selfDestructActivated: 0
-  itemID: 1
 --- !u!114 &-241234100000356255
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -161,9 +141,9 @@ MonoBehaviour:
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
-  SyncRotAngleX: 0
-  SyncRotAngleY: 0
-  SyncRotAngleZ: 0
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
   SyncScaleX: 0
   SyncScaleY: 0
   SyncScaleZ: 0
@@ -211,6 +191,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   holdDuration: 5
   key: MEDKIT
+--- !u!114 &2606932685735109037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8519617277999394602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23251a526a42e784d9eb1f8499ee0745, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  uniqueID: medkit
+  IsWeapon: 0
+  IsClassSpec: 0
+  CanAutoFire: 0
+  cooldown: 1
+  StackLimit: 5
+  quantity: 1
+  icon: {fileID: 2800000, guid: 35e041898aa85fa4ca178edf0c747b31, type: 3}
+  soundEmitters: []
+  IsPickedUp: 0
+  attachedWeaponSlot: {fileID: 0}
+  userRef: {fileID: 0}
+  _medKitBaseVelocity: 1
+  _medKitMaxVelocity: 10
+  _medKitMaxChargeTime: 1
+  _medKitTapThreshold: 0.1
+  _healAmount: 6
 --- !u!1001 &7229790217205299762
 PrefabInstance:
   m_ObjectHideFlags: 0

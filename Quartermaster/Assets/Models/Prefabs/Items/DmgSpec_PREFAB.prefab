@@ -10,12 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 8280842710075084352}
   - component: {fileID: 84758274916440925}
-  - component: {fileID: 3733827194635872156}
   - component: {fileID: -7118773576801358301}
   - component: {fileID: 1036518241470988294}
   - component: {fileID: 2238640474794710002}
   - component: {fileID: -4868822403234808869}
   - component: {fileID: -5661370747090835569}
+  - component: {fileID: -608604032669965460}
   m_Layer: 6
   m_Name: DmgSpec_PREFAB
   m_TagString: Item
@@ -51,7 +51,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 4091849042
+  GlobalObjectIdHash: 3423056370
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -64,26 +64,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &3733827194635872156
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3214981217242712164}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 23cb83cd38605294cb9144f021e29753, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  n_stackQuantity:
-    m_InternalValue: 1
-  n_lastUsed:
-    m_InternalValue: 0
-  selfDestructTimer: 10
-  selfDestructActivated: 0
-  itemID: 10
 --- !u!114 &-7118773576801358301
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -104,9 +84,9 @@ MonoBehaviour:
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
-  SyncRotAngleX: 0
-  SyncRotAngleY: 0
-  SyncRotAngleZ: 0
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
   SyncScaleX: 0
   SyncScaleY: 0
   SyncScaleZ: 0
@@ -202,6 +182,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   holdDuration: 5
   key: DMGSPEC
+--- !u!114 &-608604032669965460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3214981217242712164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e46470ba5dc8685479c90971937a716a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  uniqueID: dmgspec
+  IsConsumable: 0
+  IsWeapon: 0
+  IsClassSpec: 1
+  CanAutoFire: 0
+  cooldown: 0.1
+  StackLimit: 3
+  quantity: 1
+  icon: {fileID: 2800000, guid: 295d4b06478496141854d630d2b0c0d2, type: 3}
+  soundEmitters: []
+  IsPickedUp: 0
+  attachedWeaponSlot: {fileID: 0}
+  userRef: {fileID: 0}
+  _dmgIncreasePerLevel: 0.1
+  _pickUpEffect: 
+  _dropEffect: 
+  persistentEffect: {fileID: 0}
 --- !u!1001 &4451628267990871832
 PrefabInstance:
   m_ObjectHideFlags: 0

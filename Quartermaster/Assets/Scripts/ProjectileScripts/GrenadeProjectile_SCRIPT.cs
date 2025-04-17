@@ -2,6 +2,10 @@ using UnityEngine;
 
 public class GrenadeProjectile : IProjectile
 {
+    float _explosionRadius = 0f;
+    float _explosionDamage = 0f;
+
+
     protected override void Start()
     {
         _expireTimer = GameManager.instance.Grenade_ExpireTimer;
@@ -25,6 +29,14 @@ public class GrenadeProjectile : IProjectile
         }   
     }
 
+    public override void InitializeData(params object[] args){
+        if (args.Length < 2){
+            Debug.LogError("GrenadeProjectile.InitializeData() - not enough args");
+        } else {
+            _explosionDamage = (float)args[0];
+            _explosionRadius = (float)args[1];
+        }
+    }
 
     void Explode(){
         float _explosionRadius = GameManager.instance.Grenade_AoeRadius;
