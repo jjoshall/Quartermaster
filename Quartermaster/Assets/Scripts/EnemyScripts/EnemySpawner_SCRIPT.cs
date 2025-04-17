@@ -116,11 +116,16 @@ public class EnemySpawner : NetworkBehaviour {
         // Managed by InactiveAreaCollider s adding/removing from activePlayerList
         if (enemyList.Count < _maxEnemyInstanceCount && activePlayerList.Count > 0) {
             Transform enemyPrefab = GetWeightedRandomEnemyPrefab();
+            if (!enemyPrefab) {
+                Debug.Log("Got the enemy prefab");
+            }
 
             if (enemyPrefab != null) {
                 Vector3 spawnPosition = GetSpawnPoint();
+                Debug.Log(spawnPosition);
 
                 try {
+                    Debug.Log("about to get the enemy from pool");
                     // Get a pooled enemy object
                     NetworkObject networkObject = _objectPool.GetNetworkObject(
                         enemyPrefab.gameObject,
@@ -128,11 +133,16 @@ public class EnemySpawner : NetworkBehaviour {
                         Quaternion.identity
                     );
 
+                    if (!networkObject) {
+                        Debug.Log("Enemy wasnt retrieved");
+                    }
+
                     if (networkObject != null) {
                         Transform enemyTransform = networkObject.transform;
 
                         // Ensure position is correct
                         enemyTransform.position = spawnPosition;
+                        Debug.Log(enemyTransform.position);
 
                         // Setup enemy properties
                         BaseEnemyClass_SCRIPT enemyScript = enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>();
