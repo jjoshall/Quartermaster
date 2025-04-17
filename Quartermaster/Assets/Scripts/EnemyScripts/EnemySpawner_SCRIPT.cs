@@ -67,17 +67,10 @@ public class EnemySpawner : NetworkBehaviour {
             return;
         }
 
-        // Register enemy prefabs to the pool
-        //InitializeEnemyPool();
-
         CalculateTotalWeight();
 
         NetworkManager.Singleton.OnClientConnectedCallback += RefreshPlayerLists;
         NetworkManager.Singleton.OnClientDisconnectCallback += RefreshPlayerLists;
-    }
-
-    private void InitializeEnemyPool() {
-        return;
     }
 
     private void RefreshPlayerLists(ulong u) {
