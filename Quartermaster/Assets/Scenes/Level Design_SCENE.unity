@@ -3934,8 +3934,24 @@ PrefabInstance:
       value: PoolManager
       objectReference: {fileID: 0}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
+      propertyPath: enemyToSpawn
+      value: 
+      objectReference: {fileID: 4108908729984213791, guid: f9e0d41d7de8cf940b0224449f9fdaa3, type: 3}
+    - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: spawnCooldown
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
+      propertyPath: poolContainer.x
+      value: -6.45
+      objectReference: {fileID: 0}
+    - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
+      propertyPath: poolContainer.y
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
+      propertyPath: poolContainer.z
+      value: 53.56
       objectReference: {fileID: 0}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: '_enemySpawnPoints.Array.data[0]'
@@ -5436,6 +5452,18 @@ PrefabInstance:
       propertyPath: poolContainer
       value: 
       objectReference: {fileID: 608046085}
+    - target: {fileID: 3112507778715810444, guid: d79ef760dacef5d47995012751f0382c, type: 3}
+      propertyPath: PooledPrefabsList.Array.data[0].PrewarmCount
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3112507778715810444, guid: d79ef760dacef5d47995012751f0382c, type: 3}
+      propertyPath: PooledPrefabsList.Array.data[1].PrewarmCount
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3112507778715810444, guid: d79ef760dacef5d47995012751f0382c, type: 3}
+      propertyPath: PooledPrefabsList.Array.data[2].PrewarmCount
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

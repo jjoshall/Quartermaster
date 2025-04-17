@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Threading.Tasks;
 using Unity.BossRoom.Infrastructure;    // Add this for network object pooling
 
-public class EnemySpawner : NetworkBehaviour {    
+public class EnemySpawner : NetworkBehaviour {
     [Header("Spawner Timer")]
     private float _lastSpawnTime = 0f;
     public float spawnCooldown = 2f;
@@ -68,7 +68,7 @@ public class EnemySpawner : NetworkBehaviour {
         }
 
         // Register enemy prefabs to the pool
-        InitializeEnemyPool();
+        //InitializeEnemyPool();
 
         CalculateTotalWeight();
 
@@ -77,20 +77,17 @@ public class EnemySpawner : NetworkBehaviour {
     }
 
     private void InitializeEnemyPool() {
-        foreach (var enemyData in _enemySpawnData) {
-            GameObject prefab = enemyData.enemyPrefab.gameObject;
-            _objectPool.AddPrefab(prefab, _initialPoolSize);
-        }
+        return;
     }
 
     private void RefreshPlayerLists(ulong u) {
         playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
 
         activePlayerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
-        foreach (GameObject area in inactiveAreas){
-            foreach (GameObject player in activePlayerList){
+        foreach (GameObject area in inactiveAreas) {
+            foreach (GameObject player in activePlayerList) {
                 Collider areaCollider = area.GetComponent<Collider>();
-                if (areaCollider != null && areaCollider.bounds.Contains(player.transform.position)){
+                if (areaCollider != null && areaCollider.bounds.Contains(player.transform.position)) {
                     activePlayerList.Remove(player);
                 }
             }
@@ -100,9 +97,41 @@ public class EnemySpawner : NetworkBehaviour {
     private void Update() {
         if (IsServer) {
             UpdateGlobalAggroTargetTimer();
-        }   
+        }
 
-        SpawnOverTime();
+        //SpawnOverTime();
+        // If user clicks u key, call spawnfrompool
+        if (Input.GetKeyDown(KeyCode.U)) {
+            SpawnFromPool();
+        }
+    }
+
+    // Prefab to spawn
+    [SerializeField] private GameObject enemyToSpawn;
+
+    // Position to spawn enemy at
+    [SerializeField] private Vector3 poolContainer;
+    private async void SpawnFromPool() {
+        if (!IsServer) return;
+
+        // Just get any object from the object pool
+        NetworkObject networkObject = _objectPool.GetNetworkObject(
+            enemyToSpawn,
+            poolContainer,
+            Quaternion.identity
+        );
+
+        // Spawn on network
+        networkObject.Spawn(true);
+
+        // Have the enemy spawn for 10 seconds
+        await Task.Delay(10000);
+
+        // Despawn from network first
+        networkObject.Despawn();
+
+        // Return to pool
+        _objectPool.ReturnNetworkObject(networkObject, _enemySpawnData[0].enemyPrefab.gameObject);
     }
 
     private void SpawnOverTime() {
