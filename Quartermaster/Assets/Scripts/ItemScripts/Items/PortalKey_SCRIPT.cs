@@ -148,6 +148,7 @@ public class PortalKey_MONO : Item
             return;
         }
 
+        RemoveAllObjOutlines();
         _isTeleporting = false;
     }
 
@@ -158,6 +159,7 @@ public class PortalKey_MONO : Item
             return;
         }
 
+        RemoveAllObjOutlines();
         _isTeleporting = false;
         _playersToTeleport.Clear();
         _itemsToTeleport.Clear();
