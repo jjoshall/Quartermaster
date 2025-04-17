@@ -87,24 +87,29 @@ public class EnemySpawner : NetworkBehaviour {
         }
     }
 
+    // Basic enemy to spawn
+    [SerializeField] private GameObject basicEnemy;
+    // Our enemy to spawn
+    [SerializeField] private GameObject ourEnemy;
+
     private void Update() {
         if (IsServer) {
             UpdateGlobalAggroTargetTimer();
         }
 
         //SpawnOverTime();
-        // If user clicks u key, call spawnfrompool
+        // If user clicks u key, call spawnfrompool with basic enemy
         if (Input.GetKeyDown(KeyCode.U)) {
-            SpawnFromPool();
+            SpawnFromPool(basicEnemy);
+        }
+        else if (Input.GetKeyDown(KeyCode.I)) {
+            SpawnFromPool(ourEnemy);
         }
     }
 
-    // Prefab to spawn
-    [SerializeField] private GameObject enemyToSpawn;
-
     // Position to spawn enemy at
     [SerializeField] private Vector3 poolContainer;
-    private async void SpawnFromPool() {
+    private async void SpawnFromPool(GameObject enemyToSpawn) {
         if (!IsServer) return;
 
         // Just get any object from the object pool
