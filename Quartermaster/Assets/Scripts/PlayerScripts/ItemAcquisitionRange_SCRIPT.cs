@@ -32,7 +32,7 @@ public class ItemAcquisitionRange : MonoBehaviour {
         if (_itemsInRange.Contains(item)) { return; }
         _itemsInRange.Add(item);
 
-        Debug_print_items_in_range(); 
+        // Debug_print_items_in_range(); 
     }
 
     void OnTriggerExit(Collider other) {
