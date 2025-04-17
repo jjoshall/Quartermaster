@@ -311,13 +311,19 @@ public class PortalKey_MONO : Item
     private void TeleportItemServerRpc(NetworkObjectReference item, Vector3 destination){
         NetworkObject n_itemObj;
         if (item.TryGet(out n_itemObj)){
-            // call the client teleport for every client
-            ClientRpcParams allClients = new ClientRpcParams {
-                                    Send = new ClientRpcSendParams {
-                                        TargetClientIds = NetworkManager.Singleton.ConnectedClientsIds
-                                    }
-            };
-            TeleportItemClientRpc(item, destination);
+            var nt = n_itemObj.GetComponent<NetworkTransform>();
+            if (nt == null) {
+                Debug.LogError("PortalKey_MONO: TeleportItemServerRpc() item has no NetworkTransform component.");
+                return;
+            }
+            nt.Teleport(destination, Quaternion.identity, n_itemObj.transform.localScale); // teleport item
+            // // call the client teleport for every client
+            // ClientRpcParams allClients = new ClientRpcParams {
+            //                         Send = new ClientRpcSendParams {
+            //                             TargetClientIds = NetworkManager.Singleton.ConnectedClientsIds
+            //                         }
+            // };
+            // TeleportItemClientRpc(item, destination);
         } else {
             Debug.LogError("PortalKey_MONO: TeleportItemServerRpc() item is null.");
         }
@@ -326,9 +332,10 @@ public class PortalKey_MONO : Item
     [ClientRpc]
     private void TeleportItemClientRpc(NetworkObjectReference item, Vector3 destination, ClientRpcParams rpcParams = default){
         if (item.TryGet(out NetworkObject n_itemObj)){
-            GameObject itemObj = n_itemObj.gameObject;
-            itemObj.transform.position = destination; // teleport item
-            // Debug.Log ("PortalKey_MONO: TeleportItemClientRpc() item teleported to " + destination.ToString());
+            var nt = n_itemObj.GetComponent<NetworkTransform>();
+            nt.Teleport(destination, Quaternion.identity, n_itemObj.transform.localScale); // teleport item
+            // GameObject itemObj = n_itemObj.gameObject;
+            // itemObj.transform.position = destination; // teleport item
         } else {
             // Debug.LogError("PortalKey_MONO: TeleportItemClientRpc() item is null.");
         }

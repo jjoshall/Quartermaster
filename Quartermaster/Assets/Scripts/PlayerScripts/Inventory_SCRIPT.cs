@@ -219,7 +219,7 @@ public class Inventory : NetworkBehaviour {
     private void RemoveFromItemAcq(GameObject itemPickedUp){
         // Remove the item from the ItemAcquisitionRange
         ItemAcquisitionRange itemAcquisitionRange = _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>();
-        if (itemAcquisitionRange != null) {
+        if (itemAcquisitionRange) {
             itemAcquisitionRange.RemoveItem(itemPickedUp);
         } else {
             Debug.LogError("ItemAcquisitionRange component not found on _itemAcquisitionRange.");
@@ -237,9 +237,23 @@ public class Inventory : NetworkBehaviour {
     }
 
     private void AddToInventory(GameObject pickedUp){
+        var no = pickedUp.GetComponent<NetworkObject>();
+        var pno = _playerObj.GetComponent<NetworkObject>();
+        if (pickedUp == null) {
+            Debug.LogError("Picked up item is null.");
+            return;
+        }
+        if (no == null) {
+            Debug.LogError("Picked up item does not have a NetworkObject component.");
+            return;
+        }
+        if (pno == null) {
+            Debug.LogError("Player object does not have a NetworkObject component.");
+            return;
+        }
 
         // Locally attach the item to the player on each client
-        PropagateItemAttachmentServerRpc(pickedUp.GetComponent<NetworkObject>(), _playerObj.GetComponent<NetworkObject>());
+        PropagateItemAttachmentServerRpc(no, pno);
 
         pickedUp.GetComponent<Item>().userRef = _playerObj; // local.
 
@@ -338,16 +352,8 @@ public class Inventory : NetworkBehaviour {
         Vector3 initVelocity = orientation.forward * GameManager.instance.DropItemVelocity;
 
         // detach the current held item
-        PropagateItemDetachServerRpc(_inventoryMono[slot].GetComponent<NetworkObject>(), n_playerObj);
+        PropagateItemDetachServerRpc(_inventoryMono[slot].GetComponent<NetworkObject>(), n_playerObj, initVelocity);
         
-        // Give it velocity
-        Rigidbody rb = _inventoryMono[slot].GetComponent<Rigidbody>();
-        if (rb != null) {
-            rb.isKinematic = false;
-            rb.useGravity = true;
-            rb.constraints = RigidbodyConstraints.None;
-            rb.linearVelocity = initVelocity;
-        }
 
         AddToItemAcq(_inventoryMono[slot]); // add to item acquisition range
 
@@ -508,16 +514,37 @@ public class Inventory : NetworkBehaviour {
         // freeze rigidbody while held
         Rigidbody rb = item.GetComponent<Rigidbody>();
         if (rb != null){
-            rb.isKinematic = false;
+            rb.isKinematic = true;
             rb.useGravity = false;
             rb.constraints = RigidbodyConstraints.FreezeAll;
         }
     }
     [ServerRpc(RequireOwnership = false)]
-    private void PropagateItemDetachServerRpc(NetworkObjectReference item, NetworkObjectReference n_player){
+    private void PropagateItemDetachServerRpc(NetworkObjectReference item, NetworkObjectReference n_player, Vector3 initVelocity){
         if (!IsServer) return;
+        var itemNO = item.TryGet(out NetworkObject itemObj) ? itemObj : null;
+        var playerNO = n_player.TryGet(out NetworkObject playerObj) ? playerObj : null;
+        if (itemNO == null || playerNO == null) {
+            Debug.LogError("PropagateItemDetachServerRpc: item or player is null.");
+            return;
+        }
         // Attach the item to the weapon slot on the server
         DetachItemClientRpc(item, n_player);
+        var itemNT = itemNO.GetComponent<NetworkTransform>();
+        if (itemNT != null) {
+            itemNT.enabled = true; // Enable the NetworkTransform component
+            itemNT.Teleport(playerNO.transform.position, Quaternion.identity, itemNT.transform.localScale);
+        } else {
+            Debug.LogError("PropagateItemDetachServerRpc: itemNT is null.");
+        }
+        // Give it velocity
+        Rigidbody rb = itemNO.GetComponent<Rigidbody>();
+        if (rb != null) {
+            rb.isKinematic = false;
+            rb.useGravity = true;
+            rb.constraints = RigidbodyConstraints.None;
+            rb.linearVelocity = initVelocity;
+        }
     }
     [ClientRpc]
     private void DetachItemClientRpc(NetworkObjectReference itemRef, NetworkObjectReference n_playerRef){
