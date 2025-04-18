@@ -17,8 +17,6 @@ public class Inventory : NetworkBehaviour {
     [Header("Inventory Keybinds")]
     private PlayerInputHandler _InputHandler;
 
-
-
     [Header("Weapon Holdable Setup")]
     public GameObject weaponSlot;
 
@@ -173,6 +171,7 @@ public class Inventory : NetworkBehaviour {
     #region PickUpEvents
     #endregion
 
+    // Entry point for item pickup logic.
     void PickUpClosest() {
         if (!IsOwner) return;
 
@@ -180,8 +179,8 @@ public class Inventory : NetworkBehaviour {
                                     GetClosestItem(); // prioritizes raycast over physical closest.
 
         // Try to stack the item in any existing item stacks
-        if (pickedUp != null && 
-            pickedUp.GetComponent<Item>() != null &&
+        if (pickedUp && 
+            pickedUp.GetComponent<Item>() &&
             TryStackItem(pickedUp)) {
 
                 // TryStack returns true if fully stacked into existing stacks.
@@ -220,18 +219,19 @@ public class Inventory : NetworkBehaviour {
     }
 
     private void AddToInventory(GameObject pickedUp){
-        var no = pickedUp.GetComponent<NetworkObject>();
         var pno = _playerObj.GetComponent<NetworkObject>();
+        if (pno == null) {
+            Debug.LogError("Player object does not have a NetworkObject component.");
+            return;
+        }
+
         if (pickedUp == null) {
             Debug.LogError("Picked up item is null.");
             return;
         }
+        var no = pickedUp.GetComponent<NetworkObject>();
         if (no == null) {
             Debug.LogError("Picked up item does not have a NetworkObject component.");
-            return;
-        }
-        if (pno == null) {
-            Debug.LogError("Player object does not have a NetworkObject component.");
             return;
         }
 
@@ -281,7 +281,10 @@ public class Inventory : NetworkBehaviour {
     // -------------------------------------------------------------------------------------------------------------------------
     #region PickupHelpers
     #endregion 
-
+ 
+    // Try to stack the item in any existing item stacks in inventory.
+    // Returns true if the quantity of the pickedup item was fully stacked into existing stacks (no remainder).
+    // Returns false if the item was not fully stacked (remainder exists).
     bool TryStackItem(GameObject newItem) {
         Item newMono = newItem.GetComponent<Item>();
         if (newMono == null) {
@@ -312,7 +315,6 @@ public class Inventory : NetworkBehaviour {
         }
         return false;
     }
-
 
     bool AddToFirstEmptySlot(GameObject itemGO) {
         for (int i = 0; i < _inventoryMono.Length; i++) {
@@ -357,6 +359,7 @@ public class Inventory : NetworkBehaviour {
     #region UIUpdate
     #endregion
 
+    // Update the radial dial display for current item's cooldown.
     void UpdateWeaponCooldownUI() {
         if (!IsOwner || _uiManager == null) return;
 
@@ -378,6 +381,7 @@ public class Inventory : NetworkBehaviour {
         }
     }
 
+    // Update the visibility of player currently held item for all clients.
     void UpdateHeldItem() {
         for (int i = 0; i < _inventoryMono.Length; i++){
             Item item = GetItemAt(i);
@@ -463,35 +467,42 @@ public class Inventory : NetworkBehaviour {
     [ClientRpc]
     private void AttachItemClientRpc(NetworkObjectReference itemRef, NetworkObjectReference n_playerRef, bool attachItem, Vector3 initVelocity){
         // Get the item and weapon slot GameObjects
-        NetworkObject n_item = itemRef.TryGet(out NetworkObject itemObj) ? itemObj : null;
-        GameObject item = n_item != null ? n_item.gameObject : null;
-        NetworkObject n_player = n_playerRef.TryGet(out NetworkObject weaponSlotObj) ? weaponSlotObj : null;
-        GameObject player = n_player != null ? weaponSlotObj.gameObject : null;
-        
-        if (!player || !item){
+        NetworkObject n_itemNO = itemRef.TryGet(out NetworkObject itemObj) ? itemObj : null;
+        GameObject itemGO = n_itemNO != null ? n_itemNO.gameObject : null;
+        NetworkObject n_playerNO = n_playerRef.TryGet(out NetworkObject weaponSlotObj) ? weaponSlotObj : null;
+        GameObject playerGO = n_playerNO != null ? weaponSlotObj.gameObject : null;
+        if (!playerGO || !itemGO){
             return;
         }
-
-        GameObject weaponSlot = player.GetComponent<Inventory>().weaponSlot;
-
+        Item item = itemGO?.GetComponent<Item>();
+        if (item == null) {
+            Debug.LogError("AttachItemClientRpc: item is null.");
+            return;
+        }
+        NetworkTransform itemNT = itemGO.GetComponent<NetworkTransform>();
+        if (itemNT == null) {
+            Debug.LogError("AttachItemClientRpc: itemNT is null.");
+            return;
+        }
+        GameObject weaponSlot = playerGO.GetComponent<Inventory>().weaponSlot;
         if (!weaponSlot){
             return;
         }
         
         // toggle OFF networktransform
-        item.GetComponent<NetworkTransform>().enabled = !attachItem;
-        item.transform.localPosition = Vector3.zero;
-        item.transform.localRotation = Quaternion.identity;
+        itemNT.enabled = !attachItem;
+        itemGO.transform.localPosition = Vector3.zero;
+        itemGO.transform.localRotation = Quaternion.identity;
 
-        item.GetComponent<Item>().IsPickedUp = attachItem; // prevent items in inventory from being picked up
-        item.GetComponent<Item>().attachedWeaponSlot = attachItem ? weaponSlot : null; // local. 
-        item.GetComponent<Item>().userRef = attachItem ? _playerObj : null; // local.
-        if (item.GetComponent<Outline>() != null) {
-            item.GetComponent<Outline>().enabled = !attachItem;
+        item.IsPickedUp = attachItem; // prevent items in inventory from being picked up
+        item.attachedWeaponSlot = attachItem ? weaponSlot : null; // local. 
+        item.userRef = attachItem ? _playerObj : null; // local.
+        if (itemGO.GetComponent<Outline>() != null) {
+            itemGO.GetComponent<Outline>().enabled = !attachItem;
         }
 
         // freeze rigidbody while held
-        Rigidbody rb = item.GetComponent<Rigidbody>();
+        Rigidbody rb = itemGO.GetComponent<Rigidbody>();
         if (rb != null){
             rb.isKinematic = attachItem;
             rb.useGravity = !attachItem;

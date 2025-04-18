@@ -1,10 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.Netcode;
-using Unity.VisualScripting.ReorderableList;
 using Unity.Netcode.Components; // Add this for NetworkTransform
-using Unity.VisualScripting;
-using UnityEditor.PackageManager;
 
 public class PortalKey_MONO : Item
 {
@@ -13,6 +10,7 @@ public class PortalKey_MONO : Item
     [Header("Item Settings")]
     [SerializeField] private float _teleportRadius = 20.0f;
     [SerializeField] private float _teleportRange = 5.0f;
+    [SerializeField] private float _teleportItemThrowForce = 5.0f;
     [SerializeField, Tooltip("Excluding self(player)")] private int _maxTeleportableItems = 5;
 
     [SerializeField] 
@@ -313,30 +311,32 @@ public class PortalKey_MONO : Item
                 Debug.LogError("PortalKey_MONO: TeleportItemServerRpc() item has no NetworkTransform component.");
                 return;
             }
-            nt.Teleport(destination, Quaternion.identity, n_itemObj.transform.localScale); // teleport item
-            // // call the client teleport for every client
-            // ClientRpcParams allClients = new ClientRpcParams {
-            //                         Send = new ClientRpcSendParams {
-            //                             TargetClientIds = NetworkManager.Singleton.ConnectedClientsIds
-            //                         }
-            // };
-            // TeleportItemClientRpc(item, destination);
+            nt.Teleport(destination + _teleportOffset, Quaternion.identity, n_itemObj.transform.localScale); // teleport item
+            Vector3 randomDirection = Random.insideUnitSphere; // random velocity to avoid falling through ground.
+            randomDirection = new Vector3 (randomDirection.x, 0, randomDirection.z); // set y to 0 to avoid falling through ground.
+            randomDirection.Normalize(); // normalize the vector to get a direction.
+            var rb = nt.GetComponent<Rigidbody>(); // set random velocity to item.
+            if (rb != null) {
+                rb.linearVelocity = randomDirection * _teleportItemThrowForce; // set random velocity to item.
+            } else {
+                Debug.LogError("PortalKey_MONO: TeleportItemServerRpc() item has no Rigidbody component.");
+            }
         } else {
             Debug.LogError("PortalKey_MONO: TeleportItemServerRpc() item is null.");
         }
     }
 
-    [ClientRpc]
-    private void TeleportItemClientRpc(NetworkObjectReference item, Vector3 destination, ClientRpcParams rpcParams = default){
-        if (item.TryGet(out NetworkObject n_itemObj)){
-            var nt = n_itemObj.GetComponent<NetworkTransform>();
-            nt.Teleport(destination, Quaternion.identity, n_itemObj.transform.localScale); // teleport item
-            // GameObject itemObj = n_itemObj.gameObject;
-            // itemObj.transform.position = destination; // teleport item
-        } else {
-            // Debug.LogError("PortalKey_MONO: TeleportItemClientRpc() item is null.");
-        }
-    }
+    // [ClientRpc]
+    // private void TeleportItemClientRpc(NetworkObjectReference item, Vector3 destination, ClientRpcParams rpcParams = default){
+    //     if (item.TryGet(out NetworkObject n_itemObj)){
+    //         var nt = n_itemObj.GetComponent<NetworkTransform>();
+    //         nt.Teleport(destination, Quaternion.identity, n_itemObj.transform.localScale); // teleport item
+    //         // GameObject itemObj = n_itemObj.gameObject;
+    //         // itemObj.transform.position = destination; // teleport item
+    //     } else {
+    //         // Debug.LogError("PortalKey_MONO: TeleportItemClientRpc() item is null.");
+    //     }
+    // }
 
     [ServerRpc(RequireOwnership = false)]
     private void TeleportPlayerServerRpc(NetworkObjectReference player, Vector3 destination, Quaternion rotation){
