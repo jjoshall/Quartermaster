@@ -119,6 +119,11 @@ public class EnemySpawner : NetworkBehaviour {
     private void SpawnOverTime() {
         if (!IsServer) return;
 
+        /*
+         * Like 7 enemies all spawn at once when player leaves starting room
+         * Change around how the time works so you wait until the players out of the safe room
+         */
+
         if (Time.time - _lastSpawnTime < spawnCooldown) {
             return;
         }
@@ -272,7 +277,11 @@ public class EnemySpawner : NetworkBehaviour {
     public void destroyEnemyServerRpc(NetworkObjectReference enemy) {
         if (!IsServer) { return; }
         if (enemy.TryGet(out NetworkObject networkObject)) {
-            
+            // Despawn from network first
+            networkObject.Despawn();
+
+            // Return to pool
+            _objectPool.ReturnNetworkObject(networkObject, _enemySpawnData[0].enemyPrefab.gameObject);
         }
     }
 
