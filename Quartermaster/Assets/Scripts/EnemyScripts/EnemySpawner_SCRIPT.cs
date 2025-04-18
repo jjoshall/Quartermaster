@@ -119,11 +119,6 @@ public class EnemySpawner : NetworkBehaviour {
     private void SpawnOverTime() {
         if (!IsServer) return;
 
-        /*
-         * Like 7 enemies all spawn at once when player leaves starting room
-         * Change around how the time works so you wait until the players out of the safe room
-         */
-
         if (Time.time - _lastSpawnTime < spawnCooldown) {
             return;
         }
@@ -148,8 +143,8 @@ public class EnemySpawner : NetworkBehaviour {
                 // Make sure enemy uses enemy spawner instance
                 enemyPrefab.GetComponent<BaseEnemyClass_SCRIPT>().enemySpawner = this;
 
-                // Add enemy to the enemy list
-                enemyList.Add(enemyPrefab);
+                // Add enemy instance to the enemy list
+                enemyList.Add(networkObject.gameObject);
 
                 // Set the speed of the enemy
                 enemyPrefab.GetComponent<BaseEnemyClass_SCRIPT>().UpdateSpeedServerRpc();
@@ -276,6 +271,7 @@ public class EnemySpawner : NetworkBehaviour {
     [ServerRpc(RequireOwnership = false)]
     public void destroyEnemyServerRpc(NetworkObjectReference enemy) {
         if (!IsServer) { return; }
+
         if (enemy.TryGet(out NetworkObject networkObject)) {
             // Despawn from network first
             networkObject.Despawn();
@@ -321,5 +317,10 @@ public class EnemySpawner : NetworkBehaviour {
         float spawnZ = spawnPoint.transform.position.z;
         return new Vector3(spawnX, spawnY, spawnZ);
     }
+
+    public void RemoveEnemy(GameObject enemy) {
+        enemyList.Remove(enemy);
+    }
+
     #endregion
 }
