@@ -5,10 +5,11 @@ using UnityEngine.AI;
 
 [RequireComponent(typeof(PlayerInputHandler))]
 public class Inventory : NetworkBehaviour {
-    private GameObject _playerObj;
-    private GameObject _itemAcquisitionRange;
-
+    private UIManager _uiManager;
     private Animator animator;
+    private GameObject _playerObj;
+    private ItemAcquisitionRange _itemAcquisitionRange;
+
 
     [Header("Orientation for dropItem direction")]
     public Transform orientation;
@@ -16,7 +17,6 @@ public class Inventory : NetworkBehaviour {
     [Header("Inventory Keybinds")]
     private PlayerInputHandler _InputHandler;
 
-    private UIManager _uiManager;
 
 
     [Header("Weapon Holdable Setup")]
@@ -37,7 +37,7 @@ public class Inventory : NetworkBehaviour {
 
     public override void OnNetworkSpawn(){
         _playerObj = this.gameObject;
-        _itemAcquisitionRange = _playerObj.GetComponentInChildren<ItemAcquisitionRange>().gameObject;
+        _itemAcquisitionRange = _playerObj.GetComponentInChildren<ItemAcquisitionRange>();
         _uiManager = GameObject.Find("UI Manager").GetComponent<UIManager>();
         if (IsOwner){
             if (!_InputHandler) _InputHandler = _playerObj.GetComponent<PlayerInputHandler>();
@@ -191,7 +191,6 @@ public class Inventory : NetworkBehaviour {
         if (!IsOwner) return;
 
         GameObject pickedUp = _itemAcquisitionRange.
-                                    GetComponent<ItemAcquisitionRange>().
                                     GetClosestItem(); // prioritizes raycast over physical closest.
 
         // Try to stack the item in any existing item stacks
@@ -218,9 +217,8 @@ public class Inventory : NetworkBehaviour {
 
     private void RemoveFromItemAcq(GameObject itemPickedUp){
         // Remove the item from the ItemAcquisitionRange
-        ItemAcquisitionRange itemAcquisitionRange = _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>();
-        if (itemAcquisitionRange) {
-            itemAcquisitionRange.RemoveItem(itemPickedUp);
+        if (_itemAcquisitionRange) {
+            _itemAcquisitionRange.RemoveItem(itemPickedUp);
         } else {
             Debug.LogError("ItemAcquisitionRange component not found on _itemAcquisitionRange.");
         }
@@ -228,9 +226,8 @@ public class Inventory : NetworkBehaviour {
 
     private void AddToItemAcq(GameObject itemDropped){
         // Add the item to the ItemAcquisitionRange
-        ItemAcquisitionRange itemAcquisitionRange = _itemAcquisitionRange.GetComponent<ItemAcquisitionRange>();
-        if (itemAcquisitionRange != null) {
-            itemAcquisitionRange.AddItem(itemDropped);
+        if (_itemAcquisitionRange != null) {
+            _itemAcquisitionRange.AddItem(itemDropped);
         } else {
             Debug.LogError("ItemAcquisitionRange component not found on _itemAcquisitionRange.");
         }
@@ -253,7 +250,7 @@ public class Inventory : NetworkBehaviour {
         }
 
         // Locally attach the item to the player on each client
-        PropagateItemAttachmentServerRpc(no, pno);
+        PropagateItemAttachmentServerRpc(no, pno, true);
 
         pickedUp.GetComponent<Item>().userRef = _playerObj; // local.
 
@@ -352,7 +349,7 @@ public class Inventory : NetworkBehaviour {
         Vector3 initVelocity = orientation.forward * GameManager.instance.DropItemVelocity;
 
         // detach the current held item
-        PropagateItemDetachServerRpc(_inventoryMono[slot].GetComponent<NetworkObject>(), n_playerObj, initVelocity);
+        PropagateItemAttachmentServerRpc(_inventoryMono[slot].GetComponent<NetworkObject>(), n_playerObj, false);
         
 
         AddToItemAcq(_inventoryMono[slot]); // add to item acquisition range
@@ -399,22 +396,22 @@ public class Inventory : NetworkBehaviour {
             }
             if (i != _currentInventoryIndex){
                 NetworkObject n_item = _inventoryMono[i].GetComponent<NetworkObject>();
-                PropagateHoldableHideServerRpc(n_item);
+                PropagateHoldableShowServerRpc(n_item, false);
             } else {
                 NetworkObject n_item = _inventoryMono[i].GetComponent<NetworkObject>();
-                PropagateHoldableShowServerRpc(n_item);
+                PropagateHoldableShowServerRpc(n_item, true);
             }
         }
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void PropagateHoldableShowServerRpc(NetworkObjectReference item){
+    private void PropagateHoldableShowServerRpc(NetworkObjectReference item, bool holdableVisibility){
         if (!IsServer) return;
         // Attach the item to the weapon slot on the server
-        PropagateHoldableShowClientRpc(item);
+        PropagateHoldableShowClientRpc(item, holdableVisibility);
     }
     [ClientRpc]
-    private void PropagateHoldableShowClientRpc(NetworkObjectReference itemRef){
+    private void PropagateHoldableShowClientRpc(NetworkObjectReference itemRef, bool holdableVisibility){
         // Get the item and weapon slot GameObjects
         NetworkObject n_item = itemRef.TryGet(out NetworkObject itemObj) ? itemObj : null;
         GameObject item = n_item != null ? n_item.gameObject : null;
@@ -422,37 +419,11 @@ public class Inventory : NetworkBehaviour {
 
         // Show the item in the weapon slot
         foreach (Renderer r in item.GetComponentsInChildren<Renderer>()) {
-            r.enabled = true;
+            r.enabled = holdableVisibility;
         }
 
         if (animator){
-            animator.SetBool("WeaponEquipped", true);
-        } else {
-            Debug.LogWarning("Animator is null. Cannot set WeaponEquipped parameter.");
-        }
-    }
-
-    //PropagateHoldableHide
-    [ServerRpc(RequireOwnership = false)]
-    private void PropagateHoldableHideServerRpc(NetworkObjectReference item){
-        if (!IsServer) return;
-        // Attach the item to the weapon slot on the server
-        PropagateHoldableHideClientRpc(item);
-    }
-    [ClientRpc]
-    private void PropagateHoldableHideClientRpc(NetworkObjectReference itemRef){
-        // Get the item and weapon slot GameObjects
-        NetworkObject n_item = itemRef.TryGet(out NetworkObject itemObj) ? itemObj : null;
-        GameObject item = n_item != null ? n_item.gameObject : null;
-        if (item == null) return;
-
-        // Hide the item in the weapon slot
-        foreach (Renderer r in item.GetComponentsInChildren<Renderer>()) {
-            r.enabled = false;
-        }
-
-        if (animator){
-            animator.SetBool("WeaponEquipped", false);
+            animator.SetBool("WeaponEquipped", holdableVisibility);
         } else {
             Debug.LogWarning("Animator is null. Cannot set WeaponEquipped parameter.");
         }
@@ -476,13 +447,31 @@ public class Inventory : NetworkBehaviour {
 
     #region ItemAttachment
     [ServerRpc(RequireOwnership = false)]
-    private void PropagateItemAttachmentServerRpc(NetworkObjectReference item, NetworkObjectReference n_player){
+    private void PropagateItemAttachmentServerRpc(NetworkObjectReference item, NetworkObjectReference n_player, bool attachItem){
         if (!IsServer) return;
-        AttachItemClientRpc(item, n_player);
+            Vector3 initVelocity = orientation.forward * GameManager.instance.DropItemVelocity;
+        AttachItemClientRpc(item, n_player, attachItem, initVelocity);
+
+        if (!attachItem){
+            var itemNO = item.TryGet(out NetworkObject itemObj) ? itemObj : null;
+            var playerNO = n_player.TryGet(out NetworkObject playerObj) ? playerObj : null;
+            if (itemNO == null || playerNO == null) {
+                Debug.LogError("PropagateItemDetachServerRpc: item or player is null.");
+                return;
+            }
+
+            var itemNT = itemNO.GetComponent<NetworkTransform>();
+            if (itemNT != null) {
+                itemNT.enabled = true; // Enable the NetworkTransform component
+                itemNT.Teleport(playerNO.transform.position, Quaternion.identity, itemNT.transform.localScale);
+            } else {
+                Debug.LogError("PropagateItemDetachServerRpc: itemNT is null.");
+            }
+        }
     }
 
     [ClientRpc]
-    private void AttachItemClientRpc(NetworkObjectReference itemRef, NetworkObjectReference n_playerRef){
+    private void AttachItemClientRpc(NetworkObjectReference itemRef, NetworkObjectReference n_playerRef, bool attachItem, Vector3 initVelocity){
         // Get the item and weapon slot GameObjects
         NetworkObject n_item = itemRef.TryGet(out NetworkObject itemObj) ? itemObj : null;
         GameObject item = n_item != null ? n_item.gameObject : null;
@@ -500,83 +489,86 @@ public class Inventory : NetworkBehaviour {
         }
         
         // toggle OFF networktransform
-        item.GetComponent<NetworkTransform>().enabled = false;
+        item.GetComponent<NetworkTransform>().enabled = !attachItem;
         item.transform.localPosition = Vector3.zero;
         item.transform.localRotation = Quaternion.identity;
 
-        item.GetComponent<Item>().IsPickedUp = true; // prevent items in inventory from being picked up
-        item.GetComponent<Item>().attachedWeaponSlot = weaponSlot; // local. 
-        item.GetComponent<Item>().userRef = _playerObj; // local.
+        item.GetComponent<Item>().IsPickedUp = attachItem; // prevent items in inventory from being picked up
+        item.GetComponent<Item>().attachedWeaponSlot = attachItem ? weaponSlot : null; // local. 
+        item.GetComponent<Item>().userRef = attachItem ? _playerObj : null; // local.
         if (item.GetComponent<Outline>() != null) {
-            item.GetComponent<Outline>().enabled = false;
+            item.GetComponent<Outline>().enabled = !attachItem;
         }
 
         // freeze rigidbody while held
         Rigidbody rb = item.GetComponent<Rigidbody>();
         if (rb != null){
-            rb.isKinematic = true;
-            rb.useGravity = false;
-            rb.constraints = RigidbodyConstraints.FreezeAll;
+            rb.isKinematic = attachItem;
+            rb.useGravity = !attachItem;
+            rb.constraints = attachItem ? RigidbodyConstraints.FreezeAll : RigidbodyConstraints.None;
+            if (!attachItem) {
+                rb.linearVelocity = initVelocity;
+            }
         }
     }
-    [ServerRpc(RequireOwnership = false)]
-    private void PropagateItemDetachServerRpc(NetworkObjectReference item, NetworkObjectReference n_player, Vector3 initVelocity){
-        if (!IsServer) return;
-        var itemNO = item.TryGet(out NetworkObject itemObj) ? itemObj : null;
-        var playerNO = n_player.TryGet(out NetworkObject playerObj) ? playerObj : null;
-        if (itemNO == null || playerNO == null) {
-            Debug.LogError("PropagateItemDetachServerRpc: item or player is null.");
-            return;
-        }
-        // Attach the item to the weapon slot on the server
-        DetachItemClientRpc(item, n_player);
-        var itemNT = itemNO.GetComponent<NetworkTransform>();
-        if (itemNT != null) {
-            itemNT.enabled = true; // Enable the NetworkTransform component
-            itemNT.Teleport(playerNO.transform.position, Quaternion.identity, itemNT.transform.localScale);
-        } else {
-            Debug.LogError("PropagateItemDetachServerRpc: itemNT is null.");
-        }
-        // Give it velocity
-        Rigidbody rb = itemNO.GetComponent<Rigidbody>();
-        if (rb != null) {
-            rb.isKinematic = false;
-            rb.useGravity = true;
-            rb.constraints = RigidbodyConstraints.None;
-            rb.linearVelocity = initVelocity;
-        }
-    }
-    [ClientRpc]
-    private void DetachItemClientRpc(NetworkObjectReference itemRef, NetworkObjectReference n_playerRef){
-        // Get the item and weapon slot GameObjects
-        NetworkObject n_item = itemRef.TryGet(out NetworkObject itemObj) ? itemObj : null;
-        GameObject item = n_item != null ? n_item.gameObject : null;
-        NetworkObject n_player = n_playerRef.TryGet(out NetworkObject weaponSlotObj) ? weaponSlotObj : null;
-        GameObject player = n_player != null ? weaponSlotObj.gameObject : null;
+    // [ServerRpc(RequireOwnership = false)]
+    // private void PropagateItemDetachServerRpc(NetworkObjectReference item, NetworkObjectReference n_player, Vector3 initVelocity){
+    //     if (!IsServer) return;
+    //     var itemNO = item.TryGet(out NetworkObject itemObj) ? itemObj : null;
+    //     var playerNO = n_player.TryGet(out NetworkObject playerObj) ? playerObj : null;
+    //     if (itemNO == null || playerNO == null) {
+    //         Debug.LogError("PropagateItemDetachServerRpc: item or player is null.");
+    //         return;
+    //     }
+    //     // Attach the item to the weapon slot on the server
+    //     DetachItemClientRpc(item, n_player);
+    //     var itemNT = itemNO.GetComponent<NetworkTransform>();
+    //     if (itemNT != null) {
+    //         itemNT.enabled = true; // Enable the NetworkTransform component
+    //         itemNT.Teleport(playerNO.transform.position, Quaternion.identity, itemNT.transform.localScale);
+    //     } else {
+    //         Debug.LogError("PropagateItemDetachServerRpc: itemNT is null.");
+    //     }
+    //     // Give it velocity
+    //     Rigidbody rb = itemNO.GetComponent<Rigidbody>();
+    //     if (rb != null) {
+    //         rb.isKinematic = false;
+    //         rb.useGravity = true;
+    //         rb.constraints = RigidbodyConstraints.None;
+    //         rb.linearVelocity = initVelocity;
+    //     }
+    // }
+    // [ClientRpc]
+    // private void DetachItemClientRpc(NetworkObjectReference itemRef, NetworkObjectReference n_playerRef){
+    //     // Get the item and weapon slot GameObjects
+    //     NetworkObject n_item = itemRef.TryGet(out NetworkObject itemObj) ? itemObj : null;
+    //     GameObject item = n_item != null ? n_item.gameObject : null;
+    //     NetworkObject n_player = n_playerRef.TryGet(out NetworkObject weaponSlotObj) ? weaponSlotObj : null;
+    //     GameObject player = n_player != null ? weaponSlotObj.gameObject : null;
 
-        if (!player || !item){
-            return;
-        }
+    //     if (!player || !item){
+    //         return;
+    //     }
 
-        item.GetComponent<NetworkTransform>().enabled = true;
-        item.GetComponent<Item>().IsPickedUp = false; // prevent items in inventory from being picked up
-        item.GetComponent<Item>().attachedWeaponSlot = null; // local.
-        item.GetComponent<Item>().userRef = null; // local.
+    //     item.GetComponent<NetworkTransform>().enabled = true;
+    //     item.GetComponent<Item>().IsPickedUp = false; // prevent items in inventory from being picked up
+    //     item.GetComponent<Item>().attachedWeaponSlot = null; // local.
+    //     item.GetComponent<Item>().userRef = null; // local.
 
-        MeshRenderer[] renderers = item.GetComponentsInChildren<MeshRenderer>();
-        foreach (MeshRenderer r in renderers) {
-            r.enabled = true;
-        }
+    //     MeshRenderer[] renderers = item.GetComponentsInChildren<MeshRenderer>();
+    //     foreach (MeshRenderer r in renderers) {
+    //         r.enabled = true;
+    //     }
 
-        // unfreeze the rigidbody
-        Rigidbody rb = item.GetComponent<Rigidbody>();
-        if (rb != null){
-            rb.isKinematic = false;
-            rb.useGravity = true;
-            rb.constraints = RigidbodyConstraints.None;
-        }
+    //     // unfreeze the rigidbody
+    //     Rigidbody rb = item.GetComponent<Rigidbody>();
+    //     if (rb != null){
+    //         rb.isKinematic = false;
+    //         rb.useGravity = true;
+    //         rb.constraints = RigidbodyConstraints.None;
+    //     }
 
-    }
+    // }
     #endregion
 
 
