@@ -81,12 +81,9 @@ public class Inventory : NetworkBehaviour {
 
         // If the selection has changed, update the UI and the networked current holdable.
         if (_currentInventoryIndex != _oldInventoryIndex) {
-            if (_inventoryMono[_oldInventoryIndex] != null){
-                Item old = _inventoryMono[_oldInventoryIndex].GetComponent<Item>();
-                if (old == null){
-                    Debug.LogError("Inventory: MyInput() - Old item is null.");
-                } 
-                old.SwapCancel(_playerObj); // resets any charging state.
+            Item oldItem = GetItemAt(_oldInventoryIndex);
+            if (oldItem){
+                oldItem.SwapCancel(_playerObj); // resets any charging state.
             }
             UpdateAllInventoryUI();
             _oldInventoryIndex = _currentInventoryIndex;
@@ -101,7 +98,7 @@ public class Inventory : NetworkBehaviour {
         // Helper method to update the network variable based on the current index.
     void UpdateHoldableNetworkReference(){
         GameObject selectedItem = _inventoryMono[_currentInventoryIndex];
-        if (selectedItem != null) {
+        if (selectedItem) {
             NetworkObject netObj = selectedItem.GetComponent<NetworkObject>();
             n_currentHoldable.Value = netObj != null ? netObj : default;
         } else {
@@ -256,7 +253,9 @@ public class Inventory : NetworkBehaviour {
         if (_inventoryMono[_currentInventoryIndex] == null) {
             // put in curr slot
             _inventoryMono[_currentInventoryIndex] = pickedUp;
-            _inventoryMono[_currentInventoryIndex].GetComponent<Item>().PickUp(_playerObj);
+            Item pickedItem = GetItemAt(_currentInventoryIndex);
+            if (!pickedItem) Debug.LogError ("picked item is null.");
+            pickedItem.PickUp(_playerObj);
 
             _currentHeldItems++;
             UpdateAllInventoryUI();
@@ -289,11 +288,8 @@ public class Inventory : NetworkBehaviour {
         // FOR ITEM IN INVENTORY
         for (int i = 0; i < _inventoryMono.Length; i++){
 
-            // GET CURR
-            GameObject curr = _inventoryMono[i];
-            if (curr == null) continue;
-
-            Item currMono = curr.GetComponent<Item>();
+            Item currMono = GetItemAt(i);
+            if (currMono == null) continue;
 
             // IF SAME ITEM, STACK NEW INTO CURR
             if (currMono.uniqueID == newMono.uniqueID) {
@@ -314,11 +310,11 @@ public class Inventory : NetworkBehaviour {
     }
 
 
-    bool AddToFirstEmptySlot(GameObject item) {
+    bool AddToFirstEmptySlot(GameObject itemGO) {
         for (int i = 0; i < _inventoryMono.Length; i++) {
             if (_inventoryMono[i] == null) {
-                _inventoryMono[i] = item;
-                item.GetComponent<Item>().PickUp(_playerObj);
+                _inventoryMono[i] = itemGO;
+                itemGO.GetComponent<Item>().PickUp(_playerObj);
                 return true;
             }
         }
@@ -330,22 +326,23 @@ public class Inventory : NetworkBehaviour {
     #region DropEvents
     #endregion
 
-    void DropItem(int slot) { // called directly to drop additional ClassSpecs / Weapons
-        if (_inventoryMono[slot] == null) return;
+    void DropItem(int thisSlot) { // called directly to drop additional ClassSpecs / Weapons
+        Item thisItem = GetItemAt(thisSlot);
+        if (thisItem == null) return;
         if (!IsOwnerValidIndexAndPauseMenuCheck()) return;
         
         NetworkObjectReference n_playerObj = _playerObj.GetComponent<NetworkObject>();
         Vector3 initVelocity = orientation.forward * GameManager.instance.DropItemVelocity;
 
         // detach the current held item
-        PropagateItemAttachmentServerRpc(_inventoryMono[slot].GetComponent<NetworkObject>(), n_playerObj, false);
+        PropagateItemAttachmentServerRpc(_inventoryMono[thisSlot].GetComponent<NetworkObject>(), n_playerObj, false);
         
 
-        AddToItemAcq(_inventoryMono[slot]); // add to item acquisition range
+        AddToItemAcq(_inventoryMono[thisSlot]); // add to item acquisition range
 
-        _inventoryMono[slot].GetComponent<Item>().Drop(_playerObj); // Call the item's onDrop function
+        thisItem.Drop(_playerObj); // Call the item's onDrop function
 
-        _inventoryMono[slot] = null;
+        _inventoryMono[thisSlot] = null;
         _currentHeldItems--;
 
         UpdateAllInventoryUI();
@@ -359,15 +356,14 @@ public class Inventory : NetworkBehaviour {
     void UpdateWeaponCooldownUI() {
         if (!IsOwner || _uiManager == null) return;
 
-        GameObject selectedItem = _inventoryMono[_currentInventoryIndex];
-
-        if (selectedItem == null) {
+        Item item = GetItemAt(_currentInventoryIndex);
+        if (item == null) {
             _uiManager.weaponCooldownRadial.gameObject.SetActive(false);
             return;
         }
 
-        float cooldownRemaining = selectedItem.GetComponent<Item>().GetCooldownRemaining();
-        float cooldownMax = selectedItem.GetComponent<Item>().GetMaxCooldown();
+        float cooldownRemaining = item.GetCooldownRemaining();
+        float cooldownMax = item.GetMaxCooldown();
 
         if (cooldownMax > 0) {
             _uiManager.weaponCooldownRadial.gameObject.SetActive(true);
@@ -379,16 +375,16 @@ public class Inventory : NetworkBehaviour {
     }
 
     void UpdateHeldItem() {
-        for (int i =0; i < _inventoryMono.Length; i++){
-            if (_inventoryMono[i] == null){
+        for (int i = 0; i < _inventoryMono.Length; i++){
+            Item item = GetItemAt(i);
+            if (item == null){
                 continue;
             }
+            NetworkObject no = item.GetComponent<NetworkObject>();
             if (i != _currentInventoryIndex){
-                NetworkObject n_item = _inventoryMono[i].GetComponent<NetworkObject>();
-                PropagateHoldableShowServerRpc(n_item, false);
+                PropagateHoldableShowServerRpc(no, false);
             } else {
-                NetworkObject n_item = _inventoryMono[i].GetComponent<NetworkObject>();
-                PropagateHoldableShowServerRpc(n_item, true);
+                PropagateHoldableShowServerRpc(no, true);
             }
         }
     }
@@ -420,14 +416,15 @@ public class Inventory : NetworkBehaviour {
 
     private void UpdateAllInventoryUI() {
         for (int i = 0; i < _maxInventorySize; i++) {
-            if (_inventoryMono[i] == null || _inventoryMono[i].GetComponent<Item>() == null) {
+            Item item = GetItemAt(i);
+            if (!item) {
                 _uiManager.SetInventorySlotTexture(i, null);
                 _uiManager.SetInventorySlotQuantity(i, 0, 0);
                 continue;
             }
-            Texture textureToSet = _inventoryMono[i].GetComponent<Item>().icon;
-            int quantity = _inventoryMono[i].GetComponent<Item>().quantity;
-            int stackLimit = _inventoryMono[i].GetComponent<Item>().StackLimit;
+            Texture textureToSet = item.icon;
+            int quantity = item.quantity;
+            int stackLimit = item.StackLimit;
             _uiManager.SetInventorySlotTexture(i, textureToSet);
             _uiManager.SetInventorySlotQuantity(i, quantity, stackLimit);
         }
@@ -505,35 +502,40 @@ public class Inventory : NetworkBehaviour {
 
     #region Helpers
     public int GetSlotQuantity (int slot) {
-        if (_inventoryMono[slot] == null) return 0;
-        return _inventoryMono[slot].GetComponent<Item>().quantity;
+        Item item = GetItemAt(slot);
+        if (!item) return 0;
+        return item.quantity;
     }
 
     public int GetItemQuantity (string uniqueID) {
         int total = 0;
         for (int i = 0; i < _inventoryMono.Length; i++) {
-            if (_inventoryMono[i] != null && _inventoryMono[i].GetComponent<Item>().uniqueID == uniqueID) {
-                total += _inventoryMono[i].GetComponent<Item>().quantity;
+            Item item = GetItemAt(i);
+            if (!item) continue;
+            if (item.uniqueID == uniqueID) {
+                total += item.quantity;
             }
         }
         return total;
     }
     private void DropAllOtherClassSpecs(string pickedSpec){
         for (int i = 0; i < _inventoryMono.Length; i++){
-            if (_inventoryMono[i] == null){
+            Item item = GetItemAt(i);
+            if (!item){
                 continue;
             }
-            if (_inventoryMono[i].GetComponent<Item>().IsClassSpec && _inventoryMono[i].GetComponent<Item>().uniqueID != pickedSpec){
+            if (item.IsClassSpec && item.uniqueID != pickedSpec){
                 DropItem(i);
             }
         }
     }
     private void DropAllOtherWeapons(){
         for (int i = 0; i < _inventoryMono.Length; i++){
-            if (_inventoryMono[i] == null){
+            Item item = GetItemAt(i);
+            if (!item){
                 continue;
             }
-            if (_inventoryMono[i].GetComponent<Item>().IsWeapon){
+            if (item.IsWeapon){
                 DropItem(i);
             }
         }
@@ -549,7 +551,7 @@ public class Inventory : NetworkBehaviour {
         if (_currentInventoryIndex < 0 || _currentInventoryIndex >= _inventoryMono.Length) {
             return false;
         }
-        
+
         if (_playerObj == null) {
             _playerObj = transform.parent.gameObject;
         }
@@ -560,7 +562,8 @@ public class Inventory : NetworkBehaviour {
     }
     public int HasWeapon() {
         for (int i = 0; i < _inventoryMono.Length; i++) {
-            if (_inventoryMono[i] != null && _inventoryMono[i].GetComponent<Item>().IsWeapon) {
+            Item item = GetItemAt(i);
+            if (item && item.IsWeapon) {
                 return i;
             }
         }
@@ -569,11 +572,24 @@ public class Inventory : NetworkBehaviour {
 
     public int HasItem(string itemClass) {
         for (int i = 0; i < _inventoryMono.Length; i++) {
-            if (_inventoryMono[i] != null && _inventoryMono[i].GetComponent<Item>().uniqueID == itemClass) {
+            Item item = GetItemAt(i);
+            if (item && item.uniqueID == itemClass) {
                 return i;
             }
         }
         return -1;
+    }
+
+    private Item GetItemAt (int index) {
+        if (index < 0 || index >= _inventoryMono.Length) {
+            Debug.LogError("Index out of bounds: " + index);
+            return null;
+        }
+        if (_inventoryMono[index] == null) {
+            // Debug.Log("Item at index " + index + " is null.");
+            return null;
+        }
+        return _inventoryMono[index]?.GetComponent<Item>();
     }
 
     #endregion

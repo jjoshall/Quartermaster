@@ -253,14 +253,11 @@ public class PortalKey_MONO : Item
     #region Teleport Helpers
     #endregion 
     private void SaveReturnPosition (GameObject user){
-        // networkobjectreference get
         NetworkObject n_user = user.GetComponent<NetworkObject>();
-        // get position and rotation of player
-        Vector3 position = user.transform.position;
-        Quaternion rotation = user.transform.rotation;
-
-        // add data to the network lists
-        AddPlayerToPocketServerRpc(n_user, position, rotation);
+        if (n_user)
+            AddPlayerToPocketServerRpc(n_user, 
+                                        user.transform.position, 
+                                        user.transform.rotation);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -358,18 +355,14 @@ public class PortalKey_MONO : Item
         if (netObj.OwnerClientId != NetworkManager.Singleton.LocalClientId) return; // only teleport the player that owns the object.
 
         var go = netObj.gameObject;
-
-        // Grab components once
-        var nt = go.GetComponent<NetworkTransform>();
-        var cc = go.GetComponent<CharacterController>();
-        var currentScale = go.transform.localScale;
-
-        cc.enabled = false;
+        
+        if (go.TryGetComponent<CharacterController>(out var cc)) cc.enabled = false;
 
         go.transform.SetPositionAndRotation(dest, rot);
-        nt.Teleport(dest, rot, currentScale);
-
-        cc.enabled = true;
+        if (go.TryGetComponent<NetworkTransform>(out var nt))
+            nt.Teleport(dest, rot, go.transform.localScale);
+            
+        if (cc != null) cc.enabled = true;
     }
 
     #region TeleportListHelpers
