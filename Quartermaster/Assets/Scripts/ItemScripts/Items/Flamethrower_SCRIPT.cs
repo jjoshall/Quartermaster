@@ -23,7 +23,7 @@ public class Flamethrower_MONO : Item
     private bool _isFireStarted = false;
     #endregion
 
-    public override void ButtonUse(GameObject user) {
+    public override void OnButtonUse(GameObject user) {
         if (lastUsed + cooldown > Time.time) {
             return;
         }
@@ -38,7 +38,7 @@ public class Flamethrower_MONO : Item
     }
 
     // Same as Use() for flamethrower.
-    public override void ButtonHeld(GameObject user)
+    public override void OnButtonHeld(GameObject user)
     {
         if (lastUsed + cooldown > Time.time) {
             return;
@@ -57,7 +57,7 @@ public class Flamethrower_MONO : Item
         lastUsed = Time.time;
     }
 
-    public override void ButtonRelease(GameObject user){
+    public override void OnButtonRelease(GameObject user){
         if (_isFireStarted){
             _isFireStarted = false; 
             StopFireEffect(user); // stop continuous fire effect.
@@ -65,7 +65,7 @@ public class Flamethrower_MONO : Item
         lastUsed = float.MinValue;
     }
 
-    public override void Drop(GameObject user)
+    public override void OnDrop(GameObject user)
     {
         if (_isFireStarted){
             _isFireStarted = false; 
@@ -73,7 +73,7 @@ public class Flamethrower_MONO : Item
         }
     }
 
-    public override void SwapCancel(GameObject user)
+    public override void OnSwapOut(GameObject user)
     {
         if (_isFireStarted){
             _isFireStarted = false; 

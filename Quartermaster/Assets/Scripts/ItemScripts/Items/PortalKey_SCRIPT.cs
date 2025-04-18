@@ -60,7 +60,7 @@ public class PortalKey_MONO : Item
     #region BaseOverrides
     #endregion
 
-    public override void PickUp(GameObject user){
+    public override void OnPickUp(GameObject user){
         if (NullChecks(user)) {
             Debug.LogError("PortalKey_MONO: PickUp() NullChecks failed.");
             return;
@@ -75,7 +75,7 @@ public class PortalKey_MONO : Item
         SetLastOwnerServerRpc(n_user); // set last owner to user.
     }
 
-    public override void ButtonUse(GameObject user)
+    public override void OnButtonUse(GameObject user)
     {
         // Initiate teleportation obj selection
         if (NullChecks(user)) {
@@ -86,7 +86,7 @@ public class PortalKey_MONO : Item
         _isTeleporting = true;
     }
 
-    public override void ButtonHeld(GameObject user)
+    public override void OnButtonHeld(GameObject user)
     {
         // Select items and players while held(?)
         if (NullChecks(user)) {
@@ -105,7 +105,7 @@ public class PortalKey_MONO : Item
         }
     }
 
-    public override void ButtonRelease(GameObject user)
+    public override void OnButtonRelease(GameObject user)
     {
         // Teleport
         if (NullChecks(user)) {
@@ -142,7 +142,7 @@ public class PortalKey_MONO : Item
         _isTeleporting = false;
     }
 
-    public override void SwapCancel(GameObject user)
+    public override void OnSwapOut(GameObject user)
     {
         if (NullChecks(user)) {
             Debug.LogError("PortalKey_MONO: SwapCancel() NullChecks failed.");
@@ -153,7 +153,7 @@ public class PortalKey_MONO : Item
         _isTeleporting = false;
     }
 
-    public override void Drop(GameObject user)
+    public override void OnDrop(GameObject user)
     {
         if (NullChecks(user)) {
             Debug.LogError("PortalKey_MONO: Drop() NullChecks failed.");
@@ -355,7 +355,7 @@ public class PortalKey_MONO : Item
         if (netObj.OwnerClientId != NetworkManager.Singleton.LocalClientId) return; // only teleport the player that owns the object.
 
         var go = netObj.gameObject;
-        
+
         if (go.TryGetComponent<CharacterController>(out var cc)) cc.enabled = false;
 
         go.transform.SetPositionAndRotation(dest, rot);

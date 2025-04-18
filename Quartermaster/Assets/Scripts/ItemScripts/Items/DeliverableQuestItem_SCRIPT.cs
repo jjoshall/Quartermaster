@@ -10,7 +10,7 @@ public class DeliverableQuestItem_MONO : Item
     [SerializeField] private Tooltippable t;
     #endregion
 
-    public override void ButtonUse(GameObject user) {
+    public override void OnButtonUse(GameObject user) {
         if (lastUsed + cooldown > Time.time) {
             return;
         }

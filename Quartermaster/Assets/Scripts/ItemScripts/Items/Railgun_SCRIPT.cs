@@ -26,7 +26,7 @@ public class RailgunItem : Item
 
 
 
-    public override void ButtonUse(GameObject user) {
+    public override void OnButtonUse(GameObject user) {
 
         if (lastUsed + cooldown > Time.time){
             //Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
@@ -41,7 +41,7 @@ public class RailgunItem : Item
     }
 
     // Same as Use() for Railgun.
-    public override void ButtonHeld(GameObject user)
+    public override void OnButtonHeld(GameObject user)
     {
         if (user == null || user.GetComponent<PlayerStatus>() == null) {
             Debug.LogError("Railgun_MONO: ButtonHeld() NullChecks failed.");

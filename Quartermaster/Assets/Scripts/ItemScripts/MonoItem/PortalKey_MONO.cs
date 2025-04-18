@@ -28,7 +28,7 @@ public class PortalKeyItem : Item
 
     #endregion
 
-    public override void PickUp(GameObject user)
+    public override void OnPickUp(GameObject user)
     {
         // reset playersToTeleport and itemsToTeleport lists.
         _playersToTeleport.Clear();
@@ -44,7 +44,7 @@ public class PortalKeyItem : Item
     }
 
 
-    public override void ButtonUse(GameObject user)
+    public override void OnButtonUse(GameObject user)
     {
         // Initiate teleportation obj selection
         if (NullChecks(user)) {
@@ -55,7 +55,7 @@ public class PortalKeyItem : Item
         _isTeleporting = true;
     }
 
-    public override void ButtonHeld(GameObject user)
+    public override void OnButtonHeld(GameObject user)
     {
         // Select items and players while held(?)
         if (NullChecks(user)) {
@@ -70,7 +70,7 @@ public class PortalKeyItem : Item
         AddRaycastToTp(_teleportRange, validTpTargets);
     }
 
-    public override void ButtonRelease(GameObject user)
+    public override void OnButtonRelease(GameObject user)
     {
         // Teleport
         if (NullChecks(user)) {
@@ -124,7 +124,7 @@ public class PortalKeyItem : Item
         }
     }
 
-    public override void SwapCancel(GameObject user)
+    public override void OnSwapOut(GameObject user)
     {
         if (NullChecks(user)) {
             Debug.LogError("PortalKey_MONO: SwapCancel() NullChecks failed.");

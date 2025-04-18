@@ -83,7 +83,7 @@ public class Inventory : NetworkBehaviour {
         if (_currentInventoryIndex != _oldInventoryIndex) {
             Item oldItem = GetItemAt(_oldInventoryIndex);
             if (oldItem){
-                oldItem.SwapCancel(_playerObj); // resets any charging state.
+                oldItem.OnSwapOut(_playerObj); // resets any charging state.
             }
             UpdateAllInventoryUI();
             _oldInventoryIndex = _currentInventoryIndex;
@@ -125,7 +125,7 @@ public class Inventory : NetworkBehaviour {
 
         if (_inventoryMono[_currentInventoryIndex]?.TryGetComponent<Item>(out var item) != true)
             return;
-        item.ButtonUse(_playerObj);
+        item.OnButtonUse(_playerObj);
 
         QuantityCheck(); 
         UpdateAllInventoryUI();
@@ -136,7 +136,7 @@ public class Inventory : NetworkBehaviour {
 
         if (_inventoryMono[_currentInventoryIndex]?.TryGetComponent<Item>(out var item) != true)
             return;
-        item.ButtonHeld(_playerObj);
+        item.OnButtonHeld(_playerObj);
 
         QuantityCheck();
         UpdateAllInventoryUI();
@@ -147,7 +147,7 @@ public class Inventory : NetworkBehaviour {
 
         if (_inventoryMono[_currentInventoryIndex]?.TryGetComponent<Item>(out var item) != true)
             return;
-        item.ButtonRelease(_playerObj);
+        item.OnButtonRelease(_playerObj);
 
         QuantityCheck();
         UpdateAllInventoryUI();
@@ -185,7 +185,7 @@ public class Inventory : NetworkBehaviour {
             TryStackItem(pickedUp)) {
 
                 // TryStack returns true if fully stacked into existing stacks.
-                pickedUp.GetComponent<Item>().PickUp(_playerObj); // Call the item's onPickUp function
+                pickedUp.GetComponent<Item>().OnPickUp(_playerObj); // Call the item's onPickUp function
                 Destroy(pickedUp);
 
                 RemoveFromItemAcq(pickedUp);
@@ -238,12 +238,18 @@ public class Inventory : NetworkBehaviour {
         // Locally attach the item to the player on each client
         PropagateItemAttachmentServerRpc(no, pno, true);
 
-        pickedUp.GetComponent<Item>().userRef = _playerObj; // local.
+        Item item = pickedUp.GetComponent<Item>();
+        if (item == null) {
+            Debug.LogError("Picked up item does not have an Item component.");
+            return;
+        }
 
-        if (pickedUp.GetComponent<Item>().IsClassSpec){
+        item.userRef = _playerObj; // local.
+
+        if (item.IsClassSpec){
             // Drop all other class specs
-            DropAllOtherClassSpecs(pickedUp.GetComponent<Item>().uniqueID);
-        } else if (pickedUp.GetComponent<Item>().IsWeapon) {
+            DropAllOtherClassSpecs(item.uniqueID);
+        } else if (item.IsWeapon) {
             // Drop all other weapons
             Debug.Log ("Dropping all other weapons.");
             DropAllOtherWeapons();
@@ -253,9 +259,7 @@ public class Inventory : NetworkBehaviour {
         if (_inventoryMono[_currentInventoryIndex] == null) {
             // put in curr slot
             _inventoryMono[_currentInventoryIndex] = pickedUp;
-            Item pickedItem = GetItemAt(_currentInventoryIndex);
-            if (!pickedItem) Debug.LogError ("picked item is null.");
-            pickedItem.PickUp(_playerObj);
+            item.OnPickUp(_playerObj); // run item's OnPickUp script
 
             _currentHeldItems++;
             UpdateAllInventoryUI();
@@ -314,7 +318,7 @@ public class Inventory : NetworkBehaviour {
         for (int i = 0; i < _inventoryMono.Length; i++) {
             if (_inventoryMono[i] == null) {
                 _inventoryMono[i] = itemGO;
-                itemGO.GetComponent<Item>().PickUp(_playerObj);
+                itemGO.GetComponent<Item>().OnPickUp(_playerObj);
                 return true;
             }
         }
@@ -340,7 +344,7 @@ public class Inventory : NetworkBehaviour {
 
         AddToItemAcq(_inventoryMono[thisSlot]); // add to item acquisition range
 
-        thisItem.Drop(_playerObj); // Call the item's onDrop function
+        thisItem.OnDrop(_playerObj); // Call the item's onDrop function
 
         _inventoryMono[thisSlot] = null;
         _currentHeldItems--;

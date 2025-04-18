@@ -18,7 +18,7 @@ public class SlowTrapItem : Item
     private float _SlowTrapVelocity = 0f; // velocity of SlowTrap.
     private bool _isCharging = false; 
 
-    public override void ButtonUse(GameObject user){
+    public override void OnButtonUse(GameObject user){
         if (NullChecks(user)) {
             Debug.LogError("SlowTrap_MONO: ButtonUse() NullChecks failed.");
             return;
@@ -34,7 +34,7 @@ public class SlowTrapItem : Item
         UpdateLineRenderer(user); // update line renderer.
     }
 
-    public override void ButtonHeld(GameObject user){
+    public override void OnButtonHeld(GameObject user){
         if (NullChecks(user)) {
             Debug.LogError("SlowTrap_MONO: ButtonHeld() NullChecks failed.");
             return;
@@ -50,7 +50,7 @@ public class SlowTrapItem : Item
 
     }
 
-    public override void ButtonRelease(GameObject user){
+    public override void OnButtonRelease(GameObject user){
         if (NullChecks(user)) {
             Debug.LogError("SlowTrap_MONO: ButtonRelease() NullChecks failed.");
             return;
@@ -79,7 +79,7 @@ public class SlowTrapItem : Item
         _isCharging = false; // set charging to false.
     }
 
-    public override void Drop(GameObject user)
+    public override void OnDrop(GameObject user)
     {
         ProjectileManager.instance.DestroyLineRenderer();
         _SlowTrapVelocity = _SlowTrapBaseVelocity; // reset velocity.
@@ -87,7 +87,7 @@ public class SlowTrapItem : Item
         _isCharging = false; // set charging to false.
     }
 
-    public override void SwapCancel(GameObject user){
+    public override void OnSwapOut(GameObject user){
         if (NullChecks(user)) {
             Debug.LogError("SlowTrap_MONO: SwapCancel() NullChecks failed.");
             return;

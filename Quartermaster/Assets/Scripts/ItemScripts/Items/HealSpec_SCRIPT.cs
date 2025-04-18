@@ -20,13 +20,13 @@ public class HealSpec_MONO : Item
     #endregion
 
 
-    public override void PickUp(GameObject user)
+    public override void OnPickUp(GameObject user)
     {
         UpdateHealSpecCount(user);
         // play pick up effect. 
     }
 
-    public override void Drop(GameObject user)
+    public override void OnDrop(GameObject user)
     {
         UpdateHealSpecCount(user);
         // play drop effect.
