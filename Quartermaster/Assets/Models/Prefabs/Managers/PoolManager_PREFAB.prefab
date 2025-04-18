@@ -71,19 +71,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  spawnCooldown: 2
+  spawnCooldown: 3
   isSpawning:
     m_InternalValue: 0
   _enemySpawnData:
-  - enemyPrefab: {fileID: 6449858844552445292, guid: f9e0d41d7de8cf940b0224449f9fdaa3, type: 3}
+  - enemyPrefab: {fileID: 4108908729984213791, guid: f9e0d41d7de8cf940b0224449f9fdaa3, type: 3}
     spawnWeight: 4
-  - enemyPrefab: {fileID: 3551560962508933810, guid: 69de7c9352a23844187f99a1518c29a9, type: 3}
+  - enemyPrefab: {fileID: 1656816831642735696, guid: 69de7c9352a23844187f99a1518c29a9, type: 3}
     spawnWeight: 3
-  - enemyPrefab: {fileID: 4276394852278779144, guid: 8ee66f5ce3f72cc4bb6aade7e36c6e5e, type: 3}
+  - enemyPrefab: {fileID: 5746035906590994295, guid: 8ee66f5ce3f72cc4bb6aade7e36c6e5e, type: 3}
     spawnWeight: 1
-  _maxEnemyInstanceCount: 100
+  _maxEnemyInstanceCount: 500
   _totalWeight: 0
-  _initialPoolSize: 30
   globalAggroUpdateInterval: 10
   globalAggroTarget: {x: 0, y: 0, z: 0}
   _enemySpawnPoints:
@@ -98,5 +97,3 @@ MonoBehaviour:
   enemyList: []
   activePlayerList: []
   inactiveAreas: []
-  enemyToSpawn: {fileID: 0}
-  poolContainer: {x: 0, y: 0, z: 0}

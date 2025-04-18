@@ -16,9 +16,6 @@ public class EnemySpawner : NetworkBehaviour {
     [SerializeField] private int _maxEnemyInstanceCount = 50;
     [HideInInspector] public float _totalWeight = 0f;
 
-    // Pool initialization parameters
-    [SerializeField] private int _initialPoolSize = 10;
-
     [SerializeField] private float globalAggroUpdateInterval = 10.0f;
     private float globalAggroUpdateTimer = 0.0f;
     public Vector3 globalAggroTarget = new Vector3(0, 0, 0);
@@ -26,7 +23,7 @@ public class EnemySpawner : NetworkBehaviour {
     [SerializeField] private List<GameObject> _enemySpawnPoints;
     //[SerializeField] private List<GameObject> _enemyPackSpawnPoints;
 
-    public List<Transform> enemyList = new List<Transform>();
+    public List<GameObject> enemyList = new List<GameObject>();
     private List<GameObject> playerList; // players in game.
     public List<GameObject> activePlayerList; // players in active playable area.
     public List<GameObject> inactiveAreas; // pathable areas that are not playable. set in inspector.
@@ -41,7 +38,7 @@ public class EnemySpawner : NetworkBehaviour {
 
     [System.Serializable]
     public class EnemySpawnData {
-        public Transform enemyPrefab;
+        public GameObject enemyPrefab;
         public float spawnWeight = 1f;
     }
 
@@ -87,50 +84,37 @@ public class EnemySpawner : NetworkBehaviour {
         }
     }
 
-    // Basic enemy to spawn
-    [SerializeField] private GameObject basicEnemy;
-    // Our enemy to spawn
-    [SerializeField] private GameObject ourEnemy;
-
     private void Update() {
         if (IsServer) {
             UpdateGlobalAggroTargetTimer();
         }
 
-        //SpawnOverTime();
-        // If user clicks u key, call spawnfrompool with basic enemy
-        if (Input.GetKeyDown(KeyCode.U)) {
-            SpawnFromPool(basicEnemy);
-        }
-        else if (Input.GetKeyDown(KeyCode.I)) {
-            SpawnFromPool(ourEnemy);
-        }
+        SpawnOverTime();
     }
 
-    // Position to spawn enemy at
-    [SerializeField] private Vector3 poolContainer;
-    private async void SpawnFromPool(GameObject enemyToSpawn) {
-        if (!IsServer) return;
+    
+    //private async void SpawnFromPool(GameObject enemyToSpawn) {
+    //    if (!IsServer) return;
 
-        // Just get any object from the object pool
-        NetworkObject networkObject = _objectPool.GetNetworkObject(
-            enemyToSpawn,
-            poolContainer,
-            Quaternion.identity
-        );
+    //    // Just get any object from the object pool
+    //    NetworkObject networkObject = _objectPool.GetNetworkObject(
+    //        enemyToSpawn,
+    //        poolContainer,
+    //        Quaternion.identity
+    //    );
 
-        // Spawn on network
-        networkObject.Spawn(true);
+    //    // Spawn on network
+    //    networkObject.Spawn(true);
 
-        // Have the enemy spawn for 10 seconds
-        await Task.Delay(10000);
+    //    // Have the enemy spawn for 10 seconds
+    //    await Task.Delay(10000);
 
-        // Despawn from network first
-        networkObject.Despawn();
+    //    // Despawn from network first
+    //    networkObject.Despawn();
 
-        // Return to pool
-        _objectPool.ReturnNetworkObject(networkObject, _enemySpawnData[0].enemyPrefab.gameObject);
-    }
+    //    // Return to pool
+    //    _objectPool.ReturnNetworkObject(networkObject, _enemySpawnData[0].enemyPrefab.gameObject);
+    //}
 
     private void SpawnOverTime() {
         if (!IsServer) return;
@@ -142,70 +126,30 @@ public class EnemySpawner : NetworkBehaviour {
         // less than max enemies, and more than 0 players in playable area.
         // Managed by InactiveAreaCollider s adding/removing from activePlayerList
         if (enemyList.Count < _maxEnemyInstanceCount && activePlayerList.Count > 0) {
-            Transform enemyPrefab = GetWeightedRandomEnemyPrefab();
-            if (!enemyPrefab) {
-                Debug.Log("Got the enemy prefab");
-            }
+            GameObject enemyPrefab = GetWeightedRandomEnemyPrefab();
+            Vector3 spawnPoint = GetSpawnPoint();
 
             if (enemyPrefab != null) {
-                Vector3 spawnPosition = GetSpawnPoint();
-                Debug.Log(spawnPosition);
+                // Just get any object from the object pool
+                NetworkObject networkObject = _objectPool.GetNetworkObject(
+                    enemyPrefab,
+                    spawnPoint,
+                    Quaternion.identity
+                );
 
-                try {
-                    Debug.Log("about to get the enemy from pool");
-                    // Get a pooled enemy object
-                    NetworkObject networkObject = _objectPool.GetNetworkObject(
-                        enemyPrefab.gameObject,
-                        spawnPosition,
-                        Quaternion.identity
-                    );
+                // Spawn on network
+                networkObject.Spawn(true);
 
-                    if (!networkObject) {
-                        Debug.Log("Enemy wasnt retrieved");
-                    }
+                // Make sure enemy uses enemy spawner instance
+                enemyPrefab.GetComponent<BaseEnemyClass_SCRIPT>().enemySpawner = this;
 
-                    if (networkObject != null) {
-                        Transform enemyTransform = networkObject.transform;
+                // Add enemy to the enemy list
+                enemyList.Add(enemyPrefab);
 
-                        // Ensure position is correct
-                        enemyTransform.position = spawnPosition;
-                        Debug.Log(enemyTransform.position);
+                // Set the speed of the enemy
+                enemyPrefab.GetComponent<BaseEnemyClass_SCRIPT>().UpdateSpeedServerRpc();
 
-                        // Setup enemy properties
-                        BaseEnemyClass_SCRIPT enemyScript = enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>();
-                        if (enemyScript != null) {
-                            enemyScript.enemySpawner = this;
-                            enemyScript.enemyType = GetEnemyType(enemyPrefab);
-
-                            UnityEngine.AI.NavMeshAgent agent = enemyTransform.GetComponent<UnityEngine.AI.NavMeshAgent>();
-                            if (agent != null) {
-                                agent.Warp(spawnPosition);  // Warp agent to spawn position
-                                agent.enabled = true; // Enable the agent
-                            }
-
-                            // Spawn network object
-                            if (!networkObject.IsSpawned) {
-                                networkObject.Spawn(true);
-                            }
-
-                            Health hpComponent = enemyTransform.GetComponent<Health>();
-                            if (hpComponent != null) {
-                                hpComponent.CurrentHealth.Value = hpComponent.MaxHealth;
-                            }
-
-                            enemyList.Add(enemyTransform);
-
-                            // Set parent and update speed
-                            enemyTransform.SetParent(this.gameObject.transform);
-                            enemyScript.UpdateSpeedServerRpc();
-
-                            _lastSpawnTime = Time.time; // Update last spawn time
-                        }
-                    }
-                }
-                catch (System.Exception e) {
-                    Debug.LogError("Error spawning enemy: " + e.Message);
-                }
+                _lastSpawnTime = Time.time;
             }
         }
     }
@@ -274,14 +218,14 @@ public class EnemySpawner : NetworkBehaviour {
 
     #endregion 
 
-    private EnemyType GetEnemyType(Transform enemyPrefab) {
-        if (enemyPrefab.GetComponent<MeleeEnemyInherited_SCRIPT>() != null) return EnemyType.Melee;
-        if (enemyPrefab.GetComponent<ExplosiveMeleeEnemyInherited_SCRIPT>() != null) return EnemyType.Melee;
-        if (enemyPrefab.GetComponent<RangedEnemyInherited_SCRIPT>() != null) return EnemyType.Ranged;
-        return EnemyType.Melee;
-    }
+    //private EnemyType GetEnemyType(GameObject enemyPrefab) {
+    //    if (enemyPrefab.GetComponent<MeleeEnemyInherited_SCRIPT>() != null) return EnemyType.Melee;
+    //    if (enemyPrefab.GetComponent<ExplosiveMeleeEnemyInherited_SCRIPT>() != null) return EnemyType.Melee;
+    //    if (enemyPrefab.GetComponent<RangedEnemyInherited_SCRIPT>() != null) return EnemyType.Ranged;
+    //    return EnemyType.Melee;
+    //}
 
-    private Transform GetWeightedRandomEnemyPrefab() {
+    private GameObject GetWeightedRandomEnemyPrefab() {
         if (_enemySpawnData.Count == 0) return null;
         if (_totalWeight <= 0f) return null;
 
@@ -328,28 +272,8 @@ public class EnemySpawner : NetworkBehaviour {
     public void destroyEnemyServerRpc(NetworkObjectReference enemy) {
         if (!IsServer) { return; }
         if (enemy.TryGet(out NetworkObject networkObject)) {
-            enemyList.Remove(networkObject.transform);
             
-            // Return to pool
-            GameObject prefab = GetPrefabForEnemy(networkObject.gameObject);
-            if (prefab != null) {
-                _objectPool.ReturnNetworkObject(networkObject, prefab);
-            }
-            else {
-                // Fallback to destroy if prefab not found (shouldn't happen)
-                networkObject.Despawn();
-            }
         }
-    }
-
-    private GameObject GetPrefabForEnemy(GameObject enemy) {
-        // Find matching prefab for this enemy instance
-        foreach (var enemyData in _enemySpawnData) {
-            if (enemy.name.StartsWith(enemyData.enemyPrefab.name)) {
-                return enemyData.enemyPrefab.gameObject;
-            }
-        }
-        return null;
     }
 
     #endregion
