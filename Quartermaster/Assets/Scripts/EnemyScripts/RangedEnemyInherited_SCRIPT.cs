@@ -37,7 +37,7 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         base.OnNetworkSpawn();
         
         animator = GetComponentInChildren<Animator>();
-        soundEmitters = GetComponents<SoundEmitter>();
+        soundEmitters = GetComponentsInChildren<SoundEmitter>(true);
 
         if (IsServer) {
             _hoverOffset = Random.Range(0f, 3f * Mathf.PI);     // makes the hovering look more natural
@@ -80,7 +80,7 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     private void UpdateWeaponAngle() {
         if (_leftGun != null && _rightGun != null) {
             Vector3 directionToTarget = (targetPosition - transform.position).normalized;
-            Debug.DrawRay(_firePoint.position, directionToTarget * 10f, Color.red);
+            //Debug.DrawRay(_firePoint.position, directionToTarget * 10f, Color.red);
             Quaternion lookRotation = Quaternion.LookRotation(directionToTarget) * Quaternion.Euler(90f, 0f, 0f);
 
             _leftGun.rotation = Quaternion.Slerp(_leftGun.rotation, lookRotation, Time.deltaTime * 5f);
@@ -90,14 +90,20 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     protected override void Attack() {
         if (!IsServer) return;
-        // if (!_canAttack) return;
         if (targetPosition == null) return;
-        // _canAttack = false;
 
         Collider[] playersAroundTargetPosition = Physics.OverlapSphere(targetPosition, 2f, LayerMask.GetMask("Player"));
         if (playersAroundTargetPosition.Length > 0) {
             // pick random one
             int randomIndex = Random.Range(0, playersAroundTargetPosition.Length);
+
+            try {
+                PlaySoundForEmitter("flying_shoot", transform.position);
+            }
+            catch (System.Exception e) {
+                Debug.LogError("Error playing sound for emitter: " + e.Message);
+            }
+
             // raycasts at given position
             FireBulletServerRpc(playersAroundTargetPosition[randomIndex].transform.position);
         }
