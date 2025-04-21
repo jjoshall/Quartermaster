@@ -3,7 +3,9 @@ using UnityEngine.UI;
 using TMPro;
 
 public class UIManager : MonoBehaviour {
-    [Header("Inventory UI Elements")]
+    [Header("Inventory UI Settings")]
+    [SerializeField] private Texture inventoryEmptySlotSprite;
+    [Header("Inventory UI Scene Objects")]
     [SerializeField] private RawImage[] inventorySlotImages;
     [SerializeField] private TextMeshProUGUI[] inventorySlotQuantityTexts;
 
@@ -13,7 +15,12 @@ public class UIManager : MonoBehaviour {
     [SerializeField] private float highlightScale = 1.5f;
     public void SetInventorySlotTexture(int slot, Texture texture) {
         if (inventorySlotImages != null && slot >= 0 && slot < inventorySlotImages.Length) {
-            inventorySlotImages[slot].texture = texture;
+            if (texture == null) {
+                inventorySlotImages[slot].texture = inventoryEmptySlotSprite;
+            } else {
+                inventorySlotImages[slot].texture = texture;
+
+            }
         }
     }
     public void SetInventorySlotQuantity(int slot, int quantity, int stackLimit) {
