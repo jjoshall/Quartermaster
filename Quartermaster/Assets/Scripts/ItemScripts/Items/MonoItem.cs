@@ -15,6 +15,7 @@ public abstract class Item : NetworkBehaviour
     [Tooltip("Enables repeated use on holding left click")]                 public bool CanAutoFire = false;
     [Tooltip("Use cooldown")]                                               public float cooldown = 0f;
     [Tooltip("Max stack size")]                                             public int StackLimit = 1;
+    [Tooltip("Weight per unit of item")]                                    public float weight = 0.0f;
     [Tooltip("Current stack quantity, also modified during runtime")]       public int quantity = 1;
     [Tooltip("Item icon")]                                                  public Texture icon = null;
     [Tooltip("OnUse sound emitters")]                                       public SoundEmitter[] soundEmitters = null;
@@ -65,27 +66,27 @@ public abstract class Item : NetworkBehaviour
         Debug.Log("Spawned item: " + gameObject.name);
     }
     
-    public virtual void PickUp(GameObject user){
+    public virtual void OnPickUp(GameObject user){
         // On pickup.
         Debug.Log("Picked up item: " + gameObject.name);
     }
-    public virtual void Drop(GameObject user){
+    public virtual void OnDrop(GameObject user){
         // On drop.
         Debug.Log("Dropped item: " + gameObject.name);
     }
-    public virtual void ButtonUse(GameObject user){
+    public virtual void OnButtonUse(GameObject user){
         // Fire once when use is pressed.
         Debug.Log("Used item: " + gameObject.name);
     }
-    public virtual void ButtonHeld(GameObject user){
+    public virtual void OnButtonHeld(GameObject user){
         // Fire every frame when use is held.
         Debug.Log("Held item: " + gameObject.name);
     }
-    public virtual void ButtonRelease(GameObject user){
+    public virtual void OnButtonRelease(GameObject user){
         // Fire once when use is released.
         Debug.Log("Released item: " + gameObject.name);
     }
-    public virtual void SwapCancel(GameObject user){
+    public virtual void OnSwapOut(GameObject user){
         // Called when the item is swapped out.
         Debug.Log("Switched items, charge cancelled for: " + gameObject.name);
     }

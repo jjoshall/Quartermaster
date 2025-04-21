@@ -19,7 +19,7 @@ public class MedKit_MONO : Item
     private float _medKitVelocity = 0f; // velocity of MedKit.
     private bool _medKitTapped;
 
-    public override void ButtonUse(GameObject user){
+    public override void OnButtonUse(GameObject user){
         if (NullChecks(user)) {
             Debug.LogError("MedKit_MONO: ButtonUse() NullChecks failed.");
             return;
@@ -44,7 +44,7 @@ public class MedKit_MONO : Item
         }
     }
 
-    public override void ButtonHeld(GameObject user){
+    public override void OnButtonHeld(GameObject user){
         if (NullChecks(user)) {
             Debug.LogError("MedKit_MONO: ButtonHeld() NullChecks failed.");
             return;
@@ -71,7 +71,7 @@ public class MedKit_MONO : Item
         UpdateLineRenderer(user);
     }
 
-    public override void ButtonRelease(GameObject user){
+    public override void OnButtonRelease(GameObject user){
         if (NullChecks(user)) {
             return;
         }
@@ -107,7 +107,7 @@ public class MedKit_MONO : Item
         _medKitTapped = false;
     }
 
-    public override void Drop(GameObject user)
+    public override void OnDrop(GameObject user)
     {
         ProjectileManager.instance.DestroyLineRenderer();
         _medKitVelocity = _medKitBaseVelocity;
@@ -115,7 +115,7 @@ public class MedKit_MONO : Item
         _medKitTapped = false;
     }
 
-    public override void SwapCancel(GameObject user){
+    public override void OnSwapOut(GameObject user){
         if (NullChecks(user)) {
             Debug.LogError("MedKit_MONO: SwapCancel() NullChecks failed.");
             return;

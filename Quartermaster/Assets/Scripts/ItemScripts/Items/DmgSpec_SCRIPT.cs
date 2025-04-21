@@ -20,13 +20,13 @@ public class DmgSpec_MONO : Item
     #endregion
 
 
-    public override void PickUp(GameObject user)
+    public override void OnPickUp(GameObject user)
     {
         UpdateDmgSpecCount(user);
         // play pick up effect. 
     }
 
-    public override void Drop(GameObject user)
+    public override void OnDrop(GameObject user)
     {
         UpdateDmgSpecCount(user);
         // play drop effect.

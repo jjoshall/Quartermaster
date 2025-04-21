@@ -1,10 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.Netcode;
-using Unity.VisualScripting.ReorderableList;
 using Unity.Netcode.Components; // Add this for NetworkTransform
-using Unity.VisualScripting;
-using UnityEditor.PackageManager;
 
 public class PortalKey_MONO : Item
 {
@@ -13,6 +10,7 @@ public class PortalKey_MONO : Item
     [Header("Item Settings")]
     [SerializeField] private float _teleportRadius = 20.0f;
     [SerializeField] private float _teleportRange = 5.0f;
+    [SerializeField] private float _teleportItemThrowForce = 5.0f;
     [SerializeField, Tooltip("Excluding self(player)")] private int _maxTeleportableItems = 5;
 
     [SerializeField] 
@@ -21,8 +19,6 @@ public class PortalKey_MONO : Item
     private float _destinationRadius = 10.0f; // 
     [SerializeField] 
     private Vector3 _teleportOffset = new Vector3(0, 1, 0); // offset from teleport destination to avoid falling through ground.
-    
-    private NetworkVariable<Vector3> _teleportTarget = new NetworkVariable<Vector3>();
     
     #endregion
 
@@ -55,8 +51,6 @@ public class PortalKey_MONO : Item
         if (!IsServer) return; // only run on server.
         n_playersInPocket = new NetworkList<NetworkObjectReference>();
         // n_timeEnteredPocketNetworkVar.Value = 0;
-        _teleportTarget.Value = _teleportDestination.transform.position + new Vector3 (0, 2, 0);
-        Debug.Log ("PortalKey_MONO: Start() _teleportTarget set to " + _teleportTarget.Value.ToString());
     }
 
     #endregion
@@ -64,7 +58,7 @@ public class PortalKey_MONO : Item
     #region BaseOverrides
     #endregion
 
-    public override void PickUp(GameObject user){
+    public override void OnPickUp(GameObject user){
         if (NullChecks(user)) {
             Debug.LogError("PortalKey_MONO: PickUp() NullChecks failed.");
             return;
@@ -79,7 +73,7 @@ public class PortalKey_MONO : Item
         SetLastOwnerServerRpc(n_user); // set last owner to user.
     }
 
-    public override void ButtonUse(GameObject user)
+    public override void OnButtonUse(GameObject user)
     {
         // Initiate teleportation obj selection
         if (NullChecks(user)) {
@@ -90,7 +84,7 @@ public class PortalKey_MONO : Item
         _isTeleporting = true;
     }
 
-    public override void ButtonHeld(GameObject user)
+    public override void OnButtonHeld(GameObject user)
     {
         // Select items and players while held(?)
         if (NullChecks(user)) {
@@ -102,10 +96,14 @@ public class PortalKey_MONO : Item
 
         Transform camera = user.GetComponent<Inventory>().orientation;
         LayerMask validTpTargets = LayerMask.GetMask("Player", "Items"); // Add teleportable layer to teleportable items.
-        AddRaycastToTp(camera, _teleportRange, validTpTargets);
+        
+        GameObject raycastedObj = RaycastItemOrPlayer(camera, _teleportRange, validTpTargets);
+        if (raycastedObj) {
+            AddObjToTp(raycastedObj);
+        }
     }
 
-    public override void ButtonRelease(GameObject user)
+    public override void OnButtonRelease(GameObject user)
     {
         // Teleport
         if (NullChecks(user)) {
@@ -127,21 +125,23 @@ public class PortalKey_MONO : Item
             return;
         }
         if (PlayerIsInPocket(user)){
-            Debug.Log ("PortalKey_MONO: ButtonRelease() Teleporting players to world.");
+            // Debug.Log ("PortalKey_MONO: ButtonRelease() Teleporting players to world.");
+            GetReturnPosition (n_user, out Vector3 returnPosition, out Quaternion returnRotation);
+            Debug.Log ("return position: " + returnPosition);
+            TeleportItems(returnPosition);
             Return();
-            TeleportItems();
             RemoveAllObjOutlines();
         }
         else {
-            Debug.Log ("PortalKey_MONO: ButtonRelease() Teleporting players to pocket.");
+            // Debug.Log ("PortalKey_MONO: ButtonRelease() Teleporting players to pocket.");
             TeleportAll();
-            TeleportItems();
+            TeleportItems(_teleportDestination.transform.position + _teleportOffset);
             RemoveAllObjOutlines();
         }
         _isTeleporting = false;
     }
 
-    public override void SwapCancel(GameObject user)
+    public override void OnSwapOut(GameObject user)
     {
         if (NullChecks(user)) {
             Debug.LogError("PortalKey_MONO: SwapCancel() NullChecks failed.");
@@ -152,7 +152,7 @@ public class PortalKey_MONO : Item
         _isTeleporting = false;
     }
 
-    public override void Drop(GameObject user)
+    public override void OnDrop(GameObject user)
     {
         if (NullChecks(user)) {
             Debug.LogError("PortalKey_MONO: Drop() NullChecks failed.");
@@ -172,13 +172,13 @@ public class PortalKey_MONO : Item
     private void TeleportAll(){
         Vector3 offsetDestination = _teleportDestination.transform.position + _teleportOffset;
         foreach (GameObject player in _playersToTeleport){
-            NetworkObject n_player = player.GetComponent<NetworkObject>();
-            if (n_player == null) {
+            NetworkObject n_playerObj = player.GetComponent<NetworkObject>();
+            if (n_playerObj == null) {
                 Debug.LogError("PortalKey_MONO: Teleport() player has no NetworkObject component.");
                 continue;
             }
             SaveReturnPosition (player);
-            TeleportPlayerServerRpc (n_player, offsetDestination, Quaternion.Euler(0, 0, 0));
+            TeleportPlayerServerRpc (n_playerObj, offsetDestination, Quaternion.Euler(0, 0, 0));
         }
 
         NetworkObject n_lastOwnerObj;
@@ -192,7 +192,33 @@ public class PortalKey_MONO : Item
         }
     }
 
-    // Returns all players in n_playersInPocket to index positions.
+    // Stops at first found. Used by TeleportItems() to preemptively find destination and teleport items there. O(n)
+    private void GetReturnPosition(NetworkObjectReference n_player, out Vector3 returnPosition, out Quaternion returnRotation){
+        returnPosition = Vector3.zero;
+        returnRotation = Quaternion.identity;
+        NetworkObject n_playerObj;
+        if (!n_player.TryGet(out n_playerObj)){
+            Debug.LogError("PortalKey_MONO: GetReturnPosition() n_playerObj is null. Returning vector zero.");
+            return;
+        }
+        for (int i = 0; i < n_playersInPocket.Count; i++){
+            NetworkObject n_currIndexObj;
+            if (!n_playersInPocket[i].TryGet(out n_currIndexObj)){
+                Debug.LogError("PortalKey_MONO: GetReturnPosition() n_currIndexObj is null.");
+                continue;
+            }
+
+            if (n_playerObj == n_currIndexObj){
+                // Debug.Log ("PortalKey_MONO: GetReturnPosition() player found in pocket.");
+                returnPosition = n_returnPositions[i];
+                returnRotation = n_returnRotations[i];
+                return;
+            }
+        }
+        // Debug.LogError("PortalKey_MONO: GetReturnPosition() player not found in pocket.");
+    }
+
+    // Returns all players in n_playersInPocket to index positions. O(n)
     private void Return(){
         for (int i = 0; i < n_playersInPocket.Count; i++){
             NetworkObjectReference n_player = n_playersInPocket[i];
@@ -209,6 +235,11 @@ public class PortalKey_MONO : Item
         ClearPocketServerRpc();
     }
 
+    private void ClearNetworkTransformInterpolation(NetworkObject n_playerObj){
+        n_playerObj.gameObject.GetComponent<NetworkTransform>().enabled = false; // clear networktransform interpolation buffers.
+        n_playerObj.gameObject.GetComponent<NetworkTransform>().enabled = true;
+    }
+
     [ServerRpc(RequireOwnership = false)]
     private void ClearPocketServerRpc(){
         // clear the pocket of the player.
@@ -221,14 +252,11 @@ public class PortalKey_MONO : Item
     #region Teleport Helpers
     #endregion 
     private void SaveReturnPosition (GameObject user){
-        // networkobjectreference get
         NetworkObject n_user = user.GetComponent<NetworkObject>();
-        // get position and rotation of player
-        Vector3 position = user.transform.position;
-        Quaternion rotation = user.transform.rotation;
-
-        // add data to the network lists
-        AddPlayerToPocketServerRpc(n_user, position, rotation);
+        if (n_user)
+            AddPlayerToPocketServerRpc(n_user, 
+                                        user.transform.position, 
+                                        user.transform.rotation);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -249,7 +277,7 @@ public class PortalKey_MONO : Item
             if (n_player.TryGet(out n_playerObj)){
                 GameObject player = n_playerObj.gameObject;
                 if (player == user){
-                    Debug.Log ("PortalKey_MONO: PlayerIsInPocket() player is in pocket.");
+                    // Debug.Log ("PortalKey_MONO: PlayerIsInPocket() player is in pocket.");
                     return true;
                 }
             } else {
@@ -260,22 +288,57 @@ public class PortalKey_MONO : Item
     }
 
 
-    private void TeleportItems(){
-        // tryget 
-        GameObject lastOwnerObj = null;
-        NetworkObject n_lastOwnerObj;
-        // get lastOwner from n_lastOwnerReference
-        if (n_lastOwner.Value.TryGet(out n_lastOwnerObj)){
-            lastOwnerObj = n_lastOwnerObj.gameObject;
-        }
-        Vector3 destination = lastOwnerObj.transform.position + _teleportOffset;
-        foreach (GameObject item in _itemsToTeleport){
-            item.transform.position = destination;
+    private void TeleportItems(Vector3 destination){
+        foreach (GameObject i in _itemsToTeleport){
+            Debug.Log ("Attempting to teleport item: " + i.GetComponent<Item>().uniqueID);
+            NetworkObject n_item = i.GetComponent<NetworkObject>();
+            if (n_item == null) {
+                Debug.LogError("PortalKey_MONO: TeleportItems() item has no NetworkObject component.");
+                continue;
+            }
+            // teleport item to destination
+            TeleportItemServerRpc(n_item, destination);
         }
     }
 
     #region TeleportRPCs
     #endregion
+    [ServerRpc(RequireOwnership = false)]
+    private void TeleportItemServerRpc(NetworkObjectReference item, Vector3 destination){
+        NetworkObject n_itemObj;
+        if (item.TryGet(out n_itemObj)){
+            var nt = n_itemObj.GetComponent<NetworkTransform>();
+            if (nt == null) {
+                Debug.LogError("PortalKey_MONO: TeleportItemServerRpc() item has no NetworkTransform component.");
+                return;
+            }
+            nt.Teleport(destination + _teleportOffset, Quaternion.identity, n_itemObj.transform.localScale); // teleport item
+            Vector3 randomDirection = Random.insideUnitSphere; // random velocity to avoid falling through ground.
+            randomDirection = new Vector3 (randomDirection.x, 0, randomDirection.z); // set y to 0 to avoid falling through ground.
+            randomDirection.Normalize(); // normalize the vector to get a direction.
+            var rb = nt.GetComponent<Rigidbody>(); // set random velocity to item.
+            if (rb != null) {
+                rb.linearVelocity = randomDirection * _teleportItemThrowForce; // set random velocity to item.
+            } else {
+                Debug.LogError("PortalKey_MONO: TeleportItemServerRpc() item has no Rigidbody component.");
+            }
+        } else {
+            Debug.LogError("PortalKey_MONO: TeleportItemServerRpc() item is null.");
+        }
+    }
+
+    // [ClientRpc]
+    // private void TeleportItemClientRpc(NetworkObjectReference item, Vector3 destination, ClientRpcParams rpcParams = default){
+    //     if (item.TryGet(out NetworkObject n_itemObj)){
+    //         var nt = n_itemObj.GetComponent<NetworkTransform>();
+    //         nt.Teleport(destination, Quaternion.identity, n_itemObj.transform.localScale); // teleport item
+    //         // GameObject itemObj = n_itemObj.gameObject;
+    //         // itemObj.transform.position = destination; // teleport item
+    //     } else {
+    //         // Debug.LogError("PortalKey_MONO: TeleportItemClientRpc() item is null.");
+    //     }
+    // }
+
     [ServerRpc(RequireOwnership = false)]
     private void TeleportPlayerServerRpc(NetworkObjectReference player, Vector3 destination, Quaternion rotation){
         NetworkObject n_playerObj;
@@ -288,53 +351,50 @@ public class PortalKey_MONO : Item
     }
 
     [ClientRpc]
-    private void TeleportPlayerClientRpc(NetworkObjectReference player, Vector3 destination, Quaternion rotation){
-        if (player.TryGet(out NetworkObject n_playerObj)){
-            GameObject playerObj = n_playerObj.gameObject;
-                        // turn off interpolation and char controller temporarily for teleport
-            playerObj.GetComponent<NetworkTransform>().Interpolate = false;
-            playerObj.GetComponent<PlayerController>().disableCharacterController();
+    private void TeleportPlayerClientRpc(NetworkObjectReference player, Vector3 dest, Quaternion rot){
+        if (!player.TryGet(out var netObj)) return;
+        if (netObj.OwnerClientId != NetworkManager.Singleton.LocalClientId) return; // only teleport the player that owns the object.
 
-            playerObj.transform.position = destination; // teleport player
-            playerObj.transform.rotation = rotation;
+        var go = netObj.gameObject;
 
-            playerObj.GetComponent<PlayerController>().enableCharacterController();
-            playerObj.GetComponent<NetworkTransform>().Interpolate = true;
-            Debug.Log ("PortalKey_MONO: TeleportPlayerClientRpc() player teleported to " + destination.ToString() + " with rotation " + rotation.ToString());
-        } else {
-            Debug.LogError("PortalKey_MONO: TeleportPlayerClientRpc() player is null.");
-        }
+        if (go.TryGetComponent<CharacterController>(out var cc)) cc.enabled = false;
+
+        go.transform.SetPositionAndRotation(dest, rot);
+        if (go.TryGetComponent<NetworkTransform>(out var nt))
+            nt.Teleport(dest, rot, go.transform.localScale);
+            
+        if (cc != null) cc.enabled = true;
     }
 
     #region TeleportListHelpers
     #endregion 
 
-    public void AddRaycastToTp(Transform camera, float distance, LayerMask layerMask){
+    public GameObject RaycastItemOrPlayer(Transform camera, float distance, LayerMask layerMask){
         if (camera == null) {   
             Debug.LogError ("PortalKey_MONO: RaycastFromCamera() camera is null.");
-            return;
+            return null;
         }
 
         RaycastHit[] hits = Physics.RaycastAll(camera.position, camera.forward, distance, layerMask);
-        if (hits.Length == 0) return; // no hits.
+        if (hits.Length == 0) return null; // no hits.
         foreach (RaycastHit hit in hits){
             GameObject hitObj = hit.collider.gameObject;
 
             if (_playersToTeleport.Contains(hitObj) || _itemsToTeleport.Contains(hitObj)){
-                Debug.Log ("PortalKey_MONO: AddRaycastToTp() obj already in teleport list, ignoring.");
+                // Debug.Log ("PortalKey_MONO: AddRaycastToTp() obj already in teleport list, ignoring.");
                 continue;
             }
 
             Item item = hitObj.GetComponent<Item>();
             if (item != null){
                 if (item.IsPickedUp){
-                    Debug.Log ("PortalKey_MONO: AddRaycastToTp() item is picked up, ignoring.");
+                    // Debug.Log ("PortalKey_MONO: AddRaycastToTp() item is picked up, ignoring.");
                     continue;
                 }
             }
-
-            AddObjToTp(hit.collider.gameObject);
+            return hit.collider.gameObject;
         }
+        return null;
     }
 
     public void AddObjToTp(GameObject obj){
@@ -353,10 +413,10 @@ public class PortalKey_MONO : Item
             AddTpOutline(obj);
         } else if (obj.CompareTag("Item")){
             _itemsToTeleport.Add(obj);
-            Debug.Log ("PortalKey_MONO: AddObjToTp() item, " + obj.GetComponent<Item>().uniqueID + ", added to teleport list.");
+            // Debug.Log ("PortalKey_MONO: AddObjToTp() item, " + obj.GetComponent<Item>().uniqueID + ", added to teleport list.");
             AddTpOutline(obj);
         } else {
-            Debug.LogWarning ("PortalKey_MONO: AddObjToTp() obj is not a player or item.");
+            // Debug.LogWarning ("PortalKey_MONO: AddObjToTp() obj is not a player or item.");
         }
     }
 
@@ -370,10 +430,10 @@ public class PortalKey_MONO : Item
         }
         if (_playersToTeleport.Contains(obj)){
             _playersToTeleport.Remove(obj);
-            Debug.Log ("PortalKey_MONO: RemoveObjFromTp() player removed from teleport list.");
+            // Debug.Log ("PortalKey_MONO: RemoveObjFromTp() player removed from teleport list.");
         } else if (_itemsToTeleport.Contains(obj)){
             _itemsToTeleport.Remove(obj);
-            Debug.Log ("PortalKey_MONO: RemoveObjFromTp() item removed from teleport list.");
+            // Debug.Log ("PortalKey_MONO: RemoveObjFromTp() item removed from teleport list.");
         } else {
             Debug.LogWarning ("PortalKey_MONO: RemoveObjFromTp() obj not in teleport list.");
         }

@@ -19,7 +19,7 @@ public class Grenade_MONO : Item
     private float _grenadeVelocity = 0f; // velocity of grenade.
     private bool _isCharging = false; 
 
-    public override void ButtonUse(GameObject user){
+    public override void OnButtonUse(GameObject user){
         if (NullChecks(user)) {
             Debug.LogError("Grenade_MONO: ButtonUse() NullChecks failed.");
             return;
@@ -35,7 +35,7 @@ public class Grenade_MONO : Item
         UpdateLineRenderer(user); // update line renderer.
     }
 
-    public override void ButtonHeld(GameObject user){
+    public override void OnButtonHeld(GameObject user){
         if (NullChecks(user)) {
             Debug.LogError("Grenade_MONO: ButtonHeld() NullChecks failed.");
             return;
@@ -51,7 +51,7 @@ public class Grenade_MONO : Item
 
     }
 
-    public override void ButtonRelease(GameObject user){
+    public override void OnButtonRelease(GameObject user){
         if (NullChecks(user)) {
             Debug.LogError("Grenade_MONO: ButtonRelease() NullChecks failed.");
             return;
@@ -80,7 +80,7 @@ public class Grenade_MONO : Item
         _isCharging = false; // set charging to false.
     }
 
-    public override void Drop(GameObject user)
+    public override void OnDrop(GameObject user)
     {
         ProjectileManager.instance.DestroyLineRenderer();
         _grenadeVelocity = _grenadeBaseVelocity; // reset velocity.
@@ -88,7 +88,7 @@ public class Grenade_MONO : Item
         _isCharging = false; // set charging to false.
     }
 
-    public override void SwapCancel(GameObject user){
+    public override void OnSwapOut(GameObject user){
         if (NullChecks(user)) {
             Debug.LogError("Grenade_MONO: SwapCancel() NullChecks failed.");
             return;

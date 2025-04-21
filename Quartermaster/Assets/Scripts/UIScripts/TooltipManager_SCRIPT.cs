@@ -37,7 +37,7 @@ public class TooltipManager : NetworkBehaviour {
 
     [ServerRpc(RequireOwnership = false)]
     private void SendTooltipToClientServerRpc(string message, float duration, Vector2 start, Vector2 final, ulong clientid){
-        Debug.Log ("ServerRPC: SendTooltipToClientServerRpc()");
+        // Debug.Log ("ServerRPC: SendTooltipToClientServerRpc()");
         ClientRpcParams crp = new ClientRpcParams{
             Send = new ClientRpcSendParams{
                 TargetClientIds = new ulong[]{clientid}
@@ -48,7 +48,7 @@ public class TooltipManager : NetworkBehaviour {
 
     [ClientRpc]
     private void ShowTooltipToClientClientRpc(string message, float duration, Vector2 start, Vector2 final, ClientRpcParams clientRpcParams = default){
-        Debug.Log ("ClientRPC: ShowTooltipToClientClientRpc()");
+        // Debug.Log ("ClientRPC: ShowTooltipToClientClientRpc()");
         Instance.CreateTooltip(message, duration, start, final);
     }
 
@@ -56,14 +56,14 @@ public class TooltipManager : NetworkBehaviour {
 
     #region SendLocalOrAll
     public static void SendTooltip(string message, bool toAll = false) {
-        Debug.Log ("SendTooltip()");
+        // Debug.Log ("SendTooltip()");
         if (Instance == null) {
             Debug.LogError("TooltipManager instance not found in the scene.");
             return;
         }
 
         if (!toAll) {
-            Debug.Log ("Create local tooltip");
+            // Debug.Log ("Create local tooltip");
             Instance.CreateTooltip(message);
             return;
         }
@@ -73,14 +73,14 @@ public class TooltipManager : NetworkBehaviour {
 
     [ServerRpc(RequireOwnership = false)]
     private void SendTooltipAllServerRpc(string message, ServerRpcParams rpcParams = default) {
-        Debug.Log ("ServerRPC: SendTooltipAllServerRpc()");
+        // Debug.Log ("ServerRPC: SendTooltipAllServerRpc()");
         ShowTooltipClientRpc(message);
     }
 
 
     [ClientRpc]
     private void ShowTooltipClientRpc(string message) {
-        Debug.Log ("ClientRPC: ShowTooltipClientRpc()");
+        // Debug.Log ("ClientRPC: ShowTooltipClientRpc()");
         CreateTooltip(message);
     }
 

@@ -23,7 +23,7 @@ public class Pistol_MONO : Item
 
 
 
-    public override void ButtonUse(GameObject user) {
+    public override void OnButtonUse(GameObject user) {
 
         if (lastUsed + cooldown > Time.time){
             //Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
@@ -38,7 +38,7 @@ public class Pistol_MONO : Item
     }
 
     // Same as Use() for Pistol.
-    public override void ButtonHeld(GameObject user)
+    public override void OnButtonHeld(GameObject user)
     {
         if (user == null || user.GetComponent<PlayerStatus>() == null) {
             Debug.LogError("Pistol_MONO: ButtonHeld() NullChecks failed.");
