@@ -35,7 +35,10 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         base.OnNetworkSpawn();
 
         animator = GetComponentInChildren<Animator>();
-        soundEmitters = GetComponents<SoundEmitter>();
+        soundEmitters = GetComponentsInChildren<SoundEmitter>(true);
+
+        _isExploding = false;
+        isBlinking.Value = false;
 
         isBlinking.OnValueChanged += OnBlinkingStateChanged;
     }
@@ -62,9 +65,6 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             finalAcceleration *= 1 - n_slowMultiplier.Value;
         }
 
-        finalSpeed *= AISpeedMultiplier;
-        finalAcceleration *= AISpeedMultiplier;
-
         if (isBlinking.Value){
             finalSpeed *= _blinkingSpeedMultiplier;
             finalAcceleration *= _blinkingSpeedMultiplier;
@@ -81,7 +81,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             PlaySoundForEmitter("explode_die", transform.position);
         }
         catch (System.Exception e) {
-            Debug.LogError("Error play sound for emitter: " + e.Message);
+            Debug.LogError("Error play sound for emitter: " + e.Message);            
         }
         Attack(); // exploding enemy instantly explodes on death.
 
@@ -112,9 +112,17 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     // the actual attack
     [ServerRpc(RequireOwnership = false)]
-    private void AttackServerRpc(bool destroyAfterAttack = false)
+    private void AttackServerRpc(bool destroyAfterAttack = true)
     {
         if (!IsServer) return;
+
+        try {
+            PlaySoundForEmitter("explode_die", transform.position);
+        }
+        catch (System.Exception e) {
+            Debug.LogError("Error play sound for emitter: " + e.Message);
+        }
+
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
         ParticleManager.instance.SpawnSelfThenAll("EnemyExplosion", transform.position, Quaternion.identity);
 
@@ -133,6 +141,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
         if (destroyAfterAttack)
         {
+            enemySpawner.RemoveEnemyFromList(gameObject);
             enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
         }
     }
