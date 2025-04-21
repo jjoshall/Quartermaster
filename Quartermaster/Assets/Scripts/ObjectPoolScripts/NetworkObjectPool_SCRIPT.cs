@@ -83,6 +83,10 @@ namespace Unity.BossRoom.Infrastructure
         /// Return an object to the pool (reset objects before returning).
         /// </summary>
         public void ReturnNetworkObject(NetworkObject networkObject, GameObject prefab) {
+            if (networkObject.IsSpawned) {
+                networkObject.Despawn();
+            }
+
             var go = networkObject.gameObject;
             go.SetActive(false);
             pooledObjects[prefab].Enqueue(networkObject);

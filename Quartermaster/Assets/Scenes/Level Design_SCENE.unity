@@ -3916,7 +3916,7 @@ PrefabInstance:
       objectReference: {fileID: 8340144293307849578, guid: dbe6c16659e2ead46a848c8c6adf2861, type: 3}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: spawnCooldown
-      value: 6
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: poolContainer.x
@@ -3932,7 +3932,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: _maxEnemyInstanceCount
-      value: 3
+      value: 350
       objectReference: {fileID: 0}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: '_enemySpawnPoints.Array.data[0]'
@@ -5459,7 +5459,7 @@ PrefabInstance:
       objectReference: {fileID: 8340144293307849578, guid: dbe6c16659e2ead46a848c8c6adf2861, type: 3}
     - target: {fileID: 3112507778715810444, guid: d79ef760dacef5d47995012751f0382c, type: 3}
       propertyPath: PooledPrefabsList.Array.data[0].PrewarmCount
-      value: 5
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 3112507778715810444, guid: d79ef760dacef5d47995012751f0382c, type: 3}
       propertyPath: PooledPrefabsList.Array.data[1].PrewarmCount

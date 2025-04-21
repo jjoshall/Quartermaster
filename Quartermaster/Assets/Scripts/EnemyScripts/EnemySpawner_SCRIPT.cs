@@ -124,6 +124,11 @@ public class EnemySpawner : NetworkBehaviour {
             // Get the enemy instance
             GameObject enemyInstance = networkObject.gameObject;
 
+            if (networkObject.IsSpawned) {
+                Debug.LogWarning($"Tried to spawn {networkObject.name} but it is already spawned.");
+                return;
+            }
+
             // Spawn on network
             networkObject.Spawn(true);
 
@@ -275,9 +280,6 @@ public class EnemySpawner : NetworkBehaviour {
             // Get original prefab reference
             BaseEnemyClass_SCRIPT enemyScript = networkObject.GetComponent<BaseEnemyClass_SCRIPT>();
             GameObject originalPrefab = enemyScript.originalPrefab;
-
-            // Remove from enemylist
-            //enemyList.Remove(networkObject.gameObject);
 
             // Despawn from network first
             networkObject.Despawn();
