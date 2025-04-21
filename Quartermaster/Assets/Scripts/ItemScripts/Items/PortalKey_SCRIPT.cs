@@ -126,9 +126,10 @@ public class PortalKey_MONO : Item
         }
         if (PlayerIsInPocket(user)){
             // Debug.Log ("PortalKey_MONO: ButtonRelease() Teleporting players to world.");
-            Return();
             GetReturnPosition (n_user, out Vector3 returnPosition, out Quaternion returnRotation);
+            Debug.Log ("return position: " + returnPosition);
             TeleportItems(returnPosition);
+            Return();
             RemoveAllObjOutlines();
         }
         else {

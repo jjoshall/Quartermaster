@@ -15,6 +15,7 @@ public abstract class Item : NetworkBehaviour
     [Tooltip("Enables repeated use on holding left click")]                 public bool CanAutoFire = false;
     [Tooltip("Use cooldown")]                                               public float cooldown = 0f;
     [Tooltip("Max stack size")]                                             public int StackLimit = 1;
+    [Tooltip("Weight per unit of item")]                                    public float weight = 0.0f;
     [Tooltip("Current stack quantity, also modified during runtime")]       public int quantity = 1;
     [Tooltip("Item icon")]                                                  public Texture icon = null;
     [Tooltip("OnUse sound emitters")]                                       public SoundEmitter[] soundEmitters = null;
