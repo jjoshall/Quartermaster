@@ -21,9 +21,12 @@ public class PocketInventory : NetworkBehaviour {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     private Vector3 _teleportPosition; // static. doesn't need to be networked.
-    private List<NetworkObjectReference> _playersInPocket = new List<NetworkObjectReference>();
+    private NetworkList<NetworkObjectReference> _playersInPocket = new NetworkList<NetworkObjectReference>();
     // dict mapping networkobjectreference to a vector3 return position
+    // define a struct of networkobjectreference and playerposition and make it serializable
+
     private Dictionary<NetworkObjectReference, PlayerPosition> _playerReturnPositions = new Dictionary<NetworkObjectReference, PlayerPosition>();
+    // private NetworkList<PlayerPosition> _playerReturnPositions = new NetworkList<PlayerPosition>();
 
     private struct PlayerPosition : INetworkSerializable {
         public Vector3 position;
@@ -53,7 +56,7 @@ public class PocketInventory : NetworkBehaviour {
     // Start works here because the PocketInventory prefab is placed in the scene by default.
     // Instead of spawned by the server during runtime. Don't need to move to OnNetworkSpawn()
     void Start() {
-        _playersInPocket = new List<NetworkObjectReference>();
+        _playersInPocket = new NetworkList<NetworkObjectReference>();
         n_timeEnteredPocketNetworkVar.Value = 0;
         _teleportPosition = this.transform.position + new Vector3 (0, 2, 0);
         n_storedKeyObj = new NetworkObjectReference();
@@ -71,6 +74,14 @@ public class PocketInventory : NetworkBehaviour {
     // }
 
     #region Teleport
+    public Vector3 GetTeleportDestination(NetworkObjectReference user){
+        if (PlayerIsInPocket(user)) {
+            PlayerPosition p = _playerReturnPositions[user];
+            return p.position;
+        } else {
+            return _teleportPosition;
+        }   
+    }
     
     [ServerRpc(RequireOwnership = false)]
     public void TeleportToPocketServerRpc(NetworkObjectReference userRef){
@@ -89,6 +100,8 @@ public class PocketInventory : NetworkBehaviour {
             TeleportUserToPositionClientRpc(userRef, teleportSpot); // teleport
             
             _playersInPocket.Add(userRef);
+            Debug.Log ("playersInPocket: " + _playersInPocket.Count);
+            Debug.Log ("playersInPocket added: " + userRef);
             n_timeEnteredPocketNetworkVar.Value = NetworkManager.Singleton.ServerTime.Time;
 
         }
@@ -104,15 +117,6 @@ public class PocketInventory : NetworkBehaviour {
             if (playerInventory == null) {
                 Debug.LogError ("player has no inventory"); 
                 return;
-            }
-
-            // Is owner check of teleporting player to avoid null on HasItem() condition.
-            if (userRef.TryGet(out NetworkObject userObj)){
-                if (userObj.OwnerClientId == NetworkManager.Singleton.LocalClientId) {
-                    if (playerInventory.HasItem("PocketInventoryPortalKey") != -1) {
-                        TpNearbyItemsServerRpc(userRef, teleportPosition.position);
-                    }
-                }
             }
 
             playerObj.GetComponentInChildren<PlayerDissolveAnimator>().AnimateSolidifyServerRpc();
@@ -168,7 +172,7 @@ public class PocketInventory : NetworkBehaviour {
         Collider[] colliders = Physics.OverlapSphere(userGameObj.transform.position, tpRadius);
         
         foreach (Collider col in colliders) {
-            if (col.gameObject.GetComponent<WorldItem>() != null) {
+            if (col.gameObject.GetComponent<Item>() != null) {
                 NetworkObjectReference itemRef = col.gameObject.GetComponent<NetworkObject>();
                 TpItemToPositionClientRpc(itemRef, targetPosition);
 
@@ -205,7 +209,11 @@ public class PocketInventory : NetworkBehaviour {
     [ClientRpc]
     public void ReturnAllPlayersClientRpc() {
         debugMsgClientRpc("Returning all players, PlayerCount = " + _playersInPocket.Count);
-        List<NetworkObjectReference> playersToRemove = new List<NetworkObjectReference>(_playersInPocket);  
+        // duplicate playersInPocket network list
+        NetworkList<NetworkObjectReference> playersToRemove = new NetworkList<NetworkObjectReference>();
+        foreach (NetworkObjectReference n_player in _playersInPocket) {
+            playersToRemove.Add(n_player);
+        }
         foreach (NetworkObjectReference n_player in playersToRemove){
             debugMsgClientRpc("Returning player: " + n_player);
             ReturnToPreviousPositionClientRpc(n_player);
@@ -218,10 +226,12 @@ public class PocketInventory : NetworkBehaviour {
         // physics overlap sphere, find dropped key
         Collider[] colliders = Physics.OverlapSphere(_teleportPosition, RADIUS_OF_POCKET_DETECTION);
         foreach (Collider col in colliders) {
-            if (col.gameObject.GetComponent<PocketInventoryPortalKey>() != null) {
-                n_storedKeyObj = col.gameObject.GetComponent<NetworkObject>().GetComponent<NetworkObjectReference>();
-                Debug.Log ("found dropped key: " + n_storedKeyObj);
-                return;
+            if (col.gameObject.GetComponent<Item>() != null) {
+                if (col.gameObject.GetComponent<Item>().uniqueID == "PocketInventoryPortalKey") {
+                    n_storedKeyObj = col.gameObject.GetComponent<NetworkObject>().GetComponent<NetworkObjectReference>();
+                    Debug.Log ("found dropped key: " + n_storedKeyObj);
+                    return;
+                }
             }
         }
     }
@@ -229,15 +239,6 @@ public class PocketInventory : NetworkBehaviour {
     public bool PlayerIsInPocket(NetworkObjectReference playerRef) {
         return _playersInPocket.Contains(playerRef);
     }
-
-    // Deprecated. Use ReturnAllPlayersServerRpc instead.
-    // [ServerRpc(RequireOwnership = false)]
-    // public void ReturnIfInPocketServerRpc (NetworkObjectReference user) {
-    //     // if the player is in the pocket, returnallplayers
-    //     if (PlayerIsInPocket(user)) {
-    //         ReturnAllPlayersClientRpc();
-    //     }
-    // }
 
     [ServerRpc(RequireOwnership = false)]
     public void ReturnAllPlayersServerRpc() {
