@@ -25,6 +25,7 @@ namespace Unity.BossRoom.Infrastructure
         HashSet<GameObject> prefabs = new HashSet<GameObject>();
 
         Dictionary<GameObject, Queue<NetworkObject>> pooledObjects = new Dictionary<GameObject, Queue<NetworkObject>>();
+        public IEnumerable<GameObject> GetRegisteredPrefabs() => prefabs;
 
         private bool m_HasInitialized = false;
 
@@ -52,6 +53,10 @@ namespace Unity.BossRoom.Infrastructure
                     Assert.IsNotNull(prefab.GetComponent<NetworkObject>(), $"{nameof(NetworkObjectPool)}: Pooled prefab \"{prefab.name}\" at index {i.ToString()} has no {nameof(NetworkObject)} component.");
                 }
             }
+        }
+
+        public bool HasInactiveInstance(GameObject prefab) {
+            return pooledObjects.ContainsKey(prefab) && pooledObjects[prefab].Count > 0;
         }
 
         /// <summary>

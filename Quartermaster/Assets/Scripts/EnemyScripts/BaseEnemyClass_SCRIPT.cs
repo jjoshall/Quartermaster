@@ -28,6 +28,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [Header("Enemy Settings")]
     [SerializeField] private float _attackDelay = 2.0f;
     private float _lastAttackTime = 0.0f;
+    public GameObject originalPrefab; // this is for the object pooling to know to use this
 
     [Header("Required Scripts for Enemies")]
     protected NavMeshAgent agent;
@@ -272,7 +273,8 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected virtual void OnDie() {
         ItemManager.instance.ThresholdBurstDrop(transform.position);    // norman added this, has a chance to burst drop items
         GameManager.instance.IncrementEnemyKillsServerRpc();    // add to enemy kill count
-        enemySpawner.RemoveEnemy(this.gameObject);   // remove enemy from spawner list
+        Debug.Log("Removing " + gameObject.name + " from enemy list");
+        enemySpawner.RemoveEnemyFromList(gameObject);   // remove enemy from list of enemies
         enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());  // remove enemy from scene
     }
 
