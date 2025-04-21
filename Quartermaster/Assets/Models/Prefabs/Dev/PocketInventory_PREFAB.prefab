@@ -139,11 +139,10 @@ GameObject:
   m_Component:
   - component: {fileID: 281054257700737430}
   - component: {fileID: 180000619443434344}
-  - component: {fileID: 3694240355070316731}
   - component: {fileID: 6222817915540710799}
   m_Layer: 0
   m_Name: PocketInventory_PREFAB
-  m_TagString: Untagged
+  m_TagString: PortalDestination
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -197,23 +196,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &3694240355070316731
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3691139008586363369}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c391b73f646b17f4d857b872daeaec4e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  n_timeEnteredPocketNetworkVar:
-    m_InternalValue: 0
-  n_droppedPortalKeyInPocket:
-    m_InternalValue: 0
 --- !u!114 &6222817915540710799
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -105,8 +105,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.8, y: 0.6, z: 0.2}
-  m_Center: {x: -0.29, y: -0.1, z: 0}
+  m_Size: {x: 2.4, y: 0.6, z: 0.25}
+  m_Center: {x: 0.29, y: -0.1, z: 0}
 --- !u!54 &3949431570027553037
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -243,12 +243,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   uniqueID: flamethrower
-  IsConsumable: 0
   IsWeapon: 1
   IsClassSpec: 0
   CanAutoFire: 1
   cooldown: 0.128
   StackLimit: 1
+  weight: 0
   quantity: 1
   icon: {fileID: 2800000, guid: c6b290b5717566144b7f057edceadffc, type: 3}
   soundEmitters: []

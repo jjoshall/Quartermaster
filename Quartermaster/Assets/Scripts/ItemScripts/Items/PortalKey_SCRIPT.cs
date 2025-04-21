@@ -459,7 +459,7 @@ public class PortalKey_MONO : Item
         if (outline == null) {
             outline = obj.AddComponent<TeleportOutline>();
         }
-        outline.OutlineWidth = 15f;
+        outline.OutlineWidth = 16f;
     }
 
     private void RemoveTpOutline(GameObject obj){

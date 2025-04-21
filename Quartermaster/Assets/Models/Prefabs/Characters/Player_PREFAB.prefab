@@ -434,6 +434,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   orientation: {fileID: 5437704285612138240}
   weaponSlot: {fileID: 5079399718664646750}
+  _maxInventoryWeight: 100
 --- !u!114 &3204480622593929652
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1227,7 +1228,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerCam: {fileID: 3428043383610237515}
-  pickupSphereRadius: 0.5
+  raycastPickupRange: 2.5
+  nolookClosestPickupRange: 1
 --- !u!1 &6822122996988940553
 GameObject:
   m_ObjectHideFlags: 0

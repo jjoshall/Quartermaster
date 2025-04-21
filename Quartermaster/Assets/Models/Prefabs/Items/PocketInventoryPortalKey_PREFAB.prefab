@@ -176,8 +176,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.4, y: 0.3, z: 0.7}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.3, y: 0.2, z: 0.7}
+  m_Center: {x: 0.75, y: 0, z: 0}
 --- !u!114 &7666823234201033532
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -206,12 +206,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   uniqueID: portalkey
-  IsConsumable: 0
   IsWeapon: 0
   IsClassSpec: 0
   CanAutoFire: 0
   cooldown: 0
   StackLimit: 1
+  weight: 0
   quantity: 1
   icon: {fileID: 2800000, guid: fdc8d072b61478a4ea92d5bac7ecaf39, type: 3}
   soundEmitters: []
@@ -220,7 +220,12 @@ MonoBehaviour:
   userRef: {fileID: 0}
   _teleportRadius: 20
   _teleportRange: 5
+  _teleportItemThrowForce: 5
   _maxTeleportableItems: 5
+  _teleportDestination: {fileID: 0}
+  _destinationRadius: 10
+  _teleportOffset: {x: 0, y: 1, z: 0}
+  destinationTag: PortalDestination
 --- !u!135 &-659721648200276175
 SphereCollider:
   m_ObjectHideFlags: 0

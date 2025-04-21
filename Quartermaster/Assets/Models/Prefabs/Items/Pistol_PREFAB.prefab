@@ -168,8 +168,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.5, y: 0.9, z: 0.3}
+  m_Center: {x: 0.04, y: -0.18, z: 0}
 --- !u!54 &2941303876281257134
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -306,12 +306,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   uniqueID: pistol
-  IsConsumable: 0
   IsWeapon: 1
   IsClassSpec: 0
   CanAutoFire: 0
   cooldown: 0.4
   StackLimit: 1
+  weight: 0
   quantity: 1
   icon: {fileID: 2800000, guid: a002029af78d6c64ca5345ef4598ac37, type: 3}
   soundEmitters: []

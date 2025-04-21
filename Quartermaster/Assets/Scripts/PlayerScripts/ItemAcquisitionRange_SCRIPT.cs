@@ -11,11 +11,22 @@ public class ItemAcquisitionRange : MonoBehaviour {
     private GameObject _closestItem;
     
     private GameObject _lastClosestItem;
-    public float pickupSphereRadius = 0.5f;
+
+    #region InspectorVariables
+    #endregion 
+    public float raycastPickupRange = 1.5f; // default val
+    public float nolookClosestPickupRange = 0.5f; // default val
+    [Tooltip("Offset helps avoid clipping, but also increases range")] public float raycastOffset = 0.5f; // default val
 
     void Start() {
         _playerObj = transform.parent.gameObject;
-        // _itemsInRange = new List<GameObject>();
+        var spherecol = this.GetComponent<SphereCollider>();
+        if (spherecol != null) {
+            spherecol.radius = raycastPickupRange + raycastOffset;
+        } else {
+            Debug.LogError("ItemAcquisitionRange: Start() - SphereCollider is null.");
+        }
+        _itemsInRange = new List<GameObject>();
     }
 
     void Update() {
@@ -31,8 +42,6 @@ public class ItemAcquisitionRange : MonoBehaviour {
     public void AddItem(GameObject item) {
         if (_itemsInRange.Contains(item)) { return; }
         _itemsInRange.Add(item);
-
-        // Debug_print_items_in_range(); 
     }
 
     void OnTriggerExit(Collider other) {
@@ -52,33 +61,23 @@ public class ItemAcquisitionRange : MonoBehaviour {
                 RemoveOutline(_lastClosestItem);
                 _lastClosestItem = null;
             }
-            _closestItem = null;
+            if (_closestItem != null){
+                RemoveOutline(_closestItem);
+                _closestItem = null;
+            }
             return;
         }
 
         // Prioritize raycast over closest.
-        Physics.Raycast(_playerCam.transform.position, _playerCam.transform.forward, out RaycastHit hit, Mathf.Infinity);
-        if (hit.collider != null && hit.collider.gameObject != null
-                && _itemsInRange.Contains(hit.collider.gameObject)
-                && IsAnItem(hit.collider.gameObject)) {
-
-            _closestItem = hit.collider.gameObject;
+        GameObject raycastedItem = RaycastReturnFirstItem();
+        if (raycastedItem != null) {
+            _closestItem = raycastedItem;
         } else {
-
-            GameObject localClosest = null;
-            float closestDistance = Mathf.Infinity;
-
-            foreach (GameObject item in _itemsInRange) {
-                float distance = Vector3.Distance(_playerObj.transform.position, item.transform.position);
-                if (distance < closestDistance && IsAnItem(item)) {
-                    localClosest = item;
-                    closestDistance = distance;
-                }
-            }
-
-            _closestItem = localClosest;
+            _closestItem = HighlightClosestItem();
         }
 
+
+        // Update outlines for prev highlighted and curr highlighted.
         if (_closestItem != _lastClosestItem) {
             if (_lastClosestItem != null) {
                 RemoveOutline(_lastClosestItem);
@@ -88,6 +87,39 @@ public class ItemAcquisitionRange : MonoBehaviour {
             }
             _lastClosestItem = _closestItem;
         }
+    }
+
+    private GameObject RaycastReturnFirstItem() {
+        Vector3 raycastOrigin = _playerCam.transform.position + _playerCam.transform.forward * raycastOffset; // helps avoid clipping close items outside player fov
+
+        RaycastHit[] hits = Physics.RaycastAll(raycastOrigin, _playerCam.transform.forward, raycastPickupRange);
+        Debug.DrawRay (raycastOrigin, _playerCam.transform.forward * raycastPickupRange, Color.red, 0.1f);
+        foreach (RaycastHit itemHit in hits) {
+            if (itemHit.collider != null && itemHit.collider.gameObject != null
+                    // && _itemsInRange.Contains(itemHit.collider.gameObject)
+                    && IsAnItem(itemHit.collider.gameObject)
+                    && itemHit.collider.gameObject.GetComponent<Item>().IsPickedUp == false) {
+                return itemHit.collider.gameObject;
+            }
+        }
+        return null;
+    }
+    
+    private GameObject HighlightClosestItem(){
+        GameObject localClosest = null;
+        float closestDistance = Mathf.Infinity;
+
+        foreach (GameObject item in _itemsInRange) {
+            float distance = Vector3.Distance(_playerObj.transform.position, item.transform.position);
+            if (distance > nolookClosestPickupRange) {
+                continue; // skip if outside of range
+            }
+            if (distance < closestDistance && IsAnItem(item)) {
+                localClosest = item;
+                closestDistance = distance;
+            }
+        }
+        return localClosest;
     }
 
     private void ActivateOutlineShader(GameObject item) {
