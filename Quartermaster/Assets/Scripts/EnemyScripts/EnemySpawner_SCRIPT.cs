@@ -8,7 +8,7 @@ using Unity.BossRoom.Infrastructure;    // Add this for network object pooling
 public class EnemySpawner : NetworkBehaviour {
     [Header("Spawner Timer")]
     private float _lastSpawnTime = 0f;
-    public float spawnCooldown = 2f;
+    public float spawnCooldown = 3f;
 
     [Header("Spawner Settings")]
     [HideInInspector] public NetworkVariable<bool> isSpawning = new NetworkVariable<bool>(false);
@@ -92,7 +92,52 @@ public class EnemySpawner : NetworkBehaviour {
         SpawnOverTime();
     }
 
-    
+    private void SpawnOverTime() {
+        if (!IsServer) return;
+        if (activePlayerList.Count == 0) return; // No players in active area.
+        if (enemyList.Count >= _maxEnemyInstanceCount) return; // Max enemies reached.
+
+        // less than max enemies, and more than 0 players in playable area.
+        // Managed by InactiveAreaCollider s adding/removing from activePlayerList
+        if (Time.time >= _lastSpawnTime + spawnCooldown) {
+            Debug.Log("Spawning enemy");
+            SpawnOneEnemy();
+            _lastSpawnTime = Time.time;
+        }
+    }
+
+    private void SpawnOneEnemy() {
+        GameObject enemyPrefab = GetWeightedRandomEnemyPrefab();
+        Vector3 spawnPoint = GetSpawnPoint();
+
+        if (enemyPrefab != null) {
+            // Just get any object from the object pool
+            NetworkObject networkObject = _objectPool.GetNetworkObject(
+                enemyPrefab,
+                spawnPoint,
+                Quaternion.identity
+            );
+
+            // Get the enemy instance
+            GameObject enemyInstance = networkObject.gameObject;
+
+            // Spawn on network
+            networkObject.Spawn(true);
+
+            // Make sure enemy uses enemy spawner instance
+            enemyInstance.GetComponent<BaseEnemyClass_SCRIPT>().enemySpawner = this;
+
+            // Add enemy instance to the enemy list
+            enemyList.Add(enemyInstance);
+
+            // Set the speed of the enemy
+            enemyInstance.GetComponent<BaseEnemyClass_SCRIPT>().UpdateSpeedServerRpc();
+        }
+    }
+
+    /// <summary>
+    /// How to pool!!
+    /// </summary>
     //private async void SpawnFromPool(GameObject enemyToSpawn) {
     //    if (!IsServer) return;
 
@@ -115,44 +160,6 @@ public class EnemySpawner : NetworkBehaviour {
     //    // Return to pool
     //    _objectPool.ReturnNetworkObject(networkObject, _enemySpawnData[0].enemyPrefab.gameObject);
     //}
-
-    private void SpawnOverTime() {
-        if (!IsServer) return;
-
-        if (Time.time - _lastSpawnTime < spawnCooldown) {
-            return;
-        }
-
-        // less than max enemies, and more than 0 players in playable area.
-        // Managed by InactiveAreaCollider s adding/removing from activePlayerList
-        if (enemyList.Count < _maxEnemyInstanceCount && activePlayerList.Count > 0) {
-            GameObject enemyPrefab = GetWeightedRandomEnemyPrefab();
-            Vector3 spawnPoint = GetSpawnPoint();
-
-            if (enemyPrefab != null) {
-                // Just get any object from the object pool
-                NetworkObject networkObject = _objectPool.GetNetworkObject(
-                    enemyPrefab,
-                    spawnPoint,
-                    Quaternion.identity
-                );
-
-                // Spawn on network
-                networkObject.Spawn(true);
-
-                // Make sure enemy uses enemy spawner instance
-                enemyPrefab.GetComponent<BaseEnemyClass_SCRIPT>().enemySpawner = this;
-
-                // Add enemy instance to the enemy list
-                enemyList.Add(networkObject.gameObject);
-
-                // Set the speed of the enemy
-                enemyPrefab.GetComponent<BaseEnemyClass_SCRIPT>().UpdateSpeedServerRpc();
-
-                _lastSpawnTime = Time.time;
-            }
-        }
-    }
 
     #region Pack Spawn
     /// <summary>
