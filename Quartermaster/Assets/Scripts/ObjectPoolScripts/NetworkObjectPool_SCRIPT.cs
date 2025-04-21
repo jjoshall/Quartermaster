@@ -29,6 +29,8 @@ namespace Unity.BossRoom.Infrastructure
 
         private bool m_HasInitialized = false;
 
+        [SerializeField] private Transform poolContainer;   // Parent for all pooled objects, organizes the hierarchy in the editor
+
         public void Awake() {
             if (_instance != null && _instance != this) {
                 Destroy(this.gameObject);

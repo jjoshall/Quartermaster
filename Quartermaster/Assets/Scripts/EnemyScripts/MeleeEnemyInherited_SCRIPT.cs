@@ -12,21 +12,7 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     protected override float GetInitialHealth() => GameManager.instance.MeleeEnemy_Health;
     #endregion
 
-    private bool _canAttack = true;     // Prevents enemies from attacking too quickly
-
-    private SoundEmitter[] soundEmitters;
-    private Animator animator;
-
-    public override void OnNetworkSpawn() {
-        base.OnNetworkSpawn();
-        animator = GetComponentInChildren<Animator>();
-        soundEmitters = GetComponents<SoundEmitter>();
-    }
-
     protected override void Attack() {
-        // if (!_canAttack) return;
-        // _canAttack = false;
-
         if (IsServer) {
             animator.SetBool("IsAttacking", true);
             StartCoroutine(TriggerPunchSFX());
@@ -51,12 +37,6 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         }
     }
 
-    protected override void OnDamaged(float damage, GameObject damageSource)
-    {
-        base.OnDamaged(damage, damageSource);
-        PlaySoundForEmitter("melee_damaged", transform.position);
-    }
-
     private IEnumerator TriggerPunchSFX() {
         PlaySoundForEmitter("melee_punch", transform.position);
         yield return new WaitForSeconds(0.2f);
@@ -68,15 +48,5 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         yield return new WaitForSeconds(0.5f);
         animator.SetBool("IsAttacking", false);
         yield return new WaitForSeconds(attackCooldown - 0.5f);
-        _canAttack = true;
-    }
-
-    public void PlaySoundForEmitter(string emitterId, Vector3 position) {
-        foreach (SoundEmitter emitter in soundEmitters) {
-            if (emitter.emitterID == emitterId) {
-                emitter.PlayNetworkedSound(position);
-                return;
-            }
-        }
     }
 }

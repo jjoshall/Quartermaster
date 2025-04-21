@@ -4,6 +4,7 @@ using Unity.Netcode;
 using System.Collections;
 using TMPro;
 using System.Collections.Generic;
+using GLTFast.Schema;
 
 public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     // THIS IS FOR GAME MANAGER, you can change values in the
@@ -34,6 +35,8 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected NavMeshAgent agent;
     protected Health health;
     public EnemySpawner enemySpawner;
+    protected SoundEmitter[] soundEmitters;
+    protected Animator animator;
 
     [Header("Enemy pathing")]
     [SerializeField] private float _localDetectionRange = 20f; // how far to switch from global to direct aggro
@@ -75,6 +78,9 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         health = GetComponent<Health>();
 
         playersThatHitMe = new List<GameObject>();
+
+        animator = GetComponentInChildren<Animator>();
+        soundEmitters = GetComponentsInChildren<SoundEmitter>(true);
 
         if (!IsServer) {
             agent.enabled = false;
@@ -246,11 +252,23 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         return closestPlayer;
     }
 
+    // For sound
+    protected void PlaySoundForEmitter(string emitterId, Vector3 position) {
+        foreach (SoundEmitter emitter in soundEmitters) {
+            if (emitter.emitterID == emitterId) {
+                emitter.PlayNetworkedSound(position);
+                return;
+            }
+        }
+    }
+
     // Called when enemy takes damage
     protected virtual void OnDamaged(float damage, GameObject damageSource) {
         //if (floatingTextPrefab != null) {
         //    ShowFloatingTextServerRpc(damage);  // show floating damage numbers on server/client
         //}
+
+        PlaySoundForEmitter("melee_damaged", transform.position);
 
         GameManager.instance.AddEnemyDamageServerRpc(damage);   // tracks total damage dealt to enemies
         if (!playersThatHitMe.Contains(damageSource)) {

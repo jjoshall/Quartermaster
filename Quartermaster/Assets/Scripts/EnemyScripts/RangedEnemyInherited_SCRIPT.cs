@@ -24,20 +24,12 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     [SerializeField] private float _hoverFrequency = 1f;
     private float _hoverOffset;
 
-    //private bool _canAttack = true;
-
-    private Animator animator;
-    private SoundEmitter[] soundEmitters;
-
     [Header("Armature Settings")]
     [SerializeField] private Transform _leftGun;
     [SerializeField] private Transform _rightGun;
 
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
-        
-        animator = GetComponentInChildren<Animator>();
-        soundEmitters = GetComponentsInChildren<SoundEmitter>(true);
 
         if (IsServer) {
             _hoverOffset = Random.Range(0f, 3f * Mathf.PI);     // makes the hovering look more natural
@@ -171,25 +163,9 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         // nate did this, change to timer?, this is so ranged enemy doesn't get destroyed from scene before sound finishes
         StartCoroutine(WaitOneSecond());
         base.OnDie();
-
     }
-
-    // Will change to timer later, this just makes enemies not attack over and over
-    // private IEnumerator ResetAttackCooldown() {
-    //     yield return new WaitForSeconds(attackCooldown);
-    //     _canAttack = true;
-    // }
 
     private IEnumerator WaitOneSecond() {
         yield return new WaitForSeconds(1f);
-    }
-
-    public void PlaySoundForEmitter(string emitterId, Vector3 position) {
-        foreach (SoundEmitter emitter in soundEmitters) {
-            if (emitter.emitterID == emitterId) {
-                emitter.PlayNetworkedSound(position);
-                return;
-            }
-        }
     }
 }

@@ -23,19 +23,13 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     [SerializeField] private float _explosionDelay;
     [SerializeField] private float _blinkSpeed = 5f;
     [Range(1f, 3f)]
-    [SerializeField] private float _blinkingSpeedMultiplier = 1.3f;  // Uses a range for 
-
-    private Animator animator;
-    private SoundEmitter[] soundEmitters;
+    [SerializeField] private float _blinkingSpeedMultiplier = 1.3f;
 
     [Header("Armature Settings")]
     [SerializeField] private Transform _wheels;
     
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
-
-        animator = GetComponentInChildren<Animator>();
-        soundEmitters = GetComponentsInChildren<SoundEmitter>(true);
 
         _isExploding = false;
         isBlinking.Value = false;
@@ -153,14 +147,5 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         StopAllCoroutines();
 
         base.OnNetworkDespawn();
-    }
-
-    public void PlaySoundForEmitter(string emitterId, Vector3 position) {
-        foreach (SoundEmitter emitter in soundEmitters) {
-            if (emitter.emitterID == emitterId) {
-                emitter.PlayNetworkedSound(position);
-                return;
-            }
-        }
     }
 }
