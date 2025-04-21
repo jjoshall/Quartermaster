@@ -205,11 +205,13 @@ public class Inventory : NetworkBehaviour {
             Destroy(pickedUp);
             RemoveFromItemAcq(pickedUp);
             UpdateInventoryWeight();
+            UpdateAllInventoryUI();
             return;
         } else if (_currentHeldItems < _maxInventorySize) {
             AddToInventory(pickedUp); 
             RemoveFromItemAcq(pickedUp);
             UpdateInventoryWeight();
+            UpdateAllInventoryUI();
             return;
         }
     }
@@ -228,7 +230,6 @@ public class Inventory : NetworkBehaviour {
 
         if (TryPlaceInCurrentSlot(pickedUp, item) || AddToFirstEmptySlot(pickedUp)) {
             _currentHeldItems++;
-            UpdateAllInventoryUI();
             UpdateHeldItem();
             UpdateHeldItemNetworkReference();
         }
@@ -350,10 +351,11 @@ public class Inventory : NetworkBehaviour {
 
         Item thisItem = GetItemAt(thisSlot);
         var itemGO = _inventoryMono[thisSlot];
+        if (!thisItem || !itemGO || !_playerObj) return;
+
         var itemNO = itemGO.GetComponent<NetworkObject>();
         var playerNO = _playerObj.GetComponent<NetworkObject>();
-
-        if (!thisItem || !playerNO || !itemGO || !itemNO) return;
+        if (!itemNO || !playerNO) return;
 
         // detach the current held item
         PropagateItemAttachmentServerRpc(itemNO, playerNO, false);
