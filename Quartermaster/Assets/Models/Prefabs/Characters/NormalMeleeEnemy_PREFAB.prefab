@@ -195,6 +195,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   _attackDelay: 2
+  _targetUpdateInterval: 0.5
+  _pathingUpdateThreshold: 0.5
   enemySpawner: {fileID: 0}
   _localDetectionRange: 20
   _useSeparation: 1
@@ -202,6 +204,7 @@ MonoBehaviour:
   _separationRadius: 4
   _separationStrength: 0.1
   _separationDecay: 0.106
+  _separationFrameSkip: 2
   AISpeedMultiplier: 1
   AIDmgMultiplier: 1
   floatingTextPrefab: {fileID: 550058981611720628, guid: 2f1aa88225abaa94ea335fa199c81f1d, type: 3}
@@ -287,7 +290,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &714221106295537768
 Transform:
   m_ObjectHideFlags: 0

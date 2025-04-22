@@ -12,28 +12,12 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     protected override float GetInitialHealth() => GameManager.instance.MeleeEnemy_Health;
     #endregion
 
-    private bool _canAttack = true;     // Prevents enemies from attacking too quickly
-
-    private SoundEmitter[] soundEmitters;
-    private Animator animator;
-
-    public override void OnNetworkSpawn() {
-        base.OnNetworkSpawn();
-        animator = GetComponentInChildren<Animator>();
-        soundEmitters = GetComponents<SoundEmitter>();
-    }
-
     protected override void Attack() {
-        // if (!_canAttack) return;
-        // _canAttack = false;
-
         if (IsServer) {
             animator.SetBool("IsAttacking", true);
             StartCoroutine(TriggerPunchSFX());
             AttackServerRpc();
         }
-
-        Debug.Log("Melee Attack");
 
         // SWITCH TO TIMER LATER
         StartCoroutine(ResetAttackCooldown());
@@ -41,24 +25,16 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     [ServerRpc(RequireOwnership = false)]   
     private void AttackServerRpc() {
-                if (!IsServer) return;
+        if (!IsServer) return;
+
         // OverlapSphere will find all colliders in the attackRadius around the enemy
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
 
-        float dmgAiScaled = damage * AIDmgMultiplier;
-        Debug.Log ("dmgAiScaled is: " + dmgAiScaled);
-
         foreach (var hitCollider in hitColliders) {
             if (hitCollider.CompareTag("Player")) {
-                hitCollider.GetComponent<Damageable>().InflictDamage(dmgAiScaled, false, gameObject);
+                hitCollider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
             }
         }
-    }
-
-    protected override void OnDamaged(float damage, GameObject damageSource)
-    {
-        base.OnDamaged(damage, damageSource);
-        PlaySoundForEmitter("melee_damaged", transform.position);
     }
 
     private IEnumerator TriggerPunchSFX() {
@@ -72,15 +48,5 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         yield return new WaitForSeconds(0.5f);
         animator.SetBool("IsAttacking", false);
         yield return new WaitForSeconds(attackCooldown - 0.5f);
-        _canAttack = true;
-    }
-
-    public void PlaySoundForEmitter(string emitterId, Vector3 position) {
-        foreach (SoundEmitter emitter in soundEmitters) {
-            if (emitter.emitterID == emitterId) {
-                emitter.PlayNetworkedSound(position);
-                return;
-            }
-        }
     }
 }
