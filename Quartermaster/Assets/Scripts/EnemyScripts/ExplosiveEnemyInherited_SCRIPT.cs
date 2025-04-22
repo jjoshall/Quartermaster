@@ -23,10 +23,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     [SerializeField] private float _explosionDelay;
     [SerializeField] private float _blinkSpeed = 5f;
     [Range(1f, 3f)]
-    [SerializeField] private float _blinkingSpeedMultiplier = 1.3f;  // Uses a range for 
-
-    private Animator animator;
-    private SoundEmitter[] soundEmitters;
+    [SerializeField] private float _blinkingSpeedMultiplier = 1.3f;
 
     [Header("Armature Settings")]
     [SerializeField] private Transform _wheels;
@@ -34,8 +31,8 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
 
-        animator = GetComponentInChildren<Animator>();
-        soundEmitters = GetComponents<SoundEmitter>();
+        _isExploding = false;
+        isBlinking.Value = false;
 
         isBlinking.OnValueChanged += OnBlinkingStateChanged;
     }
@@ -62,9 +59,6 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             finalAcceleration *= 1 - n_slowMultiplier.Value;
         }
 
-        finalSpeed *= AISpeedMultiplier;
-        finalAcceleration *= AISpeedMultiplier;
-
         if (isBlinking.Value){
             finalSpeed *= _blinkingSpeedMultiplier;
             finalAcceleration *= _blinkingSpeedMultiplier;
@@ -81,7 +75,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             PlaySoundForEmitter("explode_die", transform.position);
         }
         catch (System.Exception e) {
-            Debug.LogError("Error play sound for emitter: " + e.Message);
+            Debug.LogError("Error play sound for emitter: " + e.Message);            
         }
         Attack(); // exploding enemy instantly explodes on death.
 
@@ -93,10 +87,11 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         yield return new WaitForSeconds(3.0f);
         base.OnDie();
     }
+
     // Called by base class attack cooldown.
     protected override void Attack() {
         if (!IsServer || _isExploding) return;
-        Debug.Log("Explosive Attack");
+
         _isExploding = true;
         isBlinking.Value = true;
 
@@ -107,35 +102,40 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     protected virtual IEnumerator DelayedExplosion(float delay) {
         yield return new WaitForSeconds(delay);
         AttackServerRpc(true);
-
     }
 
     // the actual attack
     [ServerRpc(RequireOwnership = false)]
-    private void AttackServerRpc(bool destroyAfterAttack = false)
+    private void AttackServerRpc(bool destroyAfterAttack = true)
     {
         if (!IsServer) return;
+
+        try {
+            PlaySoundForEmitter("explode_die", transform.position);
+        }
+        catch (System.Exception e) {
+            Debug.LogError("Error play sound for emitter: " + e.Message);
+        }
+
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
         ParticleManager.instance.SpawnSelfThenAll("EnemyExplosion", transform.position, Quaternion.identity);
-
-        float dmgAiScaled = damage * AIDmgMultiplier;
-        Debug.Log ("dmgAiScaled is: " + dmgAiScaled);
 
         // Explosion hurts players and enemies, but enemies only take 1/3 of the damage
         foreach (var hitCollider in hitColliders)
         {
             if (hitCollider.CompareTag("Player"))
             {
-                hitCollider.GetComponent<Damageable>().InflictDamage(dmgAiScaled, false, gameObject);
+                hitCollider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
             }
             else if (hitCollider.CompareTag("Enemy"))
             {
-                hitCollider.GetComponent<Damageable>().InflictDamage(dmgAiScaled / 3, false, gameObject);
+                hitCollider.GetComponent<Damageable>().InflictDamage(damage / 3, false, gameObject);
             }
         }
 
         if (destroyAfterAttack)
         {
+            enemySpawner.RemoveEnemyFromList(gameObject);
             enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
         }
     }
@@ -148,14 +148,4 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
         base.OnNetworkDespawn();
     }
-
-    public void PlaySoundForEmitter(string emitterId, Vector3 position) {
-        foreach (SoundEmitter emitter in soundEmitters) {
-            if (emitter.emitterID == emitterId) {
-                emitter.PlayNetworkedSound(position);
-                return;
-            }
-        }
-    }
-    
 }

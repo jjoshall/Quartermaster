@@ -4,6 +4,7 @@ using Unity.Netcode;
 using System.Collections;
 using TMPro;
 using System.Collections.Generic;
+using GLTFast.Schema;
 
 public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     // THIS IS FOR GAME MANAGER, you can change values in the
@@ -28,12 +29,14 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [Header("Enemy Settings")]
     [SerializeField] private float _attackDelay = 2.0f;
     private float _lastAttackTime = 0.0f;
-
+    public GameObject originalPrefab; // this is for the object pooling to know to use this
 
     [Header("Required Scripts for Enemies")]
     protected NavMeshAgent agent;
     protected Health health;
     public EnemySpawner enemySpawner;
+    protected SoundEmitter[] soundEmitters;
+    protected Animator animator;
 
     [Header("Enemy pathing")]
     [SerializeField] private float _localDetectionRange = 20f; // how far to switch from global to direct aggro
@@ -76,12 +79,14 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
         playersThatHitMe = new List<GameObject>();
 
+        animator = GetComponentInChildren<Animator>();
+        soundEmitters = GetComponentsInChildren<SoundEmitter>(true);
+
         if (!IsServer) {
             agent.enabled = false;
             enabled = false;
         }
         else {
-
             if (health != null) {
                 health.OnDamaged += OnDamaged;
                 health.OnDie += OnDie;
@@ -99,7 +104,18 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         if (!IsServer) return;
         UpdateTarget(); // sets targetPosition to closest player within localDetectionRange, else global target
         Pathing(); // if in attackRange
+    }
 
+    public void OnEnable() {
+        if (agent != null) {
+            agent.enabled = true;
+        }
+    }
+
+    public void OnDisable() {
+        if (agent != null) {
+            agent.enabled = false;
+        }
     }
 
     private void Pathing(){        
@@ -123,6 +139,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         }
     }
     #endregion 
+
     #region BoidSeparation
     private void LateUpdate() {
         if (!IsServer) return;
@@ -133,7 +150,6 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     }
     // Apply boids separation for fluid-like emergent behavior.
     private void ApplySeparationForce() {
-        // Vector3 separationForce = Vector3.zero;
         int count = 0;
         int enemyLayer = LayerMask.NameToLayer("Enemy");
         int enemyLayerMask = 1 << enemyLayer;
@@ -236,43 +252,52 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         return closestPlayer;
     }
 
+    // For sound
+    protected void PlaySoundForEmitter(string emitterId, Vector3 position) {
+        foreach (SoundEmitter emitter in soundEmitters) {
+            if (emitter.emitterID == emitterId) {
+                emitter.PlayNetworkedSound(position);
+                return;
+            }
+        }
+    }
 
     // Called when enemy takes damage
     protected virtual void OnDamaged(float damage, GameObject damageSource) {
-        if (floatingTextPrefab != null) {
-            ShowFloatingTextServerRpc(damage);  // show floating damage numbers on server/client
-        }
-        
+        //if (floatingTextPrefab != null) {
+        //    ShowFloatingTextServerRpc(damage);  // show floating damage numbers on server/client
+        //}
+
+        PlaySoundForEmitter("melee_damaged", transform.position);
+
         GameManager.instance.AddEnemyDamageServerRpc(damage);   // tracks total damage dealt to enemies
         if (!playersThatHitMe.Contains(damageSource)) {
             playersThatHitMe.Add(damageSource);
         } // prevent multiple hits from same player
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void ShowFloatingTextServerRpc(float damage) {
-        ShowFloatingTextClientRpc(damage);
-    }
+    //[ServerRpc(RequireOwnership = false)]
+    //private void ShowFloatingTextServerRpc(float damage) {
+    //    ShowFloatingTextClientRpc(damage);
+    //}
 
-    [ClientRpc]
-    void ShowFloatingTextClientRpc(float damage) {
-        var go = Instantiate(floatingTextPrefab, transform.position, Quaternion.identity, transform);
-        go.GetComponent<TextMeshPro>().SetText(damage.ToString());
-    }
+    //[ClientRpc]
+    //void ShowFloatingTextClientRpc(float damage) {
+    //    var go = Instantiate(floatingTextPrefab, transform.position, Quaternion.identity, transform);
+    //    go.GetComponent<TextMeshPro>().SetText(damage.ToString());
+    //}
 
     // Called when enemy dies
     protected virtual void OnDie() {
         ItemManager.instance.RollDropTable(transform.position);    // norman added this, has a chance to burst drop items
         GameManager.instance.IncrementEnemyKillsServerRpc();    // add to enemy kill count
+        Debug.Log("Removing " + gameObject.name + " from enemy list");
+        enemySpawner.RemoveEnemyFromList(gameObject);   // remove enemy from list of enemies
         enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());  // remove enemy from scene
     }
 
     public override void OnNetworkDespawn() {
         base.OnNetworkDespawn();
-
-        // if (IsServer && NetworkManager.Singleton != null) {
-        //     NetworkManager.Singleton.OnClientDisconnectCallback -= ClientDisconnected;
-        // }
 
         if (health != null) {
             health.OnDamaged -= OnDamaged;
