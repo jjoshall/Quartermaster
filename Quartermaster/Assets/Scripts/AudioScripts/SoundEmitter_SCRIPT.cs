@@ -61,9 +61,9 @@ public class SoundEmitter : MonoBehaviour {
             }
         }
 
-        //Debug.Log("[SoundEmitter] Playing sound: " + soundAddressableKey);
+        Debug.Log("[SoundEmitter] Playing sound: " + soundAddressableKey);
 
-        //Debug.Log("Requestion sound server RPC for " + soundAddressableKey);
+        Debug.Log("Requestion sound server RPC for " + soundAddressableKey);
         networkAudio.RequestSoundServerRpc(soundAddressableKey, soundPosition, destinationMixer, isLooped: isLooped);
     }
     
