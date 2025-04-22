@@ -264,9 +264,11 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     // Called when enemy takes damage
     protected virtual void OnDamaged(float damage, GameObject damageSource) {
-        //if (floatingTextPrefab != null) {
-        //    ShowFloatingTextServerRpc(damage);  // show floating damage numbers on server/client
-        //}
+        Vector3 floatingTextPosition = transform.position;
+        
+        if (floatingTextPrefab != null) {
+            enemySpawner.SpawnDamageNumberFromPool(floatingTextPrefab, floatingTextPosition, damage);  // show floating damage numbers with pooling
+        }
 
         PlaySoundForEmitter("melee_damaged", transform.position);
 

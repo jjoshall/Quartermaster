@@ -1,7 +1,6 @@
 using UnityEngine;
 
 public class FloatingText_SCRIPT : MonoBehaviour {
-    private float _destroyTime = 3f;
     [SerializeField] private float _moveSpeed = 20f;
     [SerializeField] private Vector3 _offset = new Vector3(0, 1f, 0);
     [SerializeField] private Vector3 _randomizeIntensity = new Vector3(2f, 0, 0);
@@ -10,7 +9,6 @@ public class FloatingText_SCRIPT : MonoBehaviour {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start() {
         _playerCamera = Camera.main.transform;
-        Destroy(gameObject, _destroyTime);
         transform.localPosition += _offset;
         transform.localPosition += new Vector3(Random.Range(-_randomizeIntensity.x, _randomizeIntensity.x),
             Random.Range(-_randomizeIntensity.y, _randomizeIntensity.y),

@@ -5,6 +5,7 @@ using UnityEngine;
 using System.Threading.Tasks;
 using Unity.BossRoom.Infrastructure;
 using System.Linq;    // Add this for network object pooling
+using TMPro;        // Add this for TextMeshPro
 
 public class EnemySpawner : NetworkBehaviour {
     [Header("Spawner Timer")]
@@ -91,6 +92,7 @@ public class EnemySpawner : NetworkBehaviour {
         SpawnOverTime();
     }
 
+    #region Spawning Enemies
     private void SpawnOverTime() {
         if (!IsServer) return;
         if (activePlayerList.Count == 0) return; // No players in active area.
@@ -143,32 +145,36 @@ public class EnemySpawner : NetworkBehaviour {
         }
     }
 
-    #region Pooling example
+    #endregion
+
+    #region Pooling example (floating damage numbers)
     /// <summary>
     /// How to pool!!
     /// </summary>
-    //private async void SpawnFromPool(GameObject enemyToSpawn) {
-    //    if (!IsServer) return;
+    public async void SpawnDamageNumberFromPool(GameObject floatingTextPrefab, Vector3 spawnPosition, float damage) {
+        if (!IsServer) return;
 
-    //    // Just get any object from the object pool
-    //    NetworkObject networkObject = _objectPool.GetNetworkObject(
-    //        enemyToSpawn,
-    //        poolContainer,
-    //        Quaternion.identity
-    //    );
+        // Just get any object from the object pool
+        NetworkObject networkObject = _objectPool.GetNetworkObject(
+            floatingTextPrefab,
+            spawnPosition,
+            Quaternion.identity
+        );
 
-    //    // Spawn on network
-    //    networkObject.Spawn(true);
+        networkObject.GetComponent<TextMeshPro>().SetText(damage.ToString());
 
-    //    // Have the enemy spawn for 10 seconds
-    //    await Task.Delay(10000);
+        // Spawn on network
+        networkObject.Spawn(true);
 
-    //    // Despawn from network first
-    //    networkObject.Despawn();
+        // Have the enemy spawn for 2.5 seconds
+        await Task.Delay(2500);
 
-    //    // Return to pool
-    //    _objectPool.ReturnNetworkObject(networkObject, _enemySpawnData[0].enemyPrefab.gameObject);
-    //}
+        // Despawn from network first
+        networkObject.Despawn();
+
+        // Return to pool
+        _objectPool.ReturnNetworkObject(networkObject, floatingTextPrefab);
+    }
 
     #endregion
 
