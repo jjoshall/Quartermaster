@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &5527477598722357844
 Transform:
   m_ObjectHideFlags: 0
@@ -141,7 +141,6 @@ GameObject:
   - component: {fileID: 5131794169148518160}
   - component: {fileID: 1885898373684724043}
   - component: {fileID: 4257739937915784478}
-  - component: {fileID: 7075055342597768112}
   m_Layer: 7
   m_Name: ExplosiveEnemy_PREFAB
   m_TagString: Enemy
@@ -319,14 +318,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   _attackDelay: 2
-  originalPrefab: {fileID: 0}
   enemySpawner: {fileID: 0}
   _localDetectionRange: 20
-  _useSeparation: 0
-  _maxNeighbors: 3
   _separationRadius: 10
   _separationStrength: 0.3
-  _separationDecay: 0.9
   AISpeedMultiplier: 1
   AIDmgMultiplier: 1
   floatingTextPrefab: {fileID: 550058981611720628, guid: 2f1aa88225abaa94ea335fa199c81f1d, type: 3}
@@ -396,25 +391,6 @@ MonoBehaviour:
   destinationMixer: SFX
   soundAddressableKeys:
   - Enemy/EnemyExplodeDie.ogg
-  emitterTypes: []
---- !u!114 &7075055342597768112
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5746035906590994295}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01db514f5e6309c4e9942a6913481df6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  emitterID: melee_damaged
-  destinationMixer: SFX
-  soundAddressableKeys:
-  - Enemy/EnemyHurt_1.ogg
-  - Enemy/EnemyHurt_2.ogg
-  - Enemy/EnemyHurt_3.ogg
   emitterTypes: []
 --- !u!1 &7813868877917393971
 GameObject:

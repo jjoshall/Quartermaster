@@ -25,7 +25,7 @@ public class Health : NetworkBehaviour {
 
     private bool _wasCritical = false;
     [SerializeField] private FullScreenTestController _damageEffect;
-    //bool IsDead;
+    bool IsDead;
 
     public override void OnNetworkSpawn() {
         if (!IsServer) {
@@ -137,8 +137,11 @@ public class Health : NetworkBehaviour {
     }
 
     void HandleDeath() {
+        /*if (IsDead)
+            return;*/
+
         if (CurrentHealth.Value <= 0f) {
-            //IsDead = true;
+            IsDead = true;
             OnDie?.Invoke();
             NotifyDeathClientRpc();
         }        

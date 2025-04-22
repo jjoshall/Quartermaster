@@ -346,8 +346,8 @@ public class PlayerController : NetworkBehaviour {
             QueryTriggerInteraction.Ignore)) {
             // get the name of the object in the raycasthit hit
             GameObject objHit = hit.collider.gameObject;    
-            //Debug.Log ("moveplayer detected plane: " + objHit.name);    
-            //Debug.Log("Hit object layer: " + LayerMask.LayerToName(objHit.layer));
+            Debug.Log ("moveplayer detected plane: " + objHit.name);    
+            Debug.Log("Hit object layer: " + LayerMask.LayerToName(objHit.layer));
    
             // We remember the last impact speed because the fall damage logic might need it
             lastImpactSpeed = playerVelocity;
