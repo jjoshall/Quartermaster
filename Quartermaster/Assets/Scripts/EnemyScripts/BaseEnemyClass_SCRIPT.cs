@@ -69,7 +69,6 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected List<GameObject> playersThatHitMe;
 
     public override void OnNetworkSpawn() {
-       
         agent = GetComponent<NavMeshAgent>();
         _baseSpeed = agent.speed;
         _baseAcceleration = agent.acceleration;

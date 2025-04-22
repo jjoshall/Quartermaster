@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 7058522195840631199}
   - component: {fileID: 892661121135032280}
   - component: {fileID: 6800806412146943092}
-  - component: {fileID: 6201422836404246524}
   - component: {fileID: 5340930080691571394}
+  - component: {fileID: 6201422836404246524}
   - component: {fileID: 3957003157785878353}
   m_Layer: 0
   m_Name: FloatingText_PREFAB
@@ -179,21 +179,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_renderer: {fileID: 892661121135032280}
   m_maskType: 0
---- !u!114 &6201422836404246524
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 550058981611720628}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ea74a510ebdd3c4fb079e4695f9cfaa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _moveSpeed: 3
-  _offset: {x: 0, y: 1.5, z: 0}
-  _randomizeIntensity: {x: 1.75, y: 0, z: 0}
 --- !u!114 &5340930080691571394
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219,6 +204,23 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!114 &6201422836404246524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 550058981611720628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ea74a510ebdd3c4fb079e4695f9cfaa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  _moveSpeed: 3
+  _offset: {x: 0, y: 1.5, z: 0}
+  _randomizeIntensity: {x: 1.75, y: 0, z: 0}
+  _text: {fileID: 6800806412146943092}
 --- !u!95 &3957003157785878353
 Animator:
   serializedVersion: 7

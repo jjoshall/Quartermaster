@@ -161,15 +161,22 @@ public class EnemySpawner : NetworkBehaviour {
             Quaternion.identity
         );
 
-        networkObject.GetComponent<TextMeshPro>().SetText(damage.ToString());
+        if (networkObject.IsSpawned) {
+            Debug.LogWarning($"Tried to spawn {networkObject.name} but it is already spawned.");
+            return;
+        }
 
         // Spawn on network
         networkObject.Spawn(true);
 
-        // Have the enemy spawn for 2.5 seconds
+        // Get the floating text instance and set its text
+        FloatingText_SCRIPT floatingScript = networkObject.GetComponent<FloatingText_SCRIPT>();
+        floatingScript.SetTextClientRpc(damage);
+
+        // Have the object spawn for 2.5 seconds
         await Task.Delay(2500);
 
-        // Despawn from network first
+        // Then despawn from network first
         networkObject.Despawn();
 
         // Return to pool
