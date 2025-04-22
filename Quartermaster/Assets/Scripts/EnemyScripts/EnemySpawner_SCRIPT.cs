@@ -14,7 +14,7 @@ public class EnemySpawner : NetworkBehaviour {
     [Header("Spawner Settings")]
     [HideInInspector] public NetworkVariable<bool> isSpawning = new NetworkVariable<bool>(false);
     [SerializeField] private int _maxEnemyInstanceCount = 50;
-    [HideInInspector] public float _totalWeight = 0f;
+    [SerializeField] private List<WeightedPrefab> weightedPrefabs = new List<WeightedPrefab>();     // weights for enemy spawning (higher = more likely to spawn)
 
     [SerializeField] private float globalAggroUpdateInterval = 10.0f;
     private float globalAggroUpdateTimer = 0.0f;
@@ -35,6 +35,13 @@ public class EnemySpawner : NetworkBehaviour {
 
     // Reference NetworkObjectPool
     private NetworkObjectPool _objectPool;
+
+    // Weights struct for enemy prefabs
+    [System.Serializable]
+    public struct WeightedPrefab {
+        public GameObject Prefab;
+        public float Weight;
+    }
 
     void Awake() {
         if (instance == null) {
@@ -99,16 +106,7 @@ public class EnemySpawner : NetworkBehaviour {
     }
 
     private void SpawnOneEnemy() {
-        var availablePooledEnemies = _objectPool.GetRegisteredPrefabs().ToList();
-        GameObject enemyPrefab = null;
-
-        foreach (var prefab in availablePooledEnemies) {
-            if (_objectPool.HasInactiveInstance(prefab)) {
-                enemyPrefab = prefab;
-                break;
-            }
-        }
-
+        GameObject enemyPrefab = GetWeightedRandomInactivePrefab(); // Get a random enemy prefab from the pool
         if (enemyPrefab == null) return; // No available enemies in pool.
 
         Vector3 spawnPoint = GetSpawnPoint();
@@ -296,6 +294,36 @@ public class EnemySpawner : NetworkBehaviour {
     private void serverDebugMsgServerRpc(string msg) {
         if (!IsServer) { return; }
         Debug.Log(msg);
+    }
+
+    private GameObject GetWeightedRandomInactivePrefab() {
+        // Filter out prefabs that have no inactive instances in the pool
+        List<WeightedPrefab> validPrefabs = new List<WeightedPrefab>();
+        float _totalWeight = 0f;
+
+        foreach (var wp in weightedPrefabs) {
+            if (_objectPool.HasInactiveInstance(wp.Prefab)) {
+                validPrefabs.Add(wp);
+                _totalWeight += wp.Weight;
+            }
+        }
+
+        if (validPrefabs.Count == 0) {
+            Debug.LogError("No valid prefabs found.");
+            return null;
+        }
+
+        float randomValue = Random.Range(0f, _totalWeight);
+        float cumulativeWeight = 0f;
+
+        foreach (var wp in validPrefabs) {
+            cumulativeWeight += wp.Weight;
+            if (randomValue <= cumulativeWeight) {
+                return wp.Prefab;
+            }
+        }
+
+        return validPrefabs[validPrefabs.Count - 1].Prefab; // Fallback to the last prefab
     }
 
     private Vector3 GetSpawnPoint() {
