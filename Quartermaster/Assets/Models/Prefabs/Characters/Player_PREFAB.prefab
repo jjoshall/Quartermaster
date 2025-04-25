@@ -916,6 +916,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   hoverThreshold: 0.5
+  tooltipCirclePrefab: {fileID: 7772531298767028386, guid: d6da2c832c7c55b4d991d33394f0f7c4, type: 3}
+  lineRendererPrefab: {fileID: 1263851444405689432, guid: 030098c7de9087b4e96f6613f35400ce, type: 3}
+  tooltipPanelPrefab: {fileID: 7623266335293520023, guid: 1248d0063fde9ea4287b847436191ca6, type: 3}
 --- !u!1 &4051569661143897689
 GameObject:
   m_ObjectHideFlags: 0
@@ -1230,6 +1233,7 @@ MonoBehaviour:
   _playerCam: {fileID: 3428043383610237515}
   raycastPickupRange: 2.5
   nolookClosestPickupRange: 1
+  raycastOffset: 0.5
 --- !u!1 &6822122996988940553
 GameObject:
   m_ObjectHideFlags: 0

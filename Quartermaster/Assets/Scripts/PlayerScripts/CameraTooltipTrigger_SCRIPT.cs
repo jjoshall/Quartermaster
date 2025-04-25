@@ -13,6 +13,16 @@ public class CameraTooltipTrigger : NetworkBehaviour
     private GameObject currentTarget;
     private Tooltippable currentTooltippable;
     private bool tooltipShown = false;
+
+    [SerializeField] private GameObject tooltipCirclePrefab;
+    [SerializeField] private GameObject lineRendererPrefab;
+    [SerializeField] private GameObject tooltipPanelPrefab;
+
+    void Start()
+    {
+    }
+
+
     void Update()
     {
         RayCastCheck();
@@ -43,6 +53,14 @@ public class CameraTooltipTrigger : NetworkBehaviour
 
                         tooltip.SendMyTooltipTo(thisObjOwnerId);
                         tooltipShown = true;
+
+                        GameObject lineRenderer = Instantiate(lineRendererPrefab, UIManager.instance.playerDrawCanvas.transform);
+                        Debug.Log ("lineRenderer instantiated");
+                        GameObject panel = Instantiate(tooltipPanelPrefab, UIManager.instance.playerDrawCanvas.transform);
+                        Debug.Log ("tooltipPanel instantiated");
+                        GameObject newTooltip = Instantiate(tooltipCirclePrefab, UIManager.instance.playerDrawCanvas.transform);
+                        Debug.Log ("newTooltip instantiated");
+                        newTooltip.GetComponent<TooltippableAnimated>().Initialize(this.gameObject, hitObject, lineRenderer, panel, "test");
                     }
                 }
                 else
