@@ -58,4 +58,6 @@ public class UILineRenderer : Graphic
         vertex.position += new Vector3 (unitWidth * point.x, unitHeight * point.y, 0f);
         vh.AddVert(vertex);
     }
+
+    
 }

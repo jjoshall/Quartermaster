@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using UnityEngine.Events;
 
 public class CameraTooltipTrigger : NetworkBehaviour
 {
@@ -11,12 +12,18 @@ public class CameraTooltipTrigger : NetworkBehaviour
 
     private float hoverTime = 0f;
     private GameObject currentTarget;
-    private Tooltippable currentTooltippable;
-    private bool tooltipShown = false;
 
     [SerializeField] private GameObject tooltipCirclePrefab;
     [SerializeField] private GameObject lineRendererPrefab;
     [SerializeField] private GameObject tooltipPanelPrefab;
+  
+    GameObject _activeLineRenderer;
+    GameObject _activeTooltipCircle;
+    GameObject _activeTooltipPanel;
+
+
+    private Tooltippable currentTooltippable;
+    private bool tooltipShown = false;
 
     void Start()
     {
@@ -33,10 +40,20 @@ public class CameraTooltipTrigger : NetworkBehaviour
         // Create a ray from the main camera through the mouse cursor position.
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
+        int layerMask = ~(1 << LayerMask.NameToLayer("HeldItem")); // make a layer mask to ignore HeldItem layer
 
-        if (Physics.Raycast(ray, out hit))
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask, QueryTriggerInteraction.Ignore))
         {
             GameObject hitObject = hit.collider.gameObject;
+            if (hitObject == null)
+            {
+                // If the raycast hit nothing, reset any tooltip.
+                DestroyPreviousTooltip();
+                return;
+            } else if (currentTarget != hitObject)
+            {
+                DestroyPreviousTooltip();
+            }
             // Try to get the Tooltippable component on the hit object.
             Tooltippable tooltip = hitObject.GetComponent<Tooltippable>();
 
@@ -54,13 +71,13 @@ public class CameraTooltipTrigger : NetworkBehaviour
                         tooltip.SendMyTooltipTo(thisObjOwnerId);
                         tooltipShown = true;
 
-                        GameObject lineRenderer = Instantiate(lineRendererPrefab, UIManager.instance.playerDrawCanvas.transform);
+                        _activeLineRenderer = Instantiate(lineRendererPrefab, UIManager.instance.playerDrawCanvas.transform);
                         Debug.Log ("lineRenderer instantiated");
-                        GameObject panel = Instantiate(tooltipPanelPrefab, UIManager.instance.playerDrawCanvas.transform);
-                        Debug.Log ("tooltipPanel instantiated");
-                        GameObject newTooltip = Instantiate(tooltipCirclePrefab, UIManager.instance.playerDrawCanvas.transform);
+                        // GameObject panel = Instantiate(tooltipPanelPrefab, UIManager.instance.playerDrawCanvas.transform);
+                        // Debug.Log ("tooltipPanel instantiated");
+                        _activeTooltipCircle = Instantiate(tooltipCirclePrefab, UIManager.instance.playerDrawCanvas.transform);
                         Debug.Log ("newTooltip instantiated");
-                        newTooltip.GetComponent<TooltippableAnimated>().Initialize(this.gameObject, hitObject, lineRenderer, panel, "test");
+                        _activeTooltipCircle.GetComponent<TooltippableAnimated>().Initialize(this.gameObject, hitObject, _activeLineRenderer, null, "test");
                     }
                 }
                 else
@@ -83,6 +100,34 @@ public class CameraTooltipTrigger : NetworkBehaviour
             ResetTooltip();
         }
     }
+
+    void DestroyPreviousTooltip(){
+        if (_activeTooltipCircle != null){
+            Destroy(_activeTooltipCircle);
+            _activeTooltipCircle = null;
+        }
+        if (_activeLineRenderer != null){
+            Destroy(_activeLineRenderer);
+            _activeLineRenderer = null;
+        }
+        if (_activeTooltipPanel != null){
+            Destroy(_activeTooltipPanel);
+            _activeTooltipPanel = null;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         // Helper method to reset hover data and hide the tooltip if needed.
     void ResetTooltip()

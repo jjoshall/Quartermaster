@@ -29,7 +29,7 @@ public class TooltippableAnimated : MonoBehaviour
                             GameObject line, 
                             GameObject panel, string tooltipText){
         _camRef = cam;
-        UIManager.instance.playerDrawCanvas.worldCamera = cam.GetComponent<Camera>();
+        // UIManager.instance.playerDrawCanvas.worldCamera = cam.GetComponent<Camera>();
         _highlightObjectRef = highlightObj;
         this.transform.localScale = new Vector3 (1f, 1f, 0f);
         tooltippableLine = line;
@@ -38,7 +38,7 @@ public class TooltippableAnimated : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
         if (_camRef != null && _highlightObjectRef != null){
             UpdateLocalCanvasPosition();
@@ -64,6 +64,23 @@ public class TooltippableAnimated : MonoBehaviour
 
     void AnimateLineRenderer(){
         _lineOrigin = transform.localPosition;
+
+        LeanTween.value(tooltippableLine, 0f, 1f, lineDrawDuration)
+            .setOnUpdate((float val) =>
+            {
+                UILineRenderer lr = tooltippableLine.GetComponent<UILineRenderer>();
+                if (lr == null) return;
+
+                
+                // take a originOffset towards the highlightObjectRef by 0.1x of the distance
+                Vector3 originOffset = _lineOrigin + (_highlightObjectRef.transform.localPosition - _lineOrigin) * 0.1f;
+                Vector3 curr = Vector3.Lerp(originOffset, _highlightObjectRef.transform.localPosition, val);
+
+                lr.points.Clear(); // Clear previous points
+                lr.points.Add(new Vector2(originOffset.x, originOffset.y)); // Start point
+                lr.points.Add(new Vector2(curr.x, curr.y)); // End point
+                lr.SetVerticesDirty(); // Mark the line renderer as dirty to update it
+            });
     }
 
     // void AnimateFillPanel(){
@@ -97,14 +114,14 @@ public class TooltippableAnimated : MonoBehaviour
             transform.localPosition = new Vector3 (localPoint.x, localPoint.y, 0f); 
 
             _lineOrigin = new Vector3 (localPoint.x, localPoint.y, 0f);
-            _lineDestination = new Vector3 (0, 0, 0);
+            _lineDestination = new Vector3 (200f   , 400f, 0);
         }
     }
 
 
     void UpdateLineRenderers(){
-        _lineOrigin = transform.localPosition;
-        _lineDestination = _highlightObjectRef.transform.localPosition; // Assuming this is the target position
+        _lineOrigin = new Vector3 (transform.localPosition.x, transform.localPosition.y, 0f); // Assuming this is the origin position
+        _lineDestination = new Vector3 (_highlightObjectRef.transform.localPosition.x, _highlightObjectRef.transform.localPosition.y, 0f); // Assuming this is the target position
 
         UILineRenderer lr = tooltippableLine.GetComponent<UILineRenderer>();
         if (lr == null) return;
