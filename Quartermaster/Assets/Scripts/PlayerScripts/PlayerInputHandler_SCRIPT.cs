@@ -163,4 +163,28 @@ public class PlayerInputHandler : NetworkBehaviour {
             inventoryIndex = 3;
         }
     }
+    
+    public void ScrollDown(InputAction.CallbackContext ctx) {
+        if (PauseMenuToggler.IsPaused) return;
+        if (ctx.started){
+            if (inventoryIndex < 3) {
+                inventoryIndex += 1;
+            }
+            else {
+                inventoryIndex = 0;
+            }
+        }
+    }
+
+    public void ScrollUp(InputAction.CallbackContext ctx) {
+        if (PauseMenuToggler.IsPaused) return;
+        if (ctx.started){
+            if (inventoryIndex > 0) {
+                inventoryIndex -= 1;
+            }
+            else {
+                inventoryIndex = 3;
+            }
+        }
+    }
 }

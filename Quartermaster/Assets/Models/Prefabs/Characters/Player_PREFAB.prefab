@@ -340,6 +340,38 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 0c8ae3d9-a218-45a2-83a2-96431c35ee4f
     m_ActionName: 'Player/InventorySlot4[/Keyboard/4]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 510304234241520357}
+        m_TargetAssemblyTypeName: PlayerInputHandler, Assembly-CSharp
+        m_MethodName: ScrollDown
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 8a75a2fc-9435-4b15-a888-b76aa4816392
+    m_ActionName: 'Player/Scroll[/Mouse/scroll]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 510304234241520357}
+        m_TargetAssemblyTypeName: PlayerInputHandler, Assembly-CSharp
+        m_MethodName: ScrollUp
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 75fe80d2-d700-4d86-93c6-efa272055810
+    m_ActionName: Player/New action
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Keyboard&Mouse
   m_DefaultActionMap: Player
@@ -1230,6 +1262,7 @@ MonoBehaviour:
   _playerCam: {fileID: 3428043383610237515}
   raycastPickupRange: 2.5
   nolookClosestPickupRange: 1
+  raycastOffset: 0.5
 --- !u!1 &6822122996988940553
 GameObject:
   m_ObjectHideFlags: 0
