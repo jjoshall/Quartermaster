@@ -27,6 +27,7 @@ GameObject:
   - component: {fileID: -4561571220772078312}
   - component: {fileID: 6016493604748831360}
   - component: {fileID: 2224282847750808586}
+  - component: {fileID: -6118026244107484246}
   m_Layer: 8
   m_Name: Player_PREFAB
   m_TagString: Player
@@ -682,6 +683,18 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   TransitionStateInfoList: []
   m_Animator: {fileID: 3188396106390176898}
+--- !u!114 &-6118026244107484246
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 533627647367738219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1a80057503a23143864e86e5b4179bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1180047318962825330
 GameObject:
   m_ObjectHideFlags: 0

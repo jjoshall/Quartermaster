@@ -1,116 +1,111 @@
-using Unity.Netcode.Transports.UTP;
-using Unity.Services.Authentication;
-using Unity.Netcode;
+using Steamworks;
 using Unity.Services.Core;
+using Unity.Services.Authentication;
 using Unity.Services.Relay;
-using Unity.Services.Relay.Models;
+using Unity.Netcode.Transports.UTP;
+using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using TMPro;
-using System.Collections;
-using System.Threading.Tasks; // Needed for Task.Delay
+using System.Threading.Tasks;
 
-public class IPRelay : MonoBehaviour {
+public class IPRelay : MonoBehaviour
+{
     [SerializeField] private TMP_Text joinCodeText;
     [SerializeField] private Canvas playerUICanvas;
     [SerializeField] private LobbyManagerUI lobbyManagerUI;
-    [SerializeField] private GameObject loadingPanel; // LoadingPanel in your level design scene
+    [SerializeField] private GameObject loadingPanel;
 
-    private async void Start() {
-        await UnityServices.InitializeAsync();
-        AuthenticationService.Instance.SignedIn += () => {
-            Debug.Log("Signed in as " + AuthenticationService.Instance.PlayerId);
-        };
+    private ulong  m_SteamId;
+    private string m_UgsPlayerId;
 
-        if (!AuthenticationService.Instance.IsSignedIn) {
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
+    private void Awake()
+    {
+        if (!SteamAPI.Init())
+        {
+            Debug.LogError("SteamAPI.Init() failed – check steam_appid.txt");
+            enabled = false;
+            return;
         }
+        Debug.Log("SteamAPI initialized");
+        m_SteamId = SteamUser.GetSteamID().m_SteamID;
+        Debug.Log($"Logged in to Steam as {m_SteamId}");
     }
 
-    public async void CreateRelay() {
-        // Call LoadingScreenManager to handle loading screen logic.
-        Task fadeOutTask = await LoadingScreenManager.Instance.ShowLoadingScreenAsync();
+    private async void Start()
+    {
+        // Initialize UGS (including Relay)
+        await UnityServices.InitializeAsync();
 
-        try {
-            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(3);
-            string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+        // Sign in anonymously so RelayService calls will work
+        if (!AuthenticationService.Instance.IsSignedIn)
+        {
+            await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            Debug.Log($"Signed in to UGS anon as {AuthenticationService.Instance.PlayerId}");
+        }
+        m_UgsPlayerId = AuthenticationService.Instance.PlayerId;
+
+        // Now you can CreateRelay/JoinRelay as before
+    }
+
+    private void Update()
+    {
+        SteamAPI.RunCallbacks();
+    }
+
+    public async void CreateRelay()
+    {
+        await LoadingScreenManager.Instance.ShowLoadingScreenAsync();
+        try
+        {
+            var alloc    = await RelayService.Instance.CreateAllocationAsync(3);
+            var joinCode = await RelayService.Instance.GetJoinCodeAsync(alloc.AllocationId);
             Debug.Log("Relay join code: " + joinCode);
 
-            NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(
-                allocation.RelayServer.IpV4,
-                (ushort)allocation.RelayServer.Port,
-                allocation.AllocationIdBytes,
-                allocation.Key,
-                allocation.ConnectionData
+
+            var utp = NetworkManager.Singleton.GetComponent<UnityTransport>();
+            utp.SetRelayServerData(
+                alloc.RelayServer.IpV4,
+                (ushort)alloc.RelayServer.Port,
+                alloc.AllocationIdBytes,
+                alloc.Key,
+                alloc.ConnectionData
             );
-
             NetworkManager.Singleton.StartHost();
-
-            // Update UI elements using the new LoadingScreenManager.
-            StartCoroutine(DelayedUIEnable(joinCode));
+            StartCoroutine(LoadingScreenManager.Instance.HandleDelayedUIEnable(joinCode));
         }
-        catch (RelayServiceException e) {
-            Debug.LogError("RelayServiceException caught: " + e);
+        catch
+        {
             LoadingScreenManager.Instance.DisableLoadingPanel();
-        }
-
-        // Optionally wait for fade-out to finish.
-        if (fadeOutTask != null) {
-            await fadeOutTask;
-            Debug.Log("Finished fade out");
+            Debug.LogError("Failed to create Relay");
         }
     }
 
-    public async void JoinRelay(string joinCode) {
-    // Show the loading screen (fade in, disable lobby UI, wait 3 seconds, then start fade-out)
-    Task fadeOutTask = await LoadingScreenManager.Instance.ShowLoadingScreenAsync();
-
-    try {
-        Debug.Log("Joining relay with code: " + joinCode);
-        JoinAllocation joinAlloc = await RelayService.Instance.JoinAllocationAsync(joinCode);
-
-        NetworkManager.Singleton.GetComponent<UnityTransport>().SetClientRelayData(
-            joinAlloc.RelayServer.IpV4,
-            (ushort)joinAlloc.RelayServer.Port,
-            joinAlloc.AllocationIdBytes,
-            joinAlloc.Key,
-            joinAlloc.ConnectionData,
-            joinAlloc.HostConnectionData
-        );
-
-        NetworkManager.Singleton.StartClient();
-
-        // Update UI elements using the LoadingScreenManager, just like CreateRelay does.
-        StartCoroutine(LoadingScreenManager.Instance.HandleDelayedUIEnable(joinCode));
+    public async void JoinRelay(string joinCode)
+    {
+        await LoadingScreenManager.Instance.ShowLoadingScreenAsync();
+        try
+        {
+            var joinAlloc = await RelayService.Instance.JoinAllocationAsync(joinCode);
+            var utp       = NetworkManager.Singleton.GetComponent<UnityTransport>();
+            utp.SetClientRelayData(
+                joinAlloc.RelayServer.IpV4,
+                (ushort)joinAlloc.RelayServer.Port,
+                joinAlloc.AllocationIdBytes,
+                joinAlloc.Key,
+                joinAlloc.ConnectionData,
+                joinAlloc.HostConnectionData
+            );
+            NetworkManager.Singleton.StartClient();
+            StartCoroutine(LoadingScreenManager.Instance.HandleDelayedUIEnable(joinCode));
+        }
+        catch
+        {
+            LoadingScreenManager.Instance.DisableLoadingPanel();
+            Debug.LogError("Failed to join Relay");
+        }
     }
-    catch (RelayServiceException e) {
-        Debug.LogError("Relay join failed: " + e);
-        LoadingScreenManager.Instance.DisableLoadingPanel();
-    }
-    
-    // Optionally wait for fade-out to finish before completing the join.
-    if (fadeOutTask != null) {
-        await fadeOutTask;
-        Debug.Log("Finished fade out");
+
+
+    public async void JoinLobbyThroughSteam() {
     }
 }
-
-
-    // Delegate the delayed UI enable to LoadingScreenManager.
-    private IEnumerator DelayedUIEnable(string joinCode) {
-        return LoadingScreenManager.Instance.HandleDelayedUIEnable(joinCode);
-    }
-
-    // Async method to fade a CanvasGroup's alpha over a given duration.
-    private async Task FadeCanvasGroup(CanvasGroup cg, float startAlpha, float endAlpha, float duration) {
-        float elapsed = 0f;
-        cg.alpha = startAlpha;
-        while (elapsed < duration) {
-            elapsed += Time.deltaTime;
-            cg.alpha = Mathf.Lerp(startAlpha, endAlpha, elapsed / duration);
-            await Task.Yield();
-        }
-        cg.alpha = endAlpha;
-    }
-}
-

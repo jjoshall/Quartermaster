@@ -9,6 +9,7 @@ public class HealthBarUI : MonoBehaviour {
     // [Header("Player Health Reference")]
     // // Reference to the player's Health component; assign this via code or the inspector
     // public Health playerHealth;
+    
 
     public static HealthBarUI instance;
     void Awake()
