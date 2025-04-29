@@ -12,7 +12,10 @@ public class UILineDrawer : MonoBehaviour
     private float _lineWidth = 2f;
     private float drawDuration = 1f;
 
-    private float borderClampMargin = 0.1f; // multiplier of canvas size to clamp the destination point within. 
+    private float borderClampXMargin = 0.1f; // multiplier of canvas size to clamp the destination point within. 
+    private float borderClampYMargin = 0.2f;
+    private float destXOffset = 0.2f; // 0-1f, multiplier of canvas size.
+    private float destYOffset = 0.2f; // 0-1f, multiplier of canvas size.
     // private Color lineColor = Color.white;
 
     // Runtime variables.
@@ -89,7 +92,8 @@ public class UILineDrawer : MonoBehaviour
     }
 
 
-    void UpdateLocalCanvasPosition(){
+    void UpdateLocalCanvasPosition()
+    {
         if (_camRef.TryGetComponent<Camera>(out Camera cam))
         {
             // Convert world position of the highlighted object to screen point
@@ -117,7 +121,8 @@ public class UILineDrawer : MonoBehaviour
         }
     }
 
-    public void UpdateLineDraw(float scale){
+    public void UpdateLineDraw(float scale)
+    {
         float totalDistance = Vector2.Distance(origin2d, dest2d);
         Vector3 midPoint = new Vector3 ((origin2d.x + dest2d.x) / 2.0f, (origin2d.y + dest2d.y) / 2.0f, 0.0f);
         float x = Mathf.Lerp (origin2d.x, midPoint.x, scale);
@@ -132,14 +137,16 @@ public class UILineDrawer : MonoBehaviour
     }
 
     // Takes origin as a canvas local point. 
-    Vector2 GetDestinationPoint(Canvas canvas, Vector2 origin){
+    Vector2 GetDestinationPoint(Canvas canvas, Vector2 origin)
+    {
         RectTransform canvasRect = canvas.GetComponent<RectTransform>();
         Vector2 canvasSize = canvasRect.sizeDelta;
-        float xOffset = origin.x > 0f ? 1f * canvasSize.x * borderClampMargin : -1f * canvasSize.x * borderClampMargin;
-        float yOffset = origin.y > 0f ? 1f * canvasSize.y * borderClampMargin : -1f * canvasSize.y * borderClampMargin;
+
+        // We offset towards sides of screen to avoid cluttering center of player view.
+        float xOffset = origin.x > 0f ? canvasSize.x * destXOffset : -1f * canvasSize.x * destXOffset;
+        float yOffset = origin.y > 0f ? canvasSize.y * destYOffset : -1f * canvasSize.y * destYOffset;
         Vector2 dest2d = new Vector2 (origin.x + xOffset, origin.y + yOffset);
-        // Debug.Log ("origin: " + origin + ", xOffset: " + xOffset + ", yOffset: " + yOffset + ", dest2d: " + dest2d);
-        return dest2d;
+        return GetClampedVector(canvas, dest2d);
     }
     
     #region helpers
@@ -168,17 +175,17 @@ public class UILineDrawer : MonoBehaviour
 
     // Takes point as a canvas local point. 
     Vector2 GetClampedVector(Canvas canvas, Vector2 point){
-        // RectTransform canvasRect = canvas.GetComponent<RectTransform>();
-        // Vector2 canvasSize = canvasRect.sizeDelta;
+        RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+        Vector2 canvasSize = canvasRect.sizeDelta;
 
-        // float aX = -canvasSize.x * canvasRect.pivot.x;
-        // float bX = canvasSize.x * (1 - canvasRect.pivot.x);
-        // float aY = -canvasSize.y * canvasRect.pivot.y;
-        // float bY = canvasSize.y * (1 - canvasRect.pivot.y);
-        // Vector2 clampedPoint = new Vector2(
-        //     Mathf.Clamp(point.x, aX, bX), 
-        //     Mathf.Clamp(point.y, aY, bY)
-        // );
-        return point;
+        float aX = -canvasSize.x * canvasRect.pivot.x + borderClampXMargin * canvasSize.x;
+        float bX = canvasSize.x * (1 - canvasRect.pivot.x) - borderClampXMargin * canvasSize.x;
+        float aY = -canvasSize.y * canvasRect.pivot.y  + borderClampYMargin * canvasSize.y;
+        float bY = canvasSize.y * (1 - canvasRect.pivot.y) - borderClampYMargin * canvasSize.y;
+        Vector2 clampedPoint = new Vector2(
+            Mathf.Clamp(point.x, aX, bX), 
+            Mathf.Clamp(point.y, aY, bY)
+        );
+        return clampedPoint;
     }
 }
