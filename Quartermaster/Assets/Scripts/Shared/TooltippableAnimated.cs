@@ -51,6 +51,7 @@ public class TooltippableAnimated : MonoBehaviour
     void AnimateTargetCircle(){
         Debug.Log ("AnimateFill() called.");
         LeanTween.value(radialImage.gameObject, 0f, 1f, fillDuration)
+            .setEase(LeanTweenType.easeOutCubic)
             .setOnUpdate((float val) =>
             {
                 radialImage.fillAmount = val;
@@ -63,24 +64,8 @@ public class TooltippableAnimated : MonoBehaviour
     }
 
     void AnimateLineRenderer(){
-        _lineOrigin = transform.localPosition;
-
-        LeanTween.value(tooltippableLine, 0f, 1f, lineDrawDuration)
-            .setOnUpdate((float val) =>
-            {
-                UILineRenderer lr = tooltippableLine.GetComponent<UILineRenderer>();
-                if (lr == null) return;
-
-                
-                // take a originOffset towards the highlightObjectRef by 0.1x of the distance
-                Vector3 originOffset = _lineOrigin + (_highlightObjectRef.transform.localPosition - _lineOrigin) * 0.1f;
-                Vector3 curr = Vector3.Lerp(originOffset, _highlightObjectRef.transform.localPosition, val);
-
-                lr.points.Clear(); // Clear previous points
-                lr.points.Add(new Vector2(originOffset.x, originOffset.y)); // Start point
-                lr.points.Add(new Vector2(curr.x, curr.y)); // End point
-                lr.SetVerticesDirty(); // Mark the line renderer as dirty to update it
-            });
+        tooltippableLine.GetComponent<UILineDrawer>().Initialize(_camRef, _highlightObjectRef, _lineOrigin, _lineDestination);
+        Debug.Log ("AnimateLineRenderer() called.");
     }
 
     // void AnimateFillPanel(){
@@ -120,16 +105,16 @@ public class TooltippableAnimated : MonoBehaviour
 
 
     void UpdateLineRenderers(){
-        _lineOrigin = new Vector3 (transform.localPosition.x, transform.localPosition.y, 0f); // Assuming this is the origin position
-        _lineDestination = new Vector3 (_highlightObjectRef.transform.localPosition.x, _highlightObjectRef.transform.localPosition.y, 0f); // Assuming this is the target position
+        // _lineOrigin = new Vector3 (transform.localPosition.x, transform.localPosition.y, 0f); // Assuming this is the origin position
+        // _lineDestination = new Vector3 (_highlightObjectRef.transform.localPosition.x, _highlightObjectRef.transform.localPosition.y, 0f); // Assuming this is the target position
 
-        UILineRenderer lr = tooltippableLine.GetComponent<UILineRenderer>();
-        if (lr == null) return;
+        // UILineRenderer lr = tooltippableLine.GetComponent<UILineRenderer>();
+        // if (lr == null) return;
 
-        lr.points.Clear(); // Clear previous points
-        lr.points.Add(new Vector2(_lineOrigin.x, _lineOrigin.y)); // Start point
-        lr.points.Add(new Vector2(_lineDestination.x, _lineDestination.y)); // End point
-        lr.SetVerticesDirty(); // Mark the line renderer as dirty to update it
+        // lr.points.Clear(); // Clear previous points
+        // lr.points.Add(new Vector2(_lineOrigin.x, _lineOrigin.y)); // Start point
+        // lr.points.Add(new Vector2(_lineDestination.x, _lineDestination.y)); // End point
+        // lr.SetVerticesDirty(); // Mark the line renderer as dirty to update it
     }
 
     #region helpers
