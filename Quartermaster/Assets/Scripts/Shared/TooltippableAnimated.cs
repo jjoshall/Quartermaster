@@ -4,20 +4,28 @@ using UnityEngine.UI;
 
 public class TooltippableAnimated : MonoBehaviour
 {
+    [Header("CircleSettings")]
     public Image radialImage;
     public float fillDuration = 1f;
-    public float lineDrawDuration = 1f;
+
+    [Header("LineSettings")]
+    [SerializeField] private float _lineWidth = 0.1f;
+    [SerializeField] private Color _lineColor = Color.white;
+    [SerializeField] private float _lineDrawDuration = 0.5f;
+
+    [Header("PanelSettings")]
+    // height, width, drawduration, color
+
+
 
     private GameObject _camRef;                  
     private GameObject _highlightObjectRef;
 
     private Vector3 _lineOrigin;
     private Vector3 _lineDestination;
-    [SerializeField] private float _lineWidth = 0.1f;
-    [SerializeField] private Color _lineColor = Color.white;
 
     private GameObject tooltippableLine; 
-    private GameObject tooltippablePanel;
+    private GameObject tooltippablePanel; 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -64,7 +72,14 @@ public class TooltippableAnimated : MonoBehaviour
     }
 
     void AnimateLineRenderer(){
-        tooltippableLine.GetComponent<UILineDrawer>().Initialize(_camRef, _highlightObjectRef, _lineOrigin, _lineDestination);
+        float originOffset = radialImage.GetComponent<RectTransform>().rect.width / 2f;
+        Debug.Log ("originOffset is " + originOffset);
+        tooltippableLine.GetComponent<UILineDrawer>().Initialize(_camRef, _highlightObjectRef, 
+                                                                _lineOrigin, originOffset,
+                                                                _lineDestination,
+                                                                _lineWidth, _lineColor,
+                                                                _lineDrawDuration);
+        tooltippableLine.GetComponent<UILineDrawer>()?.AnimateDrawLine();
         Debug.Log ("AnimateLineRenderer() called.");
     }
 

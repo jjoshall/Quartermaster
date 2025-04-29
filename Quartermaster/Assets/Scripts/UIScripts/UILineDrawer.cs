@@ -5,15 +5,19 @@ using UnityEngine.UI;
 
 public class UILineDrawer : MonoBehaviour
 {
+    // Inherited settings.
     private GameObject _camRef;
     private GameObject _highlightObjectRef;
+    private float _originOffset = 0.0f;
+    private float _lineWidth = 2f;
+    private float drawDuration = 1f;
+    // private Color lineColor = Color.white;
 
+    // Runtime variables.
     public Vector2 origin2d;
     public Vector2 dest2d;
+    private float _currScale = 0f; // 0-1f
 
-    public float thickness = 2f;
-    public float currScale = 0f; // 0-1f
-    public float drawDuration = 1f;
 
     void Start()
     {
@@ -23,17 +27,28 @@ public class UILineDrawer : MonoBehaviour
         this.transform.localScale = new Vector3(0f, 0f, 0f);
     }
 
-    public void Initialize(GameObject cam, GameObject highlightObj, Vector2 origin, Vector2 destination)
+    public void Initialize(GameObject cam, GameObject highlightObj, 
+                            Vector2 origin, float originOffset,
+                            Vector2 destination, 
+                            float lineWidth, 
+                            Color lineColor,
+                            float duration
+                            )
     {
         _camRef = cam;
         _highlightObjectRef = highlightObj;
 
         this.origin2d = origin;
         this.dest2d = destination;
+        _originOffset = originOffset;
+
+        Vector3 direction = (dest2d - origin2d).normalized;
+        this.origin2d = new Vector3 (origin2d.x + _originOffset * direction.x, origin2d.y + _originOffset * direction.y, 0f);
+
+        
         // set x scale to thickness, y scale to 0
-        this.transform.localScale = new Vector3(0f, thickness, 1f);
+        this.transform.localScale = new Vector3(0f, _lineWidth, 1f);
         // align rotation
-        Vector3 direction = destination - origin;
         float angle; // angle needs to be the angle between the origin and destination points
         if (direction.x == 0f) {
             angle = 0f; // no rotation needed
@@ -43,8 +58,9 @@ public class UILineDrawer : MonoBehaviour
         }
         this.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, angle));
         
-
-        AnimateDrawLine();
+        this._lineWidth = lineWidth;
+        this.gameObject.GetComponent<Image>().color = lineColor;
+        this.drawDuration = duration;
 
     }
 
@@ -53,7 +69,7 @@ public class UILineDrawer : MonoBehaviour
             .setEase(LeanTweenType.easeInOutCubic)
             .setOnUpdate((float val) =>
             {
-                currScale = val;
+                _currScale = val;
             })
             .setOnComplete(() =>
             {
@@ -67,7 +83,7 @@ public class UILineDrawer : MonoBehaviour
     {
         if (_camRef != null && _highlightObjectRef != null){
             UpdateLocalCanvasPosition();
-            UpdateLineDraw(currScale);
+            UpdateLineDraw(_currScale);
         }
     }
 
@@ -89,8 +105,10 @@ public class UILineDrawer : MonoBehaviour
             // Convert screen position to local position in canvas
             Vector2 localPoint = CustomScreenToCanvasLocalPoint(this.transform.parent.GetComponent<Canvas>(), screenPos);
             origin2d = new Vector3 (localPoint.x, localPoint.y, 0f);
-
             dest2d = new Vector3 (0f, 0f, 0f);
+
+            Vector3 direction = (dest2d - origin2d).normalized;
+            origin2d = new Vector3 (origin2d.x + _originOffset * direction.x, origin2d.y + _originOffset * direction.y, 0f);
 
             Debug.Log ("origin: " + origin2d + ", destination: " + dest2d + ", midpoint: " + Vector2.Lerp(origin2d, dest2d, 0.5f) + ", angle: " + Mathf.Atan2(dest2d.y - origin2d.y, dest2d.x - origin2d.x) * Mathf.Rad2Deg);
             // UpdateLineDraw (currScale);
@@ -105,7 +123,7 @@ public class UILineDrawer : MonoBehaviour
         Vector3 newPos = new Vector3 (x, y, 0f);
 
         this.transform.localPosition = newPos; // new Vector3 (newPos.x, newPos.y, 0f);
-        this.transform.localScale = new Vector3(totalDistance * scale, thickness, 1f);
+        this.transform.localScale = new Vector3(totalDistance * scale, _lineWidth, 1f);
 
         float angle = Mathf.Atan2(dest2d.y - origin2d.y, dest2d.x - origin2d.x) * Mathf.Rad2Deg;
         this.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, angle));
