@@ -21,7 +21,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         NetworkVariableWritePermission.Server);
 
     [SerializeField] private float _explosionDelay;
-    [SerializeField] private float _blinkSpeed = 5f;
+    //[SerializeField] private float _blinkSpeed = 5f;
     [Range(1f, 3f)]
     [SerializeField] private float _blinkingSpeedMultiplier = 1.3f;
 

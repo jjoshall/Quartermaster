@@ -105,8 +105,8 @@ public class GameManager : NetworkBehaviour {
     // WIP. MOVE BURST DROP RATE LOGIC HERE FROM ITEMMANAGER.
     public float burstDropRate; // chance of burst weapon dropping from enemy
 
-    [Header("DramaFunction")]
-    [SerializeField] private float _dramaOverTimeCoefficient = 0.1f;
+    //[Header("DramaFunction")]
+    //[SerializeField] private float _dramaOverTimeCoefficient = 0.1f;
     #endregion
 
     #region ReadonlyAccess
@@ -227,17 +227,17 @@ public class GameManager : NetworkBehaviour {
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
-    [Header("DramaFunction")]
-    // placeholder variables. nothing set in stone, just brainstorming
-    private float _drama = 0.0f;
+    //[Header("DramaFunction")]
+    //// placeholder variables. nothing set in stone, just brainstorming
+    //private float _drama = 0.0f;
 
-    private float DramaCurveEnemyHpMultiplier (float drama){
-        // Return some function based on time(?)/enemieskilled(?)/drama(?) to increase enemyHp.
-        return 0.0f; // placeholder
-    }
-    private float DramaCurveBurstDropRate (float drama){
-        return 0.0f;
-    }
+    //private float DramaCurveEnemyHpMultiplier (float drama){
+    //    // Return some function based on time(?)/enemieskilled(?)/drama(?) to increase enemyHp.
+    //    return 0.0f; // placeholder
+    //}
+    //private float DramaCurveBurstDropRate (float drama){
+    //    return 0.0f;
+    //}
 
     #endregion
 

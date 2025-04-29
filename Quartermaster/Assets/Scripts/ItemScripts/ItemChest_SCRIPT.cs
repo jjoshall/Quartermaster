@@ -9,16 +9,10 @@ public class ItemChest_SCRIPT : NetworkBehaviour
     private PlayerInputHandler _inputHandler;
 
     public override void OnNetworkSpawn() {
-        if (!IsServer) {
-            return;
-        }
+        base.OnNetworkSpawn();
     }
 
     private void OnTriggerEnter(Collider other) {
-        if (!IsServer) {
-            return;
-        }
-        
         if (!other.CompareTag("Player")) {
             return;
         }
@@ -32,21 +26,34 @@ public class ItemChest_SCRIPT : NetworkBehaviour
         Debug.Log("Player entered chest trigger zone.");
 
         _inputHandler.OnInteract += OpenChest;
+
+        // Change color of object locally for feedback
+        this.GetComponent<Renderer>().material.color = Color.red;
+
     }
 
     private void OnTriggerExit(Collider other) {
-        if (!IsServer) {
-            return;
-        }
-
         if (_inputHandler != null && other.GetComponent<PlayerInputHandler>() == _inputHandler) {
             Debug.Log("Player exited chest trigger zone.");
             _inputHandler.OnInteract -= OpenChest;
             _inputHandler = null;
+
+            // Change color of object back to original
+            this.GetComponent<Renderer>().material.color = Color.white;
         }
     }
 
     private void OpenChest() {
-        Debug.Log("Chest opened.");
+        OpenChestServerRpc();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void OpenChestServerRpc() {
+        OpenChestClientRpc();
+    }
+
+    [ClientRpc]
+    private void OpenChestClientRpc() {
+        this.GetComponent<Renderer>().material.color = Color.green;
     }
 }
