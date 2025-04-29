@@ -263,6 +263,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     // Called when enemy takes damage
     protected virtual void OnDamaged(float damage, GameObject damageSource) {
+        Debug.Log("Damage taken: " + damage);
         Vector3 floatingTextPosition = transform.position;
         
         if (floatingTextPrefab != null) {
@@ -276,17 +277,6 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             playersThatHitMe.Add(damageSource);
         } // prevent multiple hits from same player
     }
-
-    //[ServerRpc(RequireOwnership = false)]
-    //private void ShowFloatingTextServerRpc(float damage) {
-    //    ShowFloatingTextClientRpc(damage);
-    //}
-
-    //[ClientRpc]
-    //void ShowFloatingTextClientRpc(float damage) {
-    //    var go = Instantiate(floatingTextPrefab, transform.position, Quaternion.identity, transform);
-    //    go.GetComponent<TextMeshPro>().SetText(damage.ToString());
-    //}
 
     // Called when enemy dies
     protected virtual void OnDie() {

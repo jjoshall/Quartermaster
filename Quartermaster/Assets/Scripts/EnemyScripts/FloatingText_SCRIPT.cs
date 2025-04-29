@@ -32,6 +32,6 @@ public class FloatingText_SCRIPT : NetworkBehaviour {
 
     [ClientRpc]
     public void SetTextClientRpc(float damage) {
-        _text.SetText(damage.ToString());
+        _text.SetText(Mathf.RoundToInt(damage).ToString());
     }
 }
