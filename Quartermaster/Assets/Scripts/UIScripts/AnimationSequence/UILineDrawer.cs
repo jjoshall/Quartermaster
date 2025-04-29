@@ -8,20 +8,25 @@ public class UILineDrawer : MonoBehaviour
     // Inherited settings.
     private GameObject _camRef;
     private GameObject _highlightObjectRef;
+    private GameObject _panelDrawer;
+
+
     private float _originOffset = 0.0f;
     private float _lineWidth = 2f;
     private float drawDuration = 1f;
 
     private float borderClampXMargin = 0.1f; // multiplier of canvas size to clamp the destination point within. 
-    private float borderClampYMargin = 0.2f;
-    private float destXOffset = 0.2f; // 0-1f, multiplier of canvas size.
-    private float destYOffset = 0.2f; // 0-1f, multiplier of canvas size.
+    private float borderClampYMargin = 0.125f;
+    private float destXOffset = 0.12f; // 0-1f, multiplier of canvas size.
+    private float destYOffset = 0.08f; // 0-1f, multiplier of canvas size.
     // private Color lineColor = Color.white;
 
     // Runtime variables.
     public Vector2 origin2d;
     public Vector2 dest2d;
     private float _currScale = 0f; // 0-1f
+    public float xOffsetSign = 0f;
+    public float yOffsetSign = 0f;
 
 
     void Start()
@@ -36,11 +41,13 @@ public class UILineDrawer : MonoBehaviour
                             float originOffset,
                             float lineWidth, 
                             Color lineColor,
-                            float duration
+                            float duration,
+                            GameObject nextAnimation
                             )
     {
         _camRef = cam;
         _highlightObjectRef = highlightObj;
+        _panelDrawer = nextAnimation;
 
         this._lineWidth = lineWidth;
         this.gameObject.GetComponent<Image>().color = lineColor;
@@ -49,25 +56,10 @@ public class UILineDrawer : MonoBehaviour
         _originOffset = originOffset;
         UpdateLocalCanvasPosition();
         UpdateLineDraw(_currScale);
-        // Vector3 direction = (dest2d - origin2d).normalized;
-        // this.origin2d = new Vector3 (origin2d.x + _originOffset * direction.x, origin2d.y + _originOffset * direction.y, 0f);
-
-        
-        // // set x scale to thickness, y scale to 0
-        // this.transform.localScale = new Vector3(0f, _lineWidth, 1f);
-        // // align rotation
-        // float angle; // angle needs to be the angle between the origin and destination points
-        // if (direction.x == 0f) {
-        //     angle = 0f; // no rotation needed
-        // } else {
-        //     angle = Mathf.Atan2(direction.y, direction.x);
-        //     Debug.Log ("angle: " + angle);  
-        // }
-        // this.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, angle));
-        
-
     }
 
+    // called once, externally by previous animation in sequence (tooltippableanimated)
+    // animates _currScale value.
     public void AnimateDrawLine(){
         LeanTween.value(gameObject, 0f, 1f, drawDuration) 
             .setEase(LeanTweenType.easeInOutCubic)
@@ -77,17 +69,24 @@ public class UILineDrawer : MonoBehaviour
             })
             .setOnComplete(() =>
             {
-                // Step 2: Line draw animation
-                Debug.Log("Line draw complete.");
+                UIPanelDrawer next = _panelDrawer.GetComponent<UIPanelDrawer>();
+                if (next != null)
+                {
+                    next.AnimatePanel(); // animate the panel after the line is drawn.
+                }
+                else
+                {
+                    Debug.LogError("UIPanelDrawer component not found on the next animation object.");
+                }
             });
     }
 
-        // Update is called once per frame
+    // Update is called once per frame
     void LateUpdate()
     {
         if (_camRef != null && _highlightObjectRef != null){
-            UpdateLocalCanvasPosition();
-            UpdateLineDraw(_currScale);
+            UpdateLocalCanvasPosition(); // updates the origin (based on obj) and destination (based on origin, offset & clamped)
+            UpdateLineDraw(_currScale); // animates the line
         }
     }
 
@@ -115,9 +114,6 @@ public class UILineDrawer : MonoBehaviour
 
             Vector3 direction = (dest2d - origin2d).normalized;
             origin2d = new Vector3 (origin2d.x + _originOffset * direction.x, origin2d.y + _originOffset * direction.y, 0f);
-
-            Debug.Log ("origin: " + origin2d + ", destination: " + dest2d + ", temp: " + temp); 
-            // UpdateLineDraw (currScale);
         }
     }
 
@@ -142,9 +138,15 @@ public class UILineDrawer : MonoBehaviour
         RectTransform canvasRect = canvas.GetComponent<RectTransform>();
         Vector2 canvasSize = canvasRect.sizeDelta;
 
+        if (xOffsetSign == 0f && yOffsetSign == 0f){
+            // If no offset is set, we initialize the offset sign.
+            // Initialized once and not every call so that the destination doesn't flip back and forth. 
+            xOffsetSign = origin.x > 0f ? 1f : -1f;
+            yOffsetSign = origin.y > 0f ? 1f : -1f;
+        }
         // We offset towards sides of screen to avoid cluttering center of player view.
-        float xOffset = origin.x > 0f ? canvasSize.x * destXOffset : -1f * canvasSize.x * destXOffset;
-        float yOffset = origin.y > 0f ? canvasSize.y * destYOffset : -1f * canvasSize.y * destYOffset;
+        float xOffset = xOffsetSign * canvasSize.x * destXOffset;
+        float yOffset = yOffsetSign * canvasSize.y * destYOffset; 
         Vector2 dest2d = new Vector2 (origin.x + xOffset, origin.y + yOffset);
         return GetClampedVector(canvas, dest2d);
     }
@@ -152,6 +154,9 @@ public class UILineDrawer : MonoBehaviour
     #region helpers
     #endregion 
 
+    // couldn't get the recttransform utility thing to work so i made this function instead.
+    // scales screenpos to canvasrect and adjust for canvas pivot
+    // written with help from chatgpt. 
     Vector2 CustomScreenToCanvasLocalPoint(Canvas canvas, Vector3 screenPos)
     {
         RectTransform canvasRect = canvas.GetComponent<RectTransform>();

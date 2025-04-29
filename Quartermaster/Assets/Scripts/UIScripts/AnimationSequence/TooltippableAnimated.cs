@@ -17,6 +17,7 @@ public class TooltippableAnimated : MonoBehaviour
 
     [Header("PanelSettings")]
     // height, width, drawduration, color
+    [SerializeField] private string tooltipText = "";
 
 
 
@@ -26,8 +27,22 @@ public class TooltippableAnimated : MonoBehaviour
     private Vector3 _lineOrigin;
     private Vector3 _lineDestination;
 
+    [SerializeField] private GameObject lineRendererPrefab;
+    [SerializeField] private GameObject tooltipPanelPrefab;
     private GameObject tooltippableLine; 
-    private GameObject tooltippablePanel; 
+    private GameObject tooltippablePanel;
+
+    void OnDestroy()
+    {
+        if (tooltippableLine != null)
+        {
+            Destroy(tooltippableLine);
+        }
+        if (tooltippablePanel != null)
+        {
+            Destroy(tooltippablePanel);
+        }
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -36,15 +51,24 @@ public class TooltippableAnimated : MonoBehaviour
         this.GetComponent<Image>().color = _primary;
     }
 
-    public void Initialize(GameObject cam, GameObject highlightObj,
-                            GameObject line, 
-                            GameObject panel, string tooltipText){
+    public void Initialize(GameObject cam, GameObject highlightObj){
         _camRef = cam;
         // UIManager.instance.playerDrawCanvas.worldCamera = cam.GetComponent<Camera>();
         _highlightObjectRef = highlightObj;
         this.transform.localScale = new Vector3 (1f, 1f, 0f);
-        tooltippableLine = line;
-        tooltippablePanel = panel;
+        tooltippableLine = Instantiate(lineRendererPrefab, this.transform.parent);
+        tooltippablePanel = Instantiate(tooltipPanelPrefab, this.transform.parent);
+
+        float originOffset = radialImage.GetComponent<RectTransform>().rect.width / 2f;
+        Debug.Log ("originOffset is " + originOffset);
+        tooltippableLine.GetComponent<UILineDrawer>().Initialize(_camRef, _highlightObjectRef, 
+                                                                originOffset,
+                                                                _lineWidth, _primary,
+                                                                _lineDrawDuration, tooltippablePanel);
+        tooltippablePanel.GetComponent<UIPanelDrawer>().Init(tooltipText, tooltippableLine);
+
+
+                                                                
         AnimateTargetCircle();
     }
 
@@ -75,12 +99,6 @@ public class TooltippableAnimated : MonoBehaviour
     }
 
     void AnimateLineRenderer(){
-        float originOffset = radialImage.GetComponent<RectTransform>().rect.width / 2f;
-        Debug.Log ("originOffset is " + originOffset);
-        tooltippableLine.GetComponent<UILineDrawer>().Initialize(_camRef, _highlightObjectRef, 
-                                                                originOffset,
-                                                                _lineWidth, _primary,
-                                                                _lineDrawDuration);
         tooltippableLine.GetComponent<UILineDrawer>()?.AnimateDrawLine();
         Debug.Log ("AnimateLineRenderer() called.");
     }

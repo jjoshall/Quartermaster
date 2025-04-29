@@ -14,8 +14,6 @@ public class CameraTooltipTrigger : NetworkBehaviour
     private GameObject currentTarget;
 
     [SerializeField] private GameObject tooltipCirclePrefab;
-    [SerializeField] private GameObject lineRendererPrefab;
-    [SerializeField] private GameObject tooltipPanelPrefab;
   
     GameObject _activeLineRenderer;
     GameObject _activeTooltipCircle;
@@ -71,13 +69,17 @@ public class CameraTooltipTrigger : NetworkBehaviour
                         tooltip.SendMyTooltipTo(thisObjOwnerId);
                         tooltipShown = true;
 
-                        _activeLineRenderer = Instantiate(lineRendererPrefab, UIManager.instance.playerDrawCanvas.transform);
-                        Debug.Log ("lineRenderer instantiated");
-                        // GameObject panel = Instantiate(tooltipPanelPrefab, UIManager.instance.playerDrawCanvas.transform);
-                        // Debug.Log ("tooltipPanel instantiated");
                         _activeTooltipCircle = Instantiate(tooltipCirclePrefab, UIManager.instance.playerDrawCanvas.transform);
                         Debug.Log ("newTooltip instantiated");
-                        _activeTooltipCircle.GetComponent<TooltippableAnimated>().Initialize(this.gameObject, hitObject, _activeLineRenderer, null, "test");
+                        if (_activeTooltipCircle == null) {
+                            Debug.LogError("Tooltip circle prefab is null. Check the prefab assignment.");
+                            return;
+                        }
+                        if (_activeTooltipCircle.GetComponent<TooltippableAnimated>() == null) {
+                            Debug.LogError("Tooltip circle prefab does not have TooltippableAnimated component. Check the prefab assignment.");
+                            return;
+                        }
+                        _activeTooltipCircle.GetComponent<TooltippableAnimated>().Initialize(this.gameObject, hitObject);
                     }
                 }
                 else
