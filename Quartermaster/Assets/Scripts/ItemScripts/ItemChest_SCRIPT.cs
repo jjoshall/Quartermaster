@@ -3,9 +3,6 @@ using Unity.Netcode;
 
 public class ItemChest_SCRIPT : NetworkBehaviour
 {
-    // Hold a list of all chest prefabs
-    //[SerializeField] private GameObject[] chestPrefabs;
-
     private PlayerInputHandler _inputHandler;
 
     public override void OnNetworkSpawn() {
@@ -54,6 +51,9 @@ public class ItemChest_SCRIPT : NetworkBehaviour
 
     [ClientRpc]
     private void OpenChestClientRpc() {
-        this.GetComponent<Renderer>().material.color = Color.green;
+        ItemManager.instance.SpawnMedKit(transform.position);
+
+        // Set this gameobject to inactive
+        gameObject.SetActive(false);
     }
 }

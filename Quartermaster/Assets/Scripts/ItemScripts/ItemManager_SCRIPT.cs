@@ -6,6 +6,8 @@ using Unity.Netcode;
 using Unity.VisualScripting;
 
 public class ItemManager : NetworkBehaviour {
+    [SerializeField] private GameObject prefab;
+    private NetworkObject networkPrefab;
 
     #region Setup
     public static ItemManager instance; //singleton
@@ -49,8 +51,8 @@ public class ItemManager : NetworkBehaviour {
         }
     }
 
+    #endregion
 
-    #endregion 
     #region Drop function
 
     // Drops all the items in an entry.
@@ -59,6 +61,7 @@ public class ItemManager : NetworkBehaviour {
                                         Vector3 spawnLoc, 
                                         Vector3 initialVelocity) {
         if (!IsServer) { return; }
+
         if (spawnLoc == null) {
             Debug.LogError("DropItemServerRpc: spawnLoc is null!");
             return;
@@ -68,6 +71,7 @@ public class ItemManager : NetworkBehaviour {
             Debug.LogError("DropItemServerRpc: initialVelocity is null!");
             return;
         }
+
         foreach (itemStruct item in dropTable[index].itemDrops) {
             if (item.itemPrefab == null) {
                 Debug.LogError("DropItemServerRpc: itemPrefab is null!");
@@ -102,7 +106,7 @@ public class ItemManager : NetworkBehaviour {
     #endregion 
 
     #region Helper
-    #endregion
+    
     // Drop a specific item at a specific position. Written for creative mode / dev function. 
     // Drops slightly above ground to avoid slipping through the ground.
     public void DropSpecificItem(int index, Vector3 position){
@@ -111,4 +115,17 @@ public class ItemManager : NetworkBehaviour {
         
         DropAnEntryInTableServerRpc (index, positionYOffsetByOne, randVelocity);
     }
+
+    #endregion
+
+    #region Debug
+
+    public void SpawnMedKit(Vector3 position) {
+        GameObject instance = Instantiate(prefab);
+        instance.transform.position = position;
+        networkPrefab = instance.GetComponent<NetworkObject>();
+        networkPrefab.Spawn();
+    }
+
+    #endregion
 }
