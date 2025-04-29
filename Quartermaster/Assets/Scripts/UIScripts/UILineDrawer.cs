@@ -11,6 +11,8 @@ public class UILineDrawer : MonoBehaviour
     private float _originOffset = 0.0f;
     private float _lineWidth = 2f;
     private float drawDuration = 1f;
+
+    private float borderClampMargin = 0.1f; // multiplier of canvas size to clamp the destination point within. 
     // private Color lineColor = Color.white;
 
     // Runtime variables.
@@ -28,8 +30,7 @@ public class UILineDrawer : MonoBehaviour
     }
 
     public void Initialize(GameObject cam, GameObject highlightObj, 
-                            Vector2 origin, float originOffset,
-                            Vector2 destination, 
+                            float originOffset,
                             float lineWidth, 
                             Color lineColor,
                             float duration
@@ -38,29 +39,29 @@ public class UILineDrawer : MonoBehaviour
         _camRef = cam;
         _highlightObjectRef = highlightObj;
 
-        this.origin2d = origin;
-        this.dest2d = destination;
-        _originOffset = originOffset;
-
-        Vector3 direction = (dest2d - origin2d).normalized;
-        this.origin2d = new Vector3 (origin2d.x + _originOffset * direction.x, origin2d.y + _originOffset * direction.y, 0f);
-
-        
-        // set x scale to thickness, y scale to 0
-        this.transform.localScale = new Vector3(0f, _lineWidth, 1f);
-        // align rotation
-        float angle; // angle needs to be the angle between the origin and destination points
-        if (direction.x == 0f) {
-            angle = 0f; // no rotation needed
-        } else {
-            angle = Mathf.Atan2(direction.y, direction.x);
-            Debug.Log ("angle: " + angle);  
-        }
-        this.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, angle));
-        
         this._lineWidth = lineWidth;
         this.gameObject.GetComponent<Image>().color = lineColor;
         this.drawDuration = duration;
+
+        _originOffset = originOffset;
+        UpdateLocalCanvasPosition();
+        UpdateLineDraw(_currScale);
+        // Vector3 direction = (dest2d - origin2d).normalized;
+        // this.origin2d = new Vector3 (origin2d.x + _originOffset * direction.x, origin2d.y + _originOffset * direction.y, 0f);
+
+        
+        // // set x scale to thickness, y scale to 0
+        // this.transform.localScale = new Vector3(0f, _lineWidth, 1f);
+        // // align rotation
+        // float angle; // angle needs to be the angle between the origin and destination points
+        // if (direction.x == 0f) {
+        //     angle = 0f; // no rotation needed
+        // } else {
+        //     angle = Mathf.Atan2(direction.y, direction.x);
+        //     Debug.Log ("angle: " + angle);  
+        // }
+        // this.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, angle));
+        
 
     }
 
@@ -105,12 +106,13 @@ public class UILineDrawer : MonoBehaviour
             // Convert screen position to local position in canvas
             Vector2 localPoint = CustomScreenToCanvasLocalPoint(this.transform.parent.GetComponent<Canvas>(), screenPos);
             origin2d = new Vector3 (localPoint.x, localPoint.y, 0f);
-            dest2d = new Vector3 (0f, 0f, 0f);
+            Vector2 temp = GetDestinationPoint(this.transform.parent.GetComponent<Canvas>(), origin2d);
+            dest2d = new Vector3 (temp.x, temp.y, 0f);
 
             Vector3 direction = (dest2d - origin2d).normalized;
             origin2d = new Vector3 (origin2d.x + _originOffset * direction.x, origin2d.y + _originOffset * direction.y, 0f);
 
-            Debug.Log ("origin: " + origin2d + ", destination: " + dest2d + ", midpoint: " + Vector2.Lerp(origin2d, dest2d, 0.5f) + ", angle: " + Mathf.Atan2(dest2d.y - origin2d.y, dest2d.x - origin2d.x) * Mathf.Rad2Deg);
+            Debug.Log ("origin: " + origin2d + ", destination: " + dest2d + ", temp: " + temp); 
             // UpdateLineDraw (currScale);
         }
     }
@@ -129,6 +131,16 @@ public class UILineDrawer : MonoBehaviour
         this.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, angle));
     }
 
+    // Takes origin as a canvas local point. 
+    Vector2 GetDestinationPoint(Canvas canvas, Vector2 origin){
+        RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+        Vector2 canvasSize = canvasRect.sizeDelta;
+        float xOffset = origin.x > 0f ? 1f * canvasSize.x * borderClampMargin : -1f * canvasSize.x * borderClampMargin;
+        float yOffset = origin.y > 0f ? 1f * canvasSize.y * borderClampMargin : -1f * canvasSize.y * borderClampMargin;
+        Vector2 dest2d = new Vector2 (origin.x + xOffset, origin.y + yOffset);
+        // Debug.Log ("origin: " + origin + ", xOffset: " + xOffset + ", yOffset: " + yOffset + ", dest2d: " + dest2d);
+        return dest2d;
+    }
     
     #region helpers
     #endregion 
@@ -152,5 +164,21 @@ public class UILineDrawer : MonoBehaviour
         float localY = (normalizedY * canvasSize.y) - pivotOffset.y;
 
         return new Vector2(localX, localY);
+    }
+
+    // Takes point as a canvas local point. 
+    Vector2 GetClampedVector(Canvas canvas, Vector2 point){
+        // RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+        // Vector2 canvasSize = canvasRect.sizeDelta;
+
+        // float aX = -canvasSize.x * canvasRect.pivot.x;
+        // float bX = canvasSize.x * (1 - canvasRect.pivot.x);
+        // float aY = -canvasSize.y * canvasRect.pivot.y;
+        // float bY = canvasSize.y * (1 - canvasRect.pivot.y);
+        // Vector2 clampedPoint = new Vector2(
+        //     Mathf.Clamp(point.x, aX, bX), 
+        //     Mathf.Clamp(point.y, aY, bY)
+        // );
+        return point;
     }
 }
