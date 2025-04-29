@@ -282,7 +282,6 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected virtual void OnDie() {
         ItemManager.instance.RollDropTable(transform.position);    // norman added this, has a chance to burst drop items
         GameManager.instance.IncrementEnemyKillsServerRpc();    // add to enemy kill count
-        Debug.Log("Removing " + gameObject.name + " from enemy list");
         enemySpawner.RemoveEnemyFromList(gameObject);   // remove enemy from list of enemies
         enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());  // remove enemy from scene
     }
