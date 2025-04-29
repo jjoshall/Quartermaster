@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
-using Unity.VisualScripting;
 
 public class ItemManager : NetworkBehaviour {
     [SerializeField] private GameObject prefab;
@@ -122,9 +120,14 @@ public class ItemManager : NetworkBehaviour {
 
     public void SpawnMedKit(Vector3 position) {
         GameObject instance = Instantiate(prefab);
+        //instance.GetComponent<Item>().quantity = item.quantity; // set quantity to the item stack size.
+        instance.GetComponent<Item>().userRef = null; // set user ref to the enemy.
+        instance.GetComponent<Item>().IsPickedUp = false; // set IsPickedUp to false.
+
         instance.transform.position = position;
         networkPrefab = instance.GetComponent<NetworkObject>();
         networkPrefab.Spawn();
+        instance.GetComponent<Item>().OnSpawn();
     }
 
     #endregion

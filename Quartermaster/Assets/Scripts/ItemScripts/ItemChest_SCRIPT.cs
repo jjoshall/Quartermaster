@@ -46,13 +46,13 @@ public class ItemChest_SCRIPT : NetworkBehaviour
 
     [ServerRpc(RequireOwnership = false)]
     private void OpenChestServerRpc() {
+        //ItemManager.instance.SpawnMedKit(transform.position);
+        ItemManager.instance.RollDropTable(transform.position);
         OpenChestClientRpc();
     }
 
     [ClientRpc]
     private void OpenChestClientRpc() {
-        ItemManager.instance.SpawnMedKit(transform.position);
-
         // Set this gameobject to inactive
         gameObject.SetActive(false);
     }
