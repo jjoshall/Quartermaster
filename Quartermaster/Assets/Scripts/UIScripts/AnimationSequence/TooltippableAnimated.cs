@@ -13,12 +13,25 @@ public class TooltippableAnimated : MonoBehaviour
 
     [Header("LineSettings")]
     [SerializeField] private float _lineWidth = 0.1f;
+    [SerializeField] private float borderClampXMargin = 0.1f; // multiplier of canvas size to clamp the destination point within. 
+    [SerializeField] private float borderClampYMargin = 0.125f;
+    [SerializeField] private float destXOffset = 0.12f; // 0-1f, multiplier of canvas size.
+    [SerializeField] private float destYOffset = 0.08f; // 0-1f, multiplier of canvas size.
     [SerializeField] private float _lineDrawDuration = 0.5f;
 
     [Header("PanelSettings")]
     // height, width, drawduration, color
     [SerializeField] private string tooltipText = "";
-
+    [SerializeField] private float _panelWidth = 0f; // 0-1f. canvas.size as units.
+    [SerializeField] private float _panelHeight = 0f; // 0-1f. canvas.size as units.
+    // Horizontal scale animation (part 1)
+    [SerializeField] private float horizontalDuration = 0.1f;
+    // Vertical scale animation (part 2)
+    [SerializeField] private float verticalDuration = 0.2f;
+    [SerializeField] private float _initVerticalScale = 0.1f;
+    // Text animation (part 3)
+    [SerializeField] private float textDuration = 0.2f;
+    [SerializeField] private float fontSize;
 
 
     private GameObject _camRef;                  
@@ -64,10 +77,16 @@ public class TooltippableAnimated : MonoBehaviour
         tooltippableLine.GetComponent<UILineDrawer>().Initialize(_camRef, _highlightObjectRef, 
                                                                 originOffset,
                                                                 _lineWidth, _primary,
-                                                                _lineDrawDuration, tooltippablePanel);
-        tooltippablePanel.GetComponent<UIPanelDrawer>().Init(tooltipText, tooltippableLine);
-
-
+                                                                _lineDrawDuration, 
+                                                                borderClampXMargin,
+                                                                borderClampYMargin,
+                                                                destXOffset,
+                                                                destYOffset,
+                                                                tooltippablePanel);
+        tooltippablePanel.GetComponent<UIPanelDrawer>().Init(tooltipText, tooltippableLine,
+                                                                _panelWidth, _panelHeight, 
+                                                                horizontalDuration, verticalDuration, 
+                                                                _initVerticalScale, textDuration, fontSize);
                                                                 
         AnimateTargetCircle();
     }

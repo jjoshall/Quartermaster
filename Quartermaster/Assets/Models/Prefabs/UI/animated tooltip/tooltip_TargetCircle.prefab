@@ -91,9 +91,20 @@ MonoBehaviour:
   _primary: {r: 1, g: 1, b: 1, a: 1}
   _panelFill: {r: 1, g: 1, b: 1, a: 1}
   radialImage: {fileID: 3201661663129507173}
-  fillDuration: 0.1
+  fillDuration: 0.2
   _lineWidth: 3
-  _lineDrawDuration: 0.5
+  borderClampXMargin: 0.1
+  borderClampYMargin: 0.125
+  destXOffset: 0.12
+  destYOffset: 0.08
+  _lineDrawDuration: 0.2
   tooltipText: test
+  _panelWidth: 0.21
+  _panelHeight: 0.3
+  horizontalDuration: 0.1
+  verticalDuration: 0.2
+  _initVerticalScale: 0.1
+  textDuration: 0.2
+  fontSize: 30
   lineRendererPrefab: {fileID: 1263851444405689432, guid: 030098c7de9087b4e96f6613f35400ce, type: 3}
   tooltipPanelPrefab: {fileID: 7623266335293520023, guid: 1248d0063fde9ea4287b847436191ca6, type: 3}

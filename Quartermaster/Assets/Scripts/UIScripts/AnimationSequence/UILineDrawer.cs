@@ -22,11 +22,11 @@ public class UILineDrawer : MonoBehaviour
     // private Color lineColor = Color.white;
 
     // Runtime variables.
-    public Vector2 origin2d;
-    public Vector2 dest2d;
+    private Vector2 origin2d;
+    [HideInInspector] public Vector2 dest2d;
     private float _currScale = 0f; // 0-1f
-    public float xOffsetSign = 0f;
-    public float yOffsetSign = 0f;
+    [HideInInspector] public float xOffsetSign = 0f;
+    [HideInInspector] public float yOffsetSign = 0f;
 
 
     void Start()
@@ -42,6 +42,10 @@ public class UILineDrawer : MonoBehaviour
                             float lineWidth, 
                             Color lineColor,
                             float duration,
+                            float borderClampXMargin,
+                            float borderClampYMargin,
+                            float destXOffset,
+                            float destYOffset,
                             GameObject nextAnimation
                             )
     {
@@ -52,6 +56,11 @@ public class UILineDrawer : MonoBehaviour
         this._lineWidth = lineWidth;
         this.gameObject.GetComponent<Image>().color = lineColor;
         this.drawDuration = duration;
+
+        this.borderClampXMargin = borderClampXMargin;
+        this.borderClampYMargin = borderClampYMargin;
+        this.destXOffset = destXOffset;
+        this.destYOffset = destYOffset;
 
         _originOffset = originOffset;
         UpdateLocalCanvasPosition();
