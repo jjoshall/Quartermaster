@@ -28,6 +28,9 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     [SerializeField] private Transform _leftGun;
     [SerializeField] private Transform _rightGun;
 
+    // Used to control the animation update rate
+    private int _frameCounter = 0;
+
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
 
@@ -49,6 +52,11 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
         if (!IsServer) return;
 
+        _frameCounter++;
+        if (_frameCounter > 5000) {
+            _frameCounter = 0; // Reset the frame counter to prevent overflow
+        }
+
         ApplyHovering();
         UpdateAnimation();
         UpdateWeaponAngle();
@@ -56,28 +64,40 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     // makes drone hover up and down
     private void ApplyHovering() {
-        if (agent != null && agent.enabled) {
-            float verticalOffset = _hoverAmplitude * Mathf.Sin(Time.time + _hoverOffset) * _hoverFrequency;
-            agent.baseOffset = _hoveredHeight + verticalOffset;
+        if (agent == null || !agent.enabled) {
+            return; // Don't apply hovering if the agent is disabled or not animating
         }
+
+        float verticalOffset = _hoverAmplitude * Mathf.Sin(Time.time + _hoverOffset) * _hoverFrequency;
+        agent.baseOffset = _hoveredHeight + verticalOffset;
     }
 
     private void UpdateAnimation() {
         if (animator == null || agent == null) return;
+
+        if (!animator.enabled) {
+            animator.enabled = true;
+        }
+
+        if (_frameCounter % 5 != 0) return; // Update animation every 5 frames
 
         float speed = agent.velocity.magnitude;
         animator.SetFloat("ForwardSpeed", speed);
     }
 
     private void UpdateWeaponAngle() {
-        if (_leftGun != null && _rightGun != null) {
-            Vector3 directionToTarget = (targetPosition - transform.position).normalized;
-            //Debug.DrawRay(_firePoint.position, directionToTarget * 10f, Color.red);
-            Quaternion lookRotation = Quaternion.LookRotation(directionToTarget) * Quaternion.Euler(90f, 0f, 0f);
-
-            _leftGun.rotation = Quaternion.Slerp(_leftGun.rotation, lookRotation, Time.deltaTime * 5f);
-            _rightGun.rotation = Quaternion.Slerp(_rightGun.rotation, lookRotation, Time.deltaTime * 5f);
+        if (_leftGun == null || _rightGun == null) {
+            return;
         }
+
+        if (_frameCounter % 8 != 0) { return; }
+
+        Vector3 directionToTarget = (targetPosition - transform.position).normalized;
+        //Debug.DrawRay(_firePoint.position, directionToTarget * 10f, Color.red);
+        Quaternion lookRotation = Quaternion.LookRotation(directionToTarget) * Quaternion.Euler(90f, 0f, 0f);
+
+        _leftGun.rotation = Quaternion.Slerp(_leftGun.rotation, lookRotation, Time.deltaTime * 5f);
+        _rightGun.rotation = Quaternion.Slerp(_rightGun.rotation, lookRotation, Time.deltaTime * 5f);
     }
 
     protected override void Attack() {

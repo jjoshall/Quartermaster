@@ -1,10 +1,8 @@
 using UnityEngine;
 using UnityEngine.AI;
 using Unity.Netcode;
-using System.Collections;
 using TMPro;
 using System.Collections.Generic;
-using GLTFast.Schema;
 
 public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     // THIS IS FOR GAME MANAGER, you can change values in the
@@ -49,6 +47,11 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [SerializeField, Range(0.0f, 1.0f)] private float _separationDecay = 0.9f; // per frame multiplier on velocity vector
     private Vector3 _velocityVector = Vector3.zero; // used for boids separation
 
+    [Header("For Animations Culling")]
+    private float _distanceToNearestPlayer = Mathf.Infinity; // used to determine if we should animate or not
+    private float _distanceCheckTimer = 0f;
+    private const float _distanceCheckInterval = 1f; // how often to check distance to nearest player
+
     // Speed run-time variables, think Norman added this
     // Yes I did - Norman
     protected float _baseSpeed = 0.0f;
@@ -79,6 +82,10 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         playersThatHitMe = new List<GameObject>();
 
         animator = GetComponentInChildren<Animator>();
+        if (animator != null) {
+            animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
+        }
+
         soundEmitters = GetComponentsInChildren<SoundEmitter>(true);
 
         if (!IsServer) {
@@ -117,7 +124,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         }
     }
 
-    private void Pathing(){        
+    private void Pathing() {        
         if (targetPosition != null) {
             // Each enemy has a different attack range
             bool inRange = Vector3.Distance(transform.position, targetPosition) <= attackRange;
@@ -188,6 +195,16 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     // IMPLEMENT THIS METHOD FOR NEW/EACH ENEMIES
     protected abstract void Attack();
+
+    protected bool ShouldAnimate() {
+        // only animate if any player is within 30 units
+        foreach (var player in enemySpawner.activePlayerList) {
+            if (Vector3.Distance(transform.position, player.transform.position) < 30f) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     // If player in localDetectionRange, target closest.
     // Else target global.
@@ -276,17 +293,6 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             playersThatHitMe.Add(damageSource);
         } // prevent multiple hits from same player
     }
-
-    //[ServerRpc(RequireOwnership = false)]
-    //private void ShowFloatingTextServerRpc(float damage) {
-    //    ShowFloatingTextClientRpc(damage);
-    //}
-
-    //[ClientRpc]
-    //void ShowFloatingTextClientRpc(float damage) {
-    //    var go = Instantiate(floatingTextPrefab, transform.position, Quaternion.identity, transform);
-    //    go.GetComponent<TextMeshPro>().SetText(damage.ToString());
-    //}
 
     // Called when enemy dies
     protected virtual void OnDie() {

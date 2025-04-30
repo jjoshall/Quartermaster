@@ -837,7 +837,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
       propertyPath: dropTable.Array.data[0].dropChancePercent
-      value: 50
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
       propertyPath: dropTable.Array.data[0].itemDrops.Array.size
@@ -5034,7 +5034,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: _maxEnemyInstanceCount
-      value: 100
+      value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: weightedPrefabs.Array.size
@@ -6416,15 +6416,15 @@ PrefabInstance:
       objectReference: {fileID: 550058981611720628, guid: 2f1aa88225abaa94ea335fa199c81f1d, type: 3}
     - target: {fileID: 3112507778715810444, guid: d79ef760dacef5d47995012751f0382c, type: 3}
       propertyPath: PooledPrefabsList.Array.data[0].PrewarmCount
-      value: 50
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 3112507778715810444, guid: d79ef760dacef5d47995012751f0382c, type: 3}
       propertyPath: PooledPrefabsList.Array.data[1].PrewarmCount
-      value: 50
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 3112507778715810444, guid: d79ef760dacef5d47995012751f0382c, type: 3}
       propertyPath: PooledPrefabsList.Array.data[2].PrewarmCount
-      value: 50
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 3112507778715810444, guid: d79ef760dacef5d47995012751f0382c, type: 3}
       propertyPath: PooledPrefabsList.Array.data[3].PrewarmCount
