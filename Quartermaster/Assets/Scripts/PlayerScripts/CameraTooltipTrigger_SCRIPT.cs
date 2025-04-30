@@ -12,6 +12,7 @@ public class CameraTooltipTrigger : NetworkBehaviour
     // Runtime
     private float hoverTime = 0f;
     private GameObject prevTarget;
+    private GameObject prevTooltippable;
     private bool tooltipShown = false;
 
     void Start()
@@ -37,13 +38,13 @@ public class CameraTooltipTrigger : NetworkBehaviour
 
             if (hit.collider == null || currGO == null || currGO.GetComponent<AnimatedTooltippable>() == null)
             {
-                if (prevTarget) Destroy(prevTarget);
+                if (prevTarget) Destroy(prevTooltippable);
                 hoverTime = 0f;
                 tooltipShown = false;
                 return;
             } else if (currGO != prevTarget){
                 // We hit something but it's not the previous object we tooltipped.
-                if (prevTarget) Destroy(prevTarget);
+                if (prevTarget) Destroy(prevTooltippable);
                 prevTarget = currGO;
                 hoverTime = 0f;
                 tooltipShown = false;
@@ -57,8 +58,10 @@ public class CameraTooltipTrigger : NetworkBehaviour
 
                     // Spawn the tooltip at the hit point.
                     GameObject tooltip = Instantiate(animatedTooltipPrefab, UIManager.instance.playerDrawCanvas.transform);
-                    tooltip.GetComponent<UITargetCircle>().Initialize(this.gameObject, prevTarget, at.tooltipText, at.fontSize);
+                    tooltip.GetComponent<UITargetCircle>().Initialize(this.gameObject, currGO, at.tooltipText, at.fontSize);
                     tooltipShown = true;
+                    prevTooltippable = tooltip; // store the tooltip for later destruction.
+                    prevTarget = currGO; // store the current target for hover time tracking.
                 }
             }
         }
