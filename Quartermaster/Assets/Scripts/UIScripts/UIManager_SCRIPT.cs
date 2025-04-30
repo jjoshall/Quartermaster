@@ -3,24 +3,11 @@ using UnityEngine.UI;
 using TMPro;
 
 public class UIManager : MonoBehaviour {
-
-    public static UIManager instance;
-    void Awake()
-    {
-        if (instance == null) {
-            instance = this;
-        } else {
-            Destroy(gameObject);
-        }
-    }
-
     [Header("Inventory UI Elements")]
     [SerializeField] private RawImage[] inventorySlotImages;
     [SerializeField] private TextMeshProUGUI[] inventorySlotQuantityTexts;
 
     [SerializeField] public Image weaponCooldownRadial;
-
-    public Canvas playerDrawCanvas; // TEMP. stored for cameratooltiptrigger.
 
     [Header("Highlight Settings")]
     [SerializeField] private float highlightScale = 1.5f;
