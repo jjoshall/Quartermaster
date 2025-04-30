@@ -17,8 +17,8 @@ GameObject:
   - component: {fileID: 3313197580774085890}
   - component: {fileID: 8375286008997060276}
   - component: {fileID: 7750221735642897507}
-  - component: {fileID: -1294400115319517801}
   - component: {fileID: -5884560939354435889}
+  - component: {fileID: 4913860947563342471}
   m_Layer: 6
   m_Name: DeliverableQuestItem_PREFAB
   m_TagString: Item
@@ -240,20 +240,6 @@ MonoBehaviour:
   playerRenderer: {fileID: 2381950514914439317}
   dissolveDuration: 1
   solidifyDuration: 1
---- !u!114 &-1294400115319517801
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3874856704361242138}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62d419665ed6d7a41b7dc591a5a37b4c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  holdDuration: 5
-  key: DeliverableQuestItem
 --- !u!114 &-5884560939354435889
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -280,7 +266,21 @@ MonoBehaviour:
   IsPickedUp: 0
   attachedWeaponSlot: {fileID: 0}
   userRef: {fileID: 0}
-  t: {fileID: -1294400115319517801}
+  t: {fileID: 0}
+--- !u!114 &4913860947563342471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3874856704361242138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abba81b95eeeefa47b53e97ff1f27c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipText: A deliverable quest item. Maybe you should keep this around.
+  fontSize: 36
 --- !u!1001 &3949646970496887825
 PrefabInstance:
   m_ObjectHideFlags: 0
