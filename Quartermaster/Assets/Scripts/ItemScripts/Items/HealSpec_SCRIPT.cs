@@ -22,14 +22,12 @@ public class HealSpec_MONO : Item
 
     public override void OnPickUp(GameObject user)
     {
-        base.OnPickUp(user);
         UpdateHealSpecCount(user);
         // play pick up effect. 
     }
 
     public override void OnDrop(GameObject user)
     {
-        base.OnDrop(user);
         UpdateHealSpecCount(user);
         // play drop effect.
     }

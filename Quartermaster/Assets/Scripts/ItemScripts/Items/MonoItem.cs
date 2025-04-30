@@ -69,17 +69,10 @@ public abstract class Item : NetworkBehaviour
     public virtual void OnPickUp(GameObject user){
         // On pickup.
         Debug.Log("Picked up item: " + gameObject.name);
-        // change this object's layer to HeldItem layer 
-        // *NOTE: This will only occur locally for the player who picked it up. Used to avoid local raycasting. For networked itemacquisition, use IsPickedUp variable.
-        gameObject.layer = LayerMask.NameToLayer("HeldItem");
-    
     }
     public virtual void OnDrop(GameObject user){
         // On drop.
         Debug.Log("Dropped item: " + gameObject.name);
-        // change this object's layer to Items layer. 
-        // *NOTE: This will only occur locally for the player who dropped it.
-        gameObject.layer = LayerMask.NameToLayer("Items");
     }
     public virtual void OnButtonUse(GameObject user){
         // Fire once when use is pressed.
