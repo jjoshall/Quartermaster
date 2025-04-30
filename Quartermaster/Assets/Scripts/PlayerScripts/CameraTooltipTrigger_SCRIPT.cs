@@ -38,13 +38,13 @@ public class CameraTooltipTrigger : NetworkBehaviour
 
             if (hit.collider == null || currGO == null || currGO.GetComponent<AnimatedTooltippable>() == null)
             {
-                if (prevTarget) Destroy(prevTooltippable);
+                if (prevTarget && prevTooltippable) Destroy(prevTooltippable);
                 hoverTime = 0f;
                 tooltipShown = false;
                 return;
             } else if (currGO != prevTarget){
                 // We hit something but it's not the previous object we tooltipped.
-                if (prevTarget) Destroy(prevTooltippable);
+                if (prevTarget && prevTooltippable) Destroy(prevTooltippable);
                 prevTarget = currGO;
                 hoverTime = 0f;
                 tooltipShown = false;
@@ -59,11 +59,18 @@ public class CameraTooltipTrigger : NetworkBehaviour
                     // Spawn the tooltip at the hit point.
                     GameObject tooltip = Instantiate(animatedTooltipPrefab, UIManager.instance.playerDrawCanvas.transform);
                     tooltip.GetComponent<UITargetCircle>().Initialize(this.gameObject, currGO, at.tooltipText, at.fontSize);
+
+                    if (prevTarget && prevTooltippable) Destroy(prevTooltippable); // destroy the previous tooltip if it exists.
                     tooltipShown = true;
                     prevTooltippable = tooltip; // store the tooltip for later destruction.
                     prevTarget = currGO; // store the current target for hover time tracking.
                 }
             }
+        } else {
+            if (prevTarget && prevTooltippable) Destroy(prevTooltippable); // destroy the previous tooltip if it exists.
+            prevTarget = null; // reset the previous target.
+            hoverTime = 0f; // reset the hover time.
+            tooltipShown = false; // reset the tooltip shown flag.
         }
     }
 
@@ -76,7 +83,7 @@ public class CameraTooltipTrigger : NetworkBehaviour
 
             if (!tooltipShown)
             {
-                return true;
+                return true; // hover time exceed threshold and tooltip isn't already shown. return true to spawn a tooltip.
             }
         }
         return false;
