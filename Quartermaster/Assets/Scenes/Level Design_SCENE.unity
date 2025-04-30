@@ -3321,6 +3321,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48f74e03a62ad0645b5c5f32f2c7bb10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerDrawCanvas: {fileID: 1252735146}
   inventorySlotImages:
   - {fileID: 2091593738}
   - {fileID: 2091593737}
@@ -3332,7 +3333,6 @@ MonoBehaviour:
   - {fileID: 237995875}
   - {fileID: 1123313698}
   weaponCooldownRadial: {fileID: 2118827887}
-  playerDrawCanvas: {fileID: 90319612}
   highlightScale: 1.5
 --- !u!4 &1228006887
 Transform:
@@ -3500,6 +3500,11 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!1 &1252735146 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5127545550403272507, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+  m_PrefabInstance: {fileID: 2091593734}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1260925506
 GameObject:
   m_ObjectHideFlags: 0
