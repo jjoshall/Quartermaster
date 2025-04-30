@@ -15,12 +15,9 @@ public class CameraTooltipTrigger : NetworkBehaviour
 
     [SerializeField] private GameObject tooltipCirclePrefab;
   
-    GameObject _activeLineRenderer;
     GameObject _activeTooltipCircle;
-    GameObject _activeTooltipPanel;
 
 
-    private Tooltippable currentTooltippable;
     private bool tooltipShown = false;
 
     void Start()
@@ -43,64 +40,64 @@ public class CameraTooltipTrigger : NetworkBehaviour
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask, QueryTriggerInteraction.Ignore))
         {
             GameObject hitObject = hit.collider.gameObject;
-            if (hitObject == null)
+            if (hitObject == null || hitObject.GetComponent<AnimatedTooltippable>() == null)
             {
                 // If the raycast hit nothing, reset any tooltip.
                 DestroyPreviousTooltip();
+                ResetCurrHover();
                 return;
             } else if (currentTarget != hitObject)
             {
+                // We hit something but it's not the previous object we tooltipped.
                 DestroyPreviousTooltip();
             }
             // Try to get the Tooltippable component on the hit object.
-            Tooltippable tooltip = hitObject.GetComponent<Tooltippable>();
+            AnimatedTooltippable data = hitObject.GetComponent<AnimatedTooltippable>();
 
-            if (tooltip != null)
+            // If we're still hovering the same object.
+            if (currentTarget == hitObject)
             {
-                // If we're still hovering the same object.
-                if (currentTarget == hitObject)
+                hoverTime += Time.deltaTime;
+                // Once we've exceeded the hover threshold and haven't yet shown the tooltip.
+                if (!tooltipShown && hoverTime >= hoverThreshold)
                 {
-                    hoverTime += Time.deltaTime;
-                    // Once we've exceeded the hover threshold and haven't yet shown the tooltip.
-                    if (!tooltipShown && hoverTime >= hoverThreshold)
-                    {
-                        if (!_playerObj) FindAndSetPlayer(); // saves netobj and ownerid too
+                    if (!_playerObj) FindAndSetPlayer(); // saves netobj and ownerid too
 
-                        tooltip.SendMyTooltipTo(thisObjOwnerId);
-                        tooltipShown = true;
+                    tooltipShown = true;
 
-                        _activeTooltipCircle = Instantiate(tooltipCirclePrefab, UIManager.instance.playerDrawCanvas.transform);
-                        Debug.Log ("newTooltip instantiated");
-                        if (_activeTooltipCircle == null) {
-                            Debug.LogError("Tooltip circle prefab is null. Check the prefab assignment.");
-                            return;
-                        }
-                        if (_activeTooltipCircle.GetComponent<TooltippableAnimated>() == null) {
-                            Debug.LogError("Tooltip circle prefab does not have TooltippableAnimated component. Check the prefab assignment.");
-                            return;
-                        }
-                        _activeTooltipCircle.GetComponent<TooltippableAnimated>().Initialize(this.gameObject, hitObject);
-                    }
-                }
-                else
-                {
-                    // Hovered over a new object. Reset the hover timer and tooltip flag.
-                    ResetTooltip();
-                    currentTarget = hitObject;
-                    currentTooltippable = tooltip;
+                    SpawnTooltip(hitObject, data.tooltipText, data.fontSize);
                 }
             }
             else
             {
-                // If the hit object doesn't have a Tooltippable, reset any tooltip.
-                ResetTooltip();
+                // Hovered over a new object. Reset the hover timer and tooltip flag.
+                ResetCurrHover();
+                currentTarget = hitObject;
             }
+
         }
         else
         {
             // Nothing hit, so reset any tooltip data.
-            ResetTooltip();
+            DestroyPreviousTooltip();
         }
+    }
+
+    void SpawnTooltip(GameObject hitObject, string text, int fontSize){
+        
+        _activeTooltipCircle = Instantiate(tooltipCirclePrefab, UIManager.instance.playerDrawCanvas.transform);
+        Debug.Log ("newTooltip instantiated");
+        if (_activeTooltipCircle == null) {
+            Debug.LogError("Tooltip circle prefab is null. Check the prefab assignment.");
+            return;
+        }
+        if (_activeTooltipCircle.GetComponent<UITargetCircle>() == null) {
+            Debug.LogError("Tooltip circle prefab does not have TooltippableAnimated component. Check the prefab assignment.");
+            return;
+        }
+        _activeTooltipCircle.GetComponent<UITargetCircle>().Initialize(this.gameObject, hitObject, text, fontSize);
+
+        currentTarget = hitObject;
     }
 
     void DestroyPreviousTooltip(){
@@ -108,38 +105,12 @@ public class CameraTooltipTrigger : NetworkBehaviour
             Destroy(_activeTooltipCircle);
             _activeTooltipCircle = null;
         }
-        if (_activeLineRenderer != null){
-            Destroy(_activeLineRenderer);
-            _activeLineRenderer = null;
-        }
-        if (_activeTooltipPanel != null){
-            Destroy(_activeTooltipPanel);
-            _activeTooltipPanel = null;
-        }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
         // Helper method to reset hover data and hide the tooltip if needed.
-    void ResetTooltip()
+    void ResetCurrHover()
     {
-        if (currentTooltippable != null && tooltipShown)
-        {
-            currentTooltippable.HideTooltip();
-        }
         currentTarget = null;
-        currentTooltippable = null;
         hoverTime = 0f;
         tooltipShown = false;
     }

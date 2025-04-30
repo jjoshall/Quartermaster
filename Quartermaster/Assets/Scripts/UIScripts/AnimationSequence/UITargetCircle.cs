@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TooltippableAnimated : MonoBehaviour
+public class UITargetCircle : MonoBehaviour
 {
     [SerializeField] private Color _primary = Color.white;
     [SerializeField] private Color _panelFill = Color.white;
@@ -21,7 +21,6 @@ public class TooltippableAnimated : MonoBehaviour
 
     [Header("PanelSettings")]
     // height, width, drawduration, color
-    [SerializeField] private string tooltipText = "";
     [SerializeField] private float _panelWidth = 0f; // 0-1f. canvas.size as units.
     [SerializeField] private float _panelHeight = 0f; // 0-1f. canvas.size as units.
     // Horizontal scale animation (part 1)
@@ -31,7 +30,6 @@ public class TooltippableAnimated : MonoBehaviour
     [SerializeField] private float _initVerticalScale = 0.1f;
     // Text animation (part 3)
     [SerializeField] private float textDuration = 0.2f;
-    [SerializeField] private float fontSize;
 
 
     private GameObject _camRef;                  
@@ -64,7 +62,7 @@ public class TooltippableAnimated : MonoBehaviour
         this.GetComponent<Image>().color = _primary;
     }
 
-    public void Initialize(GameObject cam, GameObject highlightObj){
+    public void Initialize(GameObject cam, GameObject highlightObj, string text, int fontSize){
         _camRef = cam;
         // UIManager.instance.playerDrawCanvas.worldCamera = cam.GetComponent<Camera>();
         _highlightObjectRef = highlightObj;
@@ -83,7 +81,7 @@ public class TooltippableAnimated : MonoBehaviour
                                                                 destXOffset,
                                                                 destYOffset,
                                                                 tooltippablePanel);
-        tooltippablePanel.GetComponent<UIPanelDrawer>().Init(tooltipText, tooltippableLine,
+        tooltippablePanel.GetComponent<UIPanelDrawer>().Init(text, tooltippableLine,
                                                                 _panelWidth, _panelHeight, 
                                                                 horizontalDuration, verticalDuration, 
                                                                 _initVerticalScale, textDuration, fontSize);
