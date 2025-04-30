@@ -108,6 +108,14 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     #region PathingLogic
     protected virtual void Update() {
         if (!IsServer) return;
+
+        // Timer-based distance check
+        _distanceCheckTimer += Time.deltaTime;
+        if (_distanceCheckTimer >= _distanceCheckInterval) {
+            _distanceCheckTimer = 0f; // reset timer
+            UpdateDistanceToNearestPlayer();
+        }
+
         UpdateTarget(); // sets targetPosition to closest player within localDetectionRange, else global target
         Pathing(); // if in attackRange
     }
@@ -121,6 +129,18 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     public void OnDisable() {
         if (agent != null) {
             agent.enabled = false;
+        }
+    }
+
+    private void UpdateDistanceToNearestPlayer() {
+        _distanceToNearestPlayer = Mathf.Infinity; // reset distance to nearest player
+
+        foreach (var player in enemySpawner.activePlayerList) {
+            if (player == null) continue;
+            float distance = Vector3.Distance(transform.position, player.transform.position);
+            if (distance < _distanceToNearestPlayer) {
+                _distanceToNearestPlayer = distance;
+            }
         }
     }
 
@@ -197,13 +217,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected abstract void Attack();
 
     protected bool ShouldAnimate() {
-        // only animate if any player is within 30 units
-        foreach (var player in enemySpawner.activePlayerList) {
-            if (Vector3.Distance(transform.position, player.transform.position) < 30f) {
-                return true;
-            }
-        }
-        return false;
+        return _distanceToNearestPlayer < 30f; // if the player is within 30 units, animate
     }
 
     // If player in localDetectionRange, target closest.
