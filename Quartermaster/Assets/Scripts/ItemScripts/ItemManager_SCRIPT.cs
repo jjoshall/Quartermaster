@@ -45,6 +45,7 @@ public class ItemManager : NetworkBehaviour {
                 randomDirection.Normalize();
 
                 DropAnEntryInTableServerRpc(i, position, randomDirection);
+                //SpawnMedKit(position, i, randomDirection);
             }
         }
     }
@@ -118,17 +119,41 @@ public class ItemManager : NetworkBehaviour {
 
     #region Debug
 
-    public void SpawnMedKit(Vector3 position) {
-        GameObject instance = Instantiate(prefab);
-        //instance.GetComponent<Item>().quantity = item.quantity; // set quantity to the item stack size.
-        instance.GetComponent<Item>().userRef = null; // set user ref to the enemy.
-        instance.GetComponent<Item>().IsPickedUp = false; // set IsPickedUp to false.
+    //public void SpawnMedKit(Vector3 spawnLoc, int index, Vector3 initialVelocity) {
+    //    if (!IsServer) return;
 
-        instance.transform.position = position;
-        networkPrefab = instance.GetComponent<NetworkObject>();
-        networkPrefab.Spawn();
-        instance.GetComponent<Item>().OnSpawn();
-    }
+    //    if (spawnLoc == null) {
+    //        Debug.LogError("DropItemServerRpc: spawnLoc is null!");
+    //        return;
+    //    }
+
+    //    if (initialVelocity == null) {
+    //        Debug.LogError("DropItemServerRpc: initialVelocity is null!");
+    //        return;
+    //    }
+
+    //    foreach (itemStruct item in dropTable[index].itemDrops) {
+    //        Debug.Log("Spawning medkit");
+
+    //        GameObject newItem = Instantiate(item.itemPrefab, spawnLoc, Quaternion.identity);
+    //        newItem.GetComponent<Item>().quantity = item.quantity;
+    //        newItem.GetComponent<Item>().userRef = null;
+    //        newItem.GetComponent<Item>().IsPickedUp = false;
+
+    //        NetworkObject n_newItem = newItem.GetComponent<NetworkObject>();
+    //        if (n_newItem == null) {
+    //            Debug.LogError("Spawned medkit missing network object");
+    //            Destroy(newItem);
+    //            return;
+    //        }
+
+    //        n_newItem.transform.position = spawnLoc;
+    //        n_newItem.GetComponent<Rigidbody>().linearVelocity = initialVelocity;
+    //        n_newItem.Spawn(true);
+    //        n_newItem.transform.SetParent(this.gameObject.transform);
+    //        newItem.GetComponent<Item>().OnSpawn();
+    //    }
+    //}
 
     #endregion
 }
