@@ -3,6 +3,16 @@ using UnityEngine.UI;
 using TMPro;
 
 public class UIManager : MonoBehaviour {
+    public static UIManager instance;
+    private void Awake() {
+        if (instance == null) {
+            instance = this;
+        } else {
+            Destroy(gameObject);
+        }
+    }
+    [SerializeField] public GameObject playerDrawCanvas;
+
     [Header("Inventory UI Elements")]
     [SerializeField] private RawImage[] inventorySlotImages;
     [SerializeField] private TextMeshProUGUI[] inventorySlotQuantityTexts;
