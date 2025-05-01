@@ -101,7 +101,7 @@ public class EnemySpawner : NetworkBehaviour {
         // less than max enemies, and more than 0 players in playable area.
         // Managed by InactiveAreaCollider s adding/removing from activePlayerList
         if (Time.time >= _lastSpawnTime + spawnCooldown) {
-            Debug.Log("Spawning enemy");
+            //Debug.Log("Spawning enemy");
             SpawnOneEnemy();
             _lastSpawnTime = Time.time;
         }
@@ -357,7 +357,7 @@ public class EnemySpawner : NetworkBehaviour {
 
     public void RemoveEnemyFromList(GameObject enemy) {
         enemyList.Remove(enemy);
-        Debug.Log("Enemy list: " + enemyList.Count);
+        //Debug.Log("Enemy list: " + enemyList.Count);
     }
 
     #endregion

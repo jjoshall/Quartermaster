@@ -837,7 +837,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
       propertyPath: dropTable.Array.data[0].dropChancePercent
-      value: 50
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
       propertyPath: dropTable.Array.data[0].itemDrops.Array.size
@@ -3364,6 +3364,7 @@ MonoBehaviour:
   returnToPrevBtn: {fileID: 1324098315}
   isMainMenuContext: 0
   pauseCanvas: {fileID: 0}
+  settingsCanvas: {fileID: 0}
 --- !u!114 &1228006890
 MonoBehaviour:
   m_ObjectHideFlags: 0
