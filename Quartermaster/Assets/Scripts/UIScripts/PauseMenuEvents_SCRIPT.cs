@@ -28,6 +28,9 @@ public class PauseMenuToggler : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.P))
             {
                 TogglePauseMenu();
+                if (settingsCanvas) {
+                    settingsCanvas.gameObject.SetActive(false);
+                }
             }
         }
     }
