@@ -322,7 +322,7 @@ public class EnemySpawner : NetworkBehaviour {
         }
 
         if (validPrefabs.Count == 0) {
-            Debug.LogError("No valid prefabs found.");
+            //Debug.LogError("No valid prefabs found.");
             return null;
         }
 

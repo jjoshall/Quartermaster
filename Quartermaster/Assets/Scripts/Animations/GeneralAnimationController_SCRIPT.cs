@@ -34,7 +34,7 @@ public class GeneralAnimationController : NetworkBehaviour
     private void Update()
     {
         // Temporary test trigger to start animation when pressing '['
-        if (Input.GetKeyDown(KeyCode.LeftBracket))
+        if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             TriggerPlay();
 

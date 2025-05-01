@@ -265,9 +265,9 @@ public class PlayerController : NetworkBehaviour {
         if (stateMachine != null) { stateMachine.Update(); }
 
         // getkeydown ] to spawn dev controller
-        if (Input.GetKeyDown(KeyCode.RightBracket)){
-            SpawnDevController();
-        }
+        //if (Input.GetKeyDown(KeyCode.RightBracket)){
+        //    SpawnDevController();
+        //}
     }
 
     void FixedUpdate() {
