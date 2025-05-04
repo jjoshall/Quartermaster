@@ -19,19 +19,19 @@ public class HealProjectile : IProjectile
 
     protected override void OnCollisionEnter(Collision collision)
     {
-        Debug.Log ("healprojectile collision: " + collision.gameObject.name);
+        //Debug.Log ("healprojectile collision: " + collision.gameObject.name);
     }
 
     protected override void OnTriggerEnter(Collider collision)
     {
-        Debug.Log("healprojectile triggered with: " + collision.gameObject.name);
+        //Debug.Log("healprojectile triggered with: " + collision.gameObject.name);
         GameObject thisObj = collision.gameObject;
         if (collision.gameObject.CompareTag("PlayerHealCollider")){
             thisObj = collision.gameObject.transform.parent.gameObject;
         }
         if (thisObj.CompareTag("Player")){
             if (thisObj == sourcePlayer && _projectileCollided == false){
-                Debug.Log ("thisObj == sourcePlayer && _projectileCollided == false");
+                //Debug.Log ("thisObj == sourcePlayer && _projectileCollided == false");
                 return;
             }
             HealPlayer(thisObj);

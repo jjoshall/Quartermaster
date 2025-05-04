@@ -53,7 +53,7 @@ public class LoadingScreenManager : MonoBehaviour {
             loadingCanvasGroup.alpha = 0f;
             //Debug.Log("Fading in LoadingPanel");
             await FadeCanvasGroup(loadingCanvasGroup, 0f, 1f, fadeDuration);
-            Debug.Log("Finished fade in");
+            //Debug.Log("Finished fade in");
         } else {
             Debug.LogWarning("Loading CanvasGroup is missing!");
         }
