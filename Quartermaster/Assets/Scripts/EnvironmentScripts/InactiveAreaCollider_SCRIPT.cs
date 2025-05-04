@@ -9,7 +9,7 @@ public class InactiveAreaCollider : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log("Player has entered the InactiveAreaCollider. Removing from EnemySpawner active player list");
+            //Debug.Log("Player has entered the InactiveAreaCollider. Removing from EnemySpawner active player list");
             EnemySpawner.instance.activePlayerList.Remove(other.gameObject);
         }
     }
@@ -18,7 +18,7 @@ public class InactiveAreaCollider : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log("Player has exited the InactiveAreaCollider. Adding to EnemySpawner active player list.");
+            //Debug.Log("Player has exited the InactiveAreaCollider. Adding to EnemySpawner active player list.");
             EnemySpawner.instance.activePlayerList.Add(other.gameObject);
         }
     }

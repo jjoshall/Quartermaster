@@ -107,14 +107,14 @@ public class RailgunItem : Item
                 ParticleManager.instance.SpawnSelfThenAll(_barrelLaserEffect, shotOrigin.transform.position, attackRotation);
             }
             // draw a ray from the shotOrigin to the hit point
-            Debug.DrawRay(shotOrigin.transform.position, hits[0].point - shotOrigin.transform.position, Color.blue, 2f);
+            //Debug.DrawRay(shotOrigin.transform.position, hits[0].point - shotOrigin.transform.position, Color.blue, 2f);
 
             // ~---- SPAWN TRAIL RENDER FROM SHOT ORIGIN TO HIT POINT ----~
             WeaponEffects effects = user.GetComponent<WeaponEffects>();
             NetworkObject userNetObj = user.GetComponent<NetworkObject>();
 
             if (effects != null && userNetObj != null) {
-                Debug.Log ("spawning trail");
+                //Debug.Log ("spawning trail");
                 if (NetworkManager.Singleton.IsServer) {
                     // If the user (player) is the server, spawn the trail directly.
                     effects.SpawnBulletTrailClientRpc(shotOrigin.transform.position, hits[0].point, trailRenderID);
@@ -131,14 +131,14 @@ public class RailgunItem : Item
                 if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Building") ||
                     hit.collider.gameObject.layer == LayerMask.NameToLayer("whatIsGround"))
                 {
-                    Debug.Log ("railgun hit building/whatisground");
+                    //Debug.Log ("railgun hit building/whatisground");
                     SpawnExplosion(hit.point, _explosionRadius, targetsHit);
                     break;
                 }
 
                 if (!hit.collider.CompareTag("Enemy") && !hit.collider.CompareTag("Player")){
                     
-                    Debug.Log ("railgun hit non-enemy && non-player");
+                    //Debug.Log ("railgun hit non-enemy && non-player");
                     SpawnExplosion(hit.point, _explosionRadius, targetsHit);
                     break;
                 }

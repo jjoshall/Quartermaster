@@ -10,6 +10,7 @@ public class GameManager : NetworkBehaviour {
     [SerializeField] private float _dropItemVelocity;
 
     [Header("Weapon Settings")]
+    [Header("Flamethrower Settings")]
     // Weapons should not scale at run-time. Scale enemy hp instead.
     [SerializeField] private float flame_Damage;
     [SerializeField] private float flame_Range;
@@ -18,19 +19,23 @@ public class GameManager : NetworkBehaviour {
     [SerializeField] private string flame_EnemyHitEffect = "Sample"; // effect spawned on center of every enemy hit.
     [SerializeField] private string flame_BarrelEffect = "PistolBarrelFire"; // effect at player
 
+    [Header("Railgun Settings")]
     [SerializeField] private float railgun_Damage;
     [SerializeField] private float railgun_AoeRadius;
     [SerializeField] private float railgun_Cooldown;
 
+    [Header("Pistol Settings")]
     [SerializeField] private float pistol_Damage;
     [SerializeField] private float pistol_Cooldown;
 
     [SerializeField] public GameObject bulletTracerPrefab;
 
     [Header("Item Settings")]
+    [Header("Portal Key Settings")]
     [SerializeField] private float portalKey_Cooldown;
     [SerializeField] private float portalKey_TeleportRadius;
 
+    [Header("Grenade Settings")]
     [SerializeField] private float grenade_Damage;
     [SerializeField] private float grenade_AoeRadius;
     [SerializeField] private float grenade_ChargeTime;
@@ -40,6 +45,7 @@ public class GameManager : NetworkBehaviour {
     [SerializeField] private float grenade_ExpireTimer;
     [SerializeField] private int grenade_StackLimit;
 
+    [Header("Slow Trap Settings")]
     [SerializeField] private float slowTrap_SlowByPct;// give enemy a debuff flag. enemy checks for debuff then accesses this value to adjust their own speed.
     [SerializeField] private float slowTrap_Duration;   // duration of the trap itself. 
     [SerializeField] private float slowTrap_AoERadius;
@@ -49,6 +55,7 @@ public class GameManager : NetworkBehaviour {
     [SerializeField] private float slowTrap_MinVelocity;
     [SerializeField] private float slowTrap_MaxVelocity;
 
+    [Header("MedKit Settings")]
     [SerializeField] private float medKit_HealAmount ;
     [SerializeField] private float medKit_Cooldown ;
     [SerializeField] private int medKit_StackLimit;
@@ -58,15 +65,18 @@ public class GameManager : NetworkBehaviour {
     [SerializeField] private float _medKit_MaxVelocity;
     [SerializeField] private float _medKit_ExpireTimer;
 
+    [Header("Quest Item Settings")]
     [SerializeField] private int questItem_StackLimit;
 
+    [Header("Heal Spec Settings")]
     [SerializeField] private int _healSpec_StackLimit;
     [SerializeField] private float _healSpec_MultiplierPer;
 
+    [Header("Damage Spec Settings")]
     [SerializeField] private int _dmgSpec_StackLimit;
     [SerializeField] private float _dmgSpec_MultiplierPer;
 
-    [Header("Enemy Settings")]
+    [Header("Melee Enemy Settings")]
     [SerializeField] private float meleeEnemy_Health;
     [SerializeField] private float meleeEnemy_AttackCooldown;
     [SerializeField] private float meleeEnemy_AttackRange;
@@ -75,6 +85,7 @@ public class GameManager : NetworkBehaviour {
     [SerializeField] private bool meleeEnemy_UseGlobalTarget;
     [SerializeField] private float meleeEnemy_Speed;
 
+    [Header("Ranged Enemy Settings")]
     [SerializeField] private float rangedEnemy_Health;
     [SerializeField] private float rangedEnemy_AttackCooldown;
     [SerializeField] private float rangedEnemy_AttackRange;
@@ -82,6 +93,7 @@ public class GameManager : NetworkBehaviour {
     [SerializeField] private bool rangedEnemy_UseGlobalTarget;
     [SerializeField] private float rangedEnemy_Speed;
 
+    [Header("Explosive Enemy Settings")]
     [SerializeField] private float explosiveEnemy_Health;
     [SerializeField] private float explosiveEnemy_AttackCooldown;
     [SerializeField] private float explosiveEnemy_AttackRange;

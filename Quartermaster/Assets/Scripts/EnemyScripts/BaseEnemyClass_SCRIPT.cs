@@ -1,10 +1,8 @@
 using UnityEngine;
 using UnityEngine.AI;
 using Unity.Netcode;
-using System.Collections;
 using TMPro;
 using System.Collections.Generic;
-using GLTFast.Schema;
 
 public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     // THIS IS FOR GAME MANAGER, you can change values in the
@@ -49,6 +47,11 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [SerializeField, Range(0.0f, 1.0f)] private float _separationDecay = 0.9f; // per frame multiplier on velocity vector
     private Vector3 _velocityVector = Vector3.zero; // used for boids separation
 
+    [Header("For Animation Culling")]
+    private float _distanceToNearestPlayer = Mathf.Infinity; // used to determine if we should animate or not
+    private float _distanceCheckTimer = 0f;
+    private const float _distanceCheckInterval = 1f; // how often to check distance to nearest player
+
     // Speed run-time variables, think Norman added this
     // Yes I did - Norman
     protected float _baseSpeed = 0.0f;
@@ -79,6 +82,10 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         playersThatHitMe = new List<GameObject>();
 
         animator = GetComponentInChildren<Animator>();
+        if (animator != null) {
+            animator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
+        }
+
         soundEmitters = GetComponentsInChildren<SoundEmitter>(true);
 
         if (!IsServer) {
@@ -101,6 +108,14 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     #region PathingLogic
     protected virtual void Update() {
         if (!IsServer) return;
+
+        // Timer-based distance check
+        _distanceCheckTimer += Time.deltaTime;
+        if (_distanceCheckTimer >= _distanceCheckInterval) {
+            _distanceCheckTimer = 0f; // reset timer
+            UpdateDistanceToNearestPlayer();
+        }
+
         UpdateTarget(); // sets targetPosition to closest player within localDetectionRange, else global target
         Pathing(); // if in attackRange
     }
@@ -117,7 +132,19 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         }
     }
 
-    private void Pathing(){        
+    private void UpdateDistanceToNearestPlayer() {
+        _distanceToNearestPlayer = Mathf.Infinity; // reset distance to nearest player
+
+        foreach (var player in enemySpawner.activePlayerList) {
+            if (player == null) continue;
+            float distance = Vector3.Distance(transform.position, player.transform.position);
+            if (distance < _distanceToNearestPlayer) {
+                _distanceToNearestPlayer = distance;
+            }
+        }
+    }
+
+    private void Pathing() {        
         if (targetPosition != null) {
             // Each enemy has a different attack range
             bool inRange = Vector3.Distance(transform.position, targetPosition) <= attackRange;
@@ -188,6 +215,10 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     // IMPLEMENT THIS METHOD FOR NEW/EACH ENEMIES
     protected abstract void Attack();
+
+    protected bool ShouldAnimate() {
+        return _distanceToNearestPlayer < 30f; // if the player is within 30 units, animate
+    }
 
     // If player in localDetectionRange, target closest.
     // Else target global.
@@ -271,28 +302,17 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
         PlaySoundForEmitter("melee_damaged", transform.position);
 
-        GameManager.instance.AddEnemyDamageServerRpc(damage);   // tracks total damage dealt to enemies
+        //GameManager.instance.AddEnemyDamageServerRpc(damage);   // tracks total damage dealt to enemies
         if (!playersThatHitMe.Contains(damageSource)) {
             playersThatHitMe.Add(damageSource);
         } // prevent multiple hits from same player
     }
 
-    //[ServerRpc(RequireOwnership = false)]
-    //private void ShowFloatingTextServerRpc(float damage) {
-    //    ShowFloatingTextClientRpc(damage);
-    //}
-
-    //[ClientRpc]
-    //void ShowFloatingTextClientRpc(float damage) {
-    //    var go = Instantiate(floatingTextPrefab, transform.position, Quaternion.identity, transform);
-    //    go.GetComponent<TextMeshPro>().SetText(damage.ToString());
-    //}
-
     // Called when enemy dies
     protected virtual void OnDie() {
         ItemManager.instance.RollDropTable(transform.position);    // norman added this, has a chance to burst drop items
         GameManager.instance.IncrementEnemyKillsServerRpc();    // add to enemy kill count
-        Debug.Log("Removing " + gameObject.name + " from enemy list");
+        //Debug.Log("Removing " + gameObject.name + " from enemy list");
         enemySpawner.RemoveEnemyFromList(gameObject);   // remove enemy from list of enemies
         enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());  // remove enemy from scene
     }
