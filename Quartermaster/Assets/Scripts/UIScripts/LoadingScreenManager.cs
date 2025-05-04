@@ -43,7 +43,7 @@ public class LoadingScreenManager : MonoBehaviour {
         // Activate the loading panel right before starting the transition.
         if (loadingPanel != null) {
             loadingPanel.SetActive(true);
-            Debug.Log("Loading panel activated.");
+            //Debug.Log("Loading panel activated.");
         } else {
             Debug.LogWarning("Loading Panel reference is missing!");
         }
@@ -51,7 +51,7 @@ public class LoadingScreenManager : MonoBehaviour {
         // Fade in the loading panel.
         if (loadingCanvasGroup != null) {
             loadingCanvasGroup.alpha = 0f;
-            Debug.Log("Fading in LoadingPanel");
+            //Debug.Log("Fading in LoadingPanel");
             await FadeCanvasGroup(loadingCanvasGroup, 0f, 1f, fadeDuration);
             Debug.Log("Finished fade in");
         } else {
@@ -61,25 +61,25 @@ public class LoadingScreenManager : MonoBehaviour {
         // Disable lobby menu canvas so it doesn't interfere.
         if (lobbyMenuCanvas != null) {
             lobbyMenuCanvas.enabled = false;
-            Debug.Log("LobbyMenuCanvas hidden.");
+            //Debug.Log("LobbyMenuCanvas hidden.");
         } else {
             Debug.LogWarning("LobbyMenuCanvas reference is missing!");
         }
 
         // Wait for the specified time (in milliseconds).
-        Debug.Log($"Waiting {waitTimeBeforeProceeding / 1000f} seconds before proceeding...");
+        //Debug.Log($"Waiting {waitTimeBeforeProceeding / 1000f} seconds before proceeding...");
         await Task.Delay((int)waitTimeBeforeProceeding);
 
         // Fade out the loading panel.
         Task fadeOutTask = null;
         if (loadingPanel != null && loadingCanvasGroup != null) {
-            Debug.Log("Starting fade out of LoadingPanel");
+            //Debug.Log("Starting fade out of LoadingPanel");
             fadeOutTask = FadeCanvasGroup(loadingCanvasGroup, 1f, 0f, fadeDuration);
             await fadeOutTask;
-            Debug.Log("Finished fade out");
+            //Debug.Log("Finished fade out");
             // Fully deactivate the loading panel after fade out.
             loadingPanel.SetActive(false);
-            Debug.Log("LoadingPanel deactivated after fade out");
+            //Debug.Log("LoadingPanel deactivated after fade out");
         }
         return fadeOutTask;
     }
@@ -92,7 +92,7 @@ public class LoadingScreenManager : MonoBehaviour {
     public IEnumerator HandleDelayedUIEnable(string joinCode) {
         yield return new WaitForSeconds(delayedUIEnableWait);
 
-        Debug.Log("Activating playerUICanvas and updating joinCodeText");
+        //Debug.Log("Activating playerUICanvas and updating joinCodeText");
         if (playerUICanvas != null) {
             playerUICanvas.gameObject.SetActive(true);
         } else {
@@ -109,16 +109,16 @@ public class LoadingScreenManager : MonoBehaviour {
 
         // Ensure the loading panel is deactivated.
         if (loadingPanel != null) {
-            Debug.Log("Disabling LoadingPanel after UI update");
+            //Debug.Log("Disabling LoadingPanel after UI update");
             loadingPanel.SetActive(false);
-            Debug.Log("LoadingPanel active state after SetActive(false): " + loadingPanel.activeSelf);
+            //Debug.Log("LoadingPanel active state after SetActive(false): " + loadingPanel.activeSelf);
         } else {
             Debug.LogWarning("Loading Panel reference is missing during UI update!");
         }
 
         if (lobbyMenuCanvas != null) {
             lobbyMenuCanvas.enabled = false;
-            Debug.Log("LobbyMenuCanvas hidden.");
+            //Debug.Log("LobbyMenuCanvas hidden.");
         } else {
             Debug.LogWarning("LobbyMenuCanvas reference is missing!");
         }
@@ -129,7 +129,7 @@ public class LoadingScreenManager : MonoBehaviour {
     /// </summary>
     public void DisableLoadingPanel() {
         if (loadingPanel != null) {
-            Debug.Log("Disabling LoadingPanel due to error");
+            //Debug.Log("Disabling LoadingPanel due to error");
             loadingPanel.SetActive(false);
         }
     }

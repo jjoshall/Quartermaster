@@ -50,7 +50,7 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     protected override void Update() {
         base.Update();
 
-        if (!IsServer) return;
+        if (!IsServer || !ShouldAnimate()) return;
 
         _frameCounter++;
         if (_frameCounter > 5000) {
@@ -64,7 +64,7 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     // makes drone hover up and down
     private void ApplyHovering() {
-        if (agent == null || !agent.enabled) {
+        if (agent == null || !agent.enabled || !ShouldAnimate()) {
             return; // Don't apply hovering if the agent is disabled or not animating
         }
 
@@ -93,7 +93,6 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         if (_frameCounter % 8 != 0) { return; }
 
         Vector3 directionToTarget = (targetPosition - transform.position).normalized;
-        //Debug.DrawRay(_firePoint.position, directionToTarget * 10f, Color.red);
         Quaternion lookRotation = Quaternion.LookRotation(directionToTarget) * Quaternion.Euler(90f, 0f, 0f);
 
         _leftGun.rotation = Quaternion.Slerp(_leftGun.rotation, lookRotation, Time.deltaTime * 5f);

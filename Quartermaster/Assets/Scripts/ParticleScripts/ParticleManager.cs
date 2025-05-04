@@ -137,7 +137,7 @@ public class ParticleManager : NetworkBehaviour
             particleObj = Instantiate(typePrefab, position, rotation);
             particleObj.transform.SetParent(this.gameObject.transform);
             float typeDuration = particleTypesPrefabList.Find(x => x.key == key).duration;
-            Debug.Log ("ParticleManager: Scaling particle to: " + scale);
+            //Debug.Log ("ParticleManager: Scaling particle to: " + scale);
             particleObj.transform.localScale = new Vector3(scale, scale, scale);
             PlayParticle(particleObj, key, typeDuration);
         }

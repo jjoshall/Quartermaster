@@ -47,7 +47,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [SerializeField, Range(0.0f, 1.0f)] private float _separationDecay = 0.9f; // per frame multiplier on velocity vector
     private Vector3 _velocityVector = Vector3.zero; // used for boids separation
 
-    [Header("For Animations Culling")]
+    [Header("For Animation Culling")]
     private float _distanceToNearestPlayer = Mathf.Infinity; // used to determine if we should animate or not
     private float _distanceCheckTimer = 0f;
     private const float _distanceCheckInterval = 1f; // how often to check distance to nearest player
@@ -302,7 +302,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
         PlaySoundForEmitter("melee_damaged", transform.position);
 
-        GameManager.instance.AddEnemyDamageServerRpc(damage);   // tracks total damage dealt to enemies
+        //GameManager.instance.AddEnemyDamageServerRpc(damage);   // tracks total damage dealt to enemies
         if (!playersThatHitMe.Contains(damageSource)) {
             playersThatHitMe.Add(damageSource);
         } // prevent multiple hits from same player
@@ -312,7 +312,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected virtual void OnDie() {
         ItemManager.instance.RollDropTable(transform.position);    // norman added this, has a chance to burst drop items
         GameManager.instance.IncrementEnemyKillsServerRpc();    // add to enemy kill count
-        Debug.Log("Removing " + gameObject.name + " from enemy list");
+        //Debug.Log("Removing " + gameObject.name + " from enemy list");
         enemySpawner.RemoveEnemyFromList(gameObject);   // remove enemy from list of enemies
         enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());  // remove enemy from scene
     }
