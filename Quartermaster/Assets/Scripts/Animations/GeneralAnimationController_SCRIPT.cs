@@ -2,19 +2,23 @@ using UnityEngine;
 using UnityEngine.Events;
 using Unity.Netcode;
 
-public class GeneralAnimationController : NetworkBehaviour
-{
+public class GeneralAnimationController : NetworkBehaviour {
+    [SerializeField] private GameObject doorIndicator;
+
     private Animator animator;
     private bool isPaused = false;
     private float savedSpeed = 1f;
 
     private bool gatesOpened = false;
 
+
+
     // Public UnityEvents for triggering animation controls externally
     public UnityEvent OnPlay = new UnityEvent();
     public UnityEvent OnPause = new UnityEvent();
     public UnityEvent OnHold = new UnityEvent();
     public UnityEvent OnResume = new UnityEvent();
+
 
     private void Awake()
     {
@@ -34,11 +38,12 @@ public class GeneralAnimationController : NetworkBehaviour
     private void Update()
     {
         // Temporary test trigger to start animation when pressing '['
-        if (Input.GetKeyDown(KeyCode.LeftBracket))
+        if (Input.GetKeyDown(KeyCode.O) && doorIndicator != null)
         {
             TriggerPlay();
 
-
+            Destroy(doorIndicator);
+            
             // trigger poolmanager spawning start.
             EnableSpawnIfGatesNotOpenedYet();
 
