@@ -469,7 +469,7 @@ public class PlayerController : NetworkBehaviour {
     }
 
     void OnDie() {
-        Debug.Log($"[{Time.time}] {gameObject.name} died. Respawning...");
+        //Debug.Log($"[{Time.time}] {gameObject.name} died. Respawning...");
 
         if (health != null) health.Invincible = true;
 
@@ -491,7 +491,7 @@ public class PlayerController : NetworkBehaviour {
     }
 
     void OnDamaged(float damage, GameObject damageSource) {
-        Debug.Log($"[{Time.time}] {gameObject.name} took {damage} damage. Health Ratio: {health.GetRatio()}");
+        //Debug.Log($"[{Time.time}] {gameObject.name} took {damage} damage. Health Ratio: {health.GetRatio()}");
 
         HealthBarUI.instance.UpdateHealthBar(health);
 
@@ -505,7 +505,7 @@ public class PlayerController : NetworkBehaviour {
     }
 
     void OnHealed(float healAmount) {
-        Debug.Log($"[{Time.time}] {gameObject.name} healed for {healAmount} health. Health Ratio: {health.GetRatio()}");
+        //Debug.Log($"[{Time.time}] {gameObject.name} healed for {healAmount} health. Health Ratio: {health.GetRatio()}");
     
         HealthBarUI.instance.UpdateHealthBar(health);
     }

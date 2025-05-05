@@ -92,7 +92,7 @@ public class Flamethrower_MONO : Item
 
     private void StopFireEffect(GameObject user) {
         if (flameParticle != null && flameParticle.isPlaying) {
-            Debug.Log ("stopping flamethrowerPS play");
+            //Debug.Log ("stopping flamethrowerPS play");
             flameParticle.Stop();
         }
 

@@ -71,7 +71,7 @@ public class UITargetCircle : MonoBehaviour
         tooltippablePanel = Instantiate(tooltipPanelPrefab, this.transform.parent);
 
         float originOffset = radialImage.GetComponent<RectTransform>().rect.width / 2f;
-        Debug.Log ("originOffset is " + originOffset);
+        //Debug.Log ("originOffset is " + originOffset);
         tooltippableLine.GetComponent<UILineDrawer>().Initialize(_camRef, _highlightObjectRef, 
                                                                 originOffset,
                                                                 _lineWidth, _primary,
@@ -101,7 +101,7 @@ public class UITargetCircle : MonoBehaviour
     }
 
     void AnimateTargetCircle(){
-        Debug.Log ("AnimateFill() called.");
+        //Debug.Log ("AnimateFill() called.");
         LeanTween.value(radialImage.gameObject, 0f, 1f, fillDuration)
             .setEase(LeanTweenType.easeOutCubic)
             .setOnUpdate((float val) =>
@@ -117,7 +117,7 @@ public class UITargetCircle : MonoBehaviour
 
     void AnimateLineRenderer(){
         tooltippableLine.GetComponent<UILineDrawer>()?.AnimateDrawLine();
-        Debug.Log ("AnimateLineRenderer() called.");
+        //Debug.Log ("AnimateLineRenderer() called.");
     }
 
     // void AnimateFillPanel(){
