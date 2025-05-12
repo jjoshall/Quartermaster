@@ -221,47 +221,48 @@ public class Inventory : NetworkBehaviour {
     #region PickupHelpers
     #endregion 
     private void AddToInventory(GameObject pickedUp) {
-        if (!TryValidatePickup(pickedUp, out var item, out var itemNO, out var playerNO)) return;
+        GetPickupVars(pickedUp, out var item, out var itemNO, out var playerNO);
+        if (item == null || itemNO == null || playerNO == null) return;
 
         // Visually/physically attach the item on all clients
         PropagateItemAttachmentServerRpc(itemNO, playerNO, true);
 
         HandleItemExclusivity(item);
+        
 
-        if (TryPlaceInCurrentSlot(pickedUp, item) || AddToFirstEmptySlot(pickedUp)) {
+        if (TryPlaceInCurrentSlot(pickedUp, item) || AddToFirstEmptySlot(pickedUp)) { // short circuits on first success. 
+                                                                                      // sets inventory[i] to pickedUp and calls OnPickup.
             _currentHeldItems++;
             UpdateHeldItem();
             UpdateHeldItemNetworkReference();
         }
     }
-    private bool TryValidatePickup(GameObject pickedUp, out Item item, out NetworkObject itemNO, out NetworkObject playerNO) {
+    private void GetPickupVars(GameObject pickedUp, out Item item, out NetworkObject itemNO, out NetworkObject playerNO) {
         item = null;
         itemNO = null;
         playerNO = _playerObj?.GetComponent<NetworkObject>();
 
         if (playerNO == null) {
             Debug.LogError("Player object does not have a NetworkObject component.");
-            return false;
+            return;
         }
 
         if (pickedUp == null) {
             Debug.LogError("Picked up item is null.");
-            return false;
+            return;
         }
 
         itemNO = pickedUp.GetComponent<NetworkObject>();
         if (itemNO == null) {
             Debug.LogError("Picked up item does not have a NetworkObject component.");
-            return false;
+            return;
         }
 
         item = pickedUp.GetComponent<Item>();
         if (item == null) {
             Debug.LogError("Picked up item does not have an Item component.");
-            return false;
+            return;
         }
-
-        return true;
     }
 
     private void HandleItemExclusivity(Item item) {
@@ -361,6 +362,7 @@ public class Inventory : NetworkBehaviour {
         PropagateItemAttachmentServerRpc(itemNO, playerNO, false);
         AddToItemAcq(itemGO); // add to item acquisition range
         thisItem.OnDrop(_playerObj); // Call the item's onDrop function
+        PropagateHoldableShowServerRpc(itemNO, true); // show the item that is being dropped.
 
         _inventoryMono[thisSlot] = null;
         _currentHeldItems--;
@@ -409,11 +411,11 @@ public class Inventory : NetworkBehaviour {
             if (item == null){
                 continue;
             }
-            NetworkObject no = item.GetComponent<NetworkObject>();
+            NetworkObject netObj = item.GetComponent<NetworkObject>();
             if (i != _currentInventoryIndex){
-                PropagateHoldableShowServerRpc(no, false);
+                PropagateHoldableShowServerRpc(netObj, false);
             } else {
-                PropagateHoldableShowServerRpc(no, true);
+                PropagateHoldableShowServerRpc(netObj, true);
             }
         }
     }
