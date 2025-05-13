@@ -5,7 +5,7 @@ public class BubbleAnimator : IShaderAnimator
 
 
     [SerializeField] private float _BUBBLE_SCALE_MIN_RANGE = 0.1f;
-    [HideInInspector] public float BUBBLE_SCALE_MAX_RANGE = 1.0f;
+    public float BUBBLE_SCALE_MAX_RANGE = 7.0f;
 
     [SerializeField] private float _BUBBLE_OPACITY_MIN_RANGE = 0.0f;
     [SerializeField] private float _BUBBLE_OPACITY_MAX_RANGE = 0.5f;
@@ -33,6 +33,7 @@ public class BubbleAnimator : IShaderAnimator
     }
 
     public override void Animate(){
+        Debug.Log ("BubbleAnimator Animate() called");
         _fadeStarted = true;
         _fadeTimerStart = Time.time;
     }

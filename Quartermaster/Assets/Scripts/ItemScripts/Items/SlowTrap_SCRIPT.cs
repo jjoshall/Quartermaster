@@ -9,7 +9,7 @@ public class SlowTrapItem : Item
     [SerializeField] private float _SlowTrapBaseVelocity = 5f; // originally 5f
     [SerializeField] private float _SlowTrapMaxVelocity = 10f; // originally 30f
     [SerializeField] private float _SlowTrapMaxChargeTime = 0.5f; // originally 1.0f
-    [SerializeField] private float _SlowTrapScale = 5.0f;
+    [SerializeField] private float _SlowTrapScale = 5.0f;   // particle aoe is set separately in the inspector/ParticleManager/
     [SerializeField] private float _SlowTrapSlowAmount = 0.5f;
 
     #region RuntimeVars
