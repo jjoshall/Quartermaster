@@ -164,12 +164,24 @@ public class Inventory : NetworkBehaviour {
             // despawn network item 
             NetworkObject n_item = _inventoryMono[_currentInventoryIndex].GetComponent<NetworkObject>();
             if (n_item != null) {
-                n_item.Despawn(true); // despawn the item on all clients
+                DespawnItemServerRpc(n_item);
             } else {
                 Debug.LogError("Inventory: QuantityCheck() - Item is null.");
             }
             _inventoryMono[_currentInventoryIndex] = null;
             _currentHeldItems--;
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void DespawnItemServerRpc(NetworkObjectReference item){
+        if (!IsServer) return;
+
+        // Despawn the item on all clients
+        if (item.TryGet(out var itemNO)) {
+            itemNO.Despawn(true);
+        } else {
+            Debug.LogError("DespawnItemServerRpc: item is null.");
         }
     }
 
@@ -223,6 +235,9 @@ public class Inventory : NetworkBehaviour {
     private void AddToInventory(GameObject pickedUp) {
         GetPickupVars(pickedUp, out var item, out var itemNO, out var playerNO);
         if (item == null || itemNO == null || playerNO == null) return;
+
+        // local userRef set first to avoid null reference errors.
+        item.userRef = _playerObj;
 
         // Visually/physically attach the item on all clients
         PropagateItemAttachmentServerRpc(itemNO, playerNO, true);
