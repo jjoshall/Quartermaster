@@ -171,10 +171,10 @@ public class ObjectiveManager : NetworkBehaviour {
         n_minPerObjective[randType]--;
 
         if (randType == 0) {
-            taskList.text += "-Deliver the item to the mailbox. " + $"<size=1%>{randValid}</size>" + "\n";
+            taskList.text += "-Deliver the item to the mailbox. " + $"<size=1%>{randValid + 11}</size>" + "\n";
         }
         else if (randType == 1) {
-            taskList.text += "-Locate and defend the node! " + $"<size=1%>{randValid}</size>" + "\n";
+            taskList.text += "-Locate and defend the node! " + $"<size=1%>{randValid + 11}</size>" + "\n";
         }
         // taskList.text += minPerObjective[randType].objectivePrefab + "\n";
     }
@@ -217,7 +217,7 @@ public class ObjectiveManager : NetworkBehaviour {
     #region = Objectives
     [ServerRpc(RequireOwnership = false)]
     public void ClearObjectiveServerRpc(NetworkObjectReference refe, int index){
-        taskList.text = taskList.text.Replace(index.ToString(), $"<size=100%> Complete!</size>");
+        taskList.text = taskList.text.Replace((index + 11).ToString(), $"<size=100%> Complete!</size>");
         if (!IsServer) return;
         if (!refe.TryGet(out NetworkObject netObj)){
             Debug.LogError("ObjectiveManager: ClearObjective() netObj is null.");
