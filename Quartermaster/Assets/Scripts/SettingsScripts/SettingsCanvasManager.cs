@@ -11,6 +11,7 @@ public class SettingsCanvasManager : MonoBehaviour
     [SerializeField] private bool isMainMenuContext = false;
     
     [SerializeField] private Canvas pauseCanvas;
+    [SerializeField] private Canvas settingsCanvas;
 
     private void Awake()
     {
@@ -28,9 +29,13 @@ public class SettingsCanvasManager : MonoBehaviour
     {
         if (isMainMenuContext)
         {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-            SceneManager.LoadScene("MainMenu_SCENE");
+            // Cursor.lockState = CursorLockMode.Locked;
+            // Cursor.visible = false;
+            settingsCanvas.gameObject.SetActive(false);
+            if (pauseCanvas != null)
+            {
+                pauseCanvas.gameObject.SetActive(true);
+            }
         }
         else
         {
@@ -38,7 +43,7 @@ public class SettingsCanvasManager : MonoBehaviour
             {
                 pauseCanvas.gameObject.SetActive(true);
             }
-            gameObject.SetActive(false);
+            // gameObject.SetActive(false); commented this out for now bc pressing return would disable UIManager
         }
     }
 
