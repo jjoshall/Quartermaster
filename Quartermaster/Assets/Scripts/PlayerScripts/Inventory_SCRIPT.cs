@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.Netcode;
 using Unity.Netcode.Components; // Add this for NetworkTransform
 using UnityEngine.AI;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(PlayerInputHandler))]
 public class Inventory : NetworkBehaviour {
@@ -214,14 +215,20 @@ public class Inventory : NetworkBehaviour {
         // Try to stack the item in any existing item stacks. Returns true if fully stacked into existing stacks.
         if (TryStackItem(pickedUp)) {
             pickedUp.GetComponent<Item>().OnPickUp(_playerObj); // Call the item's onPickUp function
-            Destroy(pickedUp);
-            RemoveFromItemAcq(pickedUp);
+            RemoveFromItemAcqLocal(pickedUp);
+            var netObj = pickedUp.GetComponent<NetworkObject>();
+            if (netObj != null) {
+                DespawnItemServerRpc(netObj);
+            } else {
+                Debug.LogError("Picked up item does not have a NetworkObject component.");
+            }
+            // Destroy(pickedUp);
             UpdateInventoryWeight();
             UpdateAllInventoryUI();
             return;
         } else if (_currentHeldItems < _maxInventorySize) {
+            RemoveFromItemAcqLocal(pickedUp);
             AddToInventory(pickedUp); 
-            RemoveFromItemAcq(pickedUp);
             UpdateInventoryWeight();
             UpdateAllInventoryUI();
             return;
@@ -302,12 +309,38 @@ public class Inventory : NetworkBehaviour {
         UpdateHoldableNetworkReference();   // Sync network variable for current item
     }
 
-    private void RemoveFromItemAcq(GameObject itemPickedUp){
+    private void RemoveFromItemAcqLocal(GameObject itemPickedUp){
         // Remove the item from the ItemAcquisitionRange
         if (_itemAcquisitionRange) {
             _itemAcquisitionRange.RemoveItem(itemPickedUp);
         } else {
             Debug.LogError("ItemAcquisitionRange component not found on _itemAcquisitionRange.");
+        }
+
+        var netObj = itemPickedUp.GetComponent<NetworkObject>();
+
+        RemoveFromAllPlayersItemAcqServerRpc(netObj);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void RemoveFromAllPlayersItemAcqServerRpc(NetworkObjectReference item){
+        if (!IsServer) return;
+
+        RemoveFromPlayersItemAcqClientRpc(item);
+    }
+
+    [ClientRpc]
+    private void RemoveFromPlayersItemAcqClientRpc(NetworkObjectReference item){
+        if (!item.TryGet(out var itemNO)) return;
+
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        foreach (GameObject player in players) {
+            ItemAcquisitionRange itemAcqRange = player.GetComponentInChildren<ItemAcquisitionRange>();
+            if (itemAcqRange != null) {
+                itemAcqRange.RemoveItem(itemNO.gameObject);
+            } else {
+                Debug.LogError("ItemAcquisitionRange component not found on player.");
+            }
         }
     }
     

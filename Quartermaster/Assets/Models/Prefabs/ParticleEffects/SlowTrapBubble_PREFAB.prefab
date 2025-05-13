@@ -116,8 +116,8 @@ MonoBehaviour:
   renderer: {fileID: 9132723236791043278}
   loop: 0
   _BUBBLE_SCALE_MIN_RANGE: 0.1
-  BUBBLE_SCALE_MAX_RANGE: -1
-  _BUBBLE_OPACITY_MIN_RANGE: 0
+  BUBBLE_SCALE_MAX_RANGE: 7
+  _BUBBLE_OPACITY_MIN_RANGE: 5
   _BUBBLE_OPACITY_MAX_RANGE: 0.2
   fadeDuration: 2
 --- !u!1 &6585627112547629219
@@ -169,7 +169,7 @@ MonoBehaviour:
   priority: 2
   blendDistance: 1
   weight: 1
-  sharedProfile: {fileID: 11400000, guid: 4a1c021b03d8c4f4ebfc43b6b3b5e8c9, type: 2}
+  sharedProfile: {fileID: 0}
 --- !u!135 &2200720996255653214
 SphereCollider:
   m_ObjectHideFlags: 0
