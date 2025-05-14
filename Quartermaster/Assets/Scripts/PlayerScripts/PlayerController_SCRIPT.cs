@@ -1,6 +1,6 @@
 // Code is inspired from Unity's 3D FPS template
 using UnityEngine;
-using UnityEngine.Analytics;
+using Unity.Services.Analytics;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -471,6 +471,11 @@ public class PlayerController : NetworkBehaviour {
 
     void OnDie() {
         //Debug.Log($"[{Time.time}] {gameObject.name} died. Respawning...");
+
+        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
+            PlayerDeathEvent playerDeathEvent = new PlayerDeathEvent();
+            AnalyticsService.Instance.RecordEvent("playerDeathEvent");
+        }
 
         if (health != null) health.Invincible = true;
 

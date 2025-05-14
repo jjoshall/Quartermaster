@@ -317,10 +317,6 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
                 EnemyType = enemyType.ToString()
             };
 
-            var parameters = new Dictionary<string, object> {
-                { "EnemyType",  enemyType.ToString() }
-            };
-
             AnalyticsService.Instance.RecordEvent(enemyKilledEvent);
         }
         else {
@@ -329,7 +325,6 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
         ItemManager.instance.RollDropTable(transform.position);    // norman added this, has a chance to burst drop items
         GameManager.instance.IncrementEnemyKillsServerRpc();    // add to enemy kill count
-        //Debug.Log("Removing " + gameObject.name + " from enemy list");
         enemySpawner.RemoveEnemyFromList(gameObject);   // remove enemy from list of enemies
         enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());  // remove enemy from scene
     }

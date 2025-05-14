@@ -28,7 +28,11 @@ public class AnalyticsManager_SCRIPT : MonoBehaviour
 }
 
 public class EnemyKilledEvent : Unity.Services.Analytics.Event {
-    public EnemyKilledEvent() : base("enemyKilled") { }
+    public EnemyKilledEvent() : base("EnemyKilled") { }
 
     public string EnemyType { set { SetParameter("enemyType", value); } }
+}
+
+public class PlayerDeathEvent : Unity.Services.Analytics.Event {
+    public PlayerDeathEvent() : base("PlayerDeath") { }
 }
