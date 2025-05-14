@@ -313,11 +313,15 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     // Called when enemy dies
     protected virtual void OnDie() {
         if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
-            AnalyticsService.Instance.RecordEvent("EnemyKilled");
-            AnalyticsResult analyticsResult = Analytics.CustomEvent("EnemyKilled", new Dictionary<string, object> {
-                { "type", enemyType.ToString() }
-            });
-            Debug.Log("Analytics Result: " + analyticsResult);
+            EnemyKilledEvent enemyKilledEvent = new EnemyKilledEvent {
+                EnemyType = enemyType.ToString()
+            };
+
+            var parameters = new Dictionary<string, object> {
+                { "EnemyType",  enemyType.ToString() }
+            };
+
+            AnalyticsService.Instance.RecordEvent(enemyKilledEvent);
         }
         else {
             Debug.LogWarning("Analytics not ready or instance is null.");
@@ -383,5 +387,3 @@ public enum EnemyType {
     Ranged,
     Explosive
 }
-
-// This will return the enemy type. Each enemy script will use this for analytics
