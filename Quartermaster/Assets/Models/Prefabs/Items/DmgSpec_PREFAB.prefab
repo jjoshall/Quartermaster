@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: -4868822403234808869}
   - component: {fileID: -5661370747090835569}
   - component: {fileID: -608604032669965460}
+  - component: {fileID: -2496669484288766169}
   m_Layer: 6
   m_Name: DmgSpec_PREFAB
   m_TagString: Item
@@ -196,12 +197,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   uniqueID: dmgspec
-  IsConsumable: 0
   IsWeapon: 0
   IsClassSpec: 1
   CanAutoFire: 0
   cooldown: 0.1
   StackLimit: 3
+  weight: 0
   quantity: 1
   icon: {fileID: 2800000, guid: 295d4b06478496141854d630d2b0c0d2, type: 3}
   soundEmitters: []
@@ -212,6 +213,23 @@ MonoBehaviour:
   _pickUpEffect: 
   _dropEffect: 
   persistentEffect: {fileID: 0}
+--- !u!114 &-2496669484288766169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3214981217242712164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abba81b95eeeefa47b53e97ff1f27c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipHeaderText: 'MOD: +DmgSpec'
+  tooltipBodyText: Increases damage by 10% when held in inventory. Can only hold
+    one MOD type.
+  headerFontSize: 30
+  bodyFontSize: 18
 --- !u!1001 &4451628267990871832
 PrefabInstance:
   m_ObjectHideFlags: 0

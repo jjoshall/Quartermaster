@@ -275,6 +275,7 @@ GameObject:
   - component: {fileID: 4017880992523904337}
   - component: {fileID: 3829764285835127526}
   - component: {fileID: 8040091630801542255}
+  - component: {fileID: -8023752636163863637}
   m_Layer: 6
   m_Name: SlowTrap_PREFAB
   m_TagString: Item
@@ -465,12 +466,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   uniqueID: slowtrap
-  IsConsumable: 1
   IsWeapon: 0
   IsClassSpec: 0
   CanAutoFire: 0
   cooldown: 1
   StackLimit: 3
+  weight: 0
   quantity: 1
   icon: {fileID: 2800000, guid: 2263076bda62b18478952a7bcc0644d1, type: 3}
   soundEmitters: []
@@ -482,3 +483,20 @@ MonoBehaviour:
   _SlowTrapMaxChargeTime: 0.5
   _SlowTrapScale: 5
   _SlowTrapSlowAmount: 0.5
+--- !u!114 &-8023752636163863637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8519617277999394602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abba81b95eeeefa47b53e97ff1f27c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipHeaderText: 'CONSUMABLE: Slow Trap'
+  tooltipBodyText: Hold LCLICK to throw. Deploys a persistent slowing field that
+    lasts a moderate amount of time.
+  headerFontSize: 30
+  bodyFontSize: 18

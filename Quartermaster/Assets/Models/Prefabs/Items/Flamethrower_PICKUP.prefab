@@ -17,6 +17,8 @@ GameObject:
   - component: {fileID: 4600511874157233747}
   - component: {fileID: -7442452810845896546}
   - component: {fileID: 621058474563665509}
+  - component: {fileID: -5118764425674434934}
+  - component: {fileID: 6955101596663702709}
   m_Layer: 6
   m_Name: Flamethrower_PICKUP
   m_TagString: Item
@@ -262,6 +264,39 @@ MonoBehaviour:
   _barrelLaserEffect: PistolBarrelFire
   flameParticle: {fileID: 5725644298547326527}
   shotOrigin: {fileID: 4764484251815158850}
+--- !u!114 &-5118764425674434934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2182478556217154093}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abba81b95eeeefa47b53e97ff1f27c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipHeaderText: Default Tooltip Text
+  tooltipBodyText: Default Tooltip Body Text
+  headerFontSize: 36
+  bodyFontSize: 24
+--- !u!114 &6955101596663702709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2182478556217154093}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abba81b95eeeefa47b53e97ff1f27c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipHeaderText: 'WEAPON: Flamethrower'
+  tooltipBodyText: Hold LCLICK to fire. Close range, fast attack, good AoE. Can only
+    hold one weapon.
+  headerFontSize: 30
+  bodyFontSize: 18
 --- !u!1 &4764484251815158850
 GameObject:
   m_ObjectHideFlags: 0

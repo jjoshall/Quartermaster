@@ -260,8 +260,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abba81b95eeeefa47b53e97ff1f27c5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tooltipText: Default Tooltip Text
-  fontSize: 36
+  tooltipHeaderText: 'UNIQUE: Storage Key'
+  tooltipBodyText: 'TELEPORTS you to the storage space on use. RETURNS you to previous
+    location on subsequent use. '
+  headerFontSize: 30
+  bodyFontSize: 18
 --- !u!1001 &279344963303427435
 PrefabInstance:
   m_ObjectHideFlags: 0
