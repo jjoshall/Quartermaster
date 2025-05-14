@@ -186,8 +186,8 @@ GameObject:
   - component: {fileID: 1036518241470988294}
   - component: {fileID: 2238640474794710002}
   - component: {fileID: -4868822403234808869}
-  - component: {fileID: -263882481023672883}
   - component: {fileID: -2223687912412953296}
+  - component: {fileID: 1193870789848124774}
   m_Layer: 6
   m_Name: HealSpec_PREFAB
   m_TagString: Item
@@ -344,20 +344,6 @@ MonoBehaviour:
   m_IgnoreFromBuild: 1
   m_ApplyToChildren: 1
   m_AffectedAgents: ffffffff
---- !u!114 &-263882481023672883
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3214981217242712164}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62d419665ed6d7a41b7dc591a5a37b4c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  holdDuration: 5
-  key: HEALSPEC
 --- !u!114 &-2223687912412953296
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -372,12 +358,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   uniqueID: healspec
-  IsConsumable: 0
   IsWeapon: 0
   IsClassSpec: 1
   CanAutoFire: 0
   cooldown: 0.1
   StackLimit: 3
+  weight: 0
   quantity: 1
   icon: {fileID: 2800000, guid: e2ff992b8bfca034b817d47086fbf850, type: 3}
   soundEmitters: []
@@ -388,6 +374,23 @@ MonoBehaviour:
   _pickUpEffect: 
   _dropEffect: 
   persistentEffect: {fileID: 0}
+--- !u!114 &1193870789848124774
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3214981217242712164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abba81b95eeeefa47b53e97ff1f27c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipHeaderText: 'MOD: +HealSpec'
+  tooltipBodyText: Enables throwing MedKits at teammates. Increases healing done
+    with MedKits. Can only hold one MOD type.
+  headerFontSize: 30
+  bodyFontSize: 18
 --- !u!1 &5894367003958111586
 GameObject:
   m_ObjectHideFlags: 0

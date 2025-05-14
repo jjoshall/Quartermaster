@@ -58,7 +58,7 @@ public class CameraTooltipTrigger : NetworkBehaviour
 
                     // Spawn the tooltip at the hit point.
                     GameObject tooltip = Instantiate(animatedTooltipPrefab, UIManager.instance.playerDrawCanvas.transform);
-                    tooltip.GetComponent<UITargetCircle>().Initialize(this.gameObject, currGO, at.tooltipText, at.fontSize);
+                    tooltip.GetComponent<UITargetCircle>().Initialize(this.gameObject, currGO, at.tooltipHeaderText, at.headerFontSize, at.tooltipBodyText, at.bodyFontSize);
 
                     if (prevTarget && prevTooltippable) Destroy(prevTooltippable); // destroy the previous tooltip if it exists.
                     tooltipShown = true;
