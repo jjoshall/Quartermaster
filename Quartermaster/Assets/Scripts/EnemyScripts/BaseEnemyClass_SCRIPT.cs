@@ -4,6 +4,7 @@ using Unity.Netcode;
 using TMPro;
 using System.Collections.Generic;
 using UnityEngine.Analytics;
+using Unity.Services.Analytics;
 
 public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     // THIS IS FOR GAME MANAGER, you can change values in the
@@ -312,7 +313,8 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     // Called when enemy dies
     protected virtual void OnDie() {
         if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
-            var analyticsResult = Analytics.CustomEvent("EnemyKilled", new Dictionary<string, object> {
+            AnalyticsService.Instance.RecordEvent("EnemyKilled");
+            AnalyticsResult analyticsResult = Analytics.CustomEvent("EnemyKilled", new Dictionary<string, object> {
                 { "type", enemyType.ToString() }
             });
             Debug.Log("Analytics Result: " + analyticsResult);
