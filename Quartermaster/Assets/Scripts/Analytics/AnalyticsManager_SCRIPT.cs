@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Services.Analytics;
 using Unity.Services.Core;
+using Unity.Services.Authentication;
 
 public class AnalyticsManager_SCRIPT : MonoBehaviour
 {
@@ -17,20 +18,11 @@ public class AnalyticsManager_SCRIPT : MonoBehaviour
         }
     }
 
-    private async void Start() {
-        await UnityServices.InitializeAsync();
+    public void OnSignedIn() {
         AnalyticsService.Instance.StartDataCollection();
         _isInitialized = true;
+        Debug.Log("Analytics initialized and data collection started.");
     }
 
-    public void PressedTKey() {
-        if (!_isInitialized) {
-            Debug.LogWarning("Analytics not initialized yet.");
-            return;
-        }
-
-        CustomEvent myEvent = new CustomEvent("pressed_t_key") {
-            {   "key", "T" }
-        };
-    }
+    public bool IsAnalyticsReady() => _isInitialized;
 }

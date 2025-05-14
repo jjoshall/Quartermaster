@@ -1,5 +1,6 @@
 // Code is inspired from Unity's 3D FPS template
 using UnityEngine;
+using UnityEngine.Analytics;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;

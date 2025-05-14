@@ -12,6 +12,10 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     protected override float GetInitialHealth() => GameManager.instance.MeleeEnemy_Health;
     #endregion
 
+    public override void OnNetworkSpawn() {
+        base.OnNetworkSpawn();
+        enemyType = EnemyType.Melee;
+    }
     protected override void Attack() {
         if (IsServer) {
             animator.SetBool("IsAttacking", true);

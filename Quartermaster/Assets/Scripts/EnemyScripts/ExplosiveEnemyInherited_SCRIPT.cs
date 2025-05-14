@@ -30,6 +30,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
+        enemyType = EnemyType.Explosive;
 
         _isExploding = false;
         isBlinking.Value = false;

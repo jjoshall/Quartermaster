@@ -33,6 +33,7 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
+        enemyType = EnemyType.Ranged;
 
         if (IsServer) {
             _hoverOffset = Random.Range(0f, 3f * Mathf.PI);     // makes the hovering look more natural
