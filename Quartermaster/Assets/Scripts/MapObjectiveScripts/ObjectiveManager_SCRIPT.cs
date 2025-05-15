@@ -6,12 +6,14 @@ using UnityEngine.Rendering.PostProcessing;
 using Unity.VisualScripting;
 using UnityEngine.Localization.SmartFormat.Utilities;
 using System;
+using TMPro;
 
 public class ObjectiveManager : NetworkBehaviour {
 
     #region InspectorSettings
     public int objectivesToWin; // = max(foreach objectivetype * minimumtospawn, objectivesToWin)
     public int initialSpawnCount;
+    [SerializeField] private TextMeshProUGUI taskList;
     public List<ObjectiveType> minPerObjective; // minimum number of each objective to spawn
     [System.Serializable]
     public struct ObjectiveType {   
@@ -168,6 +170,13 @@ public class ObjectiveManager : NetworkBehaviour {
         n_objectivesToWin.Value--;
         n_minPerObjective[randType]--;
 
+        if (randType == 0) {
+            taskList.text += "-Deliver the item to the mailbox. " + $"<size=1%>{randValid + 11}</size>" + "\n";
+        }
+        else if (randType == 1) {
+            taskList.text += "-Locate and defend the node! " + $"<size=1%>{randValid + 11}</size>" + "\n";
+        }
+        // taskList.text += minPerObjective[randType].objectivePrefab + "\n";
     }
 
     private int GetRandomValidPoint(){
@@ -208,6 +217,7 @@ public class ObjectiveManager : NetworkBehaviour {
     #region = Objectives
     [ServerRpc(RequireOwnership = false)]
     public void ClearObjectiveServerRpc(NetworkObjectReference refe, int index){
+        taskList.text = taskList.text.Replace((index + 11).ToString(), $"<size=100%> Complete!</size>");
         if (!IsServer) return;
         if (!refe.TryGet(out NetworkObject netObj)){
             Debug.LogError("ObjectiveManager: ClearObjective() netObj is null.");
@@ -236,6 +246,9 @@ public class ObjectiveManager : NetworkBehaviour {
     #region = BossPhase172
     [ServerRpc(RequireOwnership = false)]
     private void ClearedAllObjectivesServerRpc(){
+
+        if (n_objectivesToWin.Value <= (objectivesToWin * -1)) { taskList.text += "All objectives complete!" + "\n"; } // not sure how this code will interact with increasing the amount of objectives spawned
+
         // Do something here. Boss phase.
         DebugAllClientRpc("ObjectiveManager: ClearedAllObjectives() placeholder clientRPC msg.");
         TooltipManager.SendTooltip("All objectives cleared. Stay tuned for the boss fight in 172!");

@@ -27,6 +27,7 @@ public class PlayerController : NetworkBehaviour {
 
     [Header("Player Spawn Settings")]
     [SerializeField] private Transform spawnLocation;
+    public float livesCount = 5;
 
     [Header("Movement")]
     private Vector3 worldspaceMove = Vector3.zero;
@@ -471,6 +472,9 @@ public class PlayerController : NetworkBehaviour {
     void OnDie() {
         //Debug.Log($"[{Time.time}] {gameObject.name} died. Respawning...");
 
+        livesCount--;
+        HealthBarUI.instance.UpdateLives(livesCount);
+
         if (health != null) health.Invincible = true;
 
         playerVelocity = Vector3.zero;
@@ -482,6 +486,10 @@ public class PlayerController : NetworkBehaviour {
         if (health != null) {
             health.HealServerRpc(1000f);
             health.Invincible = false;
+        }
+
+        if (livesCount <= 0) {
+            disableCharacterController();
         }
 
         HealthBarUI.instance.UpdateHealthBar(health);
