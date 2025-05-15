@@ -99,7 +99,7 @@ GameObject:
   - component: {fileID: 19103879317940977}
   - component: {fileID: 8201188098024036472}
   - component: {fileID: 1632429757502491108}
-  m_Layer: 6
+  m_Layer: 18
   m_Name: DeliverItemObjective
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -165,6 +165,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   indexOfSpawnPoint:
     m_InternalValue: 0
+  _rngMinDeliverableRequired: 1
+  _rngMaxDeliverableRequired: 1
 --- !u!65 &8201188098024036472
 BoxCollider:
   m_ObjectHideFlags: 0
