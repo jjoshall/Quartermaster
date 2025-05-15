@@ -7,6 +7,7 @@ public class ItemChest_SCRIPT : NetworkBehaviour
 {
     private PlayerInputHandler _inputHandler;
 
+    private bool _isOpen = false;
     // list of struct for items + quantity
     // private List<ItemStruct> _items = new List<ItemStruct>();
     // Serializeable
@@ -55,16 +56,19 @@ public class ItemChest_SCRIPT : NetworkBehaviour
     }
 
     private void OpenChest() {
-        foreach (itemStruct drop in _dropTable) {
-            Debug.Log("Dropping item: " + drop.itemPrefab.name + " with quantity: " + drop.quantity);
-            ItemManager.instance.DropGivenItemPrefab(drop.itemPrefab, drop.quantity, transform.position);
-        }
         OpenChestServerRpc();
     }
 
     [ServerRpc(RequireOwnership = false)]
     private void OpenChestServerRpc() {
         Debug.Log("OpenChestServerRpc called.");
+        if (_isOpen == false){
+            foreach (itemStruct drop in _dropTable) {
+                Debug.Log("Dropping item: " + drop.itemPrefab.name + " with quantity: " + drop.quantity);
+                ItemManager.instance.DropGivenItemPrefab(drop.itemPrefab, drop.quantity, transform.position);
+            }
+            _isOpen = true;
+        }
         // ItemManager.instance.RollDropTable(transform.position);
         OpenChestClientRpc();
     }

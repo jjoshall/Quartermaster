@@ -133,11 +133,15 @@ public class ItemManager : NetworkBehaviour {
         if (newItem.GetComponent<Item>() != null){
             if (newItem.GetComponent<Item>().uniqueID == "portalkey"){
                 // find all portal keys in scene
-                GameObject[] allPortalKeys = GameObject.FindGameObjectsWithTag("PortalKey");
-                if (allPortalKeys.Length > 1){
-                    // destroy this one and return 
-                    Destroy(newItem);
-                    return;
+                int portalKeyCount = 0;
+                foreach (var item in GameObject.FindGameObjectsWithTag("Item")){
+                    if (item.GetComponent<Item>().uniqueID == "portalkey"){
+                        portalKeyCount++;
+                        if (portalKeyCount > 1){
+                            Destroy(newItem);       // don't make additional portal keys.
+                            return;
+                        }
+                    }
                 }
             }
         }
