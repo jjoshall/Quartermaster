@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.Services.Analytics;
+
 
 public class Pistol_MONO : Item
 {
@@ -24,6 +26,9 @@ public class Pistol_MONO : Item
 
 
     public override void OnButtonUse(GameObject user) {
+        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
+            AnalyticsService.Instance.RecordEvent("PistolUsed");
+        }
 
         if (lastUsed + cooldown > Time.time){
             //Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");

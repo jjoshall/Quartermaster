@@ -46,8 +46,8 @@ GameObject:
   - component: {fileID: 478685167350655974}
   - component: {fileID: 952770502796939747}
   - component: {fileID: 3771922141467902033}
-  - component: {fileID: 1887556428203611834}
   - component: {fileID: -3167123653091355442}
+  - component: {fileID: -846577308615417839}
   m_Layer: 6
   m_Name: Railgun_PICKUP
   m_TagString: Item
@@ -246,20 +246,6 @@ MonoBehaviour:
   m_IgnoreFromBuild: 1
   m_ApplyToChildren: 1
   m_AffectedAgents: ffffffff
---- !u!114 &1887556428203611834
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6213748935702998764}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62d419665ed6d7a41b7dc591a5a37b4c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  holdDuration: 3
-  key: RAILGUN
 --- !u!114 &-3167123653091355442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -293,6 +279,22 @@ MonoBehaviour:
   _barrelLaserEffect: 
   shotOrigin: {fileID: 857329044948424853}
   trailRenderID: 3
+--- !u!114 &-846577308615417839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6213748935702998764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abba81b95eeeefa47b53e97ff1f27c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipHeaderText: 'WEAPON: Railgun'
+  tooltipBodyText: Tap LCLICK to fire. Long-ranged AoE.
+  headerFontSize: 30
+  bodyFontSize: 18
 --- !u!1001 &8267966065220538142
 PrefabInstance:
   m_ObjectHideFlags: 0
