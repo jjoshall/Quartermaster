@@ -17,6 +17,7 @@ public abstract class Item : NetworkBehaviour
     [Tooltip("Max stack size")]                                             public int StackLimit = 1;
     [Tooltip("Weight per unit of item")]                                    public float weight = 0.0f;
     [Tooltip("Current stack quantity, also modified during runtime")]       public int quantity = 1;
+    private NetworkVariable<int> n_syncedQuantity = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     [Tooltip("Item icon")]                                                  public Texture icon = null;
     [Tooltip("OnUse sound emitters")]                                       public SoundEmitter[] soundEmitters = null;
     [HideInInspector]                                                       public bool IsPickedUp = false;
@@ -64,15 +65,21 @@ public abstract class Item : NetworkBehaviour
     // FUNCTION ABSTRACTS ===============================================================================================
     public virtual void OnSpawn(){
         Debug.Log("Spawned item: " + gameObject.name);
+        SyncServerNetVarToLocal();
+        SyncClientsToServer();
     }
     
     public virtual void OnPickUp(GameObject user){
         // On pickup.
         Debug.Log("Picked up item: " + gameObject.name);
+        SyncServerNetVarToLocal();
+        SyncClientsToServer();
     }
     public virtual void OnDrop(GameObject user){
         // On drop.
         Debug.Log("Dropped item: " + gameObject.name);
+        SyncServerNetVarToLocal();
+        SyncClientsToServer();
     }
     public virtual void OnButtonUse(GameObject user){
         // Fire once when use is pressed.
@@ -104,5 +111,29 @@ public abstract class Item : NetworkBehaviour
         return cooldown;
     }
 
+
+    // Sets server quantity to local quantity (passed as parameter).
+    public void SyncServerNetVarToLocal(){
+        SyncServerToLocalServerRpc(quantity);
+    }
+    [ServerRpc(RequireOwnership = false)]
+    private void SyncServerToLocalServerRpc(int quantity){
+        n_syncedQuantity.Value = quantity;
+    }
+
+
+    // Sets all client quantities to server quantity.
+    public void SyncClientsToServer(){
+        quantity = n_syncedQuantity.Value;
+        SyncLocalToServerServerRpc();
+    }
+    [ServerRpc(RequireOwnership = false)]
+    private void SyncLocalToServerServerRpc(){
+        SyncLocalToServerClientRpc();
+    }
+    [ClientRpc]
+    private void SyncLocalToServerClientRpc(){
+        quantity = n_syncedQuantity.Value;
+    }
     #endregion
 }

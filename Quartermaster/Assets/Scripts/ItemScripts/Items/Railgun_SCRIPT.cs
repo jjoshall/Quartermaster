@@ -73,7 +73,7 @@ public class RailgunItem : Item
             Debug.LogError("Flamethrower_MONO: ButtonHeld() NullChecks failed.");
             return;
         }
-        bool autofire = CanAutoFire || s.n_stimActive.Value;
+        bool autofire = CanAutoFire || s.stimActive;
         
         if (!autofire){
             return;
