@@ -13,7 +13,9 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     protected override float GetInitialHealth() => GameManager.instance.ExplosiveEnemy_Health;
     #endregion
 
-    private bool _isExploding = false;
+    private bool _isExploding = false; // exploding means dying explosion. don't ask why. removing this causes game to freeze on enemy death.
+    private bool _isAttacking = false; // attacking means enemy-initiated, delayed explosion.
+                                       // don't try to fix this until the end of the quarter.
 
     #region Explosion Beeping Changes
     // this bool means if explosive enemy is starting his explosion sequence
@@ -92,7 +94,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             Debug.LogError("Error play sound for emitter: " + e.Message);            
         }
 
-        // Immediate explosion — skip build-up
+        // Immediate explosion ï¿½ skip build-up
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
         ParticleManager.instance.SpawnSelfThenAll("EnemyExplosion", transform.position, Quaternion.identity);
 
@@ -120,25 +122,25 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     // Called by base class attack cooldown.
     protected override void Attack() {
-        if (!IsServer || _isExploding || health.CurrentHealth.Value <= 0f) return;
+        if (!IsServer || _isExploding || _isAttacking) return;
 
-        _isExploding = true;
+        _isAttacking = true;
         isBlinking.Value = true;
 
-        StartCoroutine (DelayedExplosion(_explosionDelay));
+        LeanTween.value(gameObject, 0f, 1f, _explosionDelay)
+            .setOnComplete(() => {
+                isBlinking.Value = false;
+                // Explosion();
+                AttackServerRpc();
+            });
+        // StartCoroutine (DelayedExplosion(_explosionDelay));
     }    
 
     // delay
-    protected virtual IEnumerator DelayedExplosion(float delay) {
-        yield return new WaitForSeconds(delay);
-        AttackServerRpc(true);
-    }
-
-
-    // new death explosion function. called on delay by attack, called immediately by OnDie
-    private void Explosion(){
-        PlaySoundForEmitter("explode_die", transform.position);
-    }
+    // protected virtual IEnumerator DelayedExplosion(float delay) {
+    //     yield return new WaitForSeconds(delay);
+    //     AttackServerRpc(true);
+    // }
 
     // the actual attack
     [ServerRpc(RequireOwnership = false)]
