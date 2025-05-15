@@ -13,7 +13,9 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     protected override float GetInitialHealth() => GameManager.instance.ExplosiveEnemy_Health;
     #endregion
 
-    private bool _isExploding = false;
+    private bool _isExploding = false; // exploding means dying explosion. don't ask why. removing this causes game to freeze on enemy death.
+    private bool _isAnimatingExplosion = false; // attacking means enemy-initiated, delayed explosion.
+                                       // don't try to fix this until the end of the quarter.
 
     #region Explosion Beeping Changes
     // this bool means if explosive enemy is starting his explosion sequence
@@ -22,7 +24,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         NetworkVariableWritePermission.Server);
 
     [SerializeField] private float _explosionDelay;
-    [SerializeField] private float _blinkSpeed = 5f;
+    //[SerializeField] private float _blinkSpeed = 5f;
     [Range(1f, 3f)]
     [SerializeField] private float _blinkingSpeedMultiplier = 1.3f;
 
@@ -73,9 +75,17 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     #endregion
 
     protected override void OnDie() {
-        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
-            AnalyticsService.Instance.RecordEvent("ExplosiveEnemyKilled");
+        if (!IsServer) return;
+
+        if (_isExploding) {
+            Debug.Log("Explosive enemy already exploding, skipping OnDie explosion.");
+            return;
         }
+
+        _isExploding = true;
+        isBlinking.Value = false; // stop blinking
+
+        StopAllCoroutines();
 
         try {
             PlaySoundForEmitter("explode_die", transform.position);
@@ -83,42 +93,43 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         catch (System.Exception e) {
             Debug.LogError("Error play sound for emitter: " + e.Message);            
         }
-        Attack(); // exploding enemy instantly explodes on death.
 
-        // Change to timer?, this is so explosive enemy doesn't get destroyed from scene before sound finishes
-        StartCoroutine(DelayedBaseDie());
-    }
+        // Immediate explosion � skip build-up
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
+        ParticleManager.instance.SpawnSelfThenAll("EnemyExplosion", transform.position, Quaternion.identity);
 
-    private IEnumerator DelayedBaseDie() {
-        yield return new WaitForSeconds(3.0f);
-        base.OnDie();
+        foreach (var hitCollider in hitColliders) {
+            if (hitCollider.CompareTag("Player")) {
+                hitCollider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
+            }
+            else if (hitCollider.CompareTag("Enemy")) {
+                hitCollider.GetComponent<Damageable>().InflictDamage(damage / 3, false, gameObject);
+            }
+        }
+
+        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
+            AnalyticsService.Instance.RecordEvent("ExplosiveEnemyKilled");
+        }
+
+        enemySpawner.RemoveEnemyFromList(gameObject);
+        enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
     }
 
     // Called by base class attack cooldown.
     protected override void Attack() {
-        if (!IsServer || _isExploding) return;
+        if (!IsServer || _isExploding || _isAnimatingExplosion) return;
 
-        _isExploding = true;
+        _isAnimatingExplosion = true;
         isBlinking.Value = true;
 
-        StartCoroutine (DelayedExplosion(_explosionDelay));
+        LeanTween.value(gameObject, 0f, 1f, _explosionDelay)
+            .setOnComplete(() => {
+                isBlinking.Value = false;
+                Explosion();
+            });
     }    
 
-    // delay
-    protected virtual IEnumerator DelayedExplosion(float delay) {
-        yield return new WaitForSeconds(delay);
-        AttackServerRpc(true);
-    }
-
-
-    // new death explosion function. called on delay by attack, called immediately by OnDie
-    private void Explosion(){
-        PlaySoundForEmitter("explode_die", transform.position);
-    }
-
-    // the actual attack
-    [ServerRpc(RequireOwnership = false)]
-    private void AttackServerRpc(bool destroyAfterAttack = true)
+    private void Explosion(bool destroyAfterAttack = true)
     {
         if (!IsServer) return;
 
@@ -147,6 +158,10 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
         if (destroyAfterAttack)
         {
+            if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
+                AnalyticsService.Instance.RecordEvent("ExplosiveEnemyKilled");
+            }
+
             enemySpawner.RemoveEnemyFromList(gameObject);
             enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
         }
