@@ -204,6 +204,7 @@ public class ProjectileManager : NetworkBehaviour
         {
             GameObject typePrefab = projectileTypes.Find(x => x.key == key).projectile;
             projectileObj = Instantiate(typePrefab, position, rotation);
+            Physics.IgnoreCollision(projectileObj.GetComponent<Collider>(), user.GetComponent<Collider>(), true);
             projectileObj.transform.SetParent(this.gameObject.transform);
         }
         else // else grab from pool.

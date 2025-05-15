@@ -30,6 +30,7 @@ public class HealProjectile : IProjectile
             thisObj = collision.gameObject.transform.parent.gameObject;
         }
         if (thisObj.CompareTag("Player")){
+            Debug.Log ("healprojectile collided with: " + thisObj.name);
             if (thisObj == sourcePlayer && _projectileCollided == false){
                 //Debug.Log ("thisObj == sourcePlayer && _projectileCollided == false");
                 return;
@@ -52,6 +53,8 @@ public class HealProjectile : IProjectile
         playerHp.HealServerRpc(totalHeal);
         ParticleManager.instance.SpawnSelfThenAll("Healing", player.transform.position, Quaternion.Euler(-90, 0, 0));
         
+        // reenable physics collision if pooling instead of destroying
+        // Physics.IgnoreCollision(projectileObj.GetComponent<Collider>(), user.GetComponent<Collider>(), false);
         Destroy(gameObject);
     }
     
