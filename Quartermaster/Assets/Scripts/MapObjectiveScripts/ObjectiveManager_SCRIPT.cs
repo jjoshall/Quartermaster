@@ -1,12 +1,13 @@
-
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Services.Analytics;
 using Unity.Netcode;
 using UnityEngine.Rendering.PostProcessing;
 using Unity.VisualScripting;
 using UnityEngine.Localization.SmartFormat.Utilities;
 using System;
 using TMPro;
+using UnityEngine.Analytics;
 
 public class ObjectiveManager : NetworkBehaviour {
 
@@ -217,7 +218,14 @@ public class ObjectiveManager : NetworkBehaviour {
     #region = Objectives
     [ServerRpc(RequireOwnership = false)]
     public void ClearObjectiveServerRpc(NetworkObjectReference refe, int index){
-        taskList.text = taskList.text.Replace((index + 11).ToString(), $"<size=100%> Complete!</size>");
+        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
+            AnalyticsService.Instance.RecordEvent("ObjectiveCompleted");
+        }
+
+        taskList.text = taskList.text.Replace(
+            (index + 11).ToString(), $"<color=green><size=100%> Complete!</size></color>"
+        );
+
         if (!IsServer) return;
         if (!refe.TryGet(out NetworkObject netObj)){
             Debug.LogError("ObjectiveManager: ClearObjective() netObj is null.");

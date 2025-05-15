@@ -476,11 +476,6 @@ public class PlayerController : NetworkBehaviour {
 
         if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
             AnalyticsService.Instance.RecordEvent("PlayerDeath");
-            AnalyticsResult result = Analytics.CustomEvent("PlayerDeath", new Dictionary<string, object> {
-                { "PlayerID", gameObject.GetComponent<NetworkObject>().OwnerClientId },
-                { "PlayerName", gameObject.GetComponent<NetworkObject>().OwnerClientId }
-            });
-            Debug.Log($"Analytics result: {result}");
         }
         livesCount--;
         HealthBarUI.instance.UpdateLives(livesCount);
