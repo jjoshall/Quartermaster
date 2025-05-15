@@ -48,29 +48,30 @@ public class DevController : NetworkBehaviour
         
 
     }
+
     // Update is called once per frame
     void Update()
     {
-        MouseCameraMovement();
-        WASD(); // checks wasd hold for movement.
-        ItemSpawn(); // checks 123456qert keydown for item spawn at raycast.
-        //EnemySpawn();
-        Sprint();
-        ReturnToBeingPlayer();
-        IncreaseDecreaseSpeed();
+        //MouseCameraMovement();
+        //WASD(); // checks wasd hold for movement.
+        //ItemSpawn(); // checks 123456qert keydown for item spawn at raycast.
+        ////EnemySpawn();
+        //Sprint();
+        //ReturnToBeingPlayer();
+        //IncreaseDecreaseSpeed();
 
     }
 
     private void ReturnToBeingPlayer(){
-        if (Input.GetKeyDown(KeyCode.RightBracket)){
-            n_playerObj.gameObject.SetActive(true);
-            n_playerObj.transform.position = transform.position;
-            n_playerObj.transform.rotation = transform.rotation;
-            this.gameObject.SetActive(false);
-            if (canvas){
-                canvas.SetActive(true);
-            }
-        }
+        //if (Input.GetKeyDown(KeyCode.RightBracket)){
+        //    n_playerObj.gameObject.SetActive(true);
+        //    n_playerObj.transform.position = transform.position;
+        //    n_playerObj.transform.rotation = transform.rotation;
+        //    this.gameObject.SetActive(false);
+        //    if (canvas){
+        //        canvas.SetActive(true);
+        //    }
+        //}
     }
 
     private void MouseCameraMovement(){
@@ -121,12 +122,12 @@ public class DevController : NetworkBehaviour
     }
 
     private void SwitchToPlayer(){
-        if (Input.GetKeyDown(KeyCode.RightBracket)){
-            n_playerObj.gameObject.SetActive(true);
-            n_playerObj.transform.position = transform.position;
-            n_playerObj.transform.rotation = transform.rotation;
-            this.gameObject.SetActive(false);
-        }
+        //if (Input.GetKeyDown(KeyCode.RightBracket)){
+        //    n_playerObj.gameObject.SetActive(true);
+        //    n_playerObj.transform.position = transform.position;
+        //    n_playerObj.transform.rotation = transform.rotation;
+        //    this.gameObject.SetActive(false);
+        //}
     }
 
     private void WASD(){

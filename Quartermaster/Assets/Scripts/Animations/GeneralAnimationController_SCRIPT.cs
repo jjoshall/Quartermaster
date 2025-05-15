@@ -9,6 +9,7 @@ public class GeneralAnimationController : NetworkBehaviour
     private float savedSpeed = 1f;
 
     private bool gatesOpened = false;
+    [SerializeField] private GameObject doorText;
 
     // Public UnityEvents for triggering animation controls externally
     public UnityEvent OnPlay = new UnityEvent();
@@ -33,15 +34,17 @@ public class GeneralAnimationController : NetworkBehaviour
 
     private void Update()
     {
-        // Temporary test trigger to start animation when pressing '['
-        if (Input.GetKeyDown(KeyCode.LeftBracket))
+        // Temporary test trigger to start animation when pressing 'o'
+        if (Input.GetKeyDown(KeyCode.O))
         {
             TriggerPlay();
-
 
             // trigger poolmanager spawning start.
             EnableSpawnIfGatesNotOpenedYet();
 
+            if (doorText != null) {
+                doorText.SetActive(false); // Disable the door text
+            }
         }
     }
 
