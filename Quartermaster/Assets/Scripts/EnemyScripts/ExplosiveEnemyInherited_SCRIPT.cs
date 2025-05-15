@@ -73,9 +73,17 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     #endregion
 
     protected override void OnDie() {
-        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
-            AnalyticsService.Instance.RecordEvent("ExplosiveEnemyKilled");
+        if (!IsServer) return;
+
+        if (_isExploding) {
+            Debug.Log("Explosive enemy already exploding, skipping OnDie explosion.");
+            return;
         }
+
+        _isExploding = true;
+        isBlinking.Value = false; // stop blinking
+
+        StopAllCoroutines();
 
         try {
             PlaySoundForEmitter("explode_die", transform.position);
@@ -83,10 +91,26 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         catch (System.Exception e) {
             Debug.LogError("Error play sound for emitter: " + e.Message);            
         }
-        Attack(); // exploding enemy instantly explodes on death.
 
-        // Change to timer?, this is so explosive enemy doesn't get destroyed from scene before sound finishes
-        StartCoroutine(DelayedBaseDie());
+        // Immediate explosion — skip build-up
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius);
+        ParticleManager.instance.SpawnSelfThenAll("EnemyExplosion", transform.position, Quaternion.identity);
+
+        foreach (var hitCollider in hitColliders) {
+            if (hitCollider.CompareTag("Player")) {
+                hitCollider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
+            }
+            else if (hitCollider.CompareTag("Enemy")) {
+                hitCollider.GetComponent<Damageable>().InflictDamage(damage / 3, false, gameObject);
+            }
+        }
+
+        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
+            AnalyticsService.Instance.RecordEvent("ExplosiveEnemyKilled");
+        }
+
+        enemySpawner.RemoveEnemyFromList(gameObject);
+        enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
     }
 
     private IEnumerator DelayedBaseDie() {
@@ -96,7 +120,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     // Called by base class attack cooldown.
     protected override void Attack() {
-        if (!IsServer || _isExploding) return;
+        if (!IsServer || _isExploding || health.CurrentHealth.Value <= 0f) return;
 
         _isExploding = true;
         isBlinking.Value = true;
@@ -147,6 +171,10 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
         if (destroyAfterAttack)
         {
+            if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
+                AnalyticsService.Instance.RecordEvent("ExplosiveEnemyKilled");
+            }
+
             enemySpawner.RemoveEnemyFromList(gameObject);
             enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
         }

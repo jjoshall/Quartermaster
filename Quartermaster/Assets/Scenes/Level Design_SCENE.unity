@@ -3497,6 +3497,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb7c7e93a4b20ba4f936acc520e9b07c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fpsSampleInterval: 10
 --- !u!4 &1159777453
 Transform:
   m_ObjectHideFlags: 0
@@ -5080,9 +5081,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1180689260}
   - {fileID: 550729037}
-  - {fileID: 1203319693}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1804259047
@@ -5427,7 +5426,7 @@ PrefabInstance:
       objectReference: {fileID: 4108908729984213791, guid: f9e0d41d7de8cf940b0224449f9fdaa3, type: 3}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: weightedPrefabs.Array.data[0].Weight
-      value: 60
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: weightedPrefabs.Array.data[1].Prefab
@@ -5435,7 +5434,7 @@ PrefabInstance:
       objectReference: {fileID: 1656816831642735696, guid: 69de7c9352a23844187f99a1518c29a9, type: 3}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: weightedPrefabs.Array.data[1].Weight
-      value: 30
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: weightedPrefabs.Array.data[2].Prefab
@@ -6707,15 +6706,15 @@ PrefabInstance:
       objectReference: {fileID: 550058981611720628, guid: 2f1aa88225abaa94ea335fa199c81f1d, type: 3}
     - target: {fileID: 3112507778715810444, guid: d79ef760dacef5d47995012751f0382c, type: 3}
       propertyPath: PooledPrefabsList.Array.data[0].PrewarmCount
-      value: 300
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3112507778715810444, guid: d79ef760dacef5d47995012751f0382c, type: 3}
       propertyPath: PooledPrefabsList.Array.data[1].PrewarmCount
-      value: 200
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3112507778715810444, guid: d79ef760dacef5d47995012751f0382c, type: 3}
       propertyPath: PooledPrefabsList.Array.data[2].PrewarmCount
-      value: 100
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3112507778715810444, guid: d79ef760dacef5d47995012751f0382c, type: 3}
       propertyPath: PooledPrefabsList.Array.data[3].PrewarmCount
@@ -7047,3 +7046,4 @@ SceneRoots:
   - {fileID: 960494316}
   - {fileID: 1783181974}
   - {fileID: 1159777453}
+  - {fileID: 1804259046}
