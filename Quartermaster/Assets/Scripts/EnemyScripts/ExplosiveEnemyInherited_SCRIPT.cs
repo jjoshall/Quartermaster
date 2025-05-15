@@ -103,7 +103,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
                 hitCollider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
             }
             else if (hitCollider.CompareTag("Enemy")) {
-                hitCollider.GetComponent<Damageable>().InflictDamage(damage / 3, false, gameObject);
+                hitCollider.GetComponent<Damageable>().InflictDamage(damage / 5, false, gameObject);
             }
         }
 

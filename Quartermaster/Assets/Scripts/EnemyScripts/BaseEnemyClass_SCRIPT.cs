@@ -40,6 +40,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     [Header("Enemy pathing")]
     [SerializeField] private float _localDetectionRange = 20f; // how far to switch from global to direct aggro
+    [SerializeField] private float _aggroPropagationRange = 10f; // radius for aggro propagation if one enemy is hit.
     
     [Header("Separation Pathing")]
     [SerializeField, Tooltip("Higher neighbor counts computation heavy.")] private bool _useSeparation = false;
@@ -304,10 +305,29 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
         PlaySoundForEmitter("melee_damaged", transform.position);
 
-        //GameManager.instance.AddEnemyDamageServerRpc(damage);   // tracks total damage dealt to enemies
-        if (!playersThatHitMe.Contains(damageSource)) {
-            playersThatHitMe.Add(damageSource);
-        } // prevent multiple hits from same player
+        if (damageSource.CompareTag("Player")){
+            AddAttackingPlayer(damageSource); // add the player that hit this enemy to the list of players that hit this enemy
+            
+            // layer mask for fellow enemies
+            int enemyLayer = LayerMask.NameToLayer("Enemy");
+            Collider[] colliders = Physics.OverlapSphere(transform.position, _aggroPropagationRange, enemyLayer);
+            foreach (Collider nearbyObject in colliders){
+                var alliedEnemy = nearbyObject.gameObject;
+                if (alliedEnemy == null || alliedEnemy == gameObject) continue; // skip self
+                var enemy = alliedEnemy.GetComponent<BaseEnemyClass_SCRIPT>();
+                if (enemy != null && enemy != this) {
+                    enemy.AddAttackingPlayer(damageSource); // add the player that hit this enemy to the list of players that hit this enemy
+                }
+            }
+
+        }
+    }
+
+    public void AddAttackingPlayer(GameObject player){ 
+        // prevent same player from being added multiple times
+        if (!playersThatHitMe.Contains(player)) {
+            playersThatHitMe.Add(player);
+        }
     }
 
     // Called when enemy dies
