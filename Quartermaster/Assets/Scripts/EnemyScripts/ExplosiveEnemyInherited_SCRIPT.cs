@@ -104,6 +104,12 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         AttackServerRpc(true);
     }
 
+
+    // new death explosion function. called on delay by attack, called immediately by OnDie
+    private void Explosion(){
+        PlaySoundForEmitter("explode_die", transform.position);
+    }
+
     // the actual attack
     [ServerRpc(RequireOwnership = false)]
     private void AttackServerRpc(bool destroyAfterAttack = true)
