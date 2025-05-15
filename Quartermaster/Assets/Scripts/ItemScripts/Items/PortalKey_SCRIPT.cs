@@ -65,7 +65,7 @@ public class PortalKey_MONO : Item
             return;
         }
 
-        // set last owner to user.
+        // set reference to last holder to user.
         NetworkObject n_user = user.GetComponent<NetworkObject>();
         if (n_user == null) {
             Debug.LogError("PortalKey_MONO: PickUp() user has no NetworkObject component.");
@@ -227,6 +227,7 @@ public class PortalKey_MONO : Item
             if (n_player.TryGet(out n_playerObj)){
                 // GameObject player = n_playerObj.gameObject;
                 Vector3 returnPosition = n_returnPositions[i];
+                Debug.Log ("return position: " + returnPosition);
                 Quaternion returnRotation = n_returnRotations[i];
                 TeleportPlayerServerRpc (n_player, returnPosition, returnRotation);
             } else {
