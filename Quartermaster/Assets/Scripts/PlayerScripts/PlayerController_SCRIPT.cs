@@ -255,6 +255,10 @@ public class PlayerController : NetworkBehaviour {
             if (health != null) { health.Kill(); }
         }
 
+        if (transform.position == Vector3.zero) {
+            HealthBarUI.instance.UpdateHealthBar(health); // this might not be super necessary but should help with making health bar more accurately reflect health upon respawn
+        }
+
         GroundCheck();
 
         if (InputHandler != null) {

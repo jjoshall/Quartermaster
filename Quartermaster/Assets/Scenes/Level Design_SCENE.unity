@@ -1006,6 +1006,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: Lobby Menu Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 5975836247323274641, guid: 25a23c39f477d8b43b810c50004a39a6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1228006889}
+    - target: {fileID: 5975836247323274641, guid: 25a23c39f477d8b43b810c50004a39a6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ShowLobbyCodeField
+      objectReference: {fileID: 0}
+    - target: {fileID: 5975836247323274641, guid: 25a23c39f477d8b43b810c50004a39a6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: SettingsCanvasManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 5975836247323274641, guid: 25a23c39f477d8b43b810c50004a39a6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 6420046336508832507, guid: 25a23c39f477d8b43b810c50004a39a6, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -1102,6 +1118,11 @@ PrefabInstance:
 --- !u!223 &280431750 stripped
 Canvas:
   m_CorrespondingSourceObject: {fileID: 2842239034908334625, guid: 25a23c39f477d8b43b810c50004a39a6, type: 3}
+  m_PrefabInstance: {fileID: 280431749}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &280431751 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2920383463495307192, guid: 25a23c39f477d8b43b810c50004a39a6, type: 3}
   m_PrefabInstance: {fileID: 280431749}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &282415744
@@ -3517,6 +3538,7 @@ MonoBehaviour:
   isMainMenuContext: 0
   pauseCanvas: {fileID: 0}
   settingsCanvas: {fileID: 0}
+  codeField: {fileID: 280431751}
 --- !u!114 &1228006890
 MonoBehaviour:
   m_ObjectHideFlags: 0
