@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
@@ -5,6 +7,18 @@ public class ItemChest_SCRIPT : NetworkBehaviour
 {
     private PlayerInputHandler _inputHandler;
 
+    // list of struct for items + quantity
+    // private List<ItemStruct> _items = new List<ItemStruct>();
+    // Serializeable
+
+    [Serializable]
+    public struct itemStruct {
+        public GameObject itemPrefab;
+        public int quantity;
+    }
+
+    [SerializeField] private List<itemStruct> _dropTable = new List<itemStruct>();
+    
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
     }
@@ -41,13 +55,17 @@ public class ItemChest_SCRIPT : NetworkBehaviour
     }
 
     private void OpenChest() {
+        foreach (itemStruct drop in _dropTable) {
+            Debug.Log("Dropping item: " + drop.itemPrefab.name + " with quantity: " + drop.quantity);
+            ItemManager.instance.DropGivenItemPrefab(drop.itemPrefab, drop.quantity, transform.position);
+        }
         OpenChestServerRpc();
     }
 
     [ServerRpc(RequireOwnership = false)]
     private void OpenChestServerRpc() {
         Debug.Log("OpenChestServerRpc called.");
-        ItemManager.instance.RollDropTable(transform.position);
+        // ItemManager.instance.RollDropTable(transform.position);
         OpenChestClientRpc();
     }
 

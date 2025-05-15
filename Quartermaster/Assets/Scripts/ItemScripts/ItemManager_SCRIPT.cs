@@ -119,11 +119,46 @@ public class ItemManager : NetworkBehaviour {
     
     // Drop a specific item at a specific position. Written for creative mode / dev function. 
     // Drops slightly above ground to avoid slipping through the ground.
-    public void DropSpecificItem(int index, Vector3 position){
+    public void DropSpecificEntry(int index, Vector3 position){
         Vector3 randVelocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0, UnityEngine.Random.Range(-1f, 1f));
         Vector3 positionYOffsetByOne = new Vector3(position.x, position.y + 1.0f, position.z);
         
         DropAnEntryInTableServerRpc (index, positionYOffsetByOne, randVelocity);
+    }
+
+    public void DropGivenItemPrefab(GameObject itemPrefab, int quantity, Vector3 position){
+        Vector3 spawnLoc = new Vector3(position.x, position.y + 1.0f, position.z);
+        
+        GameObject newItem = Instantiate(itemPrefab, spawnLoc, Quaternion.identity);
+        if (newItem.GetComponent<Item>() != null){
+            if (newItem.GetComponent<Item>().uniqueID == "portalkey"){
+                // find all portal keys in scene
+                GameObject[] allPortalKeys = GameObject.FindGameObjectsWithTag("PortalKey");
+                if (allPortalKeys.Length > 1){
+                    // destroy this one and return 
+                    Destroy(newItem);
+                    return;
+                }
+            }
+        }
+        newItem.GetComponent<Item>().quantity = quantity; // set quantity to the item stack size.
+        newItem.GetComponent<Item>().userRef = null; // set user ref to the enemy.
+        newItem.GetComponent<Item>().IsPickedUp = false; // set IsPickedUp to false.
+        
+        NetworkObject n_newItem = newItem.GetComponent<NetworkObject>();
+        if (n_newItem == null) {
+            Debug.LogError("DropItemServerRpc: The spawned object is missing a NetworkObject component!");
+            Destroy(newItem);  // Prevent stray objects in the scene
+            return;
+        }
+
+        n_newItem.transform.position = spawnLoc;
+        Vector3 randomDirection = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0, UnityEngine.Random.Range(-1f, 1f));
+        randomDirection.Normalize();
+        n_newItem.GetComponent<Rigidbody>().linearVelocity = randomDirection;
+        n_newItem.Spawn(true); // Spawn the object on the network
+        newItem.transform.SetParent(this.gameObject.transform); // Set the parent to this object.
+        newItem.GetComponent<Item>().OnSpawn();
     }
 
     #endregion
