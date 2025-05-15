@@ -17,8 +17,8 @@ GameObject:
   - component: {fileID: 3313197580774085890}
   - component: {fileID: 8375286008997060276}
   - component: {fileID: 7750221735642897507}
-  - component: {fileID: -1294400115319517801}
   - component: {fileID: -5884560939354435889}
+  - component: {fileID: 9019644584106698474}
   m_Layer: 6
   m_Name: DeliverableQuestItem_PREFAB
   m_TagString: Item
@@ -36,7 +36,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -7.6419435, y: -0.04663462, z: 9.789383}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3550331305949875194}
@@ -240,20 +240,6 @@ MonoBehaviour:
   playerRenderer: {fileID: 2381950514914439317}
   dissolveDuration: 1
   solidifyDuration: 1
---- !u!114 &-1294400115319517801
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3874856704361242138}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62d419665ed6d7a41b7dc591a5a37b4c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  holdDuration: 5
-  key: DeliverableQuestItem
 --- !u!114 &-5884560939354435889
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -280,7 +266,23 @@ MonoBehaviour:
   IsPickedUp: 0
   attachedWeaponSlot: {fileID: 0}
   userRef: {fileID: 0}
-  t: {fileID: -1294400115319517801}
+  t: {fileID: 0}
+--- !u!114 &9019644584106698474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3874856704361242138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abba81b95eeeefa47b53e97ff1f27c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipHeaderText: 'QUEST: Mysterious Package'
+  tooltipBodyText: Maybe deliver it to a mailbox?
+  headerFontSize: 30
+  bodyFontSize: 18
 --- !u!1001 &3949646970496887825
 PrefabInstance:
   m_ObjectHideFlags: 0

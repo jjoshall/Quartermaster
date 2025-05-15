@@ -1,17 +1,20 @@
-
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Services.Analytics;
 using Unity.Netcode;
 using UnityEngine.Rendering.PostProcessing;
 using Unity.VisualScripting;
 using UnityEngine.Localization.SmartFormat.Utilities;
 using System;
+using TMPro;
+using UnityEngine.Analytics;
 
 public class ObjectiveManager : NetworkBehaviour {
 
     #region InspectorSettings
     public int objectivesToWin; // = max(foreach objectivetype * minimumtospawn, objectivesToWin)
     public int initialSpawnCount;
+    [SerializeField] private TextMeshProUGUI taskList;
     public List<ObjectiveType> minPerObjective; // minimum number of each objective to spawn
     [System.Serializable]
     public struct ObjectiveType {   
@@ -53,6 +56,9 @@ public class ObjectiveManager : NetworkBehaviour {
     // NetworkList. Track active
     private NetworkList<ulong> n_ActiveObjectives = new NetworkList<ulong>();
 
+    private NetworkList<int> n_randType = new NetworkList<int>();
+    private NetworkList<int> n_randValid = new NetworkList<int>();
+
     #endregion
 
     void Start(){
@@ -63,6 +69,9 @@ public class ObjectiveManager : NetworkBehaviour {
             InitializeObjectiveManager();
         } else if (IsClient){
             Debug.Log("ObjectiveManager: OnNetworkSpawn() client.");
+            for (int i = 0; i < n_randType.Count; i++) {
+                AddObjectiveToTaskList(n_randType[i], n_randValid[i]);
+            }
             // Spawn n_activeobjectives
             foreach (ulong netId in n_ActiveObjectives)
             {
@@ -168,6 +177,11 @@ public class ObjectiveManager : NetworkBehaviour {
         n_objectivesToWin.Value--;
         n_minPerObjective[randType]--;
 
+        n_randType.Add(randType);
+        n_randValid.Add(randValid);
+
+        AddObjectiveToTaskList(randType, randValid);
+        // taskList.text += minPerObjective[randType].objectivePrefab + "\n";
     }
 
     private int GetRandomValidPoint(){
@@ -208,6 +222,12 @@ public class ObjectiveManager : NetworkBehaviour {
     #region = Objectives
     [ServerRpc(RequireOwnership = false)]
     public void ClearObjectiveServerRpc(NetworkObjectReference refe, int index){
+        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
+            AnalyticsService.Instance.RecordEvent("ObjectiveCompleted");
+        }
+
+        UpdateTaskListClientRpc(index);
+
         if (!IsServer) return;
         if (!refe.TryGet(out NetworkObject netObj)){
             Debug.LogError("ObjectiveManager: ClearObjective() netObj is null.");
@@ -230,12 +250,26 @@ public class ObjectiveManager : NetworkBehaviour {
         }
     }
 
+    private void AddObjectiveToTaskList(int randType, int randValid) {
+        if (randType == 0) {
+            taskList.text += "-Deliver the item to the mailbox. " + $"<size=1%>{randValid + 11}</size>" + "\n";
+        }
+        else if (randType == 1) {
+            taskList.text += "-Locate and defend the node! " + $"<size=1%>{randValid + 11}</size>" + "\n";
+        }
+    }
+
     #endregion 
 
     // ==============================================================================================
     #region = BossPhase172
     [ServerRpc(RequireOwnership = false)]
     private void ClearedAllObjectivesServerRpc(){
+
+        if (n_objectivesToWin.Value <= (objectivesToWin * -1)) { // not sure how this conditional will interact with increasing the amount of objectives spawned
+            ListCompleteClientRpc();
+        }
+
         // Do something here. Boss phase.
         DebugAllClientRpc("ObjectiveManager: ClearedAllObjectives() placeholder clientRPC msg.");
         TooltipManager.SendTooltip("All objectives cleared. Stay tuned for the boss fight in 172!");
@@ -250,6 +284,16 @@ public class ObjectiveManager : NetworkBehaviour {
     [ClientRpc]
     private void DebugAllClientRpc(string msg){
         Debug.Log(msg);
+    }
+    [ClientRpc]
+    private void ListCompleteClientRpc(){
+        taskList.text += "<color=green>All objectives complete!</color>" + "\n";
+    }
+    [ClientRpc]
+    private void UpdateTaskListClientRpc(int index) {
+        taskList.text = taskList.text.Replace(
+            (index + 11).ToString(), $"<color=green><size=100%> Complete!</size></color>"
+        );
     }
 
     #endregion

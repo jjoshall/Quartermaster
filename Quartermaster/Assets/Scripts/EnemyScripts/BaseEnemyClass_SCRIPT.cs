@@ -3,6 +3,8 @@ using UnityEngine.AI;
 using Unity.Netcode;
 using TMPro;
 using System.Collections.Generic;
+using UnityEngine.Analytics;
+using Unity.Services.Analytics;
 
 public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     // THIS IS FOR GAME MANAGER, you can change values in the
@@ -38,6 +40,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     [Header("Enemy pathing")]
     [SerializeField] private float _localDetectionRange = 20f; // how far to switch from global to direct aggro
+    [SerializeField] private float _aggroPropagationRange = 10f; // radius for aggro propagation if one enemy is hit.
     
     [Header("Separation Pathing")]
     [SerializeField, Tooltip("Higher neighbor counts computation heavy.")] private bool _useSeparation = false;
@@ -64,7 +67,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [SerializeField] private GameObject floatingTextPrefab;     // to spawn floating damage numbers
     private bool _isAttacking = false;      // to prevent multiple attacks happening at once
     private float _attackTimer = 0.0f;      // to prevent attacks happening too quickly
-    public EnemyType enemyType;     // two enemy types at the moment: Melee and Ranged
+    public EnemyType enemyType;
 
     protected Vector3 targetPosition; 
     protected bool targetIsPlayer;
@@ -302,17 +305,35 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
         PlaySoundForEmitter("melee_damaged", transform.position);
 
-        //GameManager.instance.AddEnemyDamageServerRpc(damage);   // tracks total damage dealt to enemies
-        if (!playersThatHitMe.Contains(damageSource)) {
-            playersThatHitMe.Add(damageSource);
-        } // prevent multiple hits from same player
+        if (damageSource.CompareTag("Player")){
+            AddAttackingPlayer(damageSource); // add the player that hit this enemy to the list of players that hit this enemy
+            
+            // layer mask for fellow enemies
+            int enemyLayer = LayerMask.NameToLayer("Enemy");
+            Collider[] colliders = Physics.OverlapSphere(transform.position, _aggroPropagationRange, enemyLayer);
+            foreach (Collider nearbyObject in colliders){
+                var alliedEnemy = nearbyObject.gameObject;
+                if (alliedEnemy == null || alliedEnemy == gameObject) continue; // skip self
+                var enemy = alliedEnemy.GetComponent<BaseEnemyClass_SCRIPT>();
+                if (enemy != null && enemy != this) {
+                    enemy.AddAttackingPlayer(damageSource); // add the player that hit this enemy to the list of players that hit this enemy
+                }
+            }
+
+        }
+    }
+
+    public void AddAttackingPlayer(GameObject player){ 
+        // prevent same player from being added multiple times
+        if (!playersThatHitMe.Contains(player)) {
+            playersThatHitMe.Add(player);
+        }
     }
 
     // Called when enemy dies
     protected virtual void OnDie() {
         ItemManager.instance.RollDropTable(transform.position);    // norman added this, has a chance to burst drop items
         GameManager.instance.IncrementEnemyKillsServerRpc();    // add to enemy kill count
-        //Debug.Log("Removing " + gameObject.name + " from enemy list");
         enemySpawner.RemoveEnemyFromList(gameObject);   // remove enemy from list of enemies
         enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());  // remove enemy from scene
     }
@@ -367,5 +388,6 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 // Might need to add a special enemy type or something for new enemies maybe even explosive enemies
 public enum EnemyType {
     Melee,
-    Ranged
+    Ranged,
+    Explosive
 }

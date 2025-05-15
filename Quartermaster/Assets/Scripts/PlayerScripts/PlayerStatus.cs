@@ -11,7 +11,7 @@ public class PlayerStatus : NetworkBehaviour
     private Dictionary<string, float> _lastUsed = new Dictionary<string, float>();
 
     // Status Effects
-    private NetworkVariable<bool> n_stimActive = new NetworkVariable<bool>(false); // runtime var
+    public NetworkVariable<bool> n_stimActive = new NetworkVariable<bool>(false); // runtime var
     public NetworkVariable<bool> n_healBuffActive = new NetworkVariable<bool>(false); // runtime var
     public NetworkVariable<bool> n_dmgBuffActive = new NetworkVariable<bool>(false);
 
@@ -24,9 +24,7 @@ public class PlayerStatus : NetworkBehaviour
 
 
     // Effect values. TREAT AS CONSTANTS. Initialize from GameManager.
-    public float stimAspdMultiplier = 1.0f;
-    public float stimMspdMultiplier = 1.0f;
-    public float stimDuration = 1.0f;
+
     private float _stimTimer = 0.0f;
     public float healMultiplier = 1.0f;
     public float healThrowVelocity = 0.0f;
@@ -60,7 +58,7 @@ public class PlayerStatus : NetworkBehaviour
         if (n_stimActive.Value && _stimTimer > 0.0f){
             _stimTimer -= Time.deltaTime;
         } else {
-            DeactivateStimServerRpc();
+            DeactivateStim();
         }
     }
 
@@ -68,17 +66,23 @@ public class PlayerStatus : NetworkBehaviour
     #endregion
 
     #region Stim
-    [ServerRpc(RequireOwnership = false)]
-    public void ActivateStimServerRpc(){
+    public void ActivateStim(float stimDuration, float stimAspdMultiplier, float stimMspdMultiplier){
         n_stimActive.Value = true;
         _stimTimer = stimDuration;
+        PlayerController playerController = GetComponent<PlayerController>();
+        if (playerController != null){
+            playerController.stimAspdMultiplier = stimMspdMultiplier;
+            playerController.stimMspdMultiplier = stimAspdMultiplier;
+        }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void DeactivateStimServerRpc(){
+    public void DeactivateStim(){
         n_stimActive.Value = false;
-        stimAspdMultiplier = 1.0f;
-        stimMspdMultiplier = 1.0f;
+        PlayerController playerController = GetComponent<PlayerController>();
+        if (playerController != null){
+            playerController.stimAspdMultiplier = 1.0f;
+            playerController.stimMspdMultiplier = 1.0f;
+        }
     }
 
     #endregion
