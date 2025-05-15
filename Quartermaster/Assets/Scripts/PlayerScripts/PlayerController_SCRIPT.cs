@@ -29,6 +29,7 @@ public class PlayerController : NetworkBehaviour {
 
     [Header("Player Spawn Settings")]
     [SerializeField] private Transform spawnLocation;
+    public float livesCount = 5;
 
     [Header("Movement")]
     private Vector3 worldspaceMove = Vector3.zero;
@@ -481,6 +482,8 @@ public class PlayerController : NetworkBehaviour {
             });
             Debug.Log($"Analytics result: {result}");
         }
+        livesCount--;
+        HealthBarUI.instance.UpdateLives(livesCount);
 
         if (health != null) health.Invincible = true;
 
@@ -493,6 +496,10 @@ public class PlayerController : NetworkBehaviour {
         if (health != null) {
             health.HealServerRpc(1000f);
             health.Invincible = false;
+        }
+
+        if (livesCount <= 0) {
+            disableCharacterController();
         }
 
         HealthBarUI.instance.UpdateHealthBar(health);
