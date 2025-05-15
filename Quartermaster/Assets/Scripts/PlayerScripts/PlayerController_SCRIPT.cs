@@ -8,6 +8,7 @@ using System;
 using UnityEngine.Localization.SmartFormat.Utilities;
 using Unity.VisualScripting;
 using System.Collections.Generic;
+using UnityEngine.Analytics;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler), typeof(Health))]
 public class PlayerController : NetworkBehaviour {
@@ -473,8 +474,12 @@ public class PlayerController : NetworkBehaviour {
         //Debug.Log($"[{Time.time}] {gameObject.name} died. Respawning...");
 
         if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
-            PlayerDeathEvent playerDeathEvent = new PlayerDeathEvent();
-            AnalyticsService.Instance.RecordEvent("playerDeathEvent");
+            AnalyticsService.Instance.RecordEvent("PlayerDeath");
+            AnalyticsResult result = Analytics.CustomEvent("PlayerDeath", new Dictionary<string, object> {
+                { "PlayerID", gameObject.GetComponent<NetworkObject>().OwnerClientId },
+                { "PlayerName", gameObject.GetComponent<NetworkObject>().OwnerClientId }
+            });
+            Debug.Log($"Analytics result: {result}");
         }
 
         if (health != null) health.Invincible = true;

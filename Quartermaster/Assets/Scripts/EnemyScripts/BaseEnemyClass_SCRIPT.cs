@@ -313,11 +313,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     // Called when enemy dies
     protected virtual void OnDie() {
         if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
-            EnemyKilledEvent enemyKilledEvent = new EnemyKilledEvent {
-                EnemyType = enemyType.ToString()
-            };
-
-            AnalyticsService.Instance.RecordEvent(enemyKilledEvent);
+            AnalyticsService.Instance.RecordEvent("EnemyKilled");
         }
         else {
             Debug.LogWarning("Analytics not ready or instance is null.");

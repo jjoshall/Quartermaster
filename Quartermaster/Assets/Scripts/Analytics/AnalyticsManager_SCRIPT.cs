@@ -26,13 +26,3 @@ public class AnalyticsManager_SCRIPT : MonoBehaviour
 
     public bool IsAnalyticsReady() => _isInitialized;
 }
-
-public class EnemyKilledEvent : Unity.Services.Analytics.Event {
-    public EnemyKilledEvent() : base("EnemyKilled") { }
-
-    public string EnemyType { set { SetParameter("enemyType", value); } }
-}
-
-public class PlayerDeathEvent : Unity.Services.Analytics.Event {
-    public PlayerDeathEvent() : base("PlayerDeath") { }
-}
