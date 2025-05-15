@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Services.Analytics;
 using System.Collections;
 using Unity.Netcode;
 
@@ -52,5 +53,13 @@ public class MeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         yield return new WaitForSeconds(0.5f);
         animator.SetBool("IsAttacking", false);
         yield return new WaitForSeconds(attackCooldown - 0.5f);
+    }
+
+    protected override void OnDie() {
+        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
+            AnalyticsService.Instance.RecordEvent("MeleeEnemyKilled");
+        }
+
+        base.OnDie();
     }
 }

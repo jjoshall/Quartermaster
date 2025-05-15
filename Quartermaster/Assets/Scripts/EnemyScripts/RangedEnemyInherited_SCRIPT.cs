@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using System.Collections;
+using Unity.Services.Analytics;
 
 public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     #region Variables for GameManager
@@ -174,6 +175,10 @@ public class RangedEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     }
 
     protected override void OnDie() {
+        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
+            AnalyticsService.Instance.RecordEvent("RangedEnemyKilled");
+        }
+
         try {
             PlaySoundForEmitter("flying_die", transform.position); 
         } catch (System.Exception e) {

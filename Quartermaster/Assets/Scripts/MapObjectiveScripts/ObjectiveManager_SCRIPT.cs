@@ -255,7 +255,7 @@ public class ObjectiveManager : NetworkBehaviour {
     [ServerRpc(RequireOwnership = false)]
     private void ClearedAllObjectivesServerRpc(){
 
-        if (n_objectivesToWin.Value <= (objectivesToWin * -1)) { taskList.text += "All objectives complete!" + "\n"; } // not sure how this code will interact with increasing the amount of objectives spawned
+        if (n_objectivesToWin.Value <= (objectivesToWin * -1)) { taskList.text += "<color=green>All objectives complete!</color>" + "\n"; } // not sure how this code will interact with increasing the amount of objectives spawned
 
         // Do something here. Boss phase.
         DebugAllClientRpc("ObjectiveManager: ClearedAllObjectives() placeholder clientRPC msg.");

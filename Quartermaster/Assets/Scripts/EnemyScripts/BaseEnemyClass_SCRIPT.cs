@@ -312,13 +312,6 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     // Called when enemy dies
     protected virtual void OnDie() {
-        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
-            AnalyticsService.Instance.RecordEvent("EnemyKilled");
-        }
-        else {
-            Debug.LogWarning("Analytics not ready or instance is null.");
-        }
-
         ItemManager.instance.RollDropTable(transform.position);    // norman added this, has a chance to burst drop items
         GameManager.instance.IncrementEnemyKillsServerRpc();    // add to enemy kill count
         enemySpawner.RemoveEnemyFromList(gameObject);   // remove enemy from list of enemies
