@@ -246,6 +246,9 @@ public class ObjectiveManager : NetworkBehaviour {
     #region = BossPhase172
     [ServerRpc(RequireOwnership = false)]
     private void ClearedAllObjectivesServerRpc(){
+
+        if (n_objectivesToWin.Value <= (objectivesToWin * -1)) { taskList.text += "All objectives complete!" + "\n"; } // not sure how this code will interact with increasing the amount of objectives spawned
+
         // Do something here. Boss phase.
         DebugAllClientRpc("ObjectiveManager: ClearedAllObjectives() placeholder clientRPC msg.");
         TooltipManager.SendTooltip("All objectives cleared. Stay tuned for the boss fight in 172!");

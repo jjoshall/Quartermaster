@@ -4557,6 +4557,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 71b297f5108d1b84197b3aa4db2f9ffb, type: 3}
+--- !u!114 &1793303898 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 981151555815080048, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+  m_PrefabInstance: {fileID: 2091593734}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1797533316
 GameObject:
   m_ObjectHideFlags: 0
@@ -5833,6 +5844,10 @@ PrefabInstance:
       value: 17
       objectReference: {fileID: 0}
     - target: {fileID: 634689250593608552, guid: 4fe3661616668e247af39131ae7f1837, type: 3}
+      propertyPath: taskList
+      value: 
+      objectReference: {fileID: 1793303898}
+    - target: {fileID: 634689250593608552, guid: 4fe3661616668e247af39131ae7f1837, type: 3}
       propertyPath: objectivesToWin
       value: 2
       objectReference: {fileID: 0}
@@ -5958,7 +5973,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4565221152780045004, guid: 4fe3661616668e247af39131ae7f1837, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4591732904713874789, guid: 4fe3661616668e247af39131ae7f1837, type: 3}
       propertyPath: m_Layer
