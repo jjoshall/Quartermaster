@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Services.Analytics;
 using System.Collections.Generic;
 using Unity.Netcode;
 
@@ -9,6 +10,7 @@ public class RailgunItem : Item
     [Header("Railgun Settings")]
     [SerializeField] private float _railgunDamage = 17.0f; // originally 6.0f
     [SerializeField] private float _explosionRadius = 10.0f;
+    [SerializeField] private float _maxRange = 40.0f;
 
 
     // Make an effect string = "" to disable spawning an effect.
@@ -27,6 +29,9 @@ public class RailgunItem : Item
 
 
     public override void OnButtonUse(GameObject user) {
+        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
+            AnalyticsService.Instance.RecordEvent("RailgunUsed");
+        }
 
         if (lastUsed + cooldown > Time.time){
             //Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
@@ -96,7 +101,7 @@ public class RailgunItem : Item
     private void LineAoe(GameObject user, GameObject camera, List<Transform> targetsHit, int combinedLayerMask){
         
         RaycastHit[] hits;
-        hits = Physics.RaycastAll(camera.transform.position, camera.transform.forward, 100.0f, combinedLayerMask);
+        hits = Physics.RaycastAll(camera.transform.position, camera.transform.forward, _maxRange, combinedLayerMask);
         // hits order undefined, so we sort.
         System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
 
@@ -129,7 +134,8 @@ public class RailgunItem : Item
 
             foreach (RaycastHit hit in hits){
                 if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Building") ||
-                    hit.collider.gameObject.layer == LayerMask.NameToLayer("whatIsGround"))
+                    hit.collider.gameObject.layer == LayerMask.NameToLayer("whatIsGround") ||
+                    hit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy"))
                 {
                     //Debug.Log ("railgun hit building/whatisground");
                     SpawnExplosion(hit.point, _explosionRadius, targetsHit);

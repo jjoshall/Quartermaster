@@ -115,26 +115,26 @@ MonoBehaviour:
   _healSpec_MultiplierPer: 0.1
   _dmgSpec_StackLimit: 3
   _dmgSpec_MultiplierPer: 0.2
-  meleeEnemy_Health: 0
-  meleeEnemy_AttackCooldown: 0
-  meleeEnemy_AttackRange: 0
-  meleeEnemy_AttackDamage: 0
-  meleeEnemy_AttackRadius: 0
-  meleeEnemy_UseGlobalTarget: 0
-  meleeEnemy_Speed: 0
-  rangedEnemy_Health: 0
-  rangedEnemy_AttackCooldown: 0
-  rangedEnemy_AttackRange: 0
-  rangedEnemy_AttackDamage: 0
-  rangedEnemy_UseGlobalTarget: 0
-  rangedEnemy_Speed: 0
-  explosiveEnemy_Health: 0
-  explosiveEnemy_AttackCooldown: 0
-  explosiveEnemy_AttackRange: 0
-  explosiveEnemy_AttackDamage: 0
-  explosiveEnemy_AttackRadius: 0
-  explosiveEnemy_UseGlobalTarget: 0
-  explosiveEnemy_Speed: 0
+  meleeEnemy_Health: 30
+  meleeEnemy_AttackCooldown: 3
+  meleeEnemy_AttackRange: 5
+  meleeEnemy_AttackDamage: 10
+  meleeEnemy_AttackRadius: 2
+  meleeEnemy_UseGlobalTarget: 1
+  meleeEnemy_Speed: 12
+  rangedEnemy_Health: 20
+  rangedEnemy_AttackCooldown: 3
+  rangedEnemy_AttackRange: 10
+  rangedEnemy_AttackDamage: 5
+  rangedEnemy_UseGlobalTarget: 1
+  rangedEnemy_Speed: 12
+  explosiveEnemy_Health: 60
+  explosiveEnemy_AttackCooldown: 3
+  explosiveEnemy_AttackRange: 5
+  explosiveEnemy_AttackDamage: 30
+  explosiveEnemy_AttackRadius: 6
+  explosiveEnemy_UseGlobalTarget: 1
+  explosiveEnemy_Speed: 12
   _playersToEnemyHpMultiplier:
   - 0.1
   - 1

@@ -7,6 +7,8 @@ public class CameraTooltipTrigger : NetworkBehaviour
     NetworkObject n_player;
     [Tooltip("Time in seconds required to hover over an object before showing the tooltip.")]
     public float hoverThreshold = 1.0f; 
+    [Tooltip("Tooltip trigger raycast range")]
+    public float raycastRange = 15f; // Raycast range for tooltip trigger
     public GameObject animatedTooltipPrefab;
 
     // Runtime
@@ -30,47 +32,62 @@ public class CameraTooltipTrigger : NetworkBehaviour
 
         // Create a ray from the main camera through the mouse cursor position.
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
+        // RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit))
-        {
-            GameObject currGO = hit.collider.gameObject;
-
-            if (hit.collider == null || currGO == null || currGO.GetComponent<AnimatedTooltippable>() == null)
-            {
-                if (prevTarget && prevTooltippable) Destroy(prevTooltippable);
-                hoverTime = 0f;
-                tooltipShown = false;
-                return;
-            } else if (currGO != prevTarget){
-                // We hit something but it's not the previous object we tooltipped.
-                if (prevTarget && prevTooltippable) Destroy(prevTooltippable);
-                prevTarget = currGO;
-                hoverTime = 0f;
-                tooltipShown = false;
-                return;
-            }
-
-            if (currGO == prevTarget){
-                if (IncrementHover()){
-                    var at = currGO.GetComponent<AnimatedTooltippable>();
-                    if (at == null) return; // no tooltippable component on the object.
-
-                    // Spawn the tooltip at the hit point.
-                    GameObject tooltip = Instantiate(animatedTooltipPrefab, UIManager.instance.playerDrawCanvas.transform);
-                    tooltip.GetComponent<UITargetCircle>().Initialize(this.gameObject, currGO, at.tooltipText, at.fontSize);
-
-                    if (prevTarget && prevTooltippable) Destroy(prevTooltippable); // destroy the previous tooltip if it exists.
-                    tooltipShown = true;
-                    prevTooltippable = tooltip; // store the tooltip for later destruction.
-                    prevTarget = currGO; // store the current target for hover time tracking.
-                }
-            }
-        } else {
+        RaycastHit[] hits = Physics.RaycastAll(ray, raycastRange);
+        if (hits.Length == 0){
             if (prevTarget && prevTooltippable) Destroy(prevTooltippable); // destroy the previous tooltip if it exists.
             prevTarget = null; // reset the previous target.
             hoverTime = 0f; // reset the hover time.
             tooltipShown = false; // reset the tooltip shown flag.
+            return;
+        }
+
+        int i = 1;
+        RaycastHit closestHit = hits[0];
+        while ((
+                closestHit.collider == null ||
+                closestHit.collider.gameObject.GetComponent<AnimatedTooltippable>() == null ||
+                (closestHit.collider.gameObject.GetComponent<Item>() != null && closestHit.collider.gameObject.GetComponent<Item>().IsPickedUp)
+                ) 
+                    && i < hits.Length)
+        {
+            
+            closestHit = hits[i];
+            i++;
+        }
+
+        GameObject currGO = closestHit.collider.gameObject;
+
+        if (closestHit.collider == null || currGO == null || currGO.GetComponent<AnimatedTooltippable>() == null)
+        {
+            if (prevTarget && prevTooltippable) Destroy(prevTooltippable);
+            hoverTime = 0f;
+            tooltipShown = false;
+            return;
+        } else if (currGO != prevTarget){
+            // We hit something but it's not the previous object we tooltipped.
+            if (prevTarget && prevTooltippable) Destroy(prevTooltippable);
+            prevTarget = currGO;
+            hoverTime = 0f;
+            tooltipShown = false;
+            return;
+        }
+
+        if (currGO == prevTarget){
+            if (IncrementHover()){
+                var at = currGO.GetComponent<AnimatedTooltippable>();
+                if (at == null) return; // no tooltippable component on the object.
+
+                // Spawn the tooltip at the hit point.
+                GameObject tooltip = Instantiate(animatedTooltipPrefab, UIManager.instance.playerDrawCanvas.transform);
+                tooltip.GetComponent<UITargetCircle>().Initialize(this.gameObject, currGO, at.tooltipHeaderText, at.headerFontSize, at.tooltipBodyText, at.bodyFontSize);
+
+                if (prevTarget && prevTooltippable) Destroy(prevTooltippable); // destroy the previous tooltip if it exists.
+                tooltipShown = true;
+                prevTooltippable = tooltip; // store the tooltip for later destruction.
+                prevTarget = currGO; // store the current target for hover time tracking.
+            }
         }
     }
 

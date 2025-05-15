@@ -15,8 +15,8 @@ GameObject:
   - component: {fileID: -3091473297044448489}
   - component: {fileID: -241234100000356255}
   - component: {fileID: 3598719706095241124}
-  - component: {fileID: -387337342018685079}
   - component: {fileID: 2606932685735109037}
+  - component: {fileID: 6030836504816948394}
   m_Layer: 6
   m_Name: MedKit_PREFAB
   m_TagString: Item
@@ -177,20 +177,6 @@ MonoBehaviour:
   m_IgnoreFromBuild: 1
   m_ApplyToChildren: 1
   m_AffectedAgents: ffffffff
---- !u!114 &-387337342018685079
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8519617277999394602}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62d419665ed6d7a41b7dc591a5a37b4c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  holdDuration: 5
-  key: MEDKIT
 --- !u!114 &2606932685735109037
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -210,6 +196,7 @@ MonoBehaviour:
   CanAutoFire: 0
   cooldown: 1
   StackLimit: 5
+  weight: 0
   quantity: 1
   icon: {fileID: 2800000, guid: 35e041898aa85fa4ca178edf0c747b31, type: 3}
   soundEmitters: []
@@ -221,6 +208,22 @@ MonoBehaviour:
   _medKitMaxChargeTime: 1
   _medKitTapThreshold: 0.1
   _healAmount: 6
+--- !u!114 &6030836504816948394
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8519617277999394602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abba81b95eeeefa47b53e97ff1f27c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipHeaderText: 'CONSUMABLE: MedKit'
+  tooltipBodyText: Heals on use.
+  headerFontSize: 30
+  bodyFontSize: 18
 --- !u!1001 &7229790217205299762
 PrefabInstance:
   m_ObjectHideFlags: 0

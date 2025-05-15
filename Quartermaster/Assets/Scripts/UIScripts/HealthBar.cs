@@ -1,10 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class HealthBarUI : MonoBehaviour {
     [Header("UI References")]
     // This image should be set to the bright red fill image in your health bar
     public Image fillImage;
+    public TextMeshProUGUI lives;
+    public float livesRemaining = 10000; // its just a random number
 
     // [Header("Player Health Reference")]
     // // Reference to the player's Health component; assign this via code or the inspector
@@ -31,6 +34,13 @@ public class HealthBarUI : MonoBehaviour {
         }
     }
 
+    public void UpdateLives(float livesCount) {
+        if (lives) {
+            lives.text = "Lives: " + livesCount.ToString();
+        }
+        livesRemaining = livesCount;
+    }
+    
     void Start() {
         // // If playerHealth isn't already assigned, search for the local player's Health
         // if (playerHealth == null) {

@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.Services.Analytics;
+
 
 public class Pistol_MONO : Item
 {
@@ -8,6 +10,7 @@ public class Pistol_MONO : Item
     #region Pistol Item Game Settings
     [Header("Pistol Settings")]
     [SerializeField] private float _pistolDamage = 17.0f; // originally 6.0f
+    [SerializeField] private float _maxRange = 40.0f;
 
     // Make an effect string = "" to disable spawning an effect.
     [SerializeField] private string _enemyHitEffect = "Sample"; // effect spawned on center of every enemy hit.
@@ -24,6 +27,9 @@ public class Pistol_MONO : Item
 
 
     public override void OnButtonUse(GameObject user) {
+        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
+            AnalyticsService.Instance.RecordEvent("PistolUsed");
+        }
 
         if (lastUsed + cooldown > Time.time){
             //Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
@@ -81,7 +87,7 @@ public class Pistol_MONO : Item
         int combinedLayerMask = enemyLayer | buildingLayer;
 
         //Debug.DrawRay(camera.transform.position, camera.transform.forward * 100, Color.yellow, 2f);
-        if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, 100f, combinedLayerMask, QueryTriggerInteraction.Ignore)){
+        if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, _maxRange, combinedLayerMask, QueryTriggerInteraction.Ignore)){
             //Debug.Log("Pistol hit something: " + hit.collider.name + " on layer: " + hit.collider.gameObject.layer);
 
             // draw a ray from the shotOrigin to the hit point (for debug)
