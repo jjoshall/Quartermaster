@@ -36,13 +36,19 @@ public class ItemManager : NetworkBehaviour {
     #region Roll All
     // Individually rolls against all entries in the drop table. o(n)
     public void RollDropTable(Vector3 position){
+        Debug.Log("In rollDropTable: " + position.ToString() + " with " + dropTable.Count.ToString() + " entries.");
         float countMultiplier = 1.0f; //_burstDrop_moddedRate / burstDrop_baseRate; // >1 multiplier.
         for (int i = 0; i < dropTable.Count; i++){
+            Debug.Log("Rolling item " + i.ToString());
             // roll for each item
             float itemRoll = UnityEngine.Random.Range(0.0f, 1.0f); // 0-1.
+            Debug.Log("item roll:" + itemRoll.ToString() + " with count multiplier " + countMultiplier.ToString() + ".");
             if (itemRoll * countMultiplier > ( 1 - (dropTable[i].dropChancePercent / 100) )   ){
+                Debug.Log("In if statement");
                 Vector3 randomDirection = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0, UnityEngine.Random.Range(-1f, 1f));
                 randomDirection.Normalize();
+
+                Debug.Log("Rolling item " + i.ToString() + " with roll " + itemRoll.ToString() + " and drop chance " + dropTable[i].dropChancePercent.ToString() + ".");
 
                 DropAnEntryInTableServerRpc(i, position, randomDirection);
                 //SpawnMedKit(position, i, randomDirection);
@@ -59,7 +65,12 @@ public class ItemManager : NetworkBehaviour {
     private void DropAnEntryInTableServerRpc(int index,
                                         Vector3 spawnLoc, 
                                         Vector3 initialVelocity) {
-        if (!IsServer) { return; }
+        if (!IsServer) { 
+            Debug.LogError("DropItemServerRpc: Not server!");
+            return; 
+        }
+
+        Debug.Log("In DropItemServerRpc: " + index.ToString() + " with " + dropTable[index].itemDrops.Count.ToString() + " items.");
 
         if (spawnLoc == null) {
             Debug.LogError("DropItemServerRpc: spawnLoc is null!");

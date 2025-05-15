@@ -46,7 +46,7 @@ public class ItemChest_SCRIPT : NetworkBehaviour
 
     [ServerRpc(RequireOwnership = false)]
     private void OpenChestServerRpc() {
-        //ItemManager.instance.SpawnMedKit(transform.position);
+        Debug.Log("OpenChestServerRpc called.");
         ItemManager.instance.RollDropTable(transform.position);
         OpenChestClientRpc();
     }
