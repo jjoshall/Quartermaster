@@ -251,6 +251,10 @@ public class PlayerController : NetworkBehaviour {
             if (health != null) { health.Kill(); }
         }
 
+        if (transform.position == Vector3.zero) {
+            HealthBarUI.instance.UpdateHealthBar(health);
+        }
+
         GroundCheck();
 
         if (InputHandler != null) {
