@@ -138,6 +138,7 @@ public class Health : NetworkBehaviour {
 
     void HandleDeath() {
         if (CurrentHealth.Value <= 0f) {
+            CurrentHealth.Value = 2147483000; // added hp buffer for multiplayer
             //IsDead = true;
             OnDie?.Invoke();
             NotifyDeathClientRpc();
