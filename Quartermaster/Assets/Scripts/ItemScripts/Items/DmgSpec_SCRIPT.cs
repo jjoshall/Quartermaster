@@ -22,12 +22,14 @@ public class DmgSpec_MONO : Item
 
     public override void OnPickUp(GameObject user)
     {
+        base.OnPickUp(user);
         UpdateDmgSpecCount(user);
         // play pick up effect. 
     }
 
     public override void OnDrop(GameObject user)
     {
+        base.OnDrop(user);
         UpdateDmgSpecCount(user);
         // play drop effect.
     }

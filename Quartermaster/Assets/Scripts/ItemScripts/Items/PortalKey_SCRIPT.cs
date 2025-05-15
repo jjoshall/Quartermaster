@@ -59,6 +59,7 @@ public class PortalKey_MONO : Item
     #endregion
 
     public override void OnPickUp(GameObject user){
+        base.OnPickUp(user);
         if (NullChecks(user)) {
             Debug.LogError("PortalKey_MONO: PickUp() NullChecks failed.");
             return;
