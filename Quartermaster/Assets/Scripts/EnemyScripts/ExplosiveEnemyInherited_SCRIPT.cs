@@ -115,11 +115,6 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
     }
 
-    private IEnumerator DelayedBaseDie() {
-        yield return new WaitForSeconds(3.0f);
-        base.OnDie();
-    }
-
     // Called by base class attack cooldown.
     protected override void Attack() {
         if (!IsServer || _isExploding || _isAttacking) return;
@@ -130,21 +125,11 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         LeanTween.value(gameObject, 0f, 1f, _explosionDelay)
             .setOnComplete(() => {
                 isBlinking.Value = false;
-                // Explosion();
-                AttackServerRpc();
+                Explosion();
             });
-        // StartCoroutine (DelayedExplosion(_explosionDelay));
     }    
 
-    // delay
-    // protected virtual IEnumerator DelayedExplosion(float delay) {
-    //     yield return new WaitForSeconds(delay);
-    //     AttackServerRpc(true);
-    // }
-
-    // the actual attack
-    [ServerRpc(RequireOwnership = false)]
-    private void AttackServerRpc(bool destroyAfterAttack = true)
+    private void Explosion(bool destroyAfterAttack = true)
     {
         if (!IsServer) return;
 
