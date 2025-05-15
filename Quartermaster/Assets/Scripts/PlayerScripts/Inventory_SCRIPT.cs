@@ -443,6 +443,14 @@ public class Inventory : NetworkBehaviour {
         float cooldownRemaining = item.GetCooldownRemaining();
         float cooldownMax = item.GetMaxCooldown();
 
+        PlayerController playerController = _playerObj.GetComponent<PlayerController>();
+        float stimAspdMultiplier = 1.0f;
+        if (playerController != null) {
+            stimAspdMultiplier = playerController.stimAspdMultiplier;
+        }
+
+        cooldownMax /= stimAspdMultiplier;
+
         if (cooldownMax > 0) {
             _uiManager.weaponCooldownRadial.gameObject.SetActive(true);
             float cooldownRatio = Mathf.Clamp01(1 - (cooldownRemaining / cooldownMax));

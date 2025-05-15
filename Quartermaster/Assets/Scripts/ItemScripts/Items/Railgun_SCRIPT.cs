@@ -32,8 +32,12 @@ public class RailgunItem : Item
         if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
             AnalyticsService.Instance.RecordEvent("RailgunUsed");
         }
-
-        if (lastUsed + cooldown > Time.time){
+        PlayerController pc = user.GetComponent<PlayerController>();
+        if (user == null || pc == null) {
+            Debug.LogError("Pistol_MONO: ButtonUse() NullChecks failed.");
+            return;
+        }
+        if (lastUsed + cooldown / pc.stimAspdMultiplier > Time.time){
             //Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
             //Debug.Log ("cooldown remaining: " + (lastUsed + cooldown - Time.time));
             return;
@@ -52,13 +56,26 @@ public class RailgunItem : Item
             Debug.LogError("Railgun_MONO: ButtonHeld() NullChecks failed.");
             return;
         }
-        PlayerStatus s = user.GetComponent<PlayerStatus>();
 
-        if (lastUsed + cooldown > Time.time) {
+        PlayerController pc = user.GetComponent<PlayerController>();
+        if (user == null || pc == null) {
+            Debug.LogError("Pistol_MONO: ButtonUse() NullChecks failed.");
+            return;
+        }
+        if (lastUsed + cooldown / pc.stimAspdMultiplier > Time.time){
+            //Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
+            //Debug.Log ("cooldown remaining: " + (lastUsed + cooldown - Time.time));
             return;
         }
 
-        if (!CanAutoFire){
+        PlayerStatus s = user.GetComponent<PlayerStatus>();
+        if (s == null) {
+            Debug.LogError("Flamethrower_MONO: ButtonHeld() NullChecks failed.");
+            return;
+        }
+        bool autofire = CanAutoFire || s.n_stimActive.Value;
+        
+        if (!autofire){
             return;
         }
 
