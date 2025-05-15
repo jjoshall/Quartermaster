@@ -32,11 +32,6 @@ public class FloatingText_SCRIPT : NetworkBehaviour {
 
     [ClientRpc]
     public void SetTextClientRpc(float damage) {
-        // if > x.5 then round up, else round down 
-        int dmgInt = (int)damage;
-        if (damage - dmgInt > 0.5f) {
-            dmgInt++;
-        }
-        _text.SetText(dmgInt.ToString());
+        _text.SetText(Mathf.RoundToInt(damage).ToString());
     }
 }

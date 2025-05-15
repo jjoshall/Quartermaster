@@ -1,5 +1,4 @@
 using UnityEngine;
-using Unity.Services.Analytics;
 using System.Collections.Generic;
 using Unity.Netcode;
 
@@ -28,9 +27,6 @@ public class RailgunItem : Item
 
 
     public override void OnButtonUse(GameObject user) {
-        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
-            AnalyticsService.Instance.RecordEvent("RailgunUsed");
-        }
 
         if (lastUsed + cooldown > Time.time){
             //Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");

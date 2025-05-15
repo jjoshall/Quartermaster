@@ -27,43 +27,27 @@ public class UIPanelDrawer : MonoBehaviour
     // Child object references
     [SerializeField] private GameObject _borderObj;
     [SerializeField] private GameObject _fillObj;
-    [SerializeField] private GameObject _headerTextObj;
-    private string _fullHeaderText = "";
-    private string _currHeaderText = "";
-    private int _currHeaderChars = 0;
+    [SerializeField] private GameObject _textObj;
+    private string _fullText = "";
+    private string _currText = "";
+    private int _currChars = 0;
 
-    [SerializeField] private GameObject _bodyTextObj;
-    private string _fullBodyText = "";
-    private string _currBodyText = "";
-    private int _currBodyChars = 0;
-
-    public void Init(string headerTooltipText, string bodyTooltipText, GameObject lineDrawer,
+    public void Init(string tooltipText, GameObject lineDrawer,
                         float panelWidth, float panelHeight, 
                         float horizontalDuration, float verticalDuration, 
-                        float initVerticalScale, float textDuration, float headerFontSize, float bodyFontSize)
+                        float initVerticalScale, float textDuration, float fontSize)
                     {
-        _fullHeaderText = headerTooltipText;
-        _fullBodyText = bodyTooltipText;
-
+        _fullText = tooltipText;
         _lineParent = lineDrawer;
         _xDirection = lineDrawer.GetComponent<UILineDrawer>().xOffsetSign;
         _yDirection = lineDrawer.GetComponent<UILineDrawer>().yOffsetSign;
         _origin = lineDrawer.GetComponent<UILineDrawer>().dest2d;
-        _headerTextObj.GetComponent<TMPro.TextMeshProUGUI>().text = "";
-        _bodyTextObj.GetComponent<TMPro.TextMeshProUGUI>().text = ""; // reset text to empty string.
-
+        _textObj.GetComponent<TMPro.TextMeshProUGUI>().text = "";
         _currVerticalScale = _initVerticalScale;
 
-        RectTransform canvasRt = this.transform.parent.GetComponent<RectTransform>();
-        if (canvasRt == null) return; // safety check
-        Vector2 canvasSize = canvasRt.sizeDelta;
-
-        // Set size of all child objects in the panel to init sizes (0). 
-        Vector2 panelSize = new Vector2(_panelWidth * canvasSize.x, _panelHeight * canvasSize.y);
         _borderObj.GetComponent<RectTransform>().sizeDelta = new Vector2 (0, 0);
         _fillObj.GetComponent<RectTransform>().sizeDelta = new Vector2 (0, 0);
-        _headerTextObj.GetComponent<RectTransform>().sizeDelta = panelSize; // text objs can be full size as they're animated by char
-        _bodyTextObj.GetComponent<RectTransform>().sizeDelta = panelSize;
+        _textObj.GetComponent<RectTransform>().sizeDelta = new Vector2 (0, 0);
 
         this._panelWidth = panelWidth;
         this._panelHeight = panelHeight;
@@ -71,8 +55,7 @@ public class UIPanelDrawer : MonoBehaviour
         this.verticalDuration = verticalDuration;
         this._initVerticalScale = initVerticalScale;
         this.textDuration = textDuration;
-        _headerTextObj.GetComponent<TMPro.TextMeshProUGUI>().fontSize = headerFontSize;
-        _bodyTextObj.GetComponent<TMPro.TextMeshProUGUI>().fontSize = bodyFontSize;
+        _textObj.GetComponent<TMPro.TextMeshProUGUI>().fontSize = fontSize;
 
         UpdateOriginDestination();
         UpdatePosition();
@@ -105,34 +88,14 @@ public class UIPanelDrawer : MonoBehaviour
         if (canvasRt == null) return; // safety check
         Vector2 canvasSize = canvasRt.sizeDelta;
 
-        if (_borderObj != null && _fillObj != null){
+        if (_borderObj != null && _fillObj != null && _textObj != null){
             RectTransform rt1 = _borderObj.GetComponent<RectTransform>();
-            RectTransform rt2 = _fillObj.GetComponent<RectTransform>();    
-            RectTransform rt3 = _headerTextObj.GetComponent<RectTransform>();
-            RectTransform rt4 = _bodyTextObj.GetComponent<RectTransform>(); 
-            if (rt1 == null || rt2 == null || rt3 == null || rt4 == null) return; // safety check
-
-            // Calculate panel size
-            float panelWidth = _panelWidth * canvasSize.x * _currHorizontalScale;
-            float panelHeight = _panelHeight * canvasSize.y * _currVerticalScale;
-
-            // Apply size to border and fill
-            rt1.sizeDelta = new Vector2(panelWidth, panelHeight);
-            rt2.sizeDelta = new Vector2(panelWidth, panelHeight);
-
-            // Compute header and body heights
-            float headerHeight = 0.9f * panelHeight * 0.2f; // 1/5 of total
-            float bodyHeight = 0.9f * panelHeight - headerHeight;
-                        
-            // Apply sizes
-            rt3.sizeDelta = new Vector2(panelWidth * 0.9f, headerHeight);
-            rt4.sizeDelta = new Vector2(panelWidth * 0.9f, bodyHeight);
-
-            // Position header centered vertically within its area
-            rt3.anchoredPosition = new Vector2(0, bodyHeight / 2);
-
-            // Position body centered vertically within its area
-            rt4.anchoredPosition = new Vector2(0, -(headerHeight / 2));
+            RectTransform rt2 = _fillObj.GetComponent<RectTransform>();     
+            RectTransform rt3 = _textObj.GetComponent<RectTransform>();
+            if (rt1 == null || rt2 == null || rt3 == null) return; // safety check
+            rt1.sizeDelta = new Vector2(_panelWidth * canvasSize.x * _currHorizontalScale, _panelHeight * canvasSize.y * _currVerticalScale);
+            rt2.sizeDelta = new Vector2(_panelWidth * canvasSize.x * _currHorizontalScale, _panelHeight * canvasSize.y * _currVerticalScale);
+            rt3.sizeDelta = new Vector2(_panelWidth * canvasSize.x * _currHorizontalScale, _panelHeight * canvasSize.y * _currVerticalScale);
         }   
     }
 
@@ -172,52 +135,22 @@ public class UIPanelDrawer : MonoBehaviour
             })
             .setOnComplete(() =>
             {
-                AnimateHeader();
+                AnimateText();
             });
     }
-    private void AnimateHeader(){
-        int totalChar = _fullHeaderText.Length + _fullBodyText.Length;
-        if (totalChar == 0) return; // safety check
-        float headerDuration = textDuration * _fullBodyText.Length / totalChar;
-
-        LeanTween.value(gameObject, 0, _fullHeaderText.Length, headerDuration) 
+    private void AnimateText(){
+        LeanTween.value(gameObject, 0, _fullText.Length, verticalDuration) 
             .setOnUpdate((float val) =>
             {
-                _currHeaderChars = Mathf.Clamp(Mathf.FloorToInt(val), 0, _fullHeaderText.Length);
-                _currHeaderText = _fullHeaderText.Substring(0, _currHeaderChars);
-                _headerTextObj.GetComponent<TMPro.TextMeshProUGUI>().text = _currHeaderText;
-                // _currHeaderChars = (int) (val * _fullHeaderText.Length);
-                // _currHeaderChars = Mathf.Clamp(_currHeaderChars, 0, _fullHeaderText.Length); // safety clamp
-                // _currHeaderText = _fullHeaderText.Substring(0, _currHeaderChars);
-                // _headerTextObj.GetComponent<TMPro.TextMeshProUGUI>().text = _currHeaderText;
-            })
-            .setOnComplete(() =>
-            {
-                AnimateBodyText();
-            });
-    }
-
-    private void AnimateBodyText(){
-        int totalChar = _fullHeaderText.Length + _fullBodyText.Length;
-        if (totalChar == 0) return; // safety check
-        float bodyDuration = textDuration * _fullBodyText.Length / totalChar;
-        
-        LeanTween.value(gameObject, 0, _fullBodyText.Length, bodyDuration) 
-            .setOnUpdate((float val) =>
-            {
-                _currBodyChars = Mathf.Clamp(Mathf.FloorToInt(val), 0, _fullBodyText.Length);
-                _currBodyText = _fullBodyText.Substring(0, _currBodyChars);
-                _bodyTextObj.GetComponent<TMPro.TextMeshProUGUI>().text = _currBodyText;
-                // _currBodyChars = (int) (val * _fullBodyText.Length);
-                // _currBodyChars = Mathf.Clamp(_currBodyChars, 0, _fullBodyText.Length); // safety clamp
-                // _currBodyText = _fullBodyText.Substring(0, _currBodyChars);
-                // _bodyTextObj.GetComponent<TMPro.TextMeshProUGUI>().text = _currBodyText;
+                _currChars = (int) (val * _fullText.Length);
+                _currChars = Mathf.Clamp(_currChars, 0, _fullText.Length); // safety clamp
+                _currText = _fullText.Substring(0, _currChars);
+                _textObj.GetComponent<TMPro.TextMeshProUGUI>().text = _currText;
             })
             .setOnComplete(() =>
             {
                 Debug.Log ("AnimateText() complete.");
             });
-
     }
 
     

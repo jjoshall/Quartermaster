@@ -1,7 +1,6 @@
 using Unity.Netcode;
 using System.Collections;
 using UnityEngine;
-using Unity.Services.Analytics;
 
 public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     #region Variables for GameManager
@@ -31,7 +30,6 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     
     public override void OnNetworkSpawn() {
         base.OnNetworkSpawn();
-        enemyType = EnemyType.Explosive;
 
         _isExploding = false;
         isBlinking.Value = false;
@@ -73,10 +71,6 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     #endregion
 
     protected override void OnDie() {
-        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
-            AnalyticsService.Instance.RecordEvent("ExplosiveEnemyKilled");
-        }
-
         try {
             PlaySoundForEmitter("explode_die", transform.position);
         }
@@ -108,12 +102,6 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     protected virtual IEnumerator DelayedExplosion(float delay) {
         yield return new WaitForSeconds(delay);
         AttackServerRpc(true);
-    }
-
-
-    // new death explosion function. called on delay by attack, called immediately by OnDie
-    private void Explosion(){
-        PlaySoundForEmitter("explode_die", transform.position);
     }
 
     // the actual attack

@@ -1,5 +1,4 @@
 using UnityEngine;
-using Unity.Services.Analytics;
 using System.Collections.Generic;
 
 public class Flamethrower_MONO : Item
@@ -25,10 +24,6 @@ public class Flamethrower_MONO : Item
     #endregion
 
     public override void OnButtonUse(GameObject user) {
-        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
-            AnalyticsService.Instance.RecordEvent("FlamethrowerUsed");
-        }
-
         if (lastUsed + cooldown > Time.time) {
             return;
         }

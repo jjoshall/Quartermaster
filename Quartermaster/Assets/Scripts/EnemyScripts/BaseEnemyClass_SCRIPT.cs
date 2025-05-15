@@ -3,8 +3,6 @@ using UnityEngine.AI;
 using Unity.Netcode;
 using TMPro;
 using System.Collections.Generic;
-using UnityEngine.Analytics;
-using Unity.Services.Analytics;
 
 public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     // THIS IS FOR GAME MANAGER, you can change values in the
@@ -66,7 +64,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [SerializeField] private GameObject floatingTextPrefab;     // to spawn floating damage numbers
     //private bool _isAttacking = false;      // to prevent multiple attacks happening at once
     private float _attackTimer = 0.0f;      // to prevent attacks happening too quickly
-    public EnemyType enemyType;
+    public EnemyType enemyType;     // two enemy types at the moment: Melee and Ranged
 
     protected Vector3 targetPosition; 
     protected bool targetIsPlayer;
@@ -315,6 +313,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected virtual void OnDie() {
         ItemManager.instance.RollDropTable(transform.position);    // norman added this, has a chance to burst drop items
         GameManager.instance.IncrementEnemyKillsServerRpc();    // add to enemy kill count
+        //Debug.Log("Removing " + gameObject.name + " from enemy list");
         enemySpawner.RemoveEnemyFromList(gameObject);   // remove enemy from list of enemies
         enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());  // remove enemy from scene
     }
@@ -369,6 +368,5 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 // Might need to add a special enemy type or something for new enemies maybe even explosive enemies
 public enum EnemyType {
     Melee,
-    Ranged,
-    Explosive
+    Ranged
 }

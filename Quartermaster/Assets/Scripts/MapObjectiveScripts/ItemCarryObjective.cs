@@ -5,14 +5,11 @@ using System.Collections;
 
 public class ItemCarryObjective : IObjective
 {
-    [SerializeField] private int _rngMinDeliverableRequired = 1;
-    [SerializeField] private int _rngMaxDeliverableRequired = 1;
-
     private NetworkVariable<int> n_itemsToDeliver = new NetworkVariable<int>();
 
     public override void OnNetworkSpawn()
     {
-        n_itemsToDeliver.Value = Random.Range(_rngMinDeliverableRequired, _rngMaxDeliverableRequired + 1);
+        n_itemsToDeliver.Value = Random.Range(1, 5);
     }
 
     public override bool IsComplete()
@@ -29,57 +26,37 @@ public class ItemCarryObjective : IObjective
     // OnTriggerEnter check for item DeliverableQuestItem
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("ItemCarry: OnTriggerEnter");
-        // Item itema = other.gameObject.GetComponent<Item>();
-        // Debug.Log("ItemCarry: Item is " + itema.uniqueID);
-        if (other.gameObject.CompareTag("Item"))
-        {
-            Item item = other.gameObject.GetComponent<Item>();
-            if (item == null)
-            {
-                Debug.Log("ItemCarry: Item is null");
-                return;
-            }
-            if (item.IsPickedUp)
-            {
-                Debug.Log("ItemCarry: Item is already picked up");
-                return;
-            }
+        // Debug.Log("ItemCarry: OnTriggerEnter");
+        // if (other.gameObject.CompareTag("Item"))
+        // {
+        //     Debug.Log ("ItemCarry: OnTriggerEnter. Found DeliverableQuestItem");
+        //     int itemID = other.gameObject.GetComponent<WorldItem>().GetItemID();
+        //     string stringID = ItemManager.instance.itemEntries[itemID].inventoryItemClass;
 
-            if (item.uniqueID == "deliverable"){
-                Debug.Log("ItemCarry: Item is DeliverableQuestItem");
-                if (n_itemsToDeliver.Value > 0){
-                    StartCoroutine (_DelayedDespawn(other.gameObject, 1.0f));  
-                }   
-            }
-        }
+        //     if (stringID == "DeliverableQuestItem"){
+        //         if (n_itemsToDeliver.Value > 0){
+        //             StartCoroutine (_DelayedDespawn(other.gameObject, 1.0f));  
+        //         }   
+        //     }
+        // }
 }
 
     #region = DespawnItem
     private IEnumerator _DelayedDespawn(GameObject obj, float delay)
     {
-        Debug.Log ("ItemCarry: _DelayedDespawn");
-        obj.GetComponentInChildren<PlayerDissolveAnimator>().AnimateDissolveServerRpc();
-        yield return new WaitForSeconds(delay);
-        Debug.Log ("ItemCarry: Despawning item");
-        if (obj == null) { yield break; }
-        n_itemsToDeliver.Value--;
-        NetworkObjectReference objRef = new NetworkObjectReference(obj.GetComponent<NetworkObject>());
-        DespawnItemServerRpc(objRef);
-        // ParticleManager.instance.SpawnSelfThenAll(1, obj.transform.position, Quaternion.Euler(0, 0, 0));
-        if (n_itemsToDeliver.Value <= 0){
-            ClearObjective();
-        }
+        // Debug.Log ("ItemCarry: _DelayedDespawn");
+        // obj.GetComponentInChildren<PlayerDissolveAnimator>().AnimateDissolveServerRpc();
+        // yield return new WaitForSeconds(delay);
+        // Debug.Log ("ItemCarry: Despawning item");
+        // if (obj == null) { yield break; }
+        // n_itemsToDeliver.Value--;
+        // NetworkObjectReference objRef = new NetworkObjectReference(obj.GetComponent<NetworkObject>());
+        // ItemManager.instance.DestroyWorldItemServerRpc(objRef);
+        // // ParticleManager.instance.SpawnSelfThenAll(1, obj.transform.position, Quaternion.Euler(0, 0, 0));
+        // if (n_itemsToDeliver.Value <= 0){
+        //     ClearObjective();
+        // }
         yield return null;
     }
     #endregion
-
-    [ServerRpc(RequireOwnership = false)]
-    private void DespawnItemServerRpc(NetworkObjectReference objRef)
-    {
-        if (objRef.TryGet(out NetworkObject obj))
-        {
-            obj.Despawn();
-        }
-    }
 }

@@ -62,7 +62,7 @@ public class UITargetCircle : MonoBehaviour
         this.GetComponent<Image>().color = _primary;
     }
 
-    public void Initialize(GameObject cam, GameObject highlightObj, string headerText, int headerFontSize, string bodyText, int bodyFontSize){
+    public void Initialize(GameObject cam, GameObject highlightObj, string text, int fontSize){
         _camRef = cam;
         // UIManager.instance.playerDrawCanvas.worldCamera = cam.GetComponent<Camera>();
         _highlightObjectRef = highlightObj;
@@ -81,11 +81,10 @@ public class UITargetCircle : MonoBehaviour
                                                                 destXOffset,
                                                                 destYOffset,
                                                                 tooltippablePanel);
-        tooltippablePanel.GetComponent<UIPanelDrawer>().Init(headerText, bodyText, 
-                                                                tooltippableLine,
+        tooltippablePanel.GetComponent<UIPanelDrawer>().Init(text, tooltippableLine,
                                                                 _panelWidth, _panelHeight, 
                                                                 horizontalDuration, verticalDuration, 
-                                                                _initVerticalScale, textDuration, headerFontSize, bodyFontSize);
+                                                                _initVerticalScale, textDuration, fontSize);
                                                                 
         AnimateTargetCircle();
     }

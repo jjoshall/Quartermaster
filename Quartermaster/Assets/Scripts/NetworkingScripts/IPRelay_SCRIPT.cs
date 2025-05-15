@@ -20,7 +20,6 @@ public class IPRelay : MonoBehaviour {
         await UnityServices.InitializeAsync();
         AuthenticationService.Instance.SignedIn += () => {
             Debug.Log("Signed in as " + AuthenticationService.Instance.PlayerId);
-            AnalyticsManager_SCRIPT.Instance?.OnSignedIn();
         };
 
         if (!AuthenticationService.Instance.IsSignedIn) {

@@ -1,6 +1,5 @@
 // Code is inspired from Unity's 3D FPS template
 using UnityEngine;
-using Unity.Services.Analytics;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -8,7 +7,6 @@ using System;
 using UnityEngine.Localization.SmartFormat.Utilities;
 using Unity.VisualScripting;
 using System.Collections.Generic;
-using UnityEngine.Analytics;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler), typeof(Health))]
 public class PlayerController : NetworkBehaviour {
@@ -29,7 +27,6 @@ public class PlayerController : NetworkBehaviour {
 
     [Header("Player Spawn Settings")]
     [SerializeField] private Transform spawnLocation;
-    public float livesCount = 5;
 
     [Header("Movement")]
     private Vector3 worldspaceMove = Vector3.zero;
@@ -474,12 +471,6 @@ public class PlayerController : NetworkBehaviour {
     void OnDie() {
         //Debug.Log($"[{Time.time}] {gameObject.name} died. Respawning...");
 
-        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
-            AnalyticsService.Instance.RecordEvent("PlayerDeath");
-        }
-        livesCount--;
-        HealthBarUI.instance.UpdateLives(livesCount);
-
         if (health != null) health.Invincible = true;
 
         playerVelocity = Vector3.zero;
@@ -491,10 +482,6 @@ public class PlayerController : NetworkBehaviour {
         if (health != null) {
             health.HealServerRpc(1000f);
             health.Invincible = false;
-        }
-
-        if (livesCount <= 0) {
-            disableCharacterController();
         }
 
         HealthBarUI.instance.UpdateHealthBar(health);
