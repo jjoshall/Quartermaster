@@ -71,22 +71,10 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     #endregion
 
     protected override void OnDie() {
-        try {
-            PlaySoundForEmitter("explode_die", transform.position);
-        }
-        catch (System.Exception e) {
-            Debug.LogError("Error play sound for emitter: " + e.Message);            
-        }
-        Attack(); // exploding enemy instantly explodes on death.
-
-        // Change to timer?, this is so explosive enemy doesn't get destroyed from scene before sound finishes
-        StartCoroutine(DelayedBaseDie());
-    }
-
-    private IEnumerator DelayedBaseDie() {
-        yield return new WaitForSeconds(3.0f);
+        AttackServerRpc(false);
         base.OnDie();
     }
+
 
     // Called by base class attack cooldown.
     protected override void Attack() {
@@ -95,19 +83,42 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         _isExploding = true;
         isBlinking.Value = true;
 
-        StartCoroutine (DelayedExplosion(_explosionDelay));
+        // OnDie();
+        LeanTween.value(gameObject, 0f, 1.0f, _explosionDelay)
+            .setOnUpdate((float val) => {
+                
+            })
+            .setOnComplete(() => {
+                OnDie();
+            });
     }    
-
-    // delay
-    protected virtual IEnumerator DelayedExplosion(float delay) {
-        yield return new WaitForSeconds(delay);
-        AttackServerRpc(true);
-    }
-
 
     // new death explosion function. called on delay by attack, called immediately by OnDie
     private void Explosion(){
-        PlaySoundForEmitter("explode_die", transform.position);
+        try {
+            PlaySoundForEmitter("explode_die", transform.position);
+        }
+        catch (System.Exception e) {
+            Debug.LogError("Error play sound for emitter: " + e.Message);
+        }
+
+        // layermask for player and enemies 
+        int layerMask = LayerMask.GetMask("Player", "Enemy");
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRadius, layerMask);
+        ParticleManager.instance.SpawnSelfThenAll("EnemyExplosion", transform.position, Quaternion.identity);
+
+        // Explosion hurts players and enemies, but enemies only take 1/3 of the damage
+        foreach (var hitCollider in hitColliders)
+        {
+            if (hitCollider.CompareTag("Player"))
+            {
+                hitCollider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
+            }
+            else if (hitCollider.CompareTag("Enemy"))
+            {
+                hitCollider.GetComponent<Damageable>().InflictDamage(damage / 3, false, gameObject);
+            }
+        }
     }
 
     // the actual attack
