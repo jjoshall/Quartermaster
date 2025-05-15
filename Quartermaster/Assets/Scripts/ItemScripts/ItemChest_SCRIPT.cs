@@ -53,6 +53,7 @@ public class ItemChest_SCRIPT : NetworkBehaviour
 
     [ClientRpc]
     private void OpenChestClientRpc() {
+        _inputHandler.OnInteract -= OpenChest;
         // Set this gameobject to inactive
         gameObject.SetActive(false);
     }
