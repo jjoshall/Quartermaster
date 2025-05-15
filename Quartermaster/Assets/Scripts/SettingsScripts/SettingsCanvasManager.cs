@@ -12,6 +12,7 @@ public class SettingsCanvasManager : MonoBehaviour
     
     [SerializeField] private Canvas pauseCanvas;
     [SerializeField] private Canvas settingsCanvas;
+    [SerializeField] private GameObject codeField;
 
     private void Awake()
     {
@@ -73,6 +74,16 @@ public class SettingsCanvasManager : MonoBehaviour
     private void ChangeTextColor(TextMeshProUGUI text, Color color)
     {
         text.color = color;
+    }
+
+    public void ShowLobbyCodeField()
+    {
+        if (!codeField.gameObject.activeSelf) {
+            codeField.gameObject.SetActive(true);
+        }
+        else {
+            codeField.gameObject.SetActive(false);
+        }
     }
 }
 
