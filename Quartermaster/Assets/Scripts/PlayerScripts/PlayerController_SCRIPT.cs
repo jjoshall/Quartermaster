@@ -44,7 +44,11 @@ public class PlayerController : NetworkBehaviour {
     public float airAcceleration = 15f;
     public float minSlideSpeed = 0.5f;
     public float slideDeceleration = 5f;
-    public float backwardsMovementPenalty = 0.75f;
+    public float backwardsMovementPenalty = 0.75f;    
+
+    [Header("Stim Item Settings")] // modified at runtime by playerstatus + stimpack item usage.
+    [HideInInspector] public float stimAspdMultiplier = 1.0f;
+    [HideInInspector] public float stimMspdMultiplier = 1.0f;
 
     [Tooltip("Sharpness affects acceleration/deceleration. Low values mean slow acceleration/deceleration and vice versa")]
     public float groundSharpness = 15f;
@@ -307,7 +311,7 @@ public class PlayerController : NetworkBehaviour {
     }
 
     public void HandleGroundMovement() {
-        Vector3 targetVelocity = worldspaceMove * groundSpeed * speedModifier;
+        Vector3 targetVelocity = worldspaceMove * groundSpeed * speedModifier * stimMspdMultiplier;
         targetVelocity = GetDirectionReorientedOnSlope(targetVelocity.normalized, GroundNormal) * targetVelocity.magnitude;
         playerVelocity = Vector3.Lerp(playerVelocity, targetVelocity, groundSharpness * Time.deltaTime);
 
@@ -326,7 +330,7 @@ public class PlayerController : NetworkBehaviour {
         float verticalVelocity = playerVelocity.y;
 
         Vector3 horizontalVelocity = Vector3.ProjectOnPlane(playerVelocity, Vector3.up);
-        horizontalVelocity = Vector3.ClampMagnitude(horizontalVelocity, maxAirSpeed * speedModifier);
+        horizontalVelocity = Vector3.ClampMagnitude(horizontalVelocity, maxAirSpeed * speedModifier * stimMspdMultiplier);
         playerVelocity = horizontalVelocity + Vector3.up * verticalVelocity;
 
         playerVelocity += Vector3.down * k_GravityForce * Time.deltaTime;

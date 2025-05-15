@@ -295,7 +295,7 @@ MonoBehaviour:
   IsWeapon: 1
   IsClassSpec: 0
   CanAutoFire: 0
-  cooldown: 0.4
+  cooldown: 0.08
   StackLimit: 1
   weight: 0
   quantity: 1
@@ -305,6 +305,7 @@ MonoBehaviour:
   attachedWeaponSlot: {fileID: 0}
   userRef: {fileID: 0}
   _pistolDamage: 40
+  _maxRange: 40
   _enemyHitEffect: Sample
   _barrelFireEffect: PistolBarrelFire
   shotOrigin: {fileID: 7617768287357453825}

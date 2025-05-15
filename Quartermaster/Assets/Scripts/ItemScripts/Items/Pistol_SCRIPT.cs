@@ -10,6 +10,7 @@ public class Pistol_MONO : Item
     #region Pistol Item Game Settings
     [Header("Pistol Settings")]
     [SerializeField] private float _pistolDamage = 17.0f; // originally 6.0f
+    [SerializeField] private float _maxRange = 40.0f;
 
     // Make an effect string = "" to disable spawning an effect.
     [SerializeField] private string _enemyHitEffect = "Sample"; // effect spawned on center of every enemy hit.
@@ -30,7 +31,12 @@ public class Pistol_MONO : Item
             AnalyticsService.Instance.RecordEvent("PistolUsed");
         }
 
-        if (lastUsed + cooldown > Time.time){
+        PlayerController pc = user.GetComponent<PlayerController>();
+        if (user == null || pc == null) {
+            Debug.LogError("Pistol_MONO: ButtonUse() NullChecks failed.");
+            return;
+        }
+        if (lastUsed + cooldown / pc.stimAspdMultiplier > Time.time){
             //Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
             //Debug.Log ("cooldown remaining: " + (lastUsed + cooldown - Time.time));
             return;
@@ -49,13 +55,26 @@ public class Pistol_MONO : Item
             Debug.LogError("Pistol_MONO: ButtonHeld() NullChecks failed.");
             return;
         }
-        PlayerStatus s = user.GetComponent<PlayerStatus>();
 
-        if (lastUsed + cooldown > Time.time) {
+        PlayerController pc = user.GetComponent<PlayerController>();
+        if (user == null || pc == null) {
+            Debug.LogError("Pistol_MONO: ButtonUse() NullChecks failed.");
+            return;
+        }
+        if (lastUsed + cooldown / pc.stimAspdMultiplier > Time.time){
+            //Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
+            //Debug.Log ("cooldown remaining: " + (lastUsed + cooldown - Time.time));
             return;
         }
 
-        if (!CanAutoFire){
+        PlayerStatus s = user.GetComponent<PlayerStatus>();
+        if (s == null) {
+            Debug.LogError("Flamethrower_MONO: ButtonHeld() NullChecks failed.");
+            return;
+        }
+        bool autofire = CanAutoFire || s.n_stimActive.Value;
+        
+        if (!autofire){
             return;
         }
 
@@ -86,7 +105,7 @@ public class Pistol_MONO : Item
         int combinedLayerMask = enemyLayer | buildingLayer;
 
         //Debug.DrawRay(camera.transform.position, camera.transform.forward * 100, Color.yellow, 2f);
-        if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, 100f, combinedLayerMask, QueryTriggerInteraction.Ignore)){
+        if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, _maxRange, combinedLayerMask, QueryTriggerInteraction.Ignore)){
             //Debug.Log("Pistol hit something: " + hit.collider.name + " on layer: " + hit.collider.gameObject.layer);
 
             // draw a ray from the shotOrigin to the hit point (for debug)

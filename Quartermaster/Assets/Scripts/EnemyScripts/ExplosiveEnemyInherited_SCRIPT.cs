@@ -14,7 +14,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
     #endregion
 
     private bool _isExploding = false; // exploding means dying explosion. don't ask why. removing this causes game to freeze on enemy death.
-    private bool _isAttacking = false; // attacking means enemy-initiated, delayed explosion.
+    private bool _isAnimatingExplosion = false; // attacking means enemy-initiated, delayed explosion.
                                        // don't try to fix this until the end of the quarter.
 
     #region Explosion Beeping Changes
@@ -103,7 +103,7 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
                 hitCollider.GetComponent<Damageable>().InflictDamage(damage, false, gameObject);
             }
             else if (hitCollider.CompareTag("Enemy")) {
-                hitCollider.GetComponent<Damageable>().InflictDamage(damage / 3, false, gameObject);
+                hitCollider.GetComponent<Damageable>().InflictDamage(damage / 5, false, gameObject);
             }
         }
 
@@ -117,9 +117,9 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
 
     // Called by base class attack cooldown.
     protected override void Attack() {
-        if (!IsServer || _isExploding || _isAttacking) return;
+        if (!IsServer || _isExploding || _isAnimatingExplosion) return;
 
-        _isAttacking = true;
+        _isAnimatingExplosion = true;
         isBlinking.Value = true;
 
         LeanTween.value(gameObject, 0f, 1f, _explosionDelay)
