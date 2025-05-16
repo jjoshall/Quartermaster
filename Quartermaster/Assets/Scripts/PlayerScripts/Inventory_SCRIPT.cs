@@ -99,6 +99,7 @@ public class Inventory : NetworkBehaviour {
 
         // Update the UI highlight for the current slot.
         _uiManager.HighlightSlot(_currentInventoryIndex);
+        _uiManager.WriteLabel(GetItemAt(_currentInventoryIndex));
     }
 
         // Helper method to update the network variable based on the current index.
