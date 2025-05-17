@@ -14,12 +14,6 @@ public class LobbyManagerUI : MonoBehaviour {
     [SerializeField] private IPRelay IPRelay;
 
     private void Awake() {
-
-        createRelayBtn.onClick.AddListener(() => {
-            IPRelay.CreateRelay();
-            StartCoroutine(HideLobbyUI());
-        });
-
         joinRelayInput.onEndEdit.AddListener((string s) => {
             if (UnityEngine.Input.GetKeyDown(KeyCode.Return)) {
                 s = s.ToUpper();

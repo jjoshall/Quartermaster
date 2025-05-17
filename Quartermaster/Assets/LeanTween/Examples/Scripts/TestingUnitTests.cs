@@ -523,6 +523,7 @@ namespace DentedPixel.LTExamples
             Time.timeScale = 1f;
 
             int ltCount = 0;
+            #pragma warning disable CS0618
             GameObject[] allGos = FindObjectsOfType(typeof(GameObject)) as GameObject[];
             foreach (GameObject go in allGos)
             {

@@ -25,8 +25,8 @@ public class PlayerInputHandler : NetworkBehaviour {
     void Start() {
         if (!IsOwner) return;
         // lock cursor
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        //Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.visible = false;
     }
 
     // Update to check for button holding

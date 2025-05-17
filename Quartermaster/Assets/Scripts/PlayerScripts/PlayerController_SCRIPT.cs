@@ -105,21 +105,9 @@ public class PlayerController : NetworkBehaviour {
         _devReference.transform.position = this.gameObject.transform.position;
         _devReference.GetComponent<DevController>().cam.transform.rotation = this.PlayerCamera.transform.rotation;
         this.gameObject.GetComponent<NetworkObject>().Despawn(true);
-    }
-
-
-    
-    
-    
+    }  
     
     #endregion
-
-
-
-
-
-
-
 
     #region Start Up Functions
     private void EnablePlayerControls() {
@@ -253,10 +241,6 @@ public class PlayerController : NetworkBehaviour {
         // If player falls too far, kill them
         if (transform.position.y <= -25f) {
             if (health != null) { health.Kill(); }
-        }
-
-        if (transform.position == Vector3.zero) {
-            HealthBarUI.instance.UpdateHealthBar(health); // this might not be super necessary but should help with making health bar more accurately reflect health upon respawn
         }
 
         GroundCheck();
