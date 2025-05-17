@@ -50,6 +50,13 @@ public class UIManager : MonoBehaviour {
             inventorySlotLabel.text = item.ToString();
             int underscoreIndex = inventorySlotLabel.text.IndexOf('_');
             string cleaned = underscoreIndex >= 0 ? inventorySlotLabel.text.Substring(0, underscoreIndex) : inventorySlotLabel.text;
+
+            cleaned = System.Text.RegularExpressions.Regex.Replace(
+                cleaned,
+                "(?<!^)([A-Z])",
+                " $1"
+            );
+
             inventorySlotLabel.text = cleaned;
         }
         else {
