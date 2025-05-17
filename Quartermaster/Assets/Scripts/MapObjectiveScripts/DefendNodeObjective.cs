@@ -94,6 +94,7 @@ public class DefendNodeObjective : IObjective
     [ServerRpc(RequireOwnership = false)]
     public void SetDefenseCompletedServerRpc(bool completed){
         n_defenseCompleted.Value = completed;
+        NodeZoneTextHelper();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -106,6 +107,7 @@ public class DefendNodeObjective : IObjective
         if (other.gameObject.tag == "Player"){
             _playersInRange.Add(other.gameObject);
             SetNodeDefenseActiveServerRpc(true);
+            NodeZoneTextHelper();
         }
     }
 
@@ -117,6 +119,7 @@ public class DefendNodeObjective : IObjective
                 _currentDefenseTimer = 0f;
                 _particleTimer = 0f;
             }
+            NodeZoneTextHelper();
         }
     }
 
