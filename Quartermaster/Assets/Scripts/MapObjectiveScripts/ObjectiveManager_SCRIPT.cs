@@ -263,8 +263,8 @@ public class ObjectiveManager : NetworkBehaviour {
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void NodeZoneTextHelperServerRpc() {
+    [ClientRpc]
+    public void NodeZoneTextHelperClientRpc() {
         if (!BOOL_nodeDefensePopUpTip) {
             nodeDefensePopUpTip.text = "<color=#00FFFF>Stay in the zone for 15 seconds to complete the objective!</color>";
             BOOL_nodeDefensePopUpTip = true;
