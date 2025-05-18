@@ -17,7 +17,7 @@ public class LobbyManagerUI : MonoBehaviour {
         joinRelayInput.onEndEdit.AddListener((string s) => {
             if (UnityEngine.Input.GetKeyDown(KeyCode.Return)) {
                 s = s.ToUpper();
-                IPRelay.JoinRelay(s);
+                //IPRelay.ManualJoinByCode(s);
                 HideLobbyUI();
             }
         });
