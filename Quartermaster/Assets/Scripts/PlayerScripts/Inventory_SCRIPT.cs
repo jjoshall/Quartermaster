@@ -489,6 +489,12 @@ public class Inventory : NetworkBehaviour {
         NetworkObject n_item = itemRef.TryGet(out NetworkObject itemObj) ? itemObj : null;
         GameObject item = n_item != null ? n_item.gameObject : null;
         if (item == null) return;
+        
+        if (item.ToString() == "DeliverableQuestItem_PREFAB(Clone) (UnityEngine.GameObject)") {
+            Transform firstChildTransform = item.transform.GetChild(1);
+            GameObject firstChildGameObject = firstChildTransform.gameObject;
+            firstChildGameObject.SetActive(false);
+        }
 
         // Show the item in the weapon slot
         foreach (Renderer r in item.GetComponentsInChildren<Renderer>()) {
