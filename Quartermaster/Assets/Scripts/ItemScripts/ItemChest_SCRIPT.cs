@@ -12,14 +12,23 @@ public class ItemChest_SCRIPT : NetworkBehaviour
     // private List<ItemStruct> _items = new List<ItemStruct>();
     // Serializeable
 
-    [Serializable]
-    public struct itemStruct
-    {
-        public GameObject itemPrefab;
-        public int quantity;
-    }
+    // [Serializable]
+    // public struct itemStruct
+    // {
+    //     public GameObject itemPrefab;
+    //     public int quantity;
+    // }
 
-    [SerializeField] private List<itemStruct> _dropTable = new List<itemStruct>();
+    [SerializeField] private List<itemStruct> _dropTable = new List<itemStruct>();      // should be server side only for run-time spawned chests.
+
+    public void InitDropTable(List<itemStruct> dropTable)
+    {
+        if (!IsServer) {
+            Debug.LogError("InitDropTable: This function should only be called on the server.");
+            return;
+        }
+        _dropTable = dropTable;
+    }
 
     public override void OnNetworkSpawn()
     {
