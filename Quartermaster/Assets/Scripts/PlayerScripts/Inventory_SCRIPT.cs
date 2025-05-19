@@ -480,6 +480,11 @@ public class Inventory : NetworkBehaviour {
     private void PropagateHoldableShowServerRpc(NetworkObjectReference item, bool holdableVisibility){
         if (!IsServer) return;
         // Attach the item to the weapon slot on the server
+        var GO = item.TryGet(out NetworkObject n_item) ? n_item.gameObject : null;
+        if (GO == null) return;
+        var itemComponent = GO.GetComponent<Item>();
+        if (itemComponent == null) return;
+        itemComponent.n_isCurrentlySelected.Value = holdableVisibility;
         PropagateHoldableShowClientRpc(item, holdableVisibility);
     }
     [ClientRpc]

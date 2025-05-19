@@ -25,8 +25,8 @@ public class StartPointChest : NetworkBehaviour
         }
         // Spawn the chest prefab at the current position and rotation of this object
         GameObject chest = Instantiate(_chestPrefab, transform.position, transform.rotation);
-        InitDropTable(chest);
         SpawnNetObject(chest);
+        InitDropTable(chest);
     }
 
     private void InitDropTable(GameObject chest)
