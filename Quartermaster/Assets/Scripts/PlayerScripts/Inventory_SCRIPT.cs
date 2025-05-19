@@ -213,6 +213,8 @@ public class Inventory : NetworkBehaviour {
             return;
         }
 
+        HandleItemExclusivity(pickedUp.GetComponent<Item>());
+
         // Try to stack the item in any existing item stacks. Returns true if fully stacked into existing stacks.
         if (TryStackItem(pickedUp)) {
             pickedUp.GetComponent<Item>().OnPickUp(_playerObj); // Call the item's onPickUp function
@@ -233,6 +235,15 @@ public class Inventory : NetworkBehaviour {
             UpdateInventoryWeight();
             UpdateAllInventoryUI();
             return;
+        }
+        else if (_currentHeldItems >= _maxInventorySize) {
+            DropItem(_currentInventoryIndex);
+
+            RemoveFromItemAcqLocal(pickedUp);
+            AddToInventory(pickedUp); 
+            UpdateInventoryWeight();
+            UpdateAllInventoryUI();
+            return; 
         }
     }
 
