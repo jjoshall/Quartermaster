@@ -39,6 +39,8 @@ public class Inventory : NetworkBehaviour {
     private float _maxInventoryWeight = 100f; // Default max. Can be changed at run-time. 
     private float _currentInventoryWeight = 0.0f;
 
+    public bool toggleWeaponSlotExclusivity; // if set to true, weapons can only be held in slot 1
+
     public override void OnNetworkSpawn(){
         _playerObj = this.gameObject;
         _itemAcquisitionRange = _playerObj.GetComponentInChildren<ItemAcquisitionRange>();
@@ -100,6 +102,18 @@ public class Inventory : NetworkBehaviour {
         // Update the UI highlight for the current slot.
         _uiManager.HighlightSlot(_currentInventoryIndex);
         _uiManager.WriteLabel(GetItemAt(_currentInventoryIndex));
+    }
+
+    void SetIndex(int index) {
+        _currentInventoryIndex = index;
+        Item oldItem = GetItemAt(_oldInventoryIndex);
+        if (oldItem){
+            oldItem.OnSwapOut(_playerObj);
+        }
+        UpdateAllInventoryUI();
+        _oldInventoryIndex = _currentInventoryIndex;
+
+        UpdateHoldableNetworkReference();
     }
 
         // Helper method to update the network variable based on the current index.
@@ -214,6 +228,24 @@ public class Inventory : NetworkBehaviour {
         }
 
         HandleItemExclusivity(pickedUp.GetComponent<Item>());
+
+        // --- code for weapon slot exclusivity
+        if (toggleWeaponSlotExclusivity) {
+            if (pickedUp.GetComponent<Item>().IsWeapon && _currentInventoryIndex != 0) {
+                SetIndex(0);
+                DropItem(_currentInventoryIndex);
+            }
+            else if (!pickedUp.GetComponent<Item>().IsWeapon && _currentInventoryIndex == 0) {
+                SetIndex(1);
+                if (_currentHeldItems >= _maxInventorySize - 1 && !GetItemAt(0)) {
+                    DropItem(_currentInventoryIndex);
+                }
+            }
+            else if (!pickedUp.GetComponent<Item>().IsWeapon && !GetItemAt(0) && _currentHeldItems >= _maxInventorySize - 1) {
+                DropItem(_currentInventoryIndex);
+            }
+        }
+        // ---
 
         // Try to stack the item in any existing item stacks. Returns true if fully stacked into existing stacks.
         if (TryStackItem(pickedUp)) {
@@ -393,9 +425,23 @@ public class Inventory : NetworkBehaviour {
     bool AddToFirstEmptySlot(GameObject itemGO) {
         for (int i = 0; i < _inventoryMono.Length; i++) {
             if (_inventoryMono[i] == null) {
-                _inventoryMono[i] = itemGO;
-                itemGO.GetComponent<Item>().OnPickUp(_playerObj);
-                return true;
+                // --- code for weapon slot exclusivity
+                if (toggleWeaponSlotExclusivity) {
+                    if (i == 0 && !itemGO.GetComponent<Item>().IsWeapon && !GetItemAt(0)) {
+                        // do nothing
+                    }
+                    else {
+                        _inventoryMono[i] = itemGO;
+                        itemGO.GetComponent<Item>().OnPickUp(_playerObj);
+                        return true;
+                    }
+                }
+                // ---
+                else {
+                    _inventoryMono[i] = itemGO;
+                    itemGO.GetComponent<Item>().OnPickUp(_playerObj);
+                    return true;
+                }
             }
         }
         return false;
