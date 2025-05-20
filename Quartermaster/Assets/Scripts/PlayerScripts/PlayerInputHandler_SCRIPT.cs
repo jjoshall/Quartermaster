@@ -38,9 +38,15 @@ public class PlayerInputHandler : NetworkBehaviour {
     }
 
     // Update to check for button holding
-    void Update(){
-        if (isUsing){
+    void Update()
+    {
+        if (isUsing)
+        {
             OnUse?.Invoke(true);
+        }
+        if (isAltUsing)
+        {
+            OnAltUse?.Invoke(true);
         }
     }
 

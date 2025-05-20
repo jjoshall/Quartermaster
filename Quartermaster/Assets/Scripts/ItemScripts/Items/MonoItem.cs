@@ -103,7 +103,7 @@ public abstract class Item : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         // Called when the item is spawned on the server.
-        Debug.Log("Spawned item: " + gameObject.name);
+        //Debug.Log("Spawned item: " + gameObject.name);
         // owner client id
         ulong clientId = NetworkManager.Singleton.LocalClientId;
         SyncLocalToServerServerRpc(clientId);
@@ -116,7 +116,7 @@ public abstract class Item : NetworkBehaviour
     public virtual void OnPickUp(GameObject user)
     {
         // On pickup.
-        Debug.Log("Picked up item: " + gameObject.name);
+        //Debug.Log("Picked up item: " + gameObject.name);
         userRef = user;
         IsPickedUp = true;
         attachedWeaponSlot = GetWeaponSlot(userRef);
@@ -126,28 +126,44 @@ public abstract class Item : NetworkBehaviour
     public virtual void OnDrop(GameObject user)
     {
         // On drop.
-        Debug.Log("Dropped item: " + gameObject.name);
+        //Debug.Log("Dropped item: " + gameObject.name);
         SyncServerNetVarToLocal();
     }
     public virtual void OnButtonUse(GameObject user)
     {
         // Fire once when use is pressed.
-        Debug.Log("Used item: " + gameObject.name);
+        //Debug.Log("Used item: " + gameObject.name);
     }
     public virtual void OnButtonHeld(GameObject user)
     {
         // Fire every frame when use is held.
-        Debug.Log("Held item: " + gameObject.name);
+        //Debug.Log("Held item: " + gameObject.name);
     }
     public virtual void OnButtonRelease(GameObject user)
     {
         // Fire once when use is released.
-        Debug.Log("Released item: " + gameObject.name);
+        //Debug.Log("Released item: " + gameObject.name);
+    }
+
+    public virtual void OnAltUse(GameObject user)
+    {
+        // Fire once when alt use is pressed.
+        //Debug.Log("Alt used item: " + gameObject.name);
+    }
+    public virtual void OnAltHeld(GameObject user)
+    {
+        // Fire every frame when alt use is held.
+        //Debug.Log("Alt held item: " + gameObject.name);
+    }
+    public virtual void OnAltRelease(GameObject user)
+    {
+        // Fire once when alt use is released.
+        //Debug.Log("Alt released item: " + gameObject.name);
     }
     public virtual void OnSwapOut(GameObject user)
     {
         // Called when the item is swapped out.
-        Debug.Log("Switched items, charge cancelled for: " + gameObject.name);
+        //Debug.Log("Switched items, charge cancelled for: " + gameObject.name);
     }
 
 
@@ -218,7 +234,7 @@ public abstract class Item : NetworkBehaviour
     private void SyncLocalToServerClientRpc(ClientRpcParams clientRpcParams = default)
     {
 
-        Debug.Log("Syncing local to server for item: " + uniqueID);
+        //Debug.Log("Syncing local to server for item: " + uniqueID);
         quantity = n_syncedQuantity.Value;
         IsPickedUp = n_isPickedUp.Value;
         bool hideItem = (!n_isCurrentlySelected.Value && IsPickedUp) ? true : false;
@@ -242,7 +258,7 @@ public abstract class Item : NetworkBehaviour
     {
         if (player == null)
         {
-            Debug.Log("GetWeaponSlot: player is null.");
+            //Debug.Log("GetWeaponSlot: player is null.");
             return null;
         }
         Inventory inv = player.GetComponent<Inventory>();
