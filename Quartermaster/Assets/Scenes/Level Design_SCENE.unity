@@ -8098,6 +8098,62 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1751609586792904570, guid: abec5d39c1225ff4fa00aacfc3714165, type: 3}
+      propertyPath: _GetRandom
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1751609586792904570, guid: abec5d39c1225ff4fa00aacfc3714165, type: 3}
+      propertyPath: _SpawnChestOnNetworkSpawn
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1751609586792904570, guid: abec5d39c1225ff4fa00aacfc3714165, type: 3}
+      propertyPath: _dropTableList.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1751609586792904570, guid: abec5d39c1225ff4fa00aacfc3714165, type: 3}
+      propertyPath: _possibleDropTableList.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1751609586792904570, guid: abec5d39c1225ff4fa00aacfc3714165, type: 3}
+      propertyPath: _possibleDropTableList.Array.data[0].weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1751609586792904570, guid: abec5d39c1225ff4fa00aacfc3714165, type: 3}
+      propertyPath: _possibleDropTableList.Array.data[0].dropTable.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1751609586792904570, guid: abec5d39c1225ff4fa00aacfc3714165, type: 3}
+      propertyPath: _possibleDropTableList.Array.data[0].dropTable.Array.data[0].quantity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1751609586792904570, guid: abec5d39c1225ff4fa00aacfc3714165, type: 3}
+      propertyPath: _possibleDropTableList.Array.data[0].dropTable.Array.data[1].quantity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1751609586792904570, guid: abec5d39c1225ff4fa00aacfc3714165, type: 3}
+      propertyPath: _possibleDropTableList.Array.data[0].dropTable.Array.data[2].quantity
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 1751609586792904570, guid: abec5d39c1225ff4fa00aacfc3714165, type: 3}
+      propertyPath: _possibleDropTableList.Array.data[0].dropTable.Array.data[3].quantity
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1751609586792904570, guid: abec5d39c1225ff4fa00aacfc3714165, type: 3}
+      propertyPath: _possibleDropTableList.Array.data[0].dropTable.Array.data[0].itemPrefab
+      value: 
+      objectReference: {fileID: 7727275518780203837, guid: 36303cc5c7f35a34f881a3c59bf109c7, type: 3}
+    - target: {fileID: 1751609586792904570, guid: abec5d39c1225ff4fa00aacfc3714165, type: 3}
+      propertyPath: _possibleDropTableList.Array.data[0].dropTable.Array.data[1].itemPrefab
+      value: 
+      objectReference: {fileID: 8519617277999394602, guid: 86bee22b740b0a2458c0aea0bcce5b6d, type: 3}
+    - target: {fileID: 1751609586792904570, guid: abec5d39c1225ff4fa00aacfc3714165, type: 3}
+      propertyPath: _possibleDropTableList.Array.data[0].dropTable.Array.data[2].itemPrefab
+      value: 
+      objectReference: {fileID: 8519617277999394602, guid: 71b297f5108d1b84197b3aa4db2f9ffb, type: 3}
+    - target: {fileID: 1751609586792904570, guid: abec5d39c1225ff4fa00aacfc3714165, type: 3}
+      propertyPath: _possibleDropTableList.Array.data[0].dropTable.Array.data[3].itemPrefab
+      value: 
+      objectReference: {fileID: 8519617277999394602, guid: 70aec5c8417023c46b813500f0ce3f65, type: 3}
     - target: {fileID: 1756741114352622885, guid: abec5d39c1225ff4fa00aacfc3714165, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
