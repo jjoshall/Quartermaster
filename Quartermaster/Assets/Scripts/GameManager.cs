@@ -244,6 +244,12 @@ public class GameManager : NetworkBehaviour {
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
+    public NetworkVariable<float> stopwatchTime = new NetworkVariable<float>(
+        0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server
+    );
+
+    private bool timerRunning = false;
+
     [Header("Score Values")]
     [SerializeField] private int scorePerObjective = 1000;
     [SerializeField] private int scorePerEnemyKill = 10;
@@ -321,6 +327,8 @@ public class GameManager : NetworkBehaviour {
         NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
 
         UpdatePlayerCount();
+
+        timerRunning = true;
     }
 
     private void OnClientConnected(ulong clientId) {
@@ -334,9 +342,32 @@ public class GameManager : NetworkBehaviour {
     }
 
     private void Update() {
-        if (Input.GetKeyDown(KeyCode.F)) {
-            Debug.Log("Current score: " + GameManager.instance.totalScore.Value);
+        if (!IsServer || !timerRunning) {
+            return;
         }
+
+        stopwatchTime.Value += Time.deltaTime;
+    }
+
+    public void ResetTimer() {
+        if (!IsServer) {
+            return;
+        }
+        stopwatchTime.Value = 0f;
+    }
+
+    public void StopTimer() {
+        if (!IsServer) {
+            return;
+        }
+        timerRunning = false;
+    }
+
+    public void StartTimer() {
+        if (!IsServer) {
+            return;
+        }
+        timerRunning = true;
     }
 
     private void UpdatePlayerCount() {
