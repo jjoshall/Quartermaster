@@ -104,6 +104,10 @@ public class MedKit_MONO : Item
         }
         var ps = user.GetComponent<PlayerStatus>();
         
+        if (ps.GetHealSpecLvl() == 0){
+            return;
+        }
+
         var totalHeal = _healAmount * (1 + ps.GetHealBonus());
 
         Transform camera = user.GetComponent<Inventory>().orientation;
