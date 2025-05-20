@@ -16,10 +16,18 @@ public class PlayerInputHandler : NetworkBehaviour {
     public bool isInteracting {get; private set;} = false;
     public bool isDropping {get; private set;} = false;
 
-    public bool isUsing {get; private set;} = false;
+    // Left Click (use item)
+    public bool isUsing { get; private set; } = false;
     public UnityAction<bool> OnUse;
-    public UnityAction OnInteract;
     public UnityAction<bool> OnRelease;
+
+    // Right click (alt use)
+    public bool isAltUsing { get; private set; } = false;
+    public UnityAction<bool> OnAltUse;
+    public UnityAction<bool> OnAltRelease;
+
+    // Pick up / open chest / interact
+    public UnityAction OnInteract;
 
 
     void Start() {
@@ -136,9 +144,28 @@ public class PlayerInputHandler : NetworkBehaviour {
         }
     }
 
-    public void ItemSlot1(InputAction.CallbackContext ctx){
+    public void AltUseItem(InputAction.CallbackContext ctx)
+    {
         if (PauseMenuToggler.IsPaused) return;
+        if (!IsOwner) return;
         if (ctx.started){
+            OnAltUse?.Invoke(false);
+            isAltUsing = false;
+        }
+        else if (ctx.performed){
+            isAltUsing = true;
+        }
+        else if (ctx.canceled){
+            OnAltRelease?.Invoke(false);
+            isAltUsing = false;
+        }
+    }
+
+    public void ItemSlot1(InputAction.CallbackContext ctx)
+    {
+        if (PauseMenuToggler.IsPaused) return;
+        if (ctx.started)
+        {
             inventoryIndex = 0;
         }
     }

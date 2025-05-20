@@ -373,6 +373,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 75fe80d2-d700-4d86-93c6-efa272055810
     m_ActionName: Player/New action
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 533627647367738219}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 8e8fe52c-b916-42ab-a13e-82723a74e1c3
+    m_ActionName: 'Player/AltUse[/Mouse/rightButton]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Keyboard&Mouse
   m_DefaultActionMap: Player
@@ -495,6 +511,8 @@ MonoBehaviour:
   minSlideSpeed: 0.5
   slideDeceleration: 3
   backwardsMovementPenalty: 0.4
+  stimAspdMultiplier: 1
+  stimMspdMultiplier: 1
   groundSharpness: 15
   PlayerCamera: {fileID: 7563249083227475095}
   MiniMapCamera: {fileID: 8752640832171391135}
@@ -588,13 +606,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  stimActive: 0
   n_healBuffActive:
     m_InternalValue: 0
   n_dmgBuffActive:
     m_InternalValue: 0
-  stimAspdMultiplier: 1
-  stimMspdMultiplier: 1
-  stimDuration: 1
   healMultiplier: 1
   healThrowVelocity: 0
   dmgMultiplier: 1
