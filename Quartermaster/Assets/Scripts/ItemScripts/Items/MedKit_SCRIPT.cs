@@ -28,66 +28,88 @@ public class MedKit_MONO : Item
         PlayerStatus s = user.GetComponent<PlayerStatus>();
         if (s.GetLastUsed(uniqueID) + cooldown > Time.time) return; // check cooldown.
 
-        int healSpecLvl = s.GetHealSpecLvl();
+        // int healSpecLvl = s.GetHealSpecLvl();
 
-        if (healSpecLvl == 0){
-            Debug.Log ("MedKit_MONO: ButtonUse() HealSpecLvl is 0. Immediately use medkit.");
+        // if (healSpecLvl == 0){
+        //     Debug.Log ("MedKit_MONO: ButtonUse() HealSpecLvl is 0. Immediately use medkit.");
             ImmediateMedKitUsage(user);
-        } else {
+        // } else {
 
-            // Start charging.
-            _medKitVelocity = _medKitBaseVelocity; // reset velocity.
-            _medKitChargeTime = 0f; // reset charge time.
-            _medKitTapTime = Time.time;
-            _medKitTapped = true;
-            // _isCharging = true; // set charging to true.
-        }
+        //     // Start charging.
+        //     _medKitVelocity = _medKitBaseVelocity; // reset velocity.
+        //     _medKitChargeTime = 0f; // reset charge time.
+        //     _medKitTapTime = Time.time;
+        //     _medKitTapped = true;
+        //     // _isCharging = true; // set charging to true.
+        // }
     }
 
     public override void OnButtonHeld(GameObject user){
-        if (NullChecks(user)) {
-            Debug.LogError("MedKit_MONO: ButtonHeld() NullChecks failed.");
-            return;
-        }
-        if (!_medKitTapped){
-            _medKitVelocity = _medKitBaseVelocity;
-            _medKitChargeTime = 0.0f;
-            _medKitTapTime = Time.time;
-            _medKitTapped = true;
-            return;
-        }
-        if (user.GetComponent<PlayerStatus>().GetHealSpecLvl() == 0){
-            return;
-        }
-        if (Time.time < _medKitTapTime + _medKitTapThreshold) {
-            return;
-        }
-        // Increment the charge time
-        _medKitChargeTime += Time.deltaTime;
-        float t = Mathf.Clamp01(_medKitChargeTime / _medKitMaxChargeTime);
-        _medKitVelocity = Mathf.Lerp(_medKitBaseVelocity, _medKitMaxVelocity, t);
+        // if (NullChecks(user)) {
+        //     Debug.LogError("MedKit_MONO: ButtonHeld() NullChecks failed.");
+        //     return;
+        // }
+        // if (!_medKitTapped){
+        //     _medKitVelocity = _medKitBaseVelocity;
+        //     _medKitChargeTime = 0.0f;
+        //     _medKitTapTime = Time.time;
+        //     _medKitTapped = true;
+        //     return;
+        // }
+        // if (user.GetComponent<PlayerStatus>().GetHealSpecLvl() == 0){
+        //     return;
+        // }
+        // if (Time.time < _medKitTapTime + _medKitTapThreshold) {
+        //     return;
+        // }
+        // // Increment the charge time
+        // _medKitChargeTime += Time.deltaTime;
+        // float t = Mathf.Clamp01(_medKitChargeTime / _medKitMaxChargeTime);
+        // _medKitVelocity = Mathf.Lerp(_medKitBaseVelocity, _medKitMaxVelocity, t);
 
-        // Update the line renderer
-        UpdateLineRenderer(user);
+        // // Update the line renderer
+        // UpdateLineRenderer(user);
     }
 
     public override void OnButtonRelease(GameObject user){
-        if (NullChecks(user)) {
-            return;
-        }
+        // if (NullChecks(user)) {
+        //     Debug.LogError("MedKit_MONO: ButtonRelease() NullChecks failed.");
+        //     return;
+        // }
 
-        PlayerStatus s = user.GetComponent<PlayerStatus>();
+        // PlayerStatus s = user.GetComponent<PlayerStatus>();
 
-        int healSpec = s.GetHealSpecLvl();
-        if (healSpec == 0){
-            return;
-        }
+        // int healSpec = s.GetHealSpecLvl();
+        // if (healSpec == 0){
+        //     return;
+        // }
 
-        if (Time.time < _medKitTapTime + _medKitTapThreshold){ 
-            ImmediateMedKitUsage(user);
-            return;
-        }
+        // if (Time.time < _medKitTapTime + _medKitTapThreshold){ 
+        //     ImmediateMedKitUsage(user);
+        //     return;
+        // }
 
+        // Transform camera = user.GetComponent<Inventory>().orientation;
+        // Vector3 direction = camera.forward;
+        // // Throw the MedKit.
+        // ProjectileManager.instance.SpawnSelfThenAll("MedKit", 
+        //         camera.transform.position + camera.right * 0.1f, 
+        //         camera.transform.rotation, 
+        //         direction, 
+        //         _medKitVelocity, 
+        //         user,
+        //         _healAmount);
+
+        // quantity--;
+        // SetLastUsed(Time.time);
+        // ProjectileManager.instance.DestroyLineRenderer();
+        // _medKitVelocity = _medKitBaseVelocity;
+        // _medKitChargeTime = 0.0f;
+        // _medKitTapped = false;
+    }
+
+    public override void OnAltUse(GameObject user)
+    {
         Transform camera = user.GetComponent<Inventory>().orientation;
         Vector3 direction = camera.forward;
         // Throw the MedKit.
@@ -95,16 +117,16 @@ public class MedKit_MONO : Item
                 camera.transform.position + camera.right * 0.1f, 
                 camera.transform.rotation, 
                 direction, 
-                _medKitVelocity, 
+                _medKitMaxVelocity, 
                 user,
                 _healAmount);
 
         quantity--;
         SetLastUsed(Time.time);
-        ProjectileManager.instance.DestroyLineRenderer();
-        _medKitVelocity = _medKitBaseVelocity;
-        _medKitChargeTime = 0.0f;
-        _medKitTapped = false;
+        // ProjectileManager.instance.DestroyLineRenderer();
+        // _medKitVelocity = _medKitBaseVelocity;
+        // _medKitChargeTime = 0.0f;
+        // _medKitTapped = false;
     }
 
     public override void OnDrop(GameObject user)
