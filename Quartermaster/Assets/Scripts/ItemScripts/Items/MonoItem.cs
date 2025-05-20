@@ -31,16 +31,47 @@ public abstract class Item : NetworkBehaviour
     #region RUNTIME
     // RUNTIME VARIABLES ===================================================================================================
     [HideInInspector] public GameObject userRef;
-    [HideInInspector] private NetworkVariable<NetworkObjectReference> n_userRef = new NetworkVariable<NetworkObjectReference>(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    [HideInInspector] public NetworkVariable<NetworkObjectReference> n_userRef = new NetworkVariable<NetworkObjectReference>(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     [HideInInspector] public bool IsPickedUp = false;
     [HideInInspector] public NetworkVariable<bool> n_isPickedUp = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     [HideInInspector] public NetworkVariable<bool> n_isCurrentlySelected = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     [HideInInspector] public GameObject attachedWeaponSlot = null;
     private NetworkVariable<int> n_syncedQuantity = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-    public float lastUsed
+    // public float lastUsed
+    // {
+    //     get => userRef.GetComponent<PlayerStatus>().GetLastUsed(uniqueID);
+    //     set => userRef.GetComponent<PlayerStatus>().SetLastUsed(uniqueID, value);
+    // }
+
+    public float GetLastUsed()
     {
-        get => userRef.GetComponent<PlayerStatus>().GetLastUsed(uniqueID);
-        set => userRef.GetComponent<PlayerStatus>().SetLastUsed(uniqueID, value);
+        if (userRef == null)
+        {
+            Debug.LogError("GetLastUsed: userRef is null.");
+            return 0f;
+        }
+        var ps = userRef.GetComponent<PlayerStatus>();
+        if (ps == null)
+        {
+            Debug.LogError("GetLastUsed: PlayerStatus component not found on userRef.");
+            return 0f;
+        }
+        return userRef.GetComponent<PlayerStatus>().GetLastUsed(uniqueID);
+    }
+    public void SetLastUsed(float time)
+    {
+        if (userRef == null)
+        {
+            Debug.LogError("SetLastUsed: userRef is null.");
+            return;
+        }
+        var ps = userRef.GetComponent<PlayerStatus>();
+        if (ps == null)
+        {
+            Debug.LogError("SetLastUsed: PlayerStatus component not found on userRef.");
+            return;
+        }
+        userRef.GetComponent<PlayerStatus>().SetLastUsed(uniqueID, time);
     }
 
     void LateUpdate()
@@ -125,7 +156,7 @@ public abstract class Item : NetworkBehaviour
     // Helpers. Used by the UI cooldown script. =======================================================================
     public float GetCooldownRemaining()
     {
-        return Mathf.Max(0, (lastUsed + cooldown) - Time.time);
+        return Mathf.Max(0, (GetLastUsed() + cooldown) - Time.time);
     }
     public float GetMaxCooldown()
     {

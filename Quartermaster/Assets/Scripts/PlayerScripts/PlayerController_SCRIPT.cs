@@ -256,7 +256,7 @@ public class PlayerController : NetworkBehaviour {
         }
 
         if (transform.position == Vector3.zero) {
-            HealthBarUI.instance.UpdateHealthBar(health); // this might not be super necessary but should help with making health bar more accurately reflect health upon respawn
+            // HealthBarUI.instance.UpdateHealthBar(health); // this might not be super necessary but should help with making health bar more accurately reflect health upon respawn
         }
 
         GroundCheck();

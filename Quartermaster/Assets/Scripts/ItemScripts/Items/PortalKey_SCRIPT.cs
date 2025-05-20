@@ -40,6 +40,7 @@ public class PortalKey_MONO : Item
     [SerializeField] private string destinationTag = "PortalDestination";
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
         // Only once, on both host & clients
         if (_teleportDestination == null)
         {

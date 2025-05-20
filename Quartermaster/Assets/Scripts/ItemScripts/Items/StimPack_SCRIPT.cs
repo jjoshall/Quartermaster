@@ -34,7 +34,7 @@ public class StimPack_MONO : Item
         quantity--;
         Debug.Log ("StimPack_MONO: ImmediateStimPackUsage() called. Quantity after: " + quantity.ToString());
 
-        lastUsed = Time.time;
+        SetLastUsed(Time.time);
         // user.GetComponent<PlayerHealth>().Heal(HEAL_AMOUNT);
         // What handles health now?
         // Generate a quaternion for the particle effect to have no rotation

@@ -72,7 +72,7 @@ public class SlowTrapItem : Item
                 _SlowTrapSlowAmount); // spawn SlowTrap with scale and slow amount.
 
         quantity--;
-        lastUsed = Time.time;
+        SetLastUsed(Time.time);
         ProjectileManager.instance.DestroyLineRenderer(); // clear arc and deactivate local line renderer
         _SlowTrapVelocity = _SlowTrapBaseVelocity;
         _SlowTrapChargeTime = 0.0f;
