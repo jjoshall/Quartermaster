@@ -4134,6 +4134,7 @@ MonoBehaviour:
   - {fileID: 9115857029814899315}
   - {fileID: 8363071947408148266}
   - {fileID: 8000073096864266970}
+  inventorySlotLabel: {fileID: 2091593735}
   weaponCooldownRadial: {fileID: 6991113687584073653}
   highlightScale: 1.5
 --- !u!4 &1228006887
@@ -7222,6 +7223,28 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+--- !u!114 &2091593735 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7173627827587636653, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+  m_PrefabInstance: {fileID: 2091593734}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2091593736 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8033290196966376251, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+  m_PrefabInstance: {fileID: 2091593734}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &2091593739 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1598054534006325840, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
@@ -7354,6 +7377,10 @@ PrefabInstance:
       propertyPath: initialSpawnCount
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 634689250593608552, guid: 4fe3661616668e247af39131ae7f1837, type: 3}
+      propertyPath: nodeDefensePopUpTip
+      value: 
+      objectReference: {fileID: 2091593736}
     - target: {fileID: 634689250593608552, guid: 4fe3661616668e247af39131ae7f1837, type: 3}
       propertyPath: objectivesList.Array.size
       value: 2
