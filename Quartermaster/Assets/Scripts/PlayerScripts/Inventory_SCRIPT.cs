@@ -289,6 +289,7 @@ public class Inventory : NetworkBehaviour {
 
         // local userRef set first to avoid null reference errors.
         item.userRef = _playerObj;
+        SetUserRefServerRpc(itemNO, playerNO);
 
         // Visually/physically attach the item on all clients
         PropagateItemAttachmentServerRpc(itemNO, playerNO, true);
@@ -303,29 +304,51 @@ public class Inventory : NetworkBehaviour {
             UpdateHeldItemNetworkReference();
         }
     }
-    private void GetPickupVars(GameObject pickedUp, out Item item, out NetworkObject itemNO, out NetworkObject playerNO) {
+    [ServerRpc(RequireOwnership = false)]
+    private void SetUserRefServerRpc(NetworkObjectReference item, NetworkObjectReference player){
+        if (!IsServer) return;
+
+        if (item.TryGet(out var itemNO)) {
+            var itemGO = itemNO.gameObject;
+
+            var itemComponent = itemGO.GetComponent<Item>();
+            if (itemComponent != null) {
+                itemComponent.n_userRef.Value = player;
+            } else {
+                Debug.LogError("SetUserRefServerRpc: Item component not found on picked up object.");
+            }
+        } else {
+            Debug.LogError("SetUserRefServerRpc: Item or Player is null.");
+        }
+    }
+    private void GetPickupVars(GameObject pickedUp, out Item item, out NetworkObject itemNO, out NetworkObject playerNO)
+    {
         item = null;
         itemNO = null;
         playerNO = _playerObj?.GetComponent<NetworkObject>();
 
-        if (playerNO == null) {
+        if (playerNO == null)
+        {
             Debug.LogError("Player object does not have a NetworkObject component.");
             return;
         }
 
-        if (pickedUp == null) {
+        if (pickedUp == null)
+        {
             Debug.LogError("Picked up item is null.");
             return;
         }
 
         itemNO = pickedUp.GetComponent<NetworkObject>();
-        if (itemNO == null) {
+        if (itemNO == null)
+        {
             Debug.LogError("Picked up item does not have a NetworkObject component.");
             return;
         }
 
         item = pickedUp.GetComponent<Item>();
-        if (item == null) {
+        if (item == null)
+        {
             Debug.LogError("Picked up item does not have an Item component.");
             return;
         }
@@ -538,6 +561,11 @@ public class Inventory : NetworkBehaviour {
     private void PropagateHoldableShowServerRpc(NetworkObjectReference item, bool holdableVisibility){
         if (!IsServer) return;
         // Attach the item to the weapon slot on the server
+        var GO = item.TryGet(out NetworkObject n_item) ? n_item.gameObject : null;
+        if (GO == null) return;
+        var itemComponent = GO.GetComponent<Item>();
+        if (itemComponent == null) return;
+        itemComponent.n_isCurrentlySelected.Value = holdableVisibility;
         PropagateHoldableShowClientRpc(item, holdableVisibility);
     }
     [ClientRpc]

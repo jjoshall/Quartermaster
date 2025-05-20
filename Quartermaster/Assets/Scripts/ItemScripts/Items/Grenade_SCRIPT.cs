@@ -73,7 +73,7 @@ public class Grenade_MONO : Item
                 _capsuleRadius);
 
         quantity--;
-        lastUsed = Time.time;
+        SetLastUsed(Time.time);
         ProjectileManager.instance.DestroyLineRenderer(); // clear arc and deactivate local line renderer
         _grenadeVelocity = _grenadeBaseVelocity;
         _grenadeChargeTime = 0.0f;

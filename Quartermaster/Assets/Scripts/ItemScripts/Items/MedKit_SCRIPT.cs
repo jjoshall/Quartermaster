@@ -100,7 +100,7 @@ public class MedKit_MONO : Item
                 _healAmount);
 
         quantity--;
-        lastUsed = Time.time;
+        SetLastUsed(Time.time);
         ProjectileManager.instance.DestroyLineRenderer();
         _medKitVelocity = _medKitBaseVelocity;
         _medKitChargeTime = 0.0f;
@@ -137,7 +137,7 @@ public class MedKit_MONO : Item
         quantity--;
         Debug.Log ("MedKit_MONO: ImmediateMedKitUsage() called. Quantity after: " + quantity.ToString());
 
-        lastUsed = Time.time;
+        SetLastUsed(Time.time);
         // user.GetComponent<PlayerHealth>().Heal(HEAL_AMOUNT);
         // What handles health now?
         // Generate a quaternion for the particle effect to have no rotation

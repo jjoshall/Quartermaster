@@ -33,7 +33,7 @@ public class Flamethrower_MONO : Item
             Debug.LogError("Pistol_MONO: ButtonUse() NullChecks failed.");
             return;
         }
-        if (lastUsed + cooldown / pc.stimAspdMultiplier > Time.time){
+        if (GetLastUsed() + cooldown / pc.stimAspdMultiplier > Time.time){
             //Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
             //Debug.Log ("cooldown remaining: " + (lastUsed + cooldown - Time.time));
             return;
@@ -45,7 +45,7 @@ public class Flamethrower_MONO : Item
         } else {
             fire(user); // does damage. 
         }
-        lastUsed = Time.time;
+        SetLastUsed(Time.time);
     }
 
     // Same as Use() for flamethrower.
@@ -56,7 +56,7 @@ public class Flamethrower_MONO : Item
             Debug.LogError("Pistol_MONO: ButtonUse() NullChecks failed.");
             return;
         }
-        if (lastUsed + cooldown / pc.stimAspdMultiplier > Time.time){
+        if (GetLastUsed() + cooldown / pc.stimAspdMultiplier > Time.time){
             //Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
             //Debug.Log ("cooldown remaining: " + (lastUsed + cooldown - Time.time));
             return;
@@ -79,7 +79,7 @@ public class Flamethrower_MONO : Item
         } else {
             fire(user); // does damage. 
         }
-        lastUsed = Time.time;
+        SetLastUsed(Time.time);
     }
 
     public override void OnButtonRelease(GameObject user){
@@ -87,7 +87,7 @@ public class Flamethrower_MONO : Item
             _isFireStarted = false; 
             StopFireEffect(user); // stop continuous fire effect.
         }
-        lastUsed = float.MinValue;
+        SetLastUsed(float.MinValue);
     }
 
     public override void OnDrop(GameObject user)
