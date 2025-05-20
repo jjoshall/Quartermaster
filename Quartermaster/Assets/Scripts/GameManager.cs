@@ -202,7 +202,12 @@ public class GameManager : NetworkBehaviour {
     public int ExplosiveEnemy_AttackDamage => explosiveEnemy_AttackDamage;
     public float ExplosiveEnemy_AttackRadius => explosiveEnemy_AttackRadius;
     public bool ExplosiveEnemy_UseGlobalTarget => explosiveEnemy_UseGlobalTarget;
-    public float ExplosiveEnemy_Speed => explosiveEnemy_Speed * EnemySpeedMultiplier;  
+    public float ExplosiveEnemy_Speed => explosiveEnemy_Speed * EnemySpeedMultiplier;
+
+    public int ScorePerObjective => scorePerObjective;
+    public int ScorePerEnemyKill => scorePerEnemyKill;
+    public int ScorePerPlayerHeal => scorePerPlayerHeal;
+    public int ScorePenaltyOnDeath => scorePenaltyOnDeath;
 
     #endregion
 
@@ -238,6 +243,12 @@ public class GameManager : NetworkBehaviour {
     public NetworkVariable<int> totalScore = new NetworkVariable<int>(0,
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
+
+    [Header("Score Values")]
+    [SerializeField] private int scorePerObjective = 1000;
+    [SerializeField] private int scorePerEnemyKill = 10;
+    [SerializeField] private int scorePerPlayerHeal = 5;
+    [SerializeField] private int scorePenaltyOnDeath = -150;
 
     //[Header("DramaFunction")]
     //// placeholder variables. nothing set in stone, just brainstorming
@@ -320,6 +331,12 @@ public class GameManager : NetworkBehaviour {
     private void OnClientDisconnected(ulong clientId) {
         if (!IsServer) return;
         UpdatePlayerCount();
+    }
+
+    private void Update() {
+        if (Input.GetKeyDown(KeyCode.F)) {
+            Debug.Log("Current score: " + GameManager.instance.totalScore.Value);
+        }
     }
 
     private void UpdatePlayerCount() {
