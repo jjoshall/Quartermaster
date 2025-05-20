@@ -48,8 +48,12 @@ public class Inventory : NetworkBehaviour {
         if (IsOwner){
 
             if (!_InputHandler) _InputHandler = _playerObj.GetComponent<PlayerInputHandler>();
-            _InputHandler.OnUse += PlayerInputHandlerUseEvent;
-            _InputHandler.OnRelease += ReleaseItem;
+            _InputHandler.OnUse += PlayerInputHandlerUseEvent; // button down, button held
+            _InputHandler.OnRelease += ReleaseItem; // button up
+
+            _InputHandler.OnAltUse += PlayerInputHandlerAltEvent;
+            _InputHandler.OnAltRelease += ReleaseAlt;
+
             _InputHandler.OnInteract += PickUpClosest;
 
             _inventoryMono = new GameObject[_maxInventorySize];
@@ -126,6 +130,56 @@ public class Inventory : NetworkBehaviour {
             n_currentHoldable.Value = default;
         }
     }
+    // -------------------------------------------------------------------------------------------------------------------------
+    #region PlayerItemAltEvents
+    #endregion
+    // -------------------------------------------------------------------------------------------------------------------------
+    #region PlayerItemUsageEvents
+    #endregion
+
+    // PlayerInputHandler uses same event and a Held bool to distinguish OnPress and OnHold.
+    // This function is to split the two events.
+    void PlayerInputHandlerAltEvent(bool isHeld) {
+        if (isHeld){
+            HeldAlt();
+        } else {
+            UseAlt();
+        }
+    }
+
+    void UseAlt(){
+        if (!IsOwnerValidIndexAndPauseMenuCheck()) return;
+
+        if (_inventoryMono[_currentInventoryIndex]?.TryGetComponent<Item>(out var item) != true)
+            return;
+        item.OnAltUse(_playerObj);
+
+        QuantityCheck(); 
+        UpdateAllInventoryUI();
+    }
+
+    void HeldAlt(){
+        if (!IsOwnerValidIndexAndPauseMenuCheck()) return;
+
+        if (_inventoryMono[_currentInventoryIndex]?.TryGetComponent<Item>(out var item) != true)
+            return;
+        item.OnAltHeld(_playerObj);
+
+        QuantityCheck();
+        UpdateAllInventoryUI();
+    }
+
+    void ReleaseAlt(bool b) {
+        if (!IsOwnerValidIndexAndPauseMenuCheck()) return;
+
+        if (_inventoryMono[_currentInventoryIndex]?.TryGetComponent<Item>(out var item) != true)
+            return;
+        item.OnAltRelease(_playerObj);
+
+        QuantityCheck();
+        UpdateAllInventoryUI();
+    }
+
 
     // -------------------------------------------------------------------------------------------------------------------------
     #region PlayerItemUsageEvents

@@ -35,20 +35,6 @@ public class PlayerStatus : NetworkBehaviour
 
     #region Startup
     public override void OnNetworkSpawn(){
-        InitValuesFromGameManager();
-        // InitLastUsedList();
-    }
-
-    void InitValuesFromGameManager(){
-
-    }
-
-    void InitLastUsedList(){
-        // n_lastUsed = new NetworkList<float>();
-        // for (int i = 0; i < ItemManager.instance.itemEntries.Count; i++)
-        // {
-        //     _lastUsed.Add(ItemManager.instance.itemEntries[i].id, float.MinValue);
-        // }
     }
 
 
@@ -87,10 +73,6 @@ public class PlayerStatus : NetworkBehaviour
         }
     }
 
-    // [ServerRpc(RequireOwnership = false)]
-    // public void SetStimActiveServerRpc(bool active){
-    //     n_stimActive.Value = active;
-    // }
 
     #endregion
     #region CooldownHelpers
@@ -124,12 +106,12 @@ public class PlayerStatus : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void UpdateDmgSpecServerRpc(int quantity, float bonus){
         n_dmgSpecLvl.Value = quantity;
-        n_dmgBonus.Value = bonus;
+        n_dmgBonus.Value = quantity * bonus;
     }
     [ServerRpc(RequireOwnership = false)]
     public void UpdateHealSpecServerRpc(int quantity, float bonus){
         n_healSpecLvl.Value = quantity;
-        n_healBonus.Value = bonus;
+        n_healBonus.Value = quantity * bonus;
     }
 
     #endregion

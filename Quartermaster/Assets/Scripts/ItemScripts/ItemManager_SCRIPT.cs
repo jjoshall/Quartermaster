@@ -4,7 +4,7 @@ using UnityEngine;
 using Unity.Netcode;
 
 public class ItemManager : NetworkBehaviour {
-    [SerializeField] private GameObject prefab;
+    // [SerializeField] private GameObject prefab;
     private NetworkObject networkPrefab;
 
     #region Setup
