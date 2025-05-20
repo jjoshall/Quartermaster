@@ -74,6 +74,12 @@ public class Health : NetworkBehaviour {
         if (IsCritical() && _damageEffect != null) {
             StartCoroutine(_damageEffect.Hurt());
         }
+        if (fillImage == null)
+        {
+            Debug.LogError("FillImage is null. This object is: " + gameObject.name);
+            return;
+        }
+        fillImage.fillAmount = GetRatio();
     }
 
     private void CheckCriticalState() {
@@ -129,8 +135,6 @@ public class Health : NetworkBehaviour {
         }
 
         HandleDeath();
-
-        fillImage.fillAmount = GetRatio();
     }
 
     [ClientRpc]
@@ -143,8 +147,6 @@ public class Health : NetworkBehaviour {
         }
 
         OnDamaged?.Invoke(trueDamageAmount, damageSource);
-
-        fillImage.fillAmount = GetRatio();
     }
 
     public void Kill() {
