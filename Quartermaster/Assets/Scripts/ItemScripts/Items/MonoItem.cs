@@ -36,7 +36,7 @@ public abstract class Item : NetworkBehaviour
     [HideInInspector] public NetworkVariable<bool> n_isPickedUp = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     [HideInInspector] public NetworkVariable<bool> n_isCurrentlySelected = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     [HideInInspector] public GameObject attachedWeaponSlot = null;
-    private NetworkVariable<int> n_syncedQuantity = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    [HideInInspector] public NetworkVariable<int> n_syncedQuantity = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     // public float lastUsed
     // {
     //     get => userRef.GetComponent<PlayerStatus>().GetLastUsed(uniqueID);
@@ -104,28 +104,30 @@ public abstract class Item : NetworkBehaviour
     {
         // Called when the item is spawned on the server.
         Debug.Log("Spawned item: " + gameObject.name);
-        SyncLocalToServerServerRpc();
+        // owner client id
+        ulong clientId = NetworkManager.Singleton.LocalClientId;
+        SyncLocalToServerServerRpc(clientId);
     }
     public virtual void OnSpawn()
     {
-        Debug.Log("Spawned item: " + gameObject.name);
         SyncServerNetVarToLocal();
-        SyncClientsToServer();
     }
 
     public virtual void OnPickUp(GameObject user)
     {
         // On pickup.
         Debug.Log("Picked up item: " + gameObject.name);
+        userRef = user;
+        IsPickedUp = true;
+        attachedWeaponSlot = GetWeaponSlot(userRef);
+
         SyncServerNetVarToLocal();
-        SyncClientsToServer();
     }
     public virtual void OnDrop(GameObject user)
     {
         // On drop.
         Debug.Log("Dropped item: " + gameObject.name);
         SyncServerNetVarToLocal();
-        SyncClientsToServer();
     }
     public virtual void OnButtonUse(GameObject user)
     {
@@ -156,7 +158,7 @@ public abstract class Item : NetworkBehaviour
     // Helpers. Used by the UI cooldown script. =======================================================================
     public float GetCooldownRemaining()
     {
-        return Mathf.Max(0, (GetLastUsed() + cooldown) - Time.time);
+        return Mathf.Max(0, GetLastUsed() + cooldown - Time.time);
     }
     public float GetMaxCooldown()
     {
@@ -187,6 +189,7 @@ public abstract class Item : NetworkBehaviour
     {
         n_syncedQuantity.Value = quantity;
         n_isPickedUp.Value = isPickedUp;
+        // SyncClientsToServer();
     }
     [ServerRpc(RequireOwnership = false)]
     private void SyncServerToLocalServerRpc(int quantity, bool isPickedUp, NetworkObjectReference userNetObj)
@@ -195,27 +198,24 @@ public abstract class Item : NetworkBehaviour
         n_syncedQuantity.Value = quantity;
         n_isPickedUp.Value = isPickedUp;
         n_userRef.Value = userNetObj;
+        // SyncClientsToServer();
     }
 
-
-    // Sets all client quantities to server quantity.
-    public void SyncClientsToServer()
-    {
-        // Sync self.
-        quantity = n_syncedQuantity.Value;
-        IsPickedUp = n_isPickedUp.Value;
-        userRef = GetGameObjectFromNetObj(n_userRef.Value);
-        attachedWeaponSlot = GetWeaponSlot(userRef);
-        // Sync other clients to server.
-        SyncLocalToServerServerRpc();
-    }
     [ServerRpc(RequireOwnership = false)]
-    private void SyncLocalToServerServerRpc()
+    private void SyncLocalToServerServerRpc(ulong clientId = 0)
     {
-        SyncLocalToServerClientRpc();
+        ClientRpcParams rpcParams = new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = new ulong[] { clientId }
+            }
+        };
+        SyncLocalToServerClientRpc(rpcParams);
     }
+
     [ClientRpc]
-    private void SyncLocalToServerClientRpc()
+    private void SyncLocalToServerClientRpc(ClientRpcParams clientRpcParams = default)
     {
 
         Debug.Log("Syncing local to server for item: " + uniqueID);

@@ -56,6 +56,7 @@ public class ChestSpawnPoint : NetworkBehaviour
         if (itemChest != null)
         {
             List<itemStruct> dropTable = _GetRandom ? GrabRandomDropTable() : GrabNextDropTable();
+
             itemChest.InitDropTable(dropTable);
         }
         else
