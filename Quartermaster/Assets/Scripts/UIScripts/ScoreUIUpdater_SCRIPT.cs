@@ -4,7 +4,7 @@ using Unity.Netcode;
 
 public class ScoreUIUpdater_SCRIPT : NetworkBehaviour
 {
-    [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private TextMeshProUGUI scoreNum;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -32,8 +32,8 @@ public class ScoreUIUpdater_SCRIPT : NetworkBehaviour
     }
 
     private void UpdateScore(int score) {
-        if (scoreText != null) {
-            scoreText.text = $"{score}";
+        if (scoreNum != null) {
+            scoreNum.text = $"{score}";
         }
     }
 }
