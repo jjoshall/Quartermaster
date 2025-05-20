@@ -5,7 +5,10 @@ public class SlowTrapProjectile : IProjectile
     [SerializeField] private GameObject childSlowTrap; // trigger volume for slows
 
     protected override void Start() {
-        _expireTimer = 10f;
+        if (_expireTimer <= 0f){
+            Debug.LogError("_expireTimer is not set.");
+            _expireTimer = 10f; // generic value to avoid immediate destruction.
+        }
     }
 
     public override void InitializeData(float expireTimer, params object[] args)

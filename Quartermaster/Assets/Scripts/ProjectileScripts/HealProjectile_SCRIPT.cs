@@ -6,12 +6,16 @@ public class HealProjectile : IProjectile
 
     protected override void Start()
     {
-        _expireTimer = 10f; // generic value to avoid immediate destruction.
+        if (_expireTimer <= 0f){
+            Debug.LogError("_expireTimer is not set.");
+            _expireTimer = 10f; // generic value to avoid immediate destruction.
+        }
     }
 
     protected override void Update()
     {
         if (_projectileCollided){
+            Debug.Log ("HealProjectile.Update() _expireTimer: " + _expireTimer);
             _expireTimer -= Time.deltaTime;
             if (_expireTimer <= 0){
                 Destroy(gameObject);
@@ -22,6 +26,8 @@ public class HealProjectile : IProjectile
     public override void InitializeData(float expireTimer, params object[] args)
     {
         base.InitializeData(expireTimer, args);
+        // Debug.Log ("HealProjectile.InitializeData() expireTimer parameter: " + expireTimer);
+        // Debug.Log ("HealProjectile.InitializeData() _expireTimer: " + _expireTimer);    
         if (args.Length < 1)
         {
             Debug.LogError("HealProjectile.InitializeData() - not enough args");
@@ -53,6 +59,7 @@ public class HealProjectile : IProjectile
             }
             HealPlayer(thisObj);
         } else {
+            Debug.Log ("healProjectile collided with: " + thisObj.name);
             _projectileCollided = true;
         }
 
