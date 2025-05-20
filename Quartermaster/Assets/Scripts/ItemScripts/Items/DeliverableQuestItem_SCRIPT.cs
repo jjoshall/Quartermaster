@@ -10,6 +10,13 @@ public class DeliverableQuestItem_MONO : Item
     [SerializeField] private Tooltippable t;
     #endregion
 
+    public override void OnNetworkSpawn() {
+        GameObject found = GameObject.FindWithTag("Mailbox");
+        if (found == null) {
+            Destroy(gameObject); // auto destroys if no mailbox obj is found ingame. might cause lag? idk
+        }
+    }
+
     public override void OnButtonUse(GameObject user) {
         if (GetLastUsed() + cooldown > Time.time) {
             return;

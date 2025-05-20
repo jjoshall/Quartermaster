@@ -4,6 +4,14 @@ using UnityEngine;
 using UnityEngine.Events;
 using Unity.Netcode;
 using System;
+using Unity.Services.Analytics;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
+using UnityEngine.Localization.SmartFormat.Utilities;
+using Unity.VisualScripting;
+using System.Collections.Generic;
+using UnityEngine.Analytics;
+using TMPro;
 
 public class Health : NetworkBehaviour {
     [Tooltip("Maximum amount of health")] 
@@ -11,6 +19,15 @@ public class Health : NetworkBehaviour {
 
     [Tooltip("Health to be considered \"at critical\"")]
     public float CriticalHealthRatio = 0.3f;
+
+    [Header("Hovering Health Bar")]
+    [SerializeField] private GameObject hoveringHealthBar;
+    [SerializeField] private Image fillImage;
+    [SerializeField] private TextMeshProUGUI lives;
+    public NetworkVariable<float> healthRatio = new NetworkVariable<float>(
+    1.0f,
+    NetworkVariableReadPermission.Everyone,
+    NetworkVariableWritePermission.Owner);
 
     public UnityAction<float, GameObject> OnDamaged;
     public UnityAction<float> OnHealed;
@@ -112,6 +129,8 @@ public class Health : NetworkBehaviour {
         }
 
         HandleDeath();
+
+        fillImage.fillAmount = GetRatio();
     }
 
     [ClientRpc]
@@ -124,6 +143,8 @@ public class Health : NetworkBehaviour {
         }
 
         OnDamaged?.Invoke(trueDamageAmount, damageSource);
+
+        fillImage.fillAmount = GetRatio();
     }
 
     public void Kill() {

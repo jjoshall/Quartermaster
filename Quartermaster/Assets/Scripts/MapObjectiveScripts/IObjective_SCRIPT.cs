@@ -9,4 +9,7 @@ public abstract class IObjective : NetworkBehaviour
     public void ClearObjective(){
         ObjectiveManager.instance.ClearObjectiveServerRpc(this.GetComponent<NetworkObject>(), indexOfSpawnPoint.Value);
     }
+    public void NodeZoneTextHelper(){
+        ObjectiveManager.instance.NodeZoneTextHelperClientRpc();
+    }
 }
