@@ -28,8 +28,6 @@ public class ItemCarryObjective : IObjective
         {
             return false;
         }
-        GameManager.instance.AddScoreServerRpc(200);
-        Debug.Log("Total score " + GameManager.instance.totalScore.Value);
         return true;
     }
 
@@ -56,7 +54,9 @@ public class ItemCarryObjective : IObjective
             if (item.uniqueID == "deliverable"){
                 Debug.Log("ItemCarry: Item is DeliverableQuestItem");
                 if (n_itemsToDeliver.Value > 0){
-                    StartCoroutine (_DelayedDespawn(other.gameObject, 1.0f));  
+                    StartCoroutine (_DelayedDespawn(other.gameObject, 1.0f));
+                    GameManager.instance.AddScoreServerRpc(200);
+                    Debug.Log("Total score " + GameManager.instance.totalScore.Value);
                 }   
             }
         }
