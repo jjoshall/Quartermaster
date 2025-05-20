@@ -4,14 +4,24 @@ public class DummyHealProjectile : IProjectile
 {
     protected override void Start()
     {
-        _expireTimer = GameManager.instance.MedKit_ExpireTimer;
+        if (_expireTimer <= 0f){
+            Debug.LogError("_expireTimer is not set.");
+            _expireTimer = 10f; // generic value to avoid immediate destruction.
+        }
+    }
+
+    public override void InitializeData(float expireTimer, params object[] args)
+    {
+        base.InitializeData(expireTimer, args);
     }
 
     protected override void Update()
     {
-        if (_projectileCollided){
+        if (_projectileCollided)
+        {
             _expireTimer -= Time.deltaTime;
-            if (_expireTimer <= 0){
+            if (_expireTimer <= 0)
+            {
                 Destroy(gameObject);
             }
         }

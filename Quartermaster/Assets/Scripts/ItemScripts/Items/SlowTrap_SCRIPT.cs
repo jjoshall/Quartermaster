@@ -11,9 +11,10 @@ public class SlowTrapItem : Item
     [SerializeField] private float _SlowTrapMaxChargeTime = 0.5f; // originally 1.0f
     [SerializeField] private float _SlowTrapScale = 5.0f;   // particle aoe is set separately in the inspector/ParticleManager/
     [SerializeField] private float _SlowTrapSlowAmount = 0.5f;
+    [SerializeField] private float _SlowTrapExpireTime = 10f; 
 
     #region RuntimeVars
-    #endregion 
+    #endregion
     private float _SlowTrapChargeTime = 0f; // time SlowTrap has been charged for.
     private float _SlowTrapVelocity = 0f; // velocity of SlowTrap.
     private bool _isCharging = false; 
@@ -67,12 +68,13 @@ public class SlowTrapItem : Item
                 camera.transform.rotation, 
                 direction, 
                 _SlowTrapVelocity, 
+                _SlowTrapExpireTime,
                 user, 
                 _SlowTrapScale,
                 _SlowTrapSlowAmount); // spawn SlowTrap with scale and slow amount.
 
         quantity--;
-        lastUsed = Time.time;
+        SetLastUsed(Time.time);
         ProjectileManager.instance.DestroyLineRenderer(); // clear arc and deactivate local line renderer
         _SlowTrapVelocity = _SlowTrapBaseVelocity;
         _SlowTrapChargeTime = 0.0f;

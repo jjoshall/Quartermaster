@@ -8,7 +8,10 @@ public class GrenadeProjectile : IProjectile
 
     protected override void Start()
     {
-        _expireTimer = GameManager.instance.Grenade_ExpireTimer;
+        if (_expireTimer <= 0f){
+            Debug.LogError("_expireTimer is not set.");
+            _expireTimer = 10f; // generic value to avoid immediate destruction.
+        }
     }
     protected override void OnCollisionEnter(Collision collision)
     {
@@ -29,10 +32,15 @@ public class GrenadeProjectile : IProjectile
         }   
     }
 
-    public override void InitializeData(params object[] args){
-        if (args.Length < 2){
+    public override void InitializeData(float expireTimer, params object[] args)
+    {
+        base.InitializeData(expireTimer, args);
+        if (args.Length < 2)
+        {
             Debug.LogError("GrenadeProjectile.InitializeData() - not enough args");
-        } else {
+        }
+        else
+        {
             _explosionDamage = (float)args[0];
             _explosionRadius = (float)args[1];
         }
@@ -62,12 +70,6 @@ public class GrenadeProjectile : IProjectile
     
     private void DoDamage (Damageable d, float dmg, bool isExplosiveDmgType, GameObject user){
         float damage = dmg;
-        PlayerStatus s = user.GetComponent<PlayerStatus>();
-        if (s != null){
-            float bonusPerSpec = GameManager.instance.DmgSpec_MultiplierPer;
-            int dmgSpecLvl = s.GetDmgSpecLvl();
-            damage = damage * (1 + bonusPerSpec * dmgSpecLvl);
-        }
         d?.InflictDamage(damage, isExplosiveDmgType, user);
     }
 

@@ -18,8 +18,10 @@ public abstract class IProjectile : MonoBehaviour
 
     }
 
-    public virtual void InitializeData (params object[] args) {
+    public virtual void InitializeData(float expireTimer, params object[] args)
+    {
         // 
+        _expireTimer = expireTimer;
     }
 
     protected abstract void Update();

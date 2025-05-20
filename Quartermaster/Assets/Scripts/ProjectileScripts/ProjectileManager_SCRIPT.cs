@@ -136,7 +136,8 @@ public class ProjectileManager : NetworkBehaviour
 
     // Calls local spawn for self, then calls serverRpc which tells others to local spawn.
     public void SpawnSelfThenAll(string key, Vector3 position, Quaternion rotation, 
-                                 Vector3 direction, float velocity, GameObject user,
+                                 Vector3 direction, float velocity, float expireTimer,
+                                 GameObject user,
                                  params object[] args)
     {
         ulong localClientId = NetworkManager.Singleton.LocalClientId;
@@ -145,14 +146,14 @@ public class ProjectileManager : NetworkBehaviour
             Debug.LogError("Projectile key not found in ProjectileManager: " + key);
             return;
         }
-        SpawnProjectileLocal(key, position, rotation, direction, velocity, user, args);
+        SpawnProjectileLocal(key, position, rotation, direction, velocity, expireTimer, user, args);
         // Call SpawnDummyForOtherClientsServerRpc with the calling player's client id
-        SpawnDummyForOthersServerRpc(key, position, rotation, direction, velocity, localClientId);
+        SpawnDummyForOthersServerRpc(key, position, rotation, direction, velocity, expireTimer, localClientId);
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void SpawnDummyForOthersServerRpc(string key, Vector3 position, Quaternion rotation, 
-                                             Vector3 direction, float velocity,
+                                             Vector3 direction, float velocity, float expireTimer,
                                              ulong clientId)
     {
         List<ulong> targetClients = new List<ulong>();
@@ -170,15 +171,15 @@ public class ProjectileManager : NetworkBehaviour
                 TargetClientIds = targetClients.ToArray()
             }
         };
-        SpawnDummyClientRpc(key, position, rotation, direction, velocity, clientRpcParams);
+        SpawnDummyClientRpc(key, position, rotation, direction, velocity, expireTimer, clientRpcParams);
     }
 
     [ClientRpc]
     public void SpawnDummyClientRpc(string key, Vector3 position, Quaternion rotation,
-                                    Vector3 direction, float velocity, ClientRpcParams clientRpcParams = default)
+                                    Vector3 direction, float velocity, float expireTimer, ClientRpcParams clientRpcParams = default)
     {
         // call local spawnProjectile for this client
-        SpawnDummyLocal(key, position, rotation, direction, velocity);
+        SpawnDummyLocal(key, position, rotation, direction, velocity, expireTimer);
     }
 
     #endregion
@@ -188,7 +189,8 @@ public class ProjectileManager : NetworkBehaviour
     // ==============================================================================================
     #region = PoolingHelpers
     public void SpawnProjectileLocal(string key, Vector3 position, Quaternion rotation, 
-                                     Vector3 direction, float velocity, GameObject user,
+                                     Vector3 direction, float velocity, float expireTimer,
+                                     GameObject user,
                                      params object[] args)
     {
         if (!projectilePool.ContainsKey(key))
@@ -222,10 +224,10 @@ public class ProjectileManager : NetworkBehaviour
         Rigidbody rb = projectileObj.GetComponent<Rigidbody>();
         rb.linearVelocity = direction * velocity;
 
-        projectileObj.GetComponent<IProjectile>().InitializeData(args);
+        projectileObj.GetComponent<IProjectile>().InitializeData(expireTimer, args);
     }
     public void SpawnDummyLocal(string key, Vector3 position, Quaternion rotation,
-                                Vector3 direction, float velocity)
+                                Vector3 direction, float velocity, float expireTimer, params object[] args)
     {
         if (!projectilePool.ContainsKey(key))
         {
@@ -255,6 +257,8 @@ public class ProjectileManager : NetworkBehaviour
         
         Rigidbody rb = projectileObj.GetComponent<Rigidbody>();
         rb.linearVelocity = direction * velocity;
+
+        projectileObj.GetComponent<IProjectile>().InitializeData(expireTimer, args);
     }
 
     public void DespawnProjectileLocal(string key, GameObject projectileObj)

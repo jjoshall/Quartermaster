@@ -4,13 +4,23 @@ public class DummyGrenade : IProjectile
 {
     protected override void Start()
     {
-        _expireTimer = GameManager.instance.Grenade_ExpireTimer;
+        if (_expireTimer <= 0f){
+            Debug.LogError("_expireTimer is not set.");
+            _expireTimer = 10f; // generic value to avoid immediate destruction.
+        }
+    }
+    public override void InitializeData(float expireTimer, params object[] args)
+    {
+        base.InitializeData(expireTimer, args);
     }
     protected override void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Enemy")){
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
             Explode();
-        } else {
+        }
+        else
+        {
             _projectileCollided = true;
         }
     }

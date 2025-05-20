@@ -40,17 +40,17 @@ public class PortalKey_MONO : Item
     [SerializeField] private string destinationTag = "PortalDestination";
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
         // Only once, on both host & clients
         if (_teleportDestination == null)
         {
             _teleportDestination = GameObject.FindWithTag(destinationTag);
         }
+
     }
 
     void Start() {
         if (!IsServer) return; // only run on server.
-        n_playersInPocket = new NetworkList<NetworkObjectReference>();
-        // n_timeEnteredPocketNetworkVar.Value = 0;
     }
 
     #endregion
@@ -237,10 +237,10 @@ public class PortalKey_MONO : Item
         ClearPocketServerRpc();
     }
 
-    private void ClearNetworkTransformInterpolation(NetworkObject n_playerObj){
-        n_playerObj.gameObject.GetComponent<NetworkTransform>().enabled = false; // clear networktransform interpolation buffers.
-        n_playerObj.gameObject.GetComponent<NetworkTransform>().enabled = true;
-    }
+    // private void ClearNetworkTransformInterpolation(NetworkObject n_playerObj){
+    //     n_playerObj.gameObject.GetComponent<NetworkTransform>().enabled = false; // clear networktransform interpolation buffers.
+    //     n_playerObj.gameObject.GetComponent<NetworkTransform>().enabled = true;
+    // }
 
     [ServerRpc(RequireOwnership = false)]
     private void ClearPocketServerRpc(){
