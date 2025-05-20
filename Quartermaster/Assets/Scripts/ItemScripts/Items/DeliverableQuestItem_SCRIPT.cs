@@ -11,7 +11,7 @@ public class DeliverableQuestItem_MONO : Item
     #endregion
 
     public override void OnButtonUse(GameObject user) {
-        if (lastUsed + cooldown > Time.time) {
+        if (GetLastUsed() + cooldown > Time.time) {
             return;
         }
 
@@ -26,7 +26,7 @@ public class DeliverableQuestItem_MONO : Item
         // trigger tooltippable t
         t.SendMyTooltipTo(user.GetComponent<NetworkObject>().OwnerClientId);
 
-        lastUsed = Time.time;
+        SetLastUsed(Time.time);
     }
 
 }

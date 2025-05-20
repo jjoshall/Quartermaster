@@ -12,14 +12,29 @@ public class ItemChest_SCRIPT : NetworkBehaviour
     // private List<ItemStruct> _items = new List<ItemStruct>();
     // Serializeable
 
-    [Serializable]
-    public struct itemStruct
-    {
-        public GameObject itemPrefab;
-        public int quantity;
-    }
+    // [Serializable]
+    // public struct itemStruct
+    // {
+    //     public GameObject itemPrefab;
+    //     public int quantity;
+    // }
 
-    [SerializeField] private List<itemStruct> _dropTable = new List<itemStruct>();
+    [SerializeField] private List<itemStruct> _dropTable = new List<itemStruct>();      // should be server side only for run-time spawned chests.
+
+    public void InitDropTable(List<itemStruct> dropTable)
+    {
+        if (!IsServer)
+        {
+            Debug.LogError("InitDropTable: This function should only be called on the server.");
+            return;
+        }
+        _dropTable = dropTable;
+                // debug print all the quantities just for testing
+        foreach (var item in dropTable)
+        {
+            Debug.Log("Item: " + item.itemPrefab.name + ", Quantity: " + item.quantity);
+        }
+    }
 
     public override void OnNetworkSpawn()
     {
@@ -100,14 +115,20 @@ public class ItemChest_SCRIPT : NetworkBehaviour
         Vector3 spawnLoc = new Vector3(position.x, position.y + 1.0f, position.z);
         
         GameObject newItem = Instantiate(itemPrefab, spawnLoc, Quaternion.identity);
-        if (newItem.GetComponent<Item>() != null){
-            if (newItem.GetComponent<Item>().uniqueID == "portalkey"){
+        var itemComponent = newItem.GetComponent<Item>();
+        if (itemComponent != null)
+        {
+            if (itemComponent.uniqueID == "portalkey")
+            {
                 // find all portal keys in scene
                 int portalKeyCount = 0;
-                foreach (var item in GameObject.FindGameObjectsWithTag("Item")){
-                    if (item.GetComponent<Item>().uniqueID == "portalkey"){
+                foreach (var item in GameObject.FindGameObjectsWithTag("Item"))
+                {
+                    if (item.GetComponent<Item>().uniqueID == "portalkey")
+                    {
                         portalKeyCount++;
-                        if (portalKeyCount > 1){
+                        if (portalKeyCount > 1)
+                        {
                             Destroy(newItem);       // don't make additional portal keys.
                             return;
                         }
@@ -115,9 +136,12 @@ public class ItemChest_SCRIPT : NetworkBehaviour
                 }
             }
         }
-        newItem.GetComponent<Item>().quantity = quantity; // set quantity to the item stack size.
-        newItem.GetComponent<Item>().userRef = null; // set user ref to the enemy.
-        newItem.GetComponent<Item>().IsPickedUp = false; // set IsPickedUp to false.
+        itemComponent.quantity = quantity; // set quantity to the item stack size.
+        itemComponent.userRef = null; // set user ref to the enemy.
+        itemComponent.IsPickedUp = false; // set IsPickedUp to false.
+        itemComponent.n_syncedQuantity.Value = quantity; // set the quantity to the item stack size.
+        itemComponent.n_isPickedUp.Value = false;
+        itemComponent.n_userRef.Value = default; // or a valid NetworkObjectReference
         
         NetworkObject n_newItem = newItem.GetComponent<NetworkObject>();
         if (n_newItem == null) {
@@ -134,6 +158,6 @@ public class ItemChest_SCRIPT : NetworkBehaviour
         Debug.Log("Spawned network object with ID: " + n_newItem.NetworkObjectId);
 
         // newItem.transform.SetParent(this.gameObject.transform); // Set the parent to this object.
-        newItem.GetComponent<Item>().OnSpawn();
+        itemComponent.OnSpawn();
     }
 }
