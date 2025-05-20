@@ -3,13 +3,18 @@ using UnityEngine;
 public class DummySlowTrap : IProjectile
 {
     protected override void Start() {
-        _expireTimer = GameManager.instance.SlowTrap_Duration;
+        _expireTimer = 10f;
     }
 
+    public override void InitializeData(float expireTimer, params object[] args)
+    {
+        base.InitializeData(expireTimer, args);
+    }
     protected override void OnCollisionEnter(Collision collision)
     {
         // check collision layer is whatIsGround
-        if (collision.gameObject.layer == LayerMask.NameToLayer("whatIsGround")){
+        if (collision.gameObject.layer == LayerMask.NameToLayer("whatIsGround"))
+        {
             ArmSlowTrap(collision.GetContact(0).point);
         }
     }

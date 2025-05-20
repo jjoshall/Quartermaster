@@ -5,13 +5,27 @@ public class SlowTrapProjectile : IProjectile
     [SerializeField] private GameObject childSlowTrap; // trigger volume for slows
 
     protected override void Start() {
-        _expireTimer = GameManager.instance.SlowTrap_Duration;
+        _expireTimer = 10f;
+    }
+
+    public override void InitializeData(float expireTimer, params object[] args)
+    {
+        base.InitializeData(expireTimer, args);
+        if (args.Length < 1)
+        {
+            Debug.LogError("SlowTrapProjectile.InitializeData() - not enough args");
+        }
+        else
+        {
+            sourcePlayer = (GameObject)args[0];
+        }
     }
 
     protected override void OnCollisionEnter(Collision collision)
     {
         // check collision layer is whatIsGround
-        if (collision.gameObject.layer == LayerMask.NameToLayer("whatIsGround")){
+        if (collision.gameObject.layer == LayerMask.NameToLayer("whatIsGround"))
+        {
             ArmSlowTrap(collision.GetContact(0).point);
         }
     }

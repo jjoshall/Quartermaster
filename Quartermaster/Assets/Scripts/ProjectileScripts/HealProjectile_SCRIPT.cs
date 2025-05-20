@@ -2,9 +2,11 @@ using UnityEngine;
 
 public class HealProjectile : IProjectile
 {
+    private float _healAmount = 0f;
+
     protected override void Start()
     {
-        _expireTimer = GameManager.instance.MedKit_ExpireTimer;
+        _expireTimer = 10f; // generic value to avoid immediate destruction.
     }
 
     protected override void Update()
@@ -14,6 +16,20 @@ public class HealProjectile : IProjectile
             if (_expireTimer <= 0){
                 Destroy(gameObject);
             }
+        }
+    }
+
+    public override void InitializeData(float expireTimer, params object[] args)
+    {
+        base.InitializeData(expireTimer, args);
+        if (args.Length < 1)
+        {
+            Debug.LogError("HealProjectile.InitializeData() - not enough args");
+        }
+        else
+        {
+            _healAmount = (float)args[0];
+
         }
     }
 
@@ -44,13 +60,13 @@ public class HealProjectile : IProjectile
 
     private void HealPlayer(GameObject player){
         Health playerHp = player.GetComponent<Health>();
-        int healSpec = sourcePlayer.GetComponent<PlayerStatus>().GetHealSpecLvl();
-        float bonusPerSpec = GameManager.instance.HealSpec_MultiplierPer;
-        float total = bonusPerSpec * healSpec + 1.0f;
+        // int healSpec = sourcePlayer.GetComponent<PlayerStatus>().GetHealSpecLvl();
+        // float bonusPerSpec = GameManager.instance.HealSpec_MultiplierPer;
+        // float total = bonusPerSpec * healSpec + 1.0f;
 
-        float totalHeal = GameManager.instance.MedKit_HealAmount * total;
+        // float totalHeal = GameManager.instance.MedKit_HealAmount * total;
 
-        playerHp.HealServerRpc(totalHeal);
+        playerHp.HealServerRpc(_healAmount);
         ParticleManager.instance.SpawnSelfThenAll("Healing", player.transform.position, Quaternion.Euler(-90, 0, 0));
         
         // reenable physics collision if pooling instead of destroying
