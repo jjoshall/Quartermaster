@@ -128,9 +128,9 @@ public class Health : NetworkBehaviour {
             UpdateClientHealthClientRpc(trueDamageAmount, damageSourceRef);
         }
 
-        fillImage.fillAmount = GetRatio();
-
         HandleDeath();
+
+        fillImage.fillAmount = GetRatio();
     }
 
     [ClientRpc]
