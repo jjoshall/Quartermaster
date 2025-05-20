@@ -15,11 +15,17 @@ public class ScoreUIUpdater_SCRIPT : NetworkBehaviour
         UpdateScore(GameManager.instance.totalScore.Value);
     }
 
-    private void OnDestroy() {
-        if (!IsOwner || GameManager.instance == null) return;
-
-        GameManager.instance.totalScore.OnValueChanged -= OnScoreChanged;
+    private void Update() {
+        if (Input.GetKeyDown(KeyCode.F)) {
+            Debug.Log("Current score: " + GameManager.instance.totalScore.Value);
+        }
     }
+
+    //private void OnDestroy() {
+    //    if (!IsOwner || GameManager.instance == null) return;
+
+    //    GameManager.instance.totalScore.OnValueChanged -= OnScoreChanged;
+    //}
 
     private void OnScoreChanged(int oldValue, int newValue) {
         UpdateScore(newValue);
