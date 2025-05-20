@@ -2202,6 +2202,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   joinCodeText: {fileID: 921745920161998011}
+  startingDoor: {fileID: 1848567303}
   startGameButton: {fileID: 609379398}
   lobbyMenuCanvas: {fileID: 280431750}
   playerUICanvas: {fileID: 1639294570150000244}
@@ -2214,7 +2215,19 @@ MonoBehaviour:
   playerProfilePrefab: {fileID: 7944114670127508049, guid: 291ab239a5045794fbfa771a2e05b7ec, type: 3}
   OnGameStarted:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1873621431}
+        m_TargetAssemblyTypeName: EnemySpawner, Assembly-CSharp
+        m_MethodName: EnableSpawning
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!4 &503948101
 Transform:
   m_ObjectHideFlags: 0
@@ -3908,7 +3921,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Press 'o' Key to Open Door
+  m_text: Game Starting Soon...
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -7286,6 +7299,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5011857122291046315, guid: 2e43e6ac235d91d4982356826e634130, type: 3}
   m_PrefabInstance: {fileID: 1848567301}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1848567303 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1475348849826892731, guid: 2e43e6ac235d91d4982356826e634130, type: 3}
+  m_PrefabInstance: {fileID: 1848567301}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1848573350 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5975836247323274641, guid: 25a23c39f477d8b43b810c50004a39a6, type: 3}
@@ -7537,6 +7555,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
+--- !u!114 &1873621431 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
+  m_PrefabInstance: {fileID: 1873621430}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6901faa0c289cbf41b10f3e1a812d782, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1890071880
 PrefabInstance:
   m_ObjectHideFlags: 0

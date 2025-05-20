@@ -15,7 +15,10 @@ using UnityEngine.UI;
 
 public class IPRelay : NetworkBehaviour
 {
+    #region Variables
     [SerializeField] private TMP_Text joinCodeText;
+
+    [SerializeField] private GameObject startingDoor;
 
     [Header("Lobby → Game UI")]
     [SerializeField] private Button startGameButton;
@@ -35,6 +38,8 @@ public class IPRelay : NetworkBehaviour
 
     private const string MAIN_MENU_SCENE = "MainMenu_SCENE";
 
+    private bool alreadyInSteamLobby = false;
+
     public UnityEvent OnGameStarted;
 
     [Header("Steam Callbacks + IP")]
@@ -47,6 +52,9 @@ public class IPRelay : NetworkBehaviour
     private CSteamID currentLobbyID;
     private string unityRelayJoinCode;
 
+    #endregion
+
+    #region Unity Default Functions
     private void Awake()
     {
         if (!SteamManager.Initialized)
@@ -80,8 +88,24 @@ public class IPRelay : NetworkBehaviour
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
         }
 
+
+
         NetworkManager.Singleton.OnClientStopped += HandleNetworkShutdown;
         NetworkManager.Singleton.OnServerStopped += HandleNetworkShutdown;
+
+
+        NetworkManager.Singleton.OnClientConnectedCallback += (clientId) =>
+        {
+            if (!NetworkManager.Singleton.IsHost && !alreadyInSteamLobby)
+            {
+                RequestSteamLobbyIDServerRpc();
+            }
+        }
+    }
+
+    private void Update()
+    {
+        RefreshLobbyProfiles();
     }
 
     private void OnDestroy()
@@ -93,13 +117,14 @@ public class IPRelay : NetworkBehaviour
         }
     }
 
+    #endregion
+
     #region Steam Functions
 
     public void CreateLobby(ELobbyType type = ELobbyType.k_ELobbyTypeFriendsOnly, int maxMembers = 4)
     {
         SteamMatchmaking.CreateLobby(type, maxMembers);
         Debug.LogError("Creating lobby...");
-        createLobbyButton.gameObject.SetActive(false);
         joinLobbyButton.gameObject.SetActive(false);
 
         inviteFriendsButton.gameObject.SetActive(true);
@@ -114,6 +139,7 @@ public class IPRelay : NetworkBehaviour
             return;
         }
 
+        alreadyInSteamLobby = true;
         currentLobbyID = new CSteamID(result.m_ulSteamIDLobby);
         Debug.LogError("Steam lobby created with ID: " + currentLobbyID);
     }
@@ -125,22 +151,35 @@ public class IPRelay : NetworkBehaviour
 
         RefreshLobbyProfiles();
 
-        if (IsOwner)
+
+
+        if (NetworkManager.Singleton.IsHost)
         {
             SetRelayJoinCode(unityRelayJoinCode);
             Debug.LogError("set relay join code from OnLobbyEntered callback");
         }
 
-        string relayCode = SteamMatchmaking.GetLobbyData(currentLobbyID, "relay_join_code");
-        if (!string.IsNullOrEmpty(relayCode))
+        if (alreadyInSteamLobby)
         {
-            Debug.LogError($"Found relay code in lobby data: {relayCode}");
-            JoinRelay(relayCode);
+            Debug.LogError("Already in steam lobby, skipping join code");
         }
         else
         {
-            Debug.LogError("No relay_join_code set for this lobby.");
+            string relayCode = SteamMatchmaking.GetLobbyData(currentLobbyID, "relay_join_code");
+            if (!string.IsNullOrEmpty(relayCode))
+            {
+                Debug.LogError($"Found relay code in lobby data: {relayCode}");
+                JoinRelay(relayCode);
+                alreadyInSteamLobby = true;
+            }
+            else
+            {
+                Debug.LogError("No relay_join_code set for this lobby.");
+            }
         }
+
+        createLobbyButton.gameObject.SetActive(false);
+
     }
 
     private void OnGameLobbyJoinRequested(GameLobbyJoinRequested_t request)
@@ -183,8 +222,7 @@ public class IPRelay : NetworkBehaviour
 
         bool left = (flags & (uint)EChatMemberStateChange.k_EChatMemberStateChangeLeft) != 0;
         bool dropped = (flags & (uint)EChatMemberStateChange.k_EChatMemberStateChangeDisconnected) != 0;
-        if (left || dropped)
-        {
+        if (left || dropped) {
             if (lobbyMenuCanvas != null && lobbyMenuCanvas.gameObject.activeSelf)
                 RefreshLobbyProfiles();
 
@@ -304,8 +342,10 @@ public class IPRelay : NetworkBehaviour
 
     #endregion
 
+    #region Relay Functions
     public async void CreateRelay()
     {
+        ShutdownSteamLobby();
         try
         {
             Allocation allocation = await RelayService.Instance.CreateAllocationAsync(3);
@@ -352,13 +392,20 @@ public class IPRelay : NetworkBehaviour
             );
 
             NetworkManager.Singleton.StartClient();
+
+
         }
         catch (RelayServiceException e)
         {
             Debug.LogError("Relay join failed: " + e);
         }
+
+
     }
 
+    #endregion
+
+    #region RPC Functions
     [ClientRpc]
     private void StartGameClientRpc(ClientRpcParams rpcParams = default)
     {
@@ -377,14 +424,62 @@ public class IPRelay : NetworkBehaviour
         }
     }
 
+    [ClientRpc]
+    private void DoorOpenClientRpc(ClientRpcParams rpcParams = default)
+    {
+        var doorScript = startingDoor.GetComponent<FrontDoorAnimationController>();
+        if (doorScript != null) {
+            doorScript.TriggerPlay();
+        }
+    }
+
+    [ClientRpc]
+    private void ReceiveSteamLobbyIDClientRpc(ulong lobbySteamID, ClientRpcParams rpcParams = default)
+    {
+        receieveLobbyID = new CSteamID(lobbySteamID);
+        Debug.LogError($"RPC - Recieved steam lobby id thru client rpc: {receieveLobbyID}");
+        alreadyInSteamLobby = true;
+        SteamMatchmaking.JoinLobby(receieveLobbyID);
+        Debug.LogError("RPC - Joining steam lobby manuall with id: " + receieveLobbyID);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void RequestSteamLobbyIDServerRpc(ServerRpcParams rpcParams = default)
+    {
+        if (currentLobbyID == CSteamID.Nil)
+        {
+            Debug.LogError("requeststeamlobbyid - No lobby created yet!");
+            return;
+        }
+
+        var sender = rpcParams.Receive.SenderClientId;
+        var clientRpcParams = new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = new ulong[] { sender }
+            }
+        };
+        Debug.LogError($"Attempting to send steam lobby id {currentLobbyID} to client: {sender}");
+
+        ReceiveSteamLobbyIDClientRpc(currentLobbyID.m_SteamID, clientRpcParams);
+    }
+
+    #endregion
+
+    #region Helper Functions
     public void HostPressedStart()
     {
-        OnGameStarted?.Invoke();
+        OnGameStarted.Invoke();
         StartGameClientRpc();
+        DoorOpenClientRpc();
     }
 
     private void HandleNetworkShutdown(bool _)
     {
         ShutdownSteamLobby();
+        SceneManager.LoadScene(MAIN_MENU_SCENE);
     }
+
+    #endregion
 }

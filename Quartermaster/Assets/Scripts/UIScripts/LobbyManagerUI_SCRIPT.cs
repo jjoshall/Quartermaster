@@ -17,7 +17,7 @@ public class LobbyManagerUI : MonoBehaviour {
         joinRelayInput.onEndEdit.AddListener((string s) => {
             if (UnityEngine.Input.GetKeyDown(KeyCode.Return)) {
                 s = s.ToUpper();
-                //IPRelay.ManualJoinByCode(s);
+                IPRelay.JoinRelay(s);
                 HideLobbyUI();
             }
         });
@@ -33,11 +33,13 @@ public class LobbyManagerUI : MonoBehaviour {
     }
 
     public IEnumerator HideLobbyUI() {
+        Debug.LogError("Starting hide lobby ui");
         lobbyMenuCanvas.enabled = false;
         playerUICanvas.enabled = true;
 
         yield return new WaitUntil(() => Camera.main != null && Camera.main.enabled);
-        
+        Debug.LogError("main cam enabled upon join");
+
         yield return new WaitForEndOfFrame();
     }
 

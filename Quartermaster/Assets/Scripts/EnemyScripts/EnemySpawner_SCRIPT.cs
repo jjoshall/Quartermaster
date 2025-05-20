@@ -6,14 +6,16 @@ using System.Threading.Tasks;
 using Unity.BossRoom.Infrastructure;
 using System.Linq;    // Add this for network object pooling
 using TMPro;        // Add this for TextMeshPro
+using UnityEngine.Events;
 
 public class EnemySpawner : NetworkBehaviour {
     [Header("Spawner Timer")]
     private float _lastSpawnTime = 0f;
     public float spawnCooldown = 3f;
+    public int spawnTimeDelay = 5;
 
     [Header("Spawner Settings")]
-    [HideInInspector] public NetworkVariable<bool> isSpawning = new NetworkVariable<bool>(false);
+    public bool isSpawning = false;
     [SerializeField] private int _maxEnemyInstanceCount = 50;
     [SerializeField] private List<WeightedPrefab> weightedPrefabs = new List<WeightedPrefab>();     // weights for enemy spawning (higher = more likely to spawn)
 
@@ -70,14 +72,38 @@ public class EnemySpawner : NetworkBehaviour {
         NetworkManager.Singleton.OnClientDisconnectCallback += RefreshPlayerLists;
     }
 
-    private void RefreshPlayerLists(ulong u) {
+    private void EnableSpawning()
+    {
+        EnableSpawningClientRpc();
+    }
+
+    [ClientRpc]
+    public void EnableSpawningClientRpc(ClientRpcParams clientRpcParams = default)
+    {
+        StartCoroutine(EnableSpawningAfterDelay());
+        isSpawning = true;
+        Debug.Log("Spawning enabled from EnemySpawner");
+    }
+
+    private IEnumerator EnableSpawningAfterDelay()
+    {
+        yield return new WaitForSeconds(spawnTimeDelay);
+    }
+
+
+
+    private void RefreshPlayerLists(ulong u)
+    {
         playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
 
         activePlayerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
-        foreach (GameObject area in inactiveAreas) {
-            foreach (GameObject player in activePlayerList) {
+        foreach (GameObject area in inactiveAreas)
+        {
+            foreach (GameObject player in activePlayerList)
+            {
                 Collider areaCollider = area.GetComponent<Collider>();
-                if (areaCollider != null && areaCollider.bounds.Contains(player.transform.position)) {
+                if (areaCollider != null && areaCollider.bounds.Contains(player.transform.position))
+                {
                     activePlayerList.Remove(player);
                 }
             }
@@ -94,6 +120,7 @@ public class EnemySpawner : NetworkBehaviour {
 
     #region Spawning Enemies
     private void SpawnOverTime() {
+        if (!isSpawning) return; // dont spawn if spawning disabled
         if (!IsServer) return;
         if (activePlayerList.Count == 0) return; // No players in active area.
         if (enemyList.Count >= _maxEnemyInstanceCount) return; // Max enemies reached.
