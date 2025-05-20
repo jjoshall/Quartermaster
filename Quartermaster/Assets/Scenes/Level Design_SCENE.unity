@@ -1209,6 +1209,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6651998653798097448, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
+      propertyPath: dropTable.Array.data[6].dropChancePercent
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 6946468540148778774, guid: 703bf25087ce19c43bcbb1eab7e3280e, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 3137207832
@@ -6869,6 +6873,18 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: GoToMainMenu
       objectReference: {fileID: 0}
+    - target: {fileID: 5469913132470500841, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5684673162868437825, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 2996674144
+      objectReference: {fileID: 0}
+    - target: {fileID: 6326531186877224067, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1842907323
+      objectReference: {fileID: 0}
     - target: {fileID: 7213803613440124995, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -7848,6 +7864,22 @@ PrefabInstance:
     - target: {fileID: 4143359383870908457, guid: 562581edcbdc5ba44acaa01cabc761c7, type: 3}
       propertyPath: m_Name
       value: GameOverCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 7928190672764917445, guid: 562581edcbdc5ba44acaa01cabc761c7, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 4003082914
+      objectReference: {fileID: 0}
+    - target: {fileID: 8044736576365817829, guid: 562581edcbdc5ba44acaa01cabc761c7, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 27655211
+      objectReference: {fileID: 0}
+    - target: {fileID: 9013461482984095786, guid: 562581edcbdc5ba44acaa01cabc761c7, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1985826341
+      objectReference: {fileID: 0}
+    - target: {fileID: 9013461482984095786, guid: 562581edcbdc5ba44acaa01cabc761c7, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 2779790839
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

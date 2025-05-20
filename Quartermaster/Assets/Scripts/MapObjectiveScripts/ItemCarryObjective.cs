@@ -28,14 +28,13 @@ public class ItemCarryObjective : IObjective
         {
             return false;
         }
-        GameManager.instance.AddScoreServerRpc(200);
-        Debug.Log("Total score " + GameManager.instance.totalScore.Value);
         return true;
     }
 
     // OnTriggerEnter check for item DeliverableQuestItem
     private void OnTriggerEnter(Collider other)
     {
+        if (!IsServer) return;
         Debug.Log("ItemCarry: OnTriggerEnter");
         // Item itema = other.gameObject.GetComponent<Item>();
         // Debug.Log("ItemCarry: Item is " + itema.uniqueID);
@@ -56,7 +55,7 @@ public class ItemCarryObjective : IObjective
             if (item.uniqueID == "deliverable"){
                 Debug.Log("ItemCarry: Item is DeliverableQuestItem");
                 if (n_itemsToDeliver.Value > 0){
-                    StartCoroutine (_DelayedDespawn(other.gameObject, 1.0f));  
+                    StartCoroutine (_DelayedDespawn(other.gameObject, 1.0f));
                 }   
             }
         }
@@ -74,7 +73,9 @@ public class ItemCarryObjective : IObjective
         NetworkObjectReference objRef = new NetworkObjectReference(obj.GetComponent<NetworkObject>());
         DespawnItemServerRpc(objRef);
         // ParticleManager.instance.SpawnSelfThenAll(1, obj.transform.position, Quaternion.Euler(0, 0, 0));
-        if (n_itemsToDeliver.Value <= 0){
+        if (n_itemsToDeliver.Value <= 0) {
+            GameManager.instance.totalScore.Value += GameManager.instance.ScorePerObjective;
+            Debug.Log("Total score " + GameManager.instance.totalScore.Value);
             ClearObjective();
         }
         yield return null;

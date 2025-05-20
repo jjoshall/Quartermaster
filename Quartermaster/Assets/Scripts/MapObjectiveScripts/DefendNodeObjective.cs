@@ -56,7 +56,8 @@ public class DefendNodeObjective : IObjective
         _particleTimer = 0f;
     }
 
-    void Update(){
+    void Update() {
+        if (!IsServer) return;
         if (n_defenseCompleted.Value){
             return;
         }
@@ -73,7 +74,7 @@ public class DefendNodeObjective : IObjective
         if (_currentDefenseTimer >= nodeDefenseDuration){
             SetDefenseCompletedServerRpc(true);
             ClearObjective();
-            GameManager.instance.AddScoreServerRpc(200);
+            GameManager.instance.totalScore.Value += GameManager.instance.ScorePerObjective;
             Debug.Log("Total score " + GameManager.instance.totalScore.Value);
             return;
             // _particleInterval = 1000f;
