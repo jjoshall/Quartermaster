@@ -57,18 +57,24 @@ public class IPRelay : NetworkBehaviour
     #region Unity Default Functions
     private void Awake()
     {
+        // only load steam if not in editor
+        #if !UNITY_EDITOR
         if (!SteamManager.Initialized)
         {
             Debug.LogError("SteamManager not initialized!");
             enabled = false;
             return;
         }
+        #endif
 
         lobbyCreated = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
         lobbyEntered = Callback<LobbyEnter_t>.Create(OnLobbyEntered);
         gameLobbyJoinRequested = Callback<GameLobbyJoinRequested_t>.Create(OnGameLobbyJoinRequested);
         lobbyMatchList = Callback<LobbyMatchList_t>.Create(OnLobbyMatchList);
         lobbyChatUpdate = Callback<LobbyChatUpdate_t>.Create(OnLobbyChatUpdate);
+
+
+        // hide invite button if in editor
 
         inviteFriendsButton.gameObject.SetActive(false);
         startGameButton.gameObject.SetActive(false);
@@ -89,17 +95,20 @@ public class IPRelay : NetworkBehaviour
         }
 
 
-
+        // callbacks to handle network shutdown if host or server dies
         NetworkManager.Singleton.OnClientStopped += HandleNetworkShutdown;
         NetworkManager.Singleton.OnServerStopped += HandleNetworkShutdown;
 
-
+        // for manual join, request steam lobby id if needed after joining unity relay
+        // if in editor, skip
         NetworkManager.Singleton.OnClientConnectedCallback += (clientId) =>
         {
+            #if !UNITY_EDITOR
             if (!NetworkManager.Singleton.IsHost && !alreadyInSteamLobby)
             {
                 RequestSteamLobbyIDServerRpc();
             }
+            #endif
         };
     }
 
@@ -128,7 +137,11 @@ public class IPRelay : NetworkBehaviour
         joinLobbyButton.gameObject.SetActive(false);
 
         inviteFriendsButton.gameObject.SetActive(true);
+
+        //game start button enabled in createRelay if in editor        
+        #if !UNITY_EDITOR
         startGameButton.gameObject.SetActive(true);
+        #endif
     }
 
     public void OnLobbyCreated(LobbyCreated_t result)
@@ -222,7 +235,8 @@ public class IPRelay : NetworkBehaviour
 
         bool left = (flags & (uint)EChatMemberStateChange.k_EChatMemberStateChangeLeft) != 0;
         bool dropped = (flags & (uint)EChatMemberStateChange.k_EChatMemberStateChangeDisconnected) != 0;
-        if (left || dropped) {
+        if (left || dropped)
+        {
             if (lobbyMenuCanvas != null && lobbyMenuCanvas.gameObject.activeSelf)
                 RefreshLobbyProfiles();
 
@@ -280,6 +294,7 @@ public class IPRelay : NetworkBehaviour
 
     public void OpenInviteDialog()
     {
+        #if !UNITY_EDITOR
         if (currentLobbyID == CSteamID.Nil)
         {
             Debug.LogError("No lobby created yet!");
@@ -287,6 +302,7 @@ public class IPRelay : NetworkBehaviour
 
         SteamFriends.ActivateGameOverlayInviteDialog(currentLobbyID);
         Debug.LogError("Opened steam overlay invite dialog.");
+        #endif
     }
 
     private void ShutdownSteamLobby()
@@ -345,7 +361,10 @@ public class IPRelay : NetworkBehaviour
     #region Relay Functions
     public async void CreateRelay()
     {
+        #if !UNITY_EDITOR
         ShutdownSteamLobby();
+#endif
+
         try
         {
             Allocation allocation = await RelayService.Instance.CreateAllocationAsync(3);
@@ -366,13 +385,20 @@ public class IPRelay : NetworkBehaviour
 
             NetworkManager.Singleton.StartHost();
 
+            #if !UNITY_EDITOR
             CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, 4);
             SetRelayJoinCode(joinCode);
+            #endif
+            
+            #if UNITY_EDITOR
+            startGameButton.gameObject.SetActive(true);
+            #endif
         }
         catch (RelayServiceException e)
         {
             Debug.LogError("RelayServiceException caught: " + e);
         }
+        
     }
 
     public async void JoinRelay(string joinCode)
@@ -428,7 +454,8 @@ public class IPRelay : NetworkBehaviour
     private void DoorOpenClientRpc(ClientRpcParams rpcParams = default)
     {
         var doorScript = startingDoor.GetComponent<FrontDoorAnimationController>();
-        if (doorScript != null) {
+        if (doorScript != null)
+        {
             doorScript.TriggerPlay();
         }
     }
@@ -479,6 +506,12 @@ public class IPRelay : NetworkBehaviour
     {
         ShutdownSteamLobby();
         SceneManager.LoadScene(MAIN_MENU_SCENE);
+    }
+
+    public void ManualExceptionNetworkShutdown()
+    {
+        NetworkManager.Singleton.Shutdown();
+        ShutdownSteamLobby(); 
     }
 
     #endregion
