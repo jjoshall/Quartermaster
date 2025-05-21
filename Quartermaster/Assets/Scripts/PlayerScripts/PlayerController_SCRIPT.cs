@@ -584,7 +584,7 @@ public class PlayerController : NetworkBehaviour
         HealthBarUI.instance.UpdateHealthBar(health);
 
         GameManager.instance.IncrementPlayerDeathsServerRpc();
-        GameManager.instance.AddScoreServerRpc(-100);
+        GameManager.instance.AddScoreServerRpc(GameManager.instance.ScorePenaltyOnDeath);
     }
 
     void OnDamaged(float damage, GameObject damageSource)

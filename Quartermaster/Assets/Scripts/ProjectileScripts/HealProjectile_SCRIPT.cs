@@ -75,7 +75,8 @@ public class HealProjectile : IProjectile
 
         playerHp.HealServerRpc(_healAmount);
         ParticleManager.instance.SpawnSelfThenAll("Healing", player.transform.position, Quaternion.Euler(-90, 0, 0));
-        
+        GameManager.instance.AddScoreServerRpc(GameManager.instance.ScorePerPlayerHeal);
+
         // reenable physics collision if pooling instead of destroying
         // Physics.IgnoreCollision(projectileObj.GetComponent<Collider>(), user.GetComponent<Collider>(), false);
         Destroy(gameObject);

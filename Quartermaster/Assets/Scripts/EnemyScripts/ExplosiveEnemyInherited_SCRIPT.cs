@@ -36,7 +36,10 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         enemyType = EnemyType.Explosive;
 
         _isExploding = false;
-        isBlinking.Value = false;
+        if (IsServer) {
+            isBlinking.Value = false;
+        }
+        
 
         isBlinking.OnValueChanged += OnBlinkingStateChanged;
     }
@@ -48,6 +51,9 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
                 // agent.speed = blinkingSpeed;
                 UpdateSpeedServerRpc();
                 PlaySoundForEmitter("explode_build", transform.position);
+                animator.SetBool("TransitionToExplode", true);
+            }
+            else if (!IsServer && agent != null) {
                 animator.SetBool("TransitionToExplode", true);
             }
         }
