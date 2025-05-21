@@ -10,9 +10,16 @@ public class ItemCarryObjective : IObjective
 
     private NetworkVariable<int> n_itemsToDeliver = new NetworkVariable<int>();
 
+
     public override void OnNetworkSpawn()
     {
-        n_itemsToDeliver.Value = Random.Range(_rngMinDeliverableRequired, _rngMaxDeliverableRequired + 1);
+        SetItemsToDeliverServerRpc(Random.Range(_rngMinDeliverableRequired, _rngMaxDeliverableRequired + 1));
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void SetItemsToDeliverServerRpc(int items)
+    {
+        n_itemsToDeliver.Value = items;
     }
 
     public override bool IsComplete()

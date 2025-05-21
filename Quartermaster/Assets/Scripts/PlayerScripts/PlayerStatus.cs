@@ -11,7 +11,9 @@ public class PlayerStatus : NetworkBehaviour
     private Dictionary<string, float> _lastUsed = new Dictionary<string, float>();
 
     // Status Effects
-    public NetworkVariable<bool> n_stimActive = new NetworkVariable<bool>(false); // runtime var
+    // public bool stimActive = false;
+    public bool stimActive = false; // local runtime var. 
+    // public NetworkVariable<bool> n_stimActive = new NetworkVariable<bool>(false); // runtime var
     public NetworkVariable<bool> n_healBuffActive = new NetworkVariable<bool>(false); // runtime var
     public NetworkVariable<bool> n_dmgBuffActive = new NetworkVariable<bool>(false);
 
@@ -33,20 +35,6 @@ public class PlayerStatus : NetworkBehaviour
 
     #region Startup
     public override void OnNetworkSpawn(){
-        InitValuesFromGameManager();
-        // InitLastUsedList();
-    }
-
-    void InitValuesFromGameManager(){
-
-    }
-
-    void InitLastUsedList(){
-        // n_lastUsed = new NetworkList<float>();
-        // for (int i = 0; i < ItemManager.instance.itemEntries.Count; i++)
-        // {
-        //     _lastUsed.Add(ItemManager.instance.itemEntries[i].id, float.MinValue);
-        // }
     }
 
 
@@ -55,7 +43,7 @@ public class PlayerStatus : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (n_stimActive.Value && _stimTimer > 0.0f){
+        if (stimActive && _stimTimer > 0.0f){
             _stimTimer -= Time.deltaTime;
         } else {
             DeactivateStim();
@@ -67,7 +55,7 @@ public class PlayerStatus : NetworkBehaviour
 
     #region Stim
     public void ActivateStim(float stimDuration, float stimAspdMultiplier, float stimMspdMultiplier){
-        n_stimActive.Value = true;
+        stimActive = true;
         _stimTimer = stimDuration;
         PlayerController playerController = GetComponent<PlayerController>();
         if (playerController != null){
@@ -77,13 +65,14 @@ public class PlayerStatus : NetworkBehaviour
     }
 
     public void DeactivateStim(){
-        n_stimActive.Value = false;
+        stimActive = false;
         PlayerController playerController = GetComponent<PlayerController>();
         if (playerController != null){
             playerController.stimAspdMultiplier = 1.0f;
             playerController.stimMspdMultiplier = 1.0f;
         }
     }
+
 
     #endregion
     #region CooldownHelpers
@@ -117,12 +106,12 @@ public class PlayerStatus : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void UpdateDmgSpecServerRpc(int quantity, float bonus){
         n_dmgSpecLvl.Value = quantity;
-        n_dmgBonus.Value = bonus;
+        n_dmgBonus.Value = quantity * bonus;
     }
     [ServerRpc(RequireOwnership = false)]
     public void UpdateHealSpecServerRpc(int quantity, float bonus){
         n_healSpecLvl.Value = quantity;
-        n_healBonus.Value = bonus;
+        n_healBonus.Value = quantity * bonus;
     }
 
     #endregion

@@ -27,7 +27,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     #endregion
 
     [Header("Enemy Settings")]
-    [SerializeField] private float _attackDelay = 2.0f;
+    //[SerializeField] private float _attackDelay = 2.0f;
     private float _lastAttackTime = 0.0f;
     public GameObject originalPrefab; // this is for the object pooling to know to use this
 
@@ -65,7 +65,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [HideInInspector] public float AIDmgMultiplier = 1.0f;
 
     [SerializeField] private GameObject floatingTextPrefab;     // to spawn floating damage numbers
-    private bool _isAttacking = false;      // to prevent multiple attacks happening at once
+    //private bool _isAttacking = false;      // to prevent multiple attacks happening at once
     private float _attackTimer = 0.0f;      // to prevent attacks happening too quickly
     public EnemyType enemyType;
 
@@ -297,6 +297,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     // Called when enemy takes damage
     protected virtual void OnDamaged(float damage, GameObject damageSource) {
+        Debug.Log("Damage taken: " + damage);
         Vector3 floatingTextPosition = transform.position;
         
         if (floatingTextPrefab != null) {

@@ -36,14 +36,14 @@ public class Pistol_MONO : Item
             Debug.LogError("Pistol_MONO: ButtonUse() NullChecks failed.");
             return;
         }
-        if (lastUsed + cooldown / pc.stimAspdMultiplier > Time.time){
+        if (GetLastUsed() + cooldown / pc.stimAspdMultiplier > Time.time){
             //Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
             //Debug.Log ("cooldown remaining: " + (lastUsed + cooldown - Time.time));
             return;
         }
         //Debug.Log(itemStr + " (" + itemID + ") used");
 
-        lastUsed = Time.time;
+        SetLastUsed(Time.time);
 
         fire(user);
     }
@@ -61,7 +61,7 @@ public class Pistol_MONO : Item
             Debug.LogError("Pistol_MONO: ButtonUse() NullChecks failed.");
             return;
         }
-        if (lastUsed + cooldown / pc.stimAspdMultiplier > Time.time){
+        if (GetLastUsed() + cooldown / pc.stimAspdMultiplier > Time.time){
             //Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
             //Debug.Log ("cooldown remaining: " + (lastUsed + cooldown - Time.time));
             return;
@@ -72,13 +72,13 @@ public class Pistol_MONO : Item
             Debug.LogError("Flamethrower_MONO: ButtonHeld() NullChecks failed.");
             return;
         }
-        bool autofire = CanAutoFire || s.n_stimActive.Value;
+        bool autofire = CanAutoFire || s.stimActive;
         
         if (!autofire){
             return;
         }
 
-        lastUsed = Time.time;
+        SetLastUsed(Time.time);
 
         fire (user);
     }

@@ -14,7 +14,11 @@ public class ObjectiveManager : NetworkBehaviour {
     #region InspectorSettings
     public int objectivesToWin; // = max(foreach objectivetype * minimumtospawn, objectivesToWin)
     public int initialSpawnCount;
+
     [SerializeField] private TextMeshProUGUI taskList;
+    [SerializeField] private TextMeshProUGUI nodeDefensePopUpTip;
+    private bool BOOL_nodeDefensePopUpTip;
+
     public List<ObjectiveType> minPerObjective; // minimum number of each objective to spawn
     [System.Serializable]
     public struct ObjectiveType {   
@@ -256,6 +260,18 @@ public class ObjectiveManager : NetworkBehaviour {
         }
         else if (randType == 1) {
             taskList.text += "-Locate and defend the node! " + $"<size=1%>{randValid + 11}</size>" + "\n";
+        }
+    }
+
+    [ClientRpc]
+    public void NodeZoneTextHelperClientRpc() {
+        if (!BOOL_nodeDefensePopUpTip) {
+            nodeDefensePopUpTip.text = "<color=#00FFFF>Stay in the zone for 15 seconds to complete the objective!</color>";
+            BOOL_nodeDefensePopUpTip = true;
+        }
+        else {
+            nodeDefensePopUpTip.text = "";
+            BOOL_nodeDefensePopUpTip = false;
         }
     }
 

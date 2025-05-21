@@ -100,7 +100,7 @@ public class IPRelay : NetworkBehaviour
             {
                 RequestSteamLobbyIDServerRpc();
             }
-        }
+        };
     }
 
     private void Update()
@@ -436,7 +436,7 @@ public class IPRelay : NetworkBehaviour
     [ClientRpc]
     private void ReceiveSteamLobbyIDClientRpc(ulong lobbySteamID, ClientRpcParams rpcParams = default)
     {
-        receieveLobbyID = new CSteamID(lobbySteamID);
+        var receieveLobbyID = new CSteamID(lobbySteamID);
         Debug.LogError($"RPC - Recieved steam lobby id thru client rpc: {receieveLobbyID}");
         alreadyInSteamLobby = true;
         SteamMatchmaking.JoinLobby(receieveLobbyID);
