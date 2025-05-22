@@ -74,17 +74,8 @@ public class Grenade_MONO : Item
             RaycastHit hit;
             if (Physics.Raycast(camera.position, camera.forward, out hit, 100f, _throwRaycastables))
             {
-                // if hit is not an enemy, throw grenade in direction of raycast hit point.
-                if (hit.collider.gameObject.layer != LayerMask.NameToLayer("Enemy"))
-                {
-                    throwOriginPosition = hit.point;
-                    throwDirection = (hit.point - weaponSlot.position).normalized;
-                }
-                else
-                {
-                    throwOriginPosition = weaponSlot.position;
-                    throwDirection = camera.forward;
-                }
+                throwOriginPosition = weaponSlot.position;
+                throwDirection = (hit.point - weaponSlot.position).normalized;
             }
             else
             {

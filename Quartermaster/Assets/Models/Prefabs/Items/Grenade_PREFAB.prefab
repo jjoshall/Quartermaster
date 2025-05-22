@@ -251,14 +251,23 @@ MonoBehaviour:
   quantity: 1
   icon: {fileID: 2800000, guid: bf1ed58d660f427479999ac377cbb09a, type: 3}
   soundEmitters: []
-  IsPickedUp: 0
-  attachedWeaponSlot: {fileID: 0}
   userRef: {fileID: 0}
-  _grenadeBaseVelocity: 15
+  IsPickedUp: 0
+  n_isPickedUp:
+    m_InternalValue: 0
+  n_isCurrentlySelected:
+    m_InternalValue: 0
+  attachedWeaponSlot: {fileID: 0}
+  n_syncedQuantity:
+    m_InternalValue: 1
   _grenadeMaxVelocity: 30
-  _grenadeMaxChargeTime: 1
+  _grenadeExpireTimer: 0.5
   _grenadeDamage: 60
   _capsuleRadius: 15
+  throwCameraOrRaycast: 0
+  _throwRaycastables:
+    serializedVersion: 2
+    m_Bits: 1160
 --- !u!114 &3485795833009556841
 MonoBehaviour:
   m_ObjectHideFlags: 0

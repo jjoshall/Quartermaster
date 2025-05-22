@@ -47,7 +47,7 @@ public class MedKit_MONO : Item
         Vector3 direction;
         Vector3 throwOrigin;
         GetThrowData(camera, user.transform, user.GetComponent<Inventory>().weaponSlot.transform, out throwOrigin, out direction);
-        
+
         // Throw the MedKit.
         ProjectileManager.instance.SpawnSelfThenAll("MedKit", 
                 throwOrigin, 
@@ -109,17 +109,8 @@ public class MedKit_MONO : Item
             RaycastHit hit;
             if (Physics.Raycast(camera.position, camera.forward, out hit, 100f, _throwRaycastables))
             {
-                // if hit is not an enemy, throw grenade in direction of raycast hit point.
-                if (hit.collider.gameObject.layer != LayerMask.NameToLayer("Enemy"))
-                {
-                    throwOriginPosition = hit.point;
-                    throwDirection = (hit.point - weaponSlot.position).normalized;
-                }
-                else
-                {
-                    throwOriginPosition = weaponSlot.position;
-                    throwDirection = camera.forward;
-                }
+                throwOriginPosition = weaponSlot.position;
+                throwDirection = (hit.point - weaponSlot.position).normalized;
             }
             else
             {
