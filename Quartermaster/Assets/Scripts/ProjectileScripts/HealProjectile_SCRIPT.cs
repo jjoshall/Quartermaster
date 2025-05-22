@@ -2,18 +2,40 @@ using UnityEngine;
 
 public class HealProjectile : IProjectile
 {
+    private float _healAmount = 0f;
+
     protected override void Start()
     {
-        _expireTimer = GameManager.instance.MedKit_ExpireTimer;
+        if (_expireTimer <= 0f){
+            Debug.LogError("_expireTimer is not set.");
+            _expireTimer = 10f; // generic value to avoid immediate destruction.
+        }
     }
 
     protected override void Update()
     {
         if (_projectileCollided){
+            Debug.Log ("HealProjectile.Update() _expireTimer: " + _expireTimer);
             _expireTimer -= Time.deltaTime;
             if (_expireTimer <= 0){
                 Destroy(gameObject);
             }
+        }
+    }
+
+    public override void InitializeData(float expireTimer, params object[] args)
+    {
+        base.InitializeData(expireTimer, args);
+        // Debug.Log ("HealProjectile.InitializeData() expireTimer parameter: " + expireTimer);
+        // Debug.Log ("HealProjectile.InitializeData() _expireTimer: " + _expireTimer);    
+        if (args.Length < 1)
+        {
+            Debug.LogError("HealProjectile.InitializeData() - not enough args");
+        }
+        else
+        {
+            _healAmount = (float)args[0];
+
         }
     }
 
@@ -30,12 +52,14 @@ public class HealProjectile : IProjectile
             thisObj = collision.gameObject.transform.parent.gameObject;
         }
         if (thisObj.CompareTag("Player")){
+            Debug.Log ("healprojectile collided with: " + thisObj.name);
             if (thisObj == sourcePlayer && _projectileCollided == false){
                 //Debug.Log ("thisObj == sourcePlayer && _projectileCollided == false");
                 return;
             }
             HealPlayer(thisObj);
         } else {
+            Debug.Log ("healProjectile collided with: " + thisObj.name);
             _projectileCollided = true;
         }
 
@@ -43,15 +67,18 @@ public class HealProjectile : IProjectile
 
     private void HealPlayer(GameObject player){
         Health playerHp = player.GetComponent<Health>();
-        int healSpec = sourcePlayer.GetComponent<PlayerStatus>().GetHealSpecLvl();
-        float bonusPerSpec = GameManager.instance.HealSpec_MultiplierPer;
-        float total = bonusPerSpec * healSpec + 1.0f;
+        // int healSpec = sourcePlayer.GetComponent<PlayerStatus>().GetHealSpecLvl();
+        // float bonusPerSpec = GameManager.instance.HealSpec_MultiplierPer;
+        // float total = bonusPerSpec * healSpec + 1.0f;
 
-        float totalHeal = GameManager.instance.MedKit_HealAmount * total;
+        // float totalHeal = GameManager.instance.MedKit_HealAmount * total;
 
-        playerHp.HealServerRpc(totalHeal);
+        playerHp.HealServerRpc(_healAmount);
         ParticleManager.instance.SpawnSelfThenAll("Healing", player.transform.position, Quaternion.Euler(-90, 0, 0));
-        
+        GameManager.instance.AddScoreServerRpc(GameManager.instance.ScorePerPlayerHeal);
+
+        // reenable physics collision if pooling instead of destroying
+        // Physics.IgnoreCollision(projectileObj.GetComponent<Collider>(), user.GetComponent<Collider>(), false);
         Destroy(gameObject);
     }
     

@@ -194,20 +194,24 @@ MonoBehaviour:
   IsWeapon: 0
   IsClassSpec: 0
   CanAutoFire: 0
-  cooldown: 1
-  StackLimit: 5
+  cooldown: 0.128
+  StackLimit: 50
   weight: 0
   quantity: 1
   icon: {fileID: 2800000, guid: 35e041898aa85fa4ca178edf0c747b31, type: 3}
   soundEmitters: []
-  IsPickedUp: 0
-  attachedWeaponSlot: {fileID: 0}
   userRef: {fileID: 0}
-  _medKitBaseVelocity: 1
-  _medKitMaxVelocity: 10
-  _medKitMaxChargeTime: 1
-  _medKitTapThreshold: 0.1
-  _healAmount: 6
+  IsPickedUp: 0
+  n_isPickedUp:
+    m_InternalValue: 0
+  n_isCurrentlySelected:
+    m_InternalValue: 0
+  attachedWeaponSlot: {fileID: 0}
+  n_syncedQuantity:
+    m_InternalValue: 1
+  _medKitMaxVelocity: 20
+  _medKitExpireTimer: 2
+  _healAmount: 8
 --- !u!114 &6030836504816948394
 MonoBehaviour:
   m_ObjectHideFlags: 0

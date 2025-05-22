@@ -20,8 +20,8 @@ public class DefendNodeObjective : IObjective
     #endregion
 
     #region Variables
-    public NetworkVariable<bool> n_defenseCompleted = new NetworkVariable<bool>(); // completed when players successfully complete the defense.
-    private NetworkVariable<bool> n_nodeDefenseActive = new NetworkVariable<bool>(); // active with players in range.
+    public NetworkVariable<bool> n_defenseCompleted = new NetworkVariable<bool>(false); // completed when players successfully complete the defense.
+    private NetworkVariable<bool> n_nodeDefenseActive = new NetworkVariable<bool>(false); // active with players in range.
 
     [Tooltip("Duration in seconds to defend the node before it is cleared.")]
     public float nodeDefenseDuration = 60f; // time until node complete.
@@ -41,22 +41,23 @@ public class DefendNodeObjective : IObjective
 
     void Start()
     {
-        n_defenseCompleted.Value = false;
+        // n_defenseCompleted.Value = false;
         _currentDefenseTimer = 0f;
-        n_nodeDefenseActive.Value = false;
+        // n_nodeDefenseActive.Value = false;
         _particleTimer = 0f;
     }
 
     public override void OnNetworkSpawn()
     {
         if (!IsServer) return;
-        n_defenseCompleted.Value = false;
+        // n_defenseCompleted.Value = false;
         _currentDefenseTimer = 0f;
-        n_nodeDefenseActive.Value = false;
+        // n_nodeDefenseActive.Value = false;
         _particleTimer = 0f;
     }
 
-    void Update(){
+    void Update() {
+        if (!IsServer) return;
         if (n_defenseCompleted.Value){
             return;
         }
@@ -71,9 +72,9 @@ public class DefendNodeObjective : IObjective
     private void UpdateDefenseTimer(){
         // increment if hasPlayersinRange, decrement if no players in range
         if (_currentDefenseTimer >= nodeDefenseDuration){
-            n_defenseCompleted.Value = true;
+            SetDefenseCompletedServerRpc(true);
             ClearObjective();
-            GameManager.instance.AddScoreServerRpc(200);
+            GameManager.instance.totalScore.Value += GameManager.instance.ScorePerObjective;
             Debug.Log("Total score " + GameManager.instance.totalScore.Value);
             return;
             // _particleInterval = 1000f;
@@ -91,12 +92,23 @@ public class DefendNodeObjective : IObjective
         // throw new System.NotImplementedException();
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void SetDefenseCompletedServerRpc(bool completed){
+        n_defenseCompleted.Value = completed;
+        NodeZoneTextHelper();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void SetNodeDefenseActiveServerRpc(bool active){
+        n_nodeDefenseActive.Value = active;
+    }   
 
     // Using ObjectiveRing's trigger instead.
     public void PublicTriggerEnter (Collider other){
         if (other.gameObject.tag == "Player"){
             _playersInRange.Add(other.gameObject);
-            n_nodeDefenseActive.Value = true;
+            SetNodeDefenseActiveServerRpc(true);
+            NodeZoneTextHelper();
         }
     }
 
@@ -104,10 +116,11 @@ public class DefendNodeObjective : IObjective
         if(other.gameObject.tag == "Player"){
             _playersInRange.Remove(other.gameObject);
             if(!HasPlayersInRange()){
-                n_nodeDefenseActive.Value = false;
+                SetNodeDefenseActiveServerRpc(false);
                 _currentDefenseTimer = 0f;
                 _particleTimer = 0f;
             }
+            NodeZoneTextHelper();
         }
     }
 

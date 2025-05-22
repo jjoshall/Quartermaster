@@ -39,6 +39,8 @@ public class Inventory : NetworkBehaviour {
     private float _maxInventoryWeight = 100f; // Default max. Can be changed at run-time. 
     private float _currentInventoryWeight = 0.0f;
 
+    public bool toggleWeaponSlotExclusivity; // if set to true, weapons can only be held in slot 1
+
     public override void OnNetworkSpawn(){
         _playerObj = this.gameObject;
         _itemAcquisitionRange = _playerObj.GetComponentInChildren<ItemAcquisitionRange>();
@@ -46,8 +48,12 @@ public class Inventory : NetworkBehaviour {
         if (IsOwner){
 
             if (!_InputHandler) _InputHandler = _playerObj.GetComponent<PlayerInputHandler>();
-            _InputHandler.OnUse += PlayerInputHandlerUseEvent;
-            _InputHandler.OnRelease += ReleaseItem;
+            _InputHandler.OnUse += PlayerInputHandlerUseEvent; // button down, button held
+            _InputHandler.OnRelease += ReleaseItem; // button up
+
+            _InputHandler.OnAltUse += PlayerInputHandlerAltEvent;
+            _InputHandler.OnAltRelease += ReleaseAlt;
+
             _InputHandler.OnInteract += PickUpClosest;
 
             _inventoryMono = new GameObject[_maxInventorySize];
@@ -99,6 +105,19 @@ public class Inventory : NetworkBehaviour {
 
         // Update the UI highlight for the current slot.
         _uiManager.HighlightSlot(_currentInventoryIndex);
+        _uiManager.WriteLabel(GetItemAt(_currentInventoryIndex));
+    }
+
+    void SetIndex(int index) {
+        _currentInventoryIndex = index;
+        Item oldItem = GetItemAt(_oldInventoryIndex);
+        if (oldItem){
+            oldItem.OnSwapOut(_playerObj);
+        }
+        UpdateAllInventoryUI();
+        _oldInventoryIndex = _currentInventoryIndex;
+
+        UpdateHoldableNetworkReference();
     }
 
         // Helper method to update the network variable based on the current index.
@@ -111,6 +130,56 @@ public class Inventory : NetworkBehaviour {
             n_currentHoldable.Value = default;
         }
     }
+    // -------------------------------------------------------------------------------------------------------------------------
+    #region PlayerItemAltEvents
+    #endregion
+    // -------------------------------------------------------------------------------------------------------------------------
+    #region PlayerItemUsageEvents
+    #endregion
+
+    // PlayerInputHandler uses same event and a Held bool to distinguish OnPress and OnHold.
+    // This function is to split the two events.
+    void PlayerInputHandlerAltEvent(bool isHeld) {
+        if (isHeld){
+            HeldAlt();
+        } else {
+            UseAlt();
+        }
+    }
+
+    void UseAlt(){
+        if (!IsOwnerValidIndexAndPauseMenuCheck()) return;
+
+        if (_inventoryMono[_currentInventoryIndex]?.TryGetComponent<Item>(out var item) != true)
+            return;
+        item.OnAltUse(_playerObj);
+
+        QuantityCheck(); 
+        UpdateAllInventoryUI();
+    }
+
+    void HeldAlt(){
+        if (!IsOwnerValidIndexAndPauseMenuCheck()) return;
+
+        if (_inventoryMono[_currentInventoryIndex]?.TryGetComponent<Item>(out var item) != true)
+            return;
+        item.OnAltHeld(_playerObj);
+
+        QuantityCheck();
+        UpdateAllInventoryUI();
+    }
+
+    void ReleaseAlt(bool b) {
+        if (!IsOwnerValidIndexAndPauseMenuCheck()) return;
+
+        if (_inventoryMono[_currentInventoryIndex]?.TryGetComponent<Item>(out var item) != true)
+            return;
+        item.OnAltRelease(_playerObj);
+
+        QuantityCheck();
+        UpdateAllInventoryUI();
+    }
+
 
     // -------------------------------------------------------------------------------------------------------------------------
     #region PlayerItemUsageEvents
@@ -212,6 +281,26 @@ public class Inventory : NetworkBehaviour {
             return;
         }
 
+        HandleItemExclusivity(pickedUp.GetComponent<Item>());
+
+        // --- code for weapon slot exclusivity
+        if (toggleWeaponSlotExclusivity) {
+            if (pickedUp.GetComponent<Item>().IsWeapon && _currentInventoryIndex != 0) {
+                SetIndex(0);
+                DropItem(_currentInventoryIndex);
+            }
+            else if (!pickedUp.GetComponent<Item>().IsWeapon && _currentInventoryIndex == 0) {
+                SetIndex(1);
+                if (_currentHeldItems >= _maxInventorySize - 1 && !GetItemAt(0)) {
+                    DropItem(_currentInventoryIndex);
+                }
+            }
+            else if (!pickedUp.GetComponent<Item>().IsWeapon && !GetItemAt(0) && _currentHeldItems >= _maxInventorySize - 1) {
+                DropItem(_currentInventoryIndex);
+            }
+        }
+        // ---
+
         // Try to stack the item in any existing item stacks. Returns true if fully stacked into existing stacks.
         if (TryStackItem(pickedUp)) {
             pickedUp.GetComponent<Item>().OnPickUp(_playerObj); // Call the item's onPickUp function
@@ -233,6 +322,15 @@ public class Inventory : NetworkBehaviour {
             UpdateAllInventoryUI();
             return;
         }
+        else if (_currentHeldItems >= _maxInventorySize) {
+            DropItem(_currentInventoryIndex);
+
+            RemoveFromItemAcqLocal(pickedUp);
+            AddToInventory(pickedUp); 
+            UpdateInventoryWeight();
+            UpdateAllInventoryUI();
+            return; 
+        }
     }
 
 
@@ -245,6 +343,7 @@ public class Inventory : NetworkBehaviour {
 
         // local userRef set first to avoid null reference errors.
         item.userRef = _playerObj;
+        SetUserRefServerRpc(itemNO, playerNO);
 
         // Visually/physically attach the item on all clients
         PropagateItemAttachmentServerRpc(itemNO, playerNO, true);
@@ -259,29 +358,51 @@ public class Inventory : NetworkBehaviour {
             UpdateHeldItemNetworkReference();
         }
     }
-    private void GetPickupVars(GameObject pickedUp, out Item item, out NetworkObject itemNO, out NetworkObject playerNO) {
+    [ServerRpc(RequireOwnership = false)]
+    private void SetUserRefServerRpc(NetworkObjectReference item, NetworkObjectReference player){
+        if (!IsServer) return;
+
+        if (item.TryGet(out var itemNO)) {
+            var itemGO = itemNO.gameObject;
+
+            var itemComponent = itemGO.GetComponent<Item>();
+            if (itemComponent != null) {
+                itemComponent.n_userRef.Value = player;
+            } else {
+                Debug.LogError("SetUserRefServerRpc: Item component not found on picked up object.");
+            }
+        } else {
+            Debug.LogError("SetUserRefServerRpc: Item or Player is null.");
+        }
+    }
+    private void GetPickupVars(GameObject pickedUp, out Item item, out NetworkObject itemNO, out NetworkObject playerNO)
+    {
         item = null;
         itemNO = null;
         playerNO = _playerObj?.GetComponent<NetworkObject>();
 
-        if (playerNO == null) {
+        if (playerNO == null)
+        {
             Debug.LogError("Player object does not have a NetworkObject component.");
             return;
         }
 
-        if (pickedUp == null) {
+        if (pickedUp == null)
+        {
             Debug.LogError("Picked up item is null.");
             return;
         }
 
         itemNO = pickedUp.GetComponent<NetworkObject>();
-        if (itemNO == null) {
+        if (itemNO == null)
+        {
             Debug.LogError("Picked up item does not have a NetworkObject component.");
             return;
         }
 
         item = pickedUp.GetComponent<Item>();
-        if (item == null) {
+        if (item == null)
+        {
             Debug.LogError("Picked up item does not have an Item component.");
             return;
         }
@@ -381,9 +502,23 @@ public class Inventory : NetworkBehaviour {
     bool AddToFirstEmptySlot(GameObject itemGO) {
         for (int i = 0; i < _inventoryMono.Length; i++) {
             if (_inventoryMono[i] == null) {
-                _inventoryMono[i] = itemGO;
-                itemGO.GetComponent<Item>().OnPickUp(_playerObj);
-                return true;
+                // --- code for weapon slot exclusivity
+                if (toggleWeaponSlotExclusivity) {
+                    if (i == 0 && !itemGO.GetComponent<Item>().IsWeapon && !GetItemAt(0)) {
+                        // do nothing
+                    }
+                    else {
+                        _inventoryMono[i] = itemGO;
+                        itemGO.GetComponent<Item>().OnPickUp(_playerObj);
+                        return true;
+                    }
+                }
+                // ---
+                else {
+                    _inventoryMono[i] = itemGO;
+                    itemGO.GetComponent<Item>().OnPickUp(_playerObj);
+                    return true;
+                }
             }
         }
         return false;
@@ -443,6 +578,14 @@ public class Inventory : NetworkBehaviour {
         float cooldownRemaining = item.GetCooldownRemaining();
         float cooldownMax = item.GetMaxCooldown();
 
+        PlayerController playerController = _playerObj.GetComponent<PlayerController>();
+        float stimAspdMultiplier = 1.0f;
+        if (playerController != null) {
+            stimAspdMultiplier = playerController.stimAspdMultiplier;
+        }
+
+        cooldownMax /= stimAspdMultiplier;
+
         if (cooldownMax > 0) {
             _uiManager.weaponCooldownRadial.gameObject.SetActive(true);
             float cooldownRatio = Mathf.Clamp01(1 - (cooldownRemaining / cooldownMax));
@@ -472,6 +615,11 @@ public class Inventory : NetworkBehaviour {
     private void PropagateHoldableShowServerRpc(NetworkObjectReference item, bool holdableVisibility){
         if (!IsServer) return;
         // Attach the item to the weapon slot on the server
+        var GO = item.TryGet(out NetworkObject n_item) ? n_item.gameObject : null;
+        if (GO == null) return;
+        var itemComponent = GO.GetComponent<Item>();
+        if (itemComponent == null) return;
+        itemComponent.n_isCurrentlySelected.Value = holdableVisibility;
         PropagateHoldableShowClientRpc(item, holdableVisibility);
     }
     [ClientRpc]
@@ -480,6 +628,12 @@ public class Inventory : NetworkBehaviour {
         NetworkObject n_item = itemRef.TryGet(out NetworkObject itemObj) ? itemObj : null;
         GameObject item = n_item != null ? n_item.gameObject : null;
         if (item == null) return;
+        
+        if (item.ToString() == "DeliverableQuestItem_PREFAB(Clone) (UnityEngine.GameObject)") {
+            Transform firstChildTransform = item.transform.GetChild(1);
+            GameObject firstChildGameObject = firstChildTransform.gameObject;
+            firstChildGameObject.SetActive(false);
+        }
 
         // Show the item in the weapon slot
         foreach (Renderer r in item.GetComponentsInChildren<Renderer>()) {

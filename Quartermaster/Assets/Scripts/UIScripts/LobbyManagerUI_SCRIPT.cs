@@ -3,6 +3,9 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
+using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 
 public class LobbyManagerUI : MonoBehaviour {
     [SerializeField] private Button createRelayBtn;
@@ -13,24 +16,26 @@ public class LobbyManagerUI : MonoBehaviour {
     [SerializeField] private Canvas playerUICanvas;
     [SerializeField] private IPRelay IPRelay;
 
-    private void Awake() {
+    public UnityEvent onQuitToMainMenu;
 
-        createRelayBtn.onClick.AddListener(() => {
-            IPRelay.CreateRelay();
-            StartCoroutine(HideLobbyUI());
-        });
+    private void Awake()
+    {
 
-        joinRelayInput.onEndEdit.AddListener((string s) => {
-            if (UnityEngine.Input.GetKeyDown(KeyCode.Return)) {
+        joinRelayInput.onEndEdit.AddListener((string s) =>
+        {
+            if (Input.GetKeyDown(KeyCode.Return))
+            {
                 s = s.ToUpper();
                 IPRelay.JoinRelay(s);
                 HideLobbyUI();
             }
         });
 
-        quitBtn.onClick.AddListener(() => {
+        quitBtn.onClick.AddListener(() =>
+        {
             //return to main menu scene
-            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu_SCENE");
+            SceneManager.LoadScene("MainMenu_SCENE");
+            onQuitToMainMenu?.Invoke();
         });
 
 
@@ -39,11 +44,13 @@ public class LobbyManagerUI : MonoBehaviour {
     }
 
     public IEnumerator HideLobbyUI() {
+        Debug.LogError("Starting hide lobby ui");
         lobbyMenuCanvas.enabled = false;
         playerUICanvas.enabled = true;
 
         yield return new WaitUntil(() => Camera.main != null && Camera.main.enabled);
-        
+        Debug.LogError("main cam enabled upon join");
+
         yield return new WaitForEndOfFrame();
     }
 

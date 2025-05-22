@@ -16,6 +16,7 @@ public class UIManager : MonoBehaviour {
     [Header("Inventory UI Elements")]
     [SerializeField] private RawImage[] inventorySlotImages;
     [SerializeField] private TextMeshProUGUI[] inventorySlotQuantityTexts;
+    [SerializeField] private TextMeshProUGUI inventorySlotLabel;
 
     [SerializeField] public Image weaponCooldownRadial;
 
@@ -42,6 +43,24 @@ public class UIManager : MonoBehaviour {
         }
         if (selectedSlot >= 0 && selectedSlot < inventorySlotImages.Length) {
             inventorySlotImages[selectedSlot].rectTransform.localScale = Vector3.one * highlightScale;
+        }
+    }
+    public void WriteLabel(Item item) {
+        if (item) {
+            inventorySlotLabel.text = item.ToString();
+            int underscoreIndex = inventorySlotLabel.text.IndexOf('_');
+            string cleaned = underscoreIndex >= 0 ? inventorySlotLabel.text.Substring(0, underscoreIndex) : inventorySlotLabel.text;
+
+            cleaned = System.Text.RegularExpressions.Regex.Replace(
+                cleaned,
+                "(?<!^)([A-Z])",
+                " $1"
+            );
+
+            inventorySlotLabel.text = cleaned;
+        }
+        else {
+            inventorySlotLabel.text = "";
         }
     }
 }

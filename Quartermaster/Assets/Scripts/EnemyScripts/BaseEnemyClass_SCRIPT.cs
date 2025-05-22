@@ -27,7 +27,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     #endregion
 
     [Header("Enemy Settings")]
-    [SerializeField] private float _attackDelay = 2.0f;
+    //[SerializeField] private float _attackDelay = 2.0f;
     private float _lastAttackTime = 0.0f;
     public GameObject originalPrefab; // this is for the object pooling to know to use this
 
@@ -40,6 +40,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     [Header("Enemy pathing")]
     [SerializeField] private float _localDetectionRange = 20f; // how far to switch from global to direct aggro
+    [SerializeField] private float _aggroPropagationRange = 10f; // radius for aggro propagation if one enemy is hit.
     
     [Header("Separation Pathing")]
     [SerializeField, Tooltip("Higher neighbor counts computation heavy.")] private bool _useSeparation = false;
@@ -64,7 +65,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [HideInInspector] public float AIDmgMultiplier = 1.0f;
 
     [SerializeField] private GameObject floatingTextPrefab;     // to spawn floating damage numbers
-    private bool _isAttacking = false;      // to prevent multiple attacks happening at once
+    //private bool _isAttacking = false;      // to prevent multiple attacks happening at once
     private float _attackTimer = 0.0f;      // to prevent attacks happening too quickly
     public EnemyType enemyType;
 
@@ -296,6 +297,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     // Called when enemy takes damage
     protected virtual void OnDamaged(float damage, GameObject damageSource) {
+        Debug.Log("Damage taken: " + damage);
         Vector3 floatingTextPosition = transform.position;
         
         if (floatingTextPrefab != null) {
@@ -304,16 +306,36 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
         PlaySoundForEmitter("melee_damaged", transform.position);
 
-        //GameManager.instance.AddEnemyDamageServerRpc(damage);   // tracks total damage dealt to enemies
-        if (!playersThatHitMe.Contains(damageSource)) {
-            playersThatHitMe.Add(damageSource);
-        } // prevent multiple hits from same player
+        if (damageSource.CompareTag("Player")){
+            AddAttackingPlayer(damageSource); // add the player that hit this enemy to the list of players that hit this enemy
+            
+            // layer mask for fellow enemies
+            int enemyLayer = LayerMask.NameToLayer("Enemy");
+            Collider[] colliders = Physics.OverlapSphere(transform.position, _aggroPropagationRange, enemyLayer);
+            foreach (Collider nearbyObject in colliders){
+                var alliedEnemy = nearbyObject.gameObject;
+                if (alliedEnemy == null || alliedEnemy == gameObject) continue; // skip self
+                var enemy = alliedEnemy.GetComponent<BaseEnemyClass_SCRIPT>();
+                if (enemy != null && enemy != this) {
+                    enemy.AddAttackingPlayer(damageSource); // add the player that hit this enemy to the list of players that hit this enemy
+                }
+            }
+
+        }
+    }
+
+    public void AddAttackingPlayer(GameObject player){ 
+        // prevent same player from being added multiple times
+        if (!playersThatHitMe.Contains(player)) {
+            playersThatHitMe.Add(player);
+        }
     }
 
     // Called when enemy dies
     protected virtual void OnDie() {
         ItemManager.instance.RollDropTable(transform.position);    // norman added this, has a chance to burst drop items
         GameManager.instance.IncrementEnemyKillsServerRpc();    // add to enemy kill count
+        GameManager.instance.AddScoreServerRpc(GameManager.instance.ScorePerEnemyKill);
         enemySpawner.RemoveEnemyFromList(gameObject);   // remove enemy from list of enemies
         enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());  // remove enemy from scene
     }

@@ -48,29 +48,30 @@ public class DevController : NetworkBehaviour
         
 
     }
+
     // Update is called once per frame
     void Update()
     {
-        MouseCameraMovement();
-        WASD(); // checks wasd hold for movement.
-        ItemSpawn(); // checks 123456qert keydown for item spawn at raycast.
-        //EnemySpawn();
-        Sprint();
-        ReturnToBeingPlayer();
-        IncreaseDecreaseSpeed();
+        //MouseCameraMovement();
+        //WASD(); // checks wasd hold for movement.
+        //ItemSpawn(); // checks 123456qert keydown for item spawn at raycast.
+        ////EnemySpawn();
+        //Sprint();
+        //ReturnToBeingPlayer();
+        //IncreaseDecreaseSpeed();
 
     }
 
     private void ReturnToBeingPlayer(){
-        if (Input.GetKeyDown(KeyCode.RightBracket)){
-            n_playerObj.gameObject.SetActive(true);
-            n_playerObj.transform.position = transform.position;
-            n_playerObj.transform.rotation = transform.rotation;
-            this.gameObject.SetActive(false);
-            if (canvas){
-                canvas.SetActive(true);
-            }
-        }
+        //if (Input.GetKeyDown(KeyCode.RightBracket)){
+        //    n_playerObj.gameObject.SetActive(true);
+        //    n_playerObj.transform.position = transform.position;
+        //    n_playerObj.transform.rotation = transform.rotation;
+        //    this.gameObject.SetActive(false);
+        //    if (canvas){
+        //        canvas.SetActive(true);
+        //    }
+        //}
     }
 
     private void MouseCameraMovement(){
@@ -121,12 +122,12 @@ public class DevController : NetworkBehaviour
     }
 
     private void SwitchToPlayer(){
-        if (Input.GetKeyDown(KeyCode.RightBracket)){
-            n_playerObj.gameObject.SetActive(true);
-            n_playerObj.transform.position = transform.position;
-            n_playerObj.transform.rotation = transform.rotation;
-            this.gameObject.SetActive(false);
-        }
+        //if (Input.GetKeyDown(KeyCode.RightBracket)){
+        //    n_playerObj.gameObject.SetActive(true);
+        //    n_playerObj.transform.position = transform.position;
+        //    n_playerObj.transform.rotation = transform.rotation;
+        //    this.gameObject.SetActive(false);
+        //}
     }
 
     private void WASD(){
@@ -158,57 +159,57 @@ public class DevController : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             // spawn item 1
-            ItemManager.instance.DropSpecificItem(0, RaycastGround());
+            ItemManager.instance.DropSpecificEntry(0, RaycastGround());
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             // spawn item 2
-            ItemManager.instance.DropSpecificItem(1, RaycastGround());
+            ItemManager.instance.DropSpecificEntry(1, RaycastGround());
         }
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             // spawn item 3
-            ItemManager.instance.DropSpecificItem(2, RaycastGround());
+            ItemManager.instance.DropSpecificEntry(2, RaycastGround());
         }
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
             // spawn item 4
-            ItemManager.instance.DropSpecificItem(3, RaycastGround());
+            ItemManager.instance.DropSpecificEntry(3, RaycastGround());
         }
         if (Input.GetKeyDown(KeyCode.Alpha5))
         {
             // spawn item 5
-            ItemManager.instance.DropSpecificItem(4, RaycastGround());
+            ItemManager.instance.DropSpecificEntry(4, RaycastGround());
         }
         if (Input.GetKeyDown(KeyCode.Alpha6))
         {
             // spawn item 6
-            ItemManager.instance.DropSpecificItem(5, RaycastGround());
+            ItemManager.instance.DropSpecificEntry(5, RaycastGround());
         }
         if (Input.GetKeyDown(KeyCode.Q))
         {
             // spawn item 7
-            ItemManager.instance.DropSpecificItem(6, RaycastGround());
+            ItemManager.instance.DropSpecificEntry(6, RaycastGround());
         }
         if (Input.GetKeyDown(KeyCode.E))
         {
             // spawn item 8
-            ItemManager.instance.DropSpecificItem(7, RaycastGround());
+            ItemManager.instance.DropSpecificEntry(7, RaycastGround());
         }
         if (Input.GetKeyDown(KeyCode.R))
         {
             // spawn item 9
-            ItemManager.instance.DropSpecificItem(8, RaycastGround());
+            ItemManager.instance.DropSpecificEntry(8, RaycastGround());
         }
         if (Input.GetKeyDown(KeyCode.T))
         {
             // spawn item 10
-            ItemManager.instance.DropSpecificItem(9, RaycastGround());
+            ItemManager.instance.DropSpecificEntry(9, RaycastGround());
         }
         if (Input.GetKeyDown(KeyCode.Y))
         {
             // spawn item 11
-            ItemManager.instance.DropSpecificItem(10, RaycastGround());
+            ItemManager.instance.DropSpecificEntry(10, RaycastGround());
         }
         if (Input.GetKeyDown(KeyCode.F))
         {

@@ -10,6 +10,7 @@ public class RailgunItem : Item
     [Header("Railgun Settings")]
     [SerializeField] private float _railgunDamage = 17.0f; // originally 6.0f
     [SerializeField] private float _explosionRadius = 10.0f;
+    [SerializeField] private float _maxRange = 40.0f;
 
 
     // Make an effect string = "" to disable spawning an effect.
@@ -31,15 +32,19 @@ public class RailgunItem : Item
         if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
             AnalyticsService.Instance.RecordEvent("RailgunUsed");
         }
-
-        if (lastUsed + cooldown > Time.time){
+        PlayerController pc = user.GetComponent<PlayerController>();
+        if (user == null || pc == null) {
+            Debug.LogError("Pistol_MONO: ButtonUse() NullChecks failed.");
+            return;
+        }
+        if (GetLastUsed() + cooldown / pc.stimAspdMultiplier > Time.time){
             //Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
             //Debug.Log ("cooldown remaining: " + (lastUsed + cooldown - Time.time));
             return;
         }
         //Debug.Log(itemStr + " (" + itemID + ") used");
 
-        lastUsed = Time.time;
+        SetLastUsed(Time.time);
 
         fire(user);
     }
@@ -51,17 +56,30 @@ public class RailgunItem : Item
             Debug.LogError("Railgun_MONO: ButtonHeld() NullChecks failed.");
             return;
         }
+
+        PlayerController pc = user.GetComponent<PlayerController>();
+        if (user == null || pc == null) {
+            Debug.LogError("Pistol_MONO: ButtonUse() NullChecks failed.");
+            return;
+        }
+        if (GetLastUsed() + cooldown / pc.stimAspdMultiplier > Time.time){
+            //Debug.Log(itemStr + " (" + itemID + ") is on cooldown.");
+            //Debug.Log ("cooldown remaining: " + (lastUsed + cooldown - Time.time));
+            return;
+        }
+
         PlayerStatus s = user.GetComponent<PlayerStatus>();
-
-        if (lastUsed + cooldown > Time.time) {
+        if (s == null) {
+            Debug.LogError("Flamethrower_MONO: ButtonHeld() NullChecks failed.");
+            return;
+        }
+        bool autofire = CanAutoFire || s.stimActive;
+        
+        if (!autofire){
             return;
         }
 
-        if (!CanAutoFire){
-            return;
-        }
-
-        lastUsed = Time.time;
+        SetLastUsed(Time.time);
 
         fire (user);
     }
@@ -100,7 +118,7 @@ public class RailgunItem : Item
     private void LineAoe(GameObject user, GameObject camera, List<Transform> targetsHit, int combinedLayerMask){
         
         RaycastHit[] hits;
-        hits = Physics.RaycastAll(camera.transform.position, camera.transform.forward, 100.0f, combinedLayerMask);
+        hits = Physics.RaycastAll(camera.transform.position, camera.transform.forward, _maxRange, combinedLayerMask);
         // hits order undefined, so we sort.
         System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
 
@@ -133,7 +151,8 @@ public class RailgunItem : Item
 
             foreach (RaycastHit hit in hits){
                 if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Building") ||
-                    hit.collider.gameObject.layer == LayerMask.NameToLayer("whatIsGround"))
+                    hit.collider.gameObject.layer == LayerMask.NameToLayer("whatIsGround") ||
+                    hit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy"))
                 {
                     //Debug.Log ("railgun hit building/whatisground");
                     SpawnExplosion(hit.point, _explosionRadius, targetsHit);

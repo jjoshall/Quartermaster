@@ -109,12 +109,16 @@ public class ItemAcquisitionRange : MonoBehaviour {
         GameObject localClosest = null;
         float closestDistance = Mathf.Infinity;
 
-        foreach (GameObject item in _itemsInRange) {
+        CleanList();
+        foreach (GameObject item in _itemsInRange)
+        {
             float distance = Vector3.Distance(_playerObj.transform.position, item.transform.position);
-            if (distance > nolookClosestPickupRange) {
+            if (distance > nolookClosestPickupRange)
+            {
                 continue; // skip if outside of range
             }
-            if (distance < closestDistance && IsAnItem(item)) {
+            if (distance < closestDistance && IsAnItem(item))
+            {
                 localClosest = item;
                 closestDistance = distance;
             }
@@ -122,9 +126,24 @@ public class ItemAcquisitionRange : MonoBehaviour {
         return localClosest;
     }
 
-    private void ActivateOutlineShader(GameObject item) {
+    private void CleanList()
+    {
+        List<GameObject> newList = new List<GameObject>();
+        foreach (GameObject item in _itemsInRange)
+        {
+            if (item != null)
+            {
+                newList.Add(item);
+            }
+        }
+        _itemsInRange = newList;
+    }
+
+    private void ActivateOutlineShader(GameObject item)
+    {
         Outline outline = item.GetComponent<Outline>();
-        if (outline == null) {
+        if (outline == null)
+        {
             outline = item.AddComponent<Outline>();
         }
         outline.OutlineWidth = 15f;

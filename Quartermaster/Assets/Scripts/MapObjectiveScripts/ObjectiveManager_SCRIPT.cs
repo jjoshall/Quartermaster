@@ -14,7 +14,11 @@ public class ObjectiveManager : NetworkBehaviour {
     #region InspectorSettings
     public int objectivesToWin; // = max(foreach objectivetype * minimumtospawn, objectivesToWin)
     public int initialSpawnCount;
+
     [SerializeField] private TextMeshProUGUI taskList;
+    [SerializeField] private TextMeshProUGUI nodeDefensePopUpTip;
+    private bool BOOL_nodeDefensePopUpTip;
+
     public List<ObjectiveType> minPerObjective; // minimum number of each objective to spawn
     [System.Serializable]
     public struct ObjectiveType {   
@@ -56,6 +60,9 @@ public class ObjectiveManager : NetworkBehaviour {
     // NetworkList. Track active
     private NetworkList<ulong> n_ActiveObjectives = new NetworkList<ulong>();
 
+    private NetworkList<int> n_randType = new NetworkList<int>();
+    private NetworkList<int> n_randValid = new NetworkList<int>();
+
     #endregion
 
     void Start(){
@@ -66,6 +73,9 @@ public class ObjectiveManager : NetworkBehaviour {
             InitializeObjectiveManager();
         } else if (IsClient){
             Debug.Log("ObjectiveManager: OnNetworkSpawn() client.");
+            for (int i = 0; i < n_randType.Count; i++) {
+                AddObjectiveToTaskList(n_randType[i], n_randValid[i]);
+            }
             // Spawn n_activeobjectives
             foreach (ulong netId in n_ActiveObjectives)
             {
@@ -171,12 +181,10 @@ public class ObjectiveManager : NetworkBehaviour {
         n_objectivesToWin.Value--;
         n_minPerObjective[randType]--;
 
-        if (randType == 0) {
-            taskList.text += "-Deliver the item to the mailbox. " + $"<size=1%>{randValid + 11}</size>" + "\n";
-        }
-        else if (randType == 1) {
-            taskList.text += "-Locate and defend the node! " + $"<size=1%>{randValid + 11}</size>" + "\n";
-        }
+        n_randType.Add(randType);
+        n_randValid.Add(randValid);
+
+        AddObjectiveToTaskList(randType, randValid);
         // taskList.text += minPerObjective[randType].objectivePrefab + "\n";
     }
 
@@ -222,9 +230,7 @@ public class ObjectiveManager : NetworkBehaviour {
             AnalyticsService.Instance.RecordEvent("ObjectiveCompleted");
         }
 
-        taskList.text = taskList.text.Replace(
-            (index + 11).ToString(), $"<color=green><size=100%> Complete!</size></color>"
-        );
+        UpdateTaskListClientRpc(index);
 
         if (!IsServer) return;
         if (!refe.TryGet(out NetworkObject netObj)){
@@ -248,6 +254,27 @@ public class ObjectiveManager : NetworkBehaviour {
         }
     }
 
+    private void AddObjectiveToTaskList(int randType, int randValid) {
+        if (randType == 0) {
+            taskList.text += "-Deliver the item to the mailbox. " + $"<size=1%>{randValid + 11}</size>" + "\n";
+        }
+        else if (randType == 1) {
+            taskList.text += "-Locate and defend the node! " + $"<size=1%>{randValid + 11}</size>" + "\n";
+        }
+    }
+
+    [ClientRpc]
+    public void NodeZoneTextHelperClientRpc() {
+        if (!BOOL_nodeDefensePopUpTip) {
+            nodeDefensePopUpTip.text = "<color=#00FFFF>Stay in the zone for 15 seconds to complete the objective!</color>";
+            BOOL_nodeDefensePopUpTip = true;
+        }
+        else {
+            nodeDefensePopUpTip.text = "";
+            BOOL_nodeDefensePopUpTip = false;
+        }
+    }
+
     #endregion 
 
     // ==============================================================================================
@@ -255,7 +282,9 @@ public class ObjectiveManager : NetworkBehaviour {
     [ServerRpc(RequireOwnership = false)]
     private void ClearedAllObjectivesServerRpc(){
 
-        if (n_objectivesToWin.Value <= (objectivesToWin * -1)) { taskList.text += "<color=green>All objectives complete!</color>" + "\n"; } // not sure how this code will interact with increasing the amount of objectives spawned
+        if (n_objectivesToWin.Value <= (objectivesToWin * -1)) { // not sure how this conditional will interact with increasing the amount of objectives spawned
+            ListCompleteClientRpc();
+        }
 
         // Do something here. Boss phase.
         DebugAllClientRpc("ObjectiveManager: ClearedAllObjectives() placeholder clientRPC msg.");
@@ -271,6 +300,16 @@ public class ObjectiveManager : NetworkBehaviour {
     [ClientRpc]
     private void DebugAllClientRpc(string msg){
         Debug.Log(msg);
+    }
+    [ClientRpc]
+    private void ListCompleteClientRpc(){
+        taskList.text += "<color=green>All objectives complete!</color>" + "\n";
+    }
+    [ClientRpc]
+    private void UpdateTaskListClientRpc(int index) {
+        taskList.text = taskList.text.Replace(
+            (index + 11).ToString(), $"<color=green><size=100%> Complete!</size></color>"
+        );
     }
 
     #endregion

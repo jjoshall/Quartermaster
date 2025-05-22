@@ -263,7 +263,7 @@ MonoBehaviour:
   IsWeapon: 1
   IsClassSpec: 0
   CanAutoFire: 0
-  cooldown: 0.128
+  cooldown: 0.3
   StackLimit: 1
   weight: 0
   quantity: 1
@@ -272,8 +272,9 @@ MonoBehaviour:
   IsPickedUp: 0
   attachedWeaponSlot: {fileID: 0}
   userRef: {fileID: 0}
-  _railgunDamage: 17
+  _railgunDamage: 34
   _explosionRadius: 6
+  _maxRange: 25
   _enemyHitEffect: Sample
   _explosionEffect: RailgunExplosion
   _barrelLaserEffect: 
