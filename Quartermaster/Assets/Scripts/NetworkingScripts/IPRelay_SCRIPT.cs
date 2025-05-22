@@ -448,6 +448,9 @@ public class IPRelay : NetworkBehaviour
             if (pc != null)
                 pc.movementRestricted = false;
         }
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     [ClientRpc]

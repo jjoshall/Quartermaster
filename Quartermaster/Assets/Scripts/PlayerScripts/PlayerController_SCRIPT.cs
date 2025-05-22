@@ -718,7 +718,7 @@ public class PlayerController : NetworkBehaviour
     public void BroadcastEnableMovement()
     {
         if (!IsServer) return;
-        EnableMovementClientRpc();
+        //EnableMovementClientRpc();
     }
     
     #endregion
