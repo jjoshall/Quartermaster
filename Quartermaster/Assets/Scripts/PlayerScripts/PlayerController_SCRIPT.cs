@@ -9,6 +9,7 @@ using UnityEngine.Localization.SmartFormat.Utilities;
 using Unity.VisualScripting;
 using System.Collections.Generic;
 using UnityEngine.Analytics;
+using System.Collections;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler), typeof(Health))]
 public class PlayerController : NetworkBehaviour
@@ -31,6 +32,8 @@ public class PlayerController : NetworkBehaviour
     [Header("Player Spawn Settings")]
     [SerializeField] private Transform spawnLocation;
     public float livesCount = 5;
+    private IEnumerator respawnCoroutine;
+    public float SecondsToRespawn = 5;
 
     [Header("Movement")]
     private Vector3 worldspaceMove = Vector3.zero;
@@ -551,37 +554,48 @@ public class PlayerController : NetworkBehaviour
         return true;
     }
 
-    void OnDie()
-    {
+    void OnDie() {
         //Debug.Log($"[{Time.time}] {gameObject.name} died. Respawning...");
+        if (health != null) health.Invincible = true;
+        playerVelocity = Vector3.zero;
+        targetHeight = CapsuleHeightStanding;
+        disableCharacterController();
 
-        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady())
-        {
+        HealthBarUI.instance.ToggleRespawnCanvas(true);
+
+        // if (respawnCoroutine != null)
+        // StopCoroutine(respawnCoroutine); // in case a previous one is running
+
+        respawnCoroutine = RespawnTimer(SecondsToRespawn);
+        StartCoroutine(respawnCoroutine);
+    }
+    private IEnumerator RespawnTimer(float SecondsToRespawn) {
+        yield return new WaitForSeconds(SecondsToRespawn);
+        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
             AnalyticsService.Instance.RecordEvent("PlayerDeath");
         }
         livesCount--;
         HealthBarUI.instance.UpdateLives(livesCount);
 
-        if (health != null) health.Invincible = true;
+        // if (health != null) health.Invincible = true;
 
-        playerVelocity = Vector3.zero;
-        targetHeight = CapsuleHeightStanding;
-        disableCharacterController();
+        // playerVelocity = Vector3.zero;
+        // targetHeight = CapsuleHeightStanding;
+        // disableCharacterController();
         transform.position = Vector3.zero;
         enableCharacterController();
 
-        if (health != null)
-        {
+        if (health != null) {
             health.HealServerRpc(1000f);
             health.Invincible = false;
         }
 
-        if (livesCount <= 0)
-        {
+        if (livesCount <= 0) {
             disableCharacterController();
         }
 
         HealthBarUI.instance.UpdateHealthBar(health);
+        HealthBarUI.instance.ToggleRespawnCanvas(false);
 
         GameManager.instance.IncrementPlayerDeathsServerRpc();
         GameManager.instance.AddScoreServerRpc(GameManager.instance.ScorePenaltyOnDeath);
