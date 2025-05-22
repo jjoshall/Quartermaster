@@ -11,8 +11,10 @@ public class PauseMenuToggler : MonoBehaviour
     [SerializeField] private Canvas settingsCanvas;     // The Settings Canvas
     [SerializeField] private Canvas gameOverCanvas;     // The gameOver Canvas
 
+    [SerializeField] private GameObject PlayerUI;     // The Player UI
+
     private bool isPauseCanvasActive = false;
-    public static bool IsPaused { get; private set; } = false;
+    public static bool IsPaused { get; set; } = false;
 
     private void Start()
     {
@@ -26,7 +28,7 @@ public class PauseMenuToggler : MonoBehaviour
 
     private void Update()
     {
-        if (playerUICanvas != null && playerUICanvas.gameObject.activeSelf)
+        if (playerUICanvas != null && playerUICanvas.gameObject.activeSelf && PlayerUI != null && PlayerUI.gameObject.activeSelf)
         {
             if (Input.GetKeyDown(KeyCode.Escape))
             {
@@ -37,6 +39,15 @@ public class PauseMenuToggler : MonoBehaviour
             }
             if (HealthBarUI.instance.livesRemaining <= 0) {
                 OpenGameOverCanvas();
+            }
+        }
+        else if (PlayerUI != null && !PlayerUI.gameObject.activeSelf) {
+            settingsCanvas.gameObject.SetActive(false);
+            pauseCanvas.gameObject.SetActive(false);
+            if (isPauseCanvasActive) {
+                isPauseCanvasActive = false;
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
             }
         }
     }
