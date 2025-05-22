@@ -47,27 +47,36 @@ public class Battery : Item
     {
         if (_isCharging.Value) Charge();
         if (!_hasBeenFilled.Value && _currentCharge > 0) Leak();
+        ClampCharge();
         UpdateLitSegmentCount();
         UpdateSegmentDisplay();
+
+        _serverSyncTimer += Time.deltaTime;
+        if (_serverSyncTimer >= _serverSyncInterval)
+        {
+            SyncClientsToServerRpc();
+            _serverSyncTimer = 0f;
+        }
     }
 
     public void Charge()
     {
-        if (_currentCharge < _maxChargeCapacity)
-        {
-            _currentCharge = Mathf.Clamp(_currentCharge + Time.deltaTime * _chargeRate, 0, _maxChargeCapacity);
-        }
-        else
-        {
-            // battery is full. do nothing.
-        }
+        _currentCharge = _currentCharge + Time.deltaTime * _chargeRate;
     }
 
     public void Leak()
     {
-        
+        _currentCharge = _currentCharge - Time.deltaTime * _chargingLeakRate;
     }
 
+    public void ClampCharge()
+    {
+        _currentCharge = Mathf.Clamp(_currentCharge, 0, _maxChargeCapacity);
+    }
+
+
+    #region SegmentDsplyHelpers
+    #endregion
     public void UpdateLitSegmentCount()
     {
         // update lit segments
@@ -98,19 +107,37 @@ public class Battery : Item
     }
 
 
-    #region NetworkVarWriteHelpers
+    #region ServerSync
     #endregion
 
     // only call this periodically (charge variables managed locally to avoid network bloat)
-    public void SyncChargeToServer()
+    [ServerRpc(RequireOwnership = false)]
+    public void SyncClientsToServerRpc()
     {
-
+        SyncClientsToServerClientRpc(_currentCharge);
+        Debug.Log("Syncing clients to server. Current charge(server): " + _currentCharge);
     }
 
+    [ClientRpc]
+    public void SyncClientsToServerClientRpc(float charge)
+    {
+        _currentCharge = charge;
+        Debug.Log("Synced client to server. Current charge(client): " + _currentCharge);
+    }
+
+
+    #region NetworkVarWriteHelpers
+    // should only call these two functions inside if (!isServer) return; guard. write to network var ONCE from server only.
     [ServerRpc(RequireOwnership = false)]
     public void SetChargingStatusServerRpc(bool isCharging)
     {
         _isCharging.Value = isCharging;
     }
+    [ServerRpc(RequireOwnership = false)]
+    public void HasBeenFilledServerRpc(bool hasBeenFilled)
+    {
+        _hasBeenFilled.Value = hasBeenFilled;
+    }
+    #endregion
 
 }
