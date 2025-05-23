@@ -95,18 +95,7 @@ public class Pistol_MONO : Item
     public void fire(GameObject user)
     {
 
-        soundEmitters = user.GetComponents<SoundEmitter>();
-        string emitterId = "pistol_shot";
-
-
-        foreach (SoundEmitter emitter in soundEmitters)
-        {
-            if (emitter.emitterID == emitterId)
-            {
-                emitter.PlayNetworkedSound(shotOrigin.transform.position);
-
-            }
-        }
+        PlaySoundEmitter("pistol_shot");
 
         GameObject camera = user.transform.Find("Camera").gameObject;
         int enemyLayer = LayerMask.GetMask("Enemy");
@@ -215,8 +204,7 @@ public class Pistol_MONO : Item
 
     private void TurretFire(GameObject turret)
     {
-        // WIP. Play sound emitter. (REFACTOR: needs to have sound emitter component moved from user to item)
-
+        PlaySoundEmitter("pistol_shot");
 
         GameObject turretPointer = turret;  // replace this with whatever object is actually aligned with the turret's targeting
 

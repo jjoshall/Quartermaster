@@ -34,11 +34,41 @@ public class Battery : Item
     public override void OnButtonUse(GameObject user)
     {
         // initialize charge.
+        base.OnButtonUse(user);
+        if (!_isCharging.Value)
+        {
+            SetChargingStatusServerRpc(true);
+        }
     }
 
     public override void OnButtonHeld(GameObject user)
     {
         base.OnButtonHeld(user);
+        if (!_isCharging.Value)
+        {
+            SetChargingStatusServerRpc(true);
+        }
+    }
+
+    public override void OnButtonRelease(GameObject user)
+    {
+        base.OnButtonRelease(user);
+        // set charging status to false.
+        SetChargingStatusServerRpc(false);
+    }
+
+    public override void OnSwapOut(GameObject user)
+    {
+        base.OnSwapOut(user);
+        // set charging status to false.
+        SetChargingStatusServerRpc(false);
+    }
+
+    public override void OnDrop(GameObject user)
+    {
+        base.OnDrop(user);
+        // set charging status to false.
+        SetChargingStatusServerRpc(false);
     }
 
     #region BatteryUpdate
@@ -134,7 +164,7 @@ public class Battery : Item
         _isCharging.Value = isCharging;
     }
     [ServerRpc(RequireOwnership = false)]
-    public void HasBeenFilledServerRpc(bool hasBeenFilled)
+    public void SetFillStatusServerRpc(bool hasBeenFilled)
     {
         _hasBeenFilled.Value = hasBeenFilled;
     }

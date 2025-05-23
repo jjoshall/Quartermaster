@@ -291,6 +291,22 @@ public abstract class Item : NetworkBehaviour
 
 
     #region HELPERS
+    protected void PlaySoundEmitter(string soundId)
+    { 
+        soundEmitters = GetComponents<SoundEmitter>();
+        string emitterId = soundId;
+
+
+        foreach (SoundEmitter emitter in soundEmitters)
+        {
+            if (emitter.emitterID == emitterId)
+            {
+                emitter.PlayNetworkedSound(transform.position);
+
+            }
+        }
+    }
+
     private GameObject GetWeaponSlot(GameObject player)
     {
         if (player == null)
