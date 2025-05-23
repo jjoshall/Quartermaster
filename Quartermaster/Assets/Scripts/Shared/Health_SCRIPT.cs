@@ -27,7 +27,7 @@ public class Health : NetworkBehaviour {
     public UnityAction OnDie;
 
     public NetworkVariable<float> CurrentHealth = new NetworkVariable<float>();
-    public bool Invincible { get; set; }
+    public NetworkVariable<bool> Invincible = new NetworkVariable<bool>(false);
     public bool CanPickup() => CurrentHealth.Value < MaxHealth;
 
     public float GetRatio() => CurrentHealth.Value / MaxHealth;
@@ -105,6 +105,27 @@ public class Health : NetworkBehaviour {
     }
 
     [ServerRpc(RequireOwnership = false)]
+    public void SetInvincibleServerRpc(bool state) {
+        if (!IsServer) return;
+
+        if (fillImage) {
+            fillImage.color = state ? Color.black : Color.red;
+        }
+        Invincible.Value = state;
+        SetInvincibleClientRpc(state);
+    }
+    
+    [ClientRpc]
+    public void SetInvincibleClientRpc(bool state) {
+        if (IsServer) return;
+
+        if (fillImage) {
+            fillImage.color = state ? Color.black : Color.red;
+        }
+        Invincible.Value = state;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
     public void HealServerRpc(float healAmount) {
         if (!IsServer) return;
 
@@ -128,7 +149,7 @@ public class Health : NetworkBehaviour {
 
     [ServerRpc(RequireOwnership = false)]
     public void TakeDamageServerRpc(float damage, NetworkObjectReference damageSourceRef) {
-        if (!IsServer || Invincible) return;
+        if (!IsServer || Invincible.Value) return;
 
         float healthBefore = CurrentHealth.Value;
         CurrentHealth.Value -= damage;

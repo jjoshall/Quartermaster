@@ -556,7 +556,7 @@ public class PlayerController : NetworkBehaviour
 
     void OnDie() {
         //Debug.Log($"[{Time.time}] {gameObject.name} died. Respawning...");
-        if (health != null) health.Invincible = true;
+        if (health != null) health.SetInvincibleServerRpc(true);
         playerVelocity = Vector3.zero;
         targetHeight = CapsuleHeightStanding;
         disableCharacterController();
@@ -587,7 +587,7 @@ public class PlayerController : NetworkBehaviour
 
         if (health != null) {
             health.HealServerRpc(1000f);
-            health.Invincible = false;
+            health.SetInvincibleServerRpc(false);
         }
 
         if (livesCount <= 0) {
