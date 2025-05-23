@@ -11,7 +11,8 @@ using System.Collections.Generic;
 using UnityEngine.Analytics;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler), typeof(Health))]
-public class PlayerController : NetworkBehaviour {
+public class PlayerController : NetworkBehaviour
+{
     #region Variables
 
     [SerializeField] private LayerMask playerCollision;
@@ -44,7 +45,7 @@ public class PlayerController : NetworkBehaviour {
     public float airAcceleration = 15f;
     public float minSlideSpeed = 0.5f;
     public float slideDeceleration = 5f;
-    public float backwardsMovementPenalty = 0.75f;    
+    public float backwardsMovementPenalty = 0.75f;
 
     [Header("Stim Item Settings")] // modified at runtime by playerstatus + stimpack item usage.
     [HideInInspector] public float stimAspdMultiplier = 1.0f;
@@ -93,10 +94,17 @@ public class PlayerController : NetworkBehaviour {
     [SerializeField] private GameObject _devPrefab;
     private GameObject _devReference;
 
-    #region DEV_FUNCTIONS
-    private void SpawnDevController(){
+    [Header("Game Init Management")]
+    [SerializeField] private Transform playerSpawnPoints;
+
+    public bool movementRestricted = true;
+
+    #region Dev Functions
+    private void SpawnDevController()
+    {
         if (!IsOwner) return;
-        if (_devReference == null){
+        if (_devReference == null)
+        {
             _devReference = Instantiate(_devPrefab, this.gameObject.transform.position, this.gameObject.transform.rotation);
             _devReference.GetComponent<DevController>().n_playerObj = this.GetComponent<NetworkObject>();
             _devReference.GetComponent<DevController>().InitDevController();
@@ -107,40 +115,33 @@ public class PlayerController : NetworkBehaviour {
         this.gameObject.GetComponent<NetworkObject>().Despawn(true);
     }
 
-
-    
-    
-    
-    
     #endregion
 
-
-
-
-
-
-
-
     #region Start Up Functions
-    private void EnablePlayerControls() {
+    private void EnablePlayerControls()
+    {
         // Main Camera and Audio Listener
-        if (PlayerCamera != null) {
+        if (PlayerCamera != null)
+        {
             PlayerCamera.gameObject.SetActive(true);
             //PlayerCamera.GetComponent<AudioListener>().enabled = true;
         }
 
 
         // Mini Map Canvas
-        if (miniMapCanvas != null) {
+        if (miniMapCanvas != null)
+        {
             RawImage rawImage = miniMapCanvas.GetComponentInChildren<RawImage>();
-            if (rawImage != null) {
+            if (rawImage != null)
+            {
                 rawImage.enabled = true;
             }
         }
 
 
         // Mini Map Camera
-        if (MiniMapCamera != null) {
+        if (MiniMapCamera != null)
+        {
             MiniMapCamera.gameObject.SetActive(true);
         }
 
@@ -148,35 +149,42 @@ public class PlayerController : NetworkBehaviour {
         if (PlayerInput != null) { PlayerInput.enabled = true; }
     }
 
-    private void DisablePlayerControls() {
+    private void DisablePlayerControls()
+    {
         // Camera and Audio Listener
-        if (PlayerCamera != null) {
+        if (PlayerCamera != null)
+        {
             PlayerCamera.gameObject.SetActive(false);
             GetComponent<AudioListener>().enabled = false;
         }
 
 
         // Mini Map Canvas
-        if (miniMapCanvas != null) {
+        if (miniMapCanvas != null)
+        {
             RawImage rawImage = miniMapCanvas.GetComponentInChildren<RawImage>();
-            if (rawImage != null) {
+            if (rawImage != null)
+            {
                 rawImage.enabled = false;
             }
         }
 
         // Mini Map Camera
-        if (MiniMapCamera != null) {
+        if (MiniMapCamera != null)
+        {
             MiniMapCamera.gameObject.SetActive(false);
         }
 
 
         // Player Input
-        if (PlayerInput != null) {
+        if (PlayerInput != null)
+        {
             PlayerInput.enabled = false;
         }
     }
 
-    private void InitializeStateMachine() {
+    private void InitializeStateMachine()
+    {
         stateMachine = new StateMachine();
 
         WalkState walkState = new WalkState(this);
@@ -205,21 +213,48 @@ public class PlayerController : NetworkBehaviour {
         stateMachine.SetState(walkState);
     }
 
+    private void SetInitialLocation()
+    {
+        foreach (Transform spawn in playerSpawnPoints.transform)
+        {
+            var ident = spawn.GetComponent<PlayerSpawnPointIdentifier>();
+            if (ident != null && !ident.isUsed)
+            {
+                transform.position = spawn.position;
+                Debug.LogError($"Moved player to position: {spawn.position}");
+                ident.isUsed = true;
+                return;
+            }
+        }
+    }
+
     #endregion
 
     #region Unity Functions
-    void Start() {
+    void Start()
+    {
         // Initialize default values
         lastTimeJumped = Time.time;
         targetHeight = CapsuleHeightStanding;
     }
 
-    public override void OnNetworkSpawn() {
-        if (!IsOwner) {
+    public override void OnNetworkSpawn()
+    {
+        if (!IsOwner)
+        {
             DisablePlayerControls();
             return;
         }
-        foreach (Renderer r in localRenderersToTurnOff) {
+
+        if (playerSpawnPoints == null)
+        {
+            playerSpawnPoints = GameObject.Find("PlayerSpawnPoints").transform;
+        }
+
+        SetInitialLocation();
+
+        foreach (Renderer r in localRenderersToTurnOff)
+        {
             r.enabled = false;
         }
 
@@ -237,7 +272,8 @@ public class PlayerController : NetworkBehaviour {
         EnablePlayerControls();
 
 
-        if (health != null) {
+        if (health != null)
+        {
             health.OnDie += OnDie;
             health.OnDamaged += OnDamaged;
             health.OnHealed += OnHealed;
@@ -247,17 +283,24 @@ public class PlayerController : NetworkBehaviour {
         UpdateHeight(true);
     }
 
-    void Update() {
+    void Update()
+    {
         if (!IsOwner) return;
+        if (movementRestricted)
+        {
+            return;
+        }
 
         // If player falls too far, kill them
-        if (transform.position.y <= -25f) {
+        if (transform.position.y <= -25f)
+        {
             if (health != null) { health.Kill(); }
         }
 
         GroundCheck();
 
-        if (InputHandler != null) {
+        if (InputHandler != null)
+        {
             worldspaceMove = transform.TransformVector(InputHandler.move_vector);
             PenalizeBackwardsMovement();
             SetCrouchingState(InputHandler.isCrouching, false);
@@ -277,25 +320,33 @@ public class PlayerController : NetworkBehaviour {
         //}
     }
 
-    void FixedUpdate() {
+    void FixedUpdate()
+    {
         if (!IsOwner) return;
+        if (movementRestricted)
+        {
+            return;
+        }
+        
         MovePlayer();
     }
 
     #endregion
 
     #region MiniMap Helpers
-    private Vector2 WorldToMiniMapPosition(Vector3 worldPosition) {
+    private Vector2 WorldToMiniMapPosition(Vector3 worldPosition)
+    {
         return new Vector2(worldPosition.x, worldPosition.z);
     }
 
     #endregion
 
     #region Movement Functions
-    void HandleLook() {
+    void HandleLook()
+    {
         if (PauseMenuToggler.IsPaused)
             return;
-            
+
         transform.Rotate(
             new Vector3(
                 0f,
@@ -310,7 +361,8 @@ public class PlayerController : NetworkBehaviour {
         PlayerCamera.transform.localEulerAngles = new Vector3(cameraVerticalAngle, 0, 0);
     }
 
-    public void HandleGroundMovement() {
+    public void HandleGroundMovement()
+    {
         Vector3 targetVelocity = worldspaceMove * groundSpeed * speedModifier * stimMspdMultiplier;
         targetVelocity = GetDirectionReorientedOnSlope(targetVelocity.normalized, GroundNormal) * targetVelocity.magnitude;
         playerVelocity = Vector3.Lerp(playerVelocity, targetVelocity, groundSharpness * Time.deltaTime);
@@ -319,13 +371,15 @@ public class PlayerController : NetworkBehaviour {
         MovePlayer();
     }
 
-    public void HandleSlideMovement() {
+    public void HandleSlideMovement()
+    {
         playerVelocity -= playerVelocity * slideDeceleration * Time.deltaTime;
         JumpCheck();
         MovePlayer();
     }
 
-    public void HandleAirMovement() {
+    public void HandleAirMovement()
+    {
         playerVelocity += worldspaceMove * airAcceleration * Time.deltaTime;
         float verticalVelocity = playerVelocity.y;
 
@@ -337,7 +391,8 @@ public class PlayerController : NetworkBehaviour {
         MovePlayer();
     }
 
-    void MovePlayer() {
+    void MovePlayer()
+    {
         if (Controller == null) return;
 
         Vector3 capsuleBottomBeforeMove = GetCapsuleBottomHemisphere();
@@ -350,12 +405,13 @@ public class PlayerController : NetworkBehaviour {
 
         if (Physics.CapsuleCast(capsuleBottomBeforeMove, capsuleTopBeforeMove, Controller.radius,
             playerVelocity.normalized, out RaycastHit hit, playerVelocity.magnitude * Time.deltaTime, playerCollision,
-            QueryTriggerInteraction.Ignore)) {
+            QueryTriggerInteraction.Ignore))
+        {
             // get the name of the object in the raycasthit hit
-            GameObject objHit = hit.collider.gameObject;    
+            GameObject objHit = hit.collider.gameObject;
             //Debug.Log ("moveplayer detected plane: " + objHit.name);    
             //Debug.Log("Hit object layer: " + LayerMask.LayerToName(objHit.layer));
-   
+
             // We remember the last impact speed because the fall damage logic might need it
             lastImpactSpeed = playerVelocity;
 
@@ -364,15 +420,19 @@ public class PlayerController : NetworkBehaviour {
         }
     }
 
-    void PenalizeBackwardsMovement(){
+    void PenalizeBackwardsMovement()
+    {
         // if InputHandler.move_vector is moving backwards on the z-axis, then set worldspaceMove *= backwardsMovementPenalty
-        if (InputHandler.move_vector.z < 0){
+        if (InputHandler.move_vector.z < 0)
+        {
             worldspaceMove *= backwardsMovementPenalty;
         }
     }
 
-    void JumpCheck() {
-        if (IsGrounded && InputHandler != null && InputHandler.jumped) {
+    void JumpCheck()
+    {
+        if (IsGrounded && InputHandler != null && InputHandler.jumped)
+        {
             playerVelocity = new Vector3(playerVelocity.x, 0f, playerVelocity.z);
             playerVelocity += Vector3.up * jumpForce;
             lastTimeJumped = Time.time;
@@ -381,9 +441,11 @@ public class PlayerController : NetworkBehaviour {
         }
     }
 
-    void GroundCheck() {
+    void GroundCheck()
+    {
         // Make sure that the ground check distance while already in air is very small, to prevent snapping to ground
-        if (Controller == null) {
+        if (Controller == null)
+        {
             Debug.LogError("CharacterController is null. Cannot perform ground check.");
             return;
         }
@@ -396,18 +458,22 @@ public class PlayerController : NetworkBehaviour {
         GroundNormal = Vector3.up;
 
         // only try to detect ground if it's been a short time since last jump
-        if (Time.time >= lastTimeJumped + k_JumpGroundingPreventionTime) {
+        if (Time.time >= lastTimeJumped + k_JumpGroundingPreventionTime)
+        {
             // if we're grounded, collect info about the ground normal with a downward capsule cast
             if (Physics.CapsuleCast(GetCapsuleBottomHemisphere(), GetCapsuleTopHemisphere(Controller.height),
                                     Controller.radius, Vector3.down, out RaycastHit hit, chosenGroundCheckDistance,
-                                    GroundLayers, QueryTriggerInteraction.Ignore)) {
+                                    GroundLayers, QueryTriggerInteraction.Ignore))
+            {
                 GroundNormal = hit.normal;
                 // Only consider valid ground if the normal is mostly up and slope angle is lower than limit
-                if (Vector3.Dot(hit.normal, transform.up) > 0f && IsNormalUnderSlopeLimit(GroundNormal)) {
+                if (Vector3.Dot(hit.normal, transform.up) > 0f && IsNormalUnderSlopeLimit(GroundNormal))
+                {
                     IsGrounded = true;
 
                     // handle snapping to the ground
-                    if (hit.distance > Controller.skinWidth) {
+                    if (hit.distance > Controller.skinWidth)
+                    {
                         Controller.Move(Vector3.down * hit.distance);
                     }
                 }
@@ -415,18 +481,22 @@ public class PlayerController : NetworkBehaviour {
         }
     }
 
-    void UpdateHeight(bool force) {
+    void UpdateHeight(bool force)
+    {
         if (Controller == null || PlayerCamera == null || visualTransform == null) return;
 
-        if (force) {
+        if (force)
+        {
             Controller.height = targetHeight;
             Controller.center = Vector3.up * (Controller.height - CapsuleHeightStanding) / CapsuleHeightStanding;
             PlayerCamera.transform.localPosition = cameraOffset + Vector3.up * ((targetHeight * CameraHeightRatio) - 1);
             visualTransform.localPosition = Controller.center;
             visualTransform.localScale = new Vector3(1f, Controller.height / CapsuleHeightStanding, 1f);
         }
-        else if (Controller.height != targetHeight) {
-            if (Mathf.Abs(Controller.height - targetHeight) < 0.0001f) {
+        else if (Controller.height != targetHeight)
+        {
+            if (Mathf.Abs(Controller.height - targetHeight) < 0.0001f)
+            {
                 UpdateHeight(true);
                 return;
             }
@@ -444,14 +514,18 @@ public class PlayerController : NetworkBehaviour {
         }
     }
 
-    bool SetCrouchingState(bool crouched, bool ignoreObstructions) {
+    bool SetCrouchingState(bool crouched, bool ignoreObstructions)
+    {
         if (IsCrouched == crouched) return true;
 
-        if (crouched) {
+        if (crouched)
+        {
             targetHeight = CapsuleHeightCrouching;
         }
-        else {
-            if (!ignoreObstructions) {
+        else
+        {
+            if (!ignoreObstructions)
+            {
                 Collider[] standingOverlaps = Physics.OverlapCapsule(
                     GetCapsuleBottomHemisphere(),
                     GetCapsuleTopHemisphere(CapsuleHeightStanding),
@@ -460,8 +534,10 @@ public class PlayerController : NetworkBehaviour {
                     QueryTriggerInteraction.Ignore
                 );
 
-                foreach (Collider c in standingOverlaps) {
-                    if (!c.transform.root.CompareTag("Player")) {
+                foreach (Collider c in standingOverlaps)
+                {
+                    if (!c.transform.root.CompareTag("Player"))
+                    {
                         Debug.Log($"[{Time.time}] Cannot stand: obstruction in the way.");
                         return false;
                     }
@@ -475,10 +551,12 @@ public class PlayerController : NetworkBehaviour {
         return true;
     }
 
-    void OnDie() {
+    void OnDie()
+    {
         //Debug.Log($"[{Time.time}] {gameObject.name} died. Respawning...");
 
-        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
+        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady())
+        {
             AnalyticsService.Instance.RecordEvent("PlayerDeath");
         }
         livesCount--;
@@ -492,12 +570,14 @@ public class PlayerController : NetworkBehaviour {
         transform.position = Vector3.zero;
         enableCharacterController();
 
-        if (health != null) {
+        if (health != null)
+        {
             health.HealServerRpc(1000f);
             health.Invincible = false;
         }
 
-        if (livesCount <= 0) {
+        if (livesCount <= 0)
+        {
             disableCharacterController();
         }
 
@@ -507,7 +587,8 @@ public class PlayerController : NetworkBehaviour {
         GameManager.instance.AddScoreServerRpc(GameManager.instance.ScorePenaltyOnDeath);
     }
 
-    void OnDamaged(float damage, GameObject damageSource) {
+    void OnDamaged(float damage, GameObject damageSource)
+    {
         //Debug.Log($"[{Time.time}] {gameObject.name} took {damage} damage. Health Ratio: {health.GetRatio()}");
 
         HealthBarUI.instance.UpdateHealthBar(health);
@@ -521,9 +602,10 @@ public class PlayerController : NetworkBehaviour {
         //Debug.Log("Total damage taken by players: " + GameManager.instance.totalPlayerDamageTaken.Value);
     }
 
-    void OnHealed(float healAmount) {
+    void OnHealed(float healAmount)
+    {
         //Debug.Log($"[{Time.time}] {gameObject.name} healed for {healAmount} health. Health Ratio: {health.GetRatio()}");
-    
+
         HealthBarUI.instance.UpdateHealthBar(health);
     }
 
@@ -540,14 +622,18 @@ public class PlayerController : NetworkBehaviour {
     //     return false; // false if null.
     // }
 
-    public void HandleDamageIndicator(Vector3 damagePosition, ulong damagedPlayerId) {
-        if (IsLocalPlayer) {
+    public void HandleDamageIndicator(Vector3 damagePosition, ulong damagedPlayerId)
+    {
+        if (IsLocalPlayer)
+        {
             DI_Manager_SCRIPT.Instance.ShowDamageIndicator(damagePosition);
         }
         else
         {
-            ClientRpcParams clientRpcParams = new ClientRpcParams {
-                Send = new ClientRpcSendParams {
+            ClientRpcParams clientRpcParams = new ClientRpcParams
+            {
+                Send = new ClientRpcSendParams
+                {
                     TargetClientIds = new ulong[] { damagedPlayerId }
                 }
             };
@@ -555,32 +641,40 @@ public class PlayerController : NetworkBehaviour {
         }
     }
 
-    public void disableCharacterController() {
-        if (Controller != null) {
+    public void disableCharacterController()
+    {
+        if (Controller != null)
+        {
             Controller.enabled = false;
         }
     }
 
-    public void enableCharacterController() {
-        if (Controller != null) {
+    public void enableCharacterController()
+    {
+        if (Controller != null)
+        {
             Controller.enabled = true;
         }
     }
 
-    public Vector3 GetDirectionReorientedOnSlope(Vector3 direction, Vector3 slopeNormal) {
+    public Vector3 GetDirectionReorientedOnSlope(Vector3 direction, Vector3 slopeNormal)
+    {
         Vector3 directionRight = Vector3.Cross(direction, transform.up);
         return Vector3.Cross(slopeNormal, directionRight).normalized;
     }
 
-    bool IsNormalUnderSlopeLimit(Vector3 normal) {
+    bool IsNormalUnderSlopeLimit(Vector3 normal)
+    {
         return Vector3.Angle(transform.up, normal) <= Controller.slopeLimit;
     }
 
-    Vector3 GetCapsuleBottomHemisphere() {
+    Vector3 GetCapsuleBottomHemisphere()
+    {
         return transform.position + (transform.up * (Controller.center.y - Mathf.Max(Controller.height / 2, Controller.radius) + Controller.radius));
     }
 
-    Vector3 GetCapsuleTopHemisphere(float atHeight) {
+    Vector3 GetCapsuleTopHemisphere(float atHeight)
+    {
         // Controller.center depends on height, so we recalc a "virtual" center for atHeight
         float atCenterY = (atHeight - CapsuleHeightStanding) / CapsuleHeightStanding;
         return transform.position + (
@@ -590,11 +684,13 @@ public class PlayerController : NetworkBehaviour {
         );
     }
 
-    public void SetSpeedModifier(float modifier) {
+    public void SetSpeedModifier(float modifier)
+    {
         speedModifier = modifier;
     }
 
-    public void ScalePlayerVelocity(float scale) {
+    public void ScalePlayerVelocity(float scale)
+    {
         MovePlayer();
         playerVelocity *= scale;
     }
@@ -605,5 +701,25 @@ public class PlayerController : NetworkBehaviour {
     void At(IState from, IState to, IPredicate condition) => stateMachine.AddTransition(from, to, condition);
     void Any(IState to, IPredicate condition) => stateMachine.AddAnyTransition(to, condition);
 
+    #endregion
+
+
+    #region RPC Functions
+    [ClientRpc]
+    public void EnableMovementClientRpc(ClientRpcParams rpcParams = default)
+    {
+        movementRestricted = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        Debug.Log("Enabled movement, locked cursor");
+
+    }
+
+    public void BroadcastEnableMovement()
+    {
+        if (!IsServer) return;
+        EnableMovementClientRpc();
+    }
+    
     #endregion
 }
