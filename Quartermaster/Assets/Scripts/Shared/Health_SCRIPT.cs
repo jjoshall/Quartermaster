@@ -3,14 +3,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using Unity.Netcode;
-using System;
-using Unity.Services.Analytics;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using UnityEngine.Localization.SmartFormat.Utilities;
-using Unity.VisualScripting;
-using System.Collections.Generic;
-using UnityEngine.Analytics;
 using TMPro;
 
 public class Health : NetworkBehaviour {
@@ -21,8 +14,8 @@ public class Health : NetworkBehaviour {
     public float CriticalHealthRatio = 0.3f;
 
     [Header("Hovering Health Bar")]
-    [SerializeField] private GameObject hoveringHealthBar;
-    [SerializeField] private Image fillImage;
+    [SerializeField] private GameObject hoveringHealthBar;  // not sure what this is for - norman
+    [SerializeField] private Image fillImage;               // hp bar canvas (floating above players heads)
     [SerializeField] private TextMeshProUGUI lives;
     public NetworkVariable<float> healthRatio = new NetworkVariable<float>(
     1.0f,
@@ -44,36 +37,53 @@ public class Health : NetworkBehaviour {
     [SerializeField] private FullScreenTestController _damageEffect;
     //bool IsDead;
 
-    public override void OnNetworkSpawn() {
-        if (!IsServer) {
-            enabled = false;
-            return;
-        }
-
+    public override void OnNetworkSpawn()
+    {
         CurrentHealth.Value = MaxHealth;
 
-        if (IsLocalPlayer) {
-            CurrentHealth.OnValueChanged += OnHealthChanged;
+        if (IsLocalPlayer)
+        {
+            CurrentHealth.OnValueChanged += ScreenDamageIndicator;
             CheckCriticalState();
+        }
+
+        if (IsPlayer() && !IsLocalPlayer) {
+            CurrentHealth.OnValueChanged += UpdateHealthBarFill;
         }
     }
 
-    public override void OnNetworkDespawn() {
+    public bool IsPlayer()
+    {
+        return gameObject.CompareTag("Player") ? true : false;
+    }
+
+    public override void OnNetworkDespawn()
+    {
         base.OnNetworkDespawn();
 
-        if (IsLocalPlayer) {
-            CurrentHealth.OnValueChanged -= OnHealthChanged;
+        if (IsLocalPlayer)
+        {
+            CurrentHealth.OnValueChanged -= ScreenDamageIndicator;
 
-            if (_damageEffect != null) {
+            if (_damageEffect != null)
+            {
                 _damageEffect.SetCriticalState(false);
             }
         }
+
+        if (IsPlayer() && !IsLocalPlayer) {
+            CurrentHealth.OnValueChanged -= UpdateHealthBarFill;
+        }
     }
 
-    private void OnHealthChanged(float oldHealth, float newHealth) {
+    private void ScreenDamageIndicator(float oldHealth, float newHealth) {
         if (IsCritical() && _damageEffect != null) {
             StartCoroutine(_damageEffect.Hurt());
         }
+    }
+
+    private void UpdateHealthBarFill(float oldHealth, float newHealth)
+    {
         if (fillImage == null)
         {
             Debug.LogError("FillImage is null. This object is: " + gameObject.name);
@@ -82,11 +92,13 @@ public class Health : NetworkBehaviour {
         fillImage.fillAmount = GetRatio();
     }
 
-    private void CheckCriticalState() {
+    private void CheckCriticalState()
+    {
         bool isCritical = IsCritical(); // health at 20 so true
 
         // If critical state changed
-        if (isCritical != _wasCritical && _damageEffect != null) {
+        if (isCritical != _wasCritical && _damageEffect != null)
+        {
             _wasCritical = isCritical;      // wascrit is now true
             _damageEffect.SetCriticalState(isCritical);
         }
