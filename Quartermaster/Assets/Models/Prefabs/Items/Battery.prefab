@@ -634,6 +634,7 @@ GameObject:
   - component: {fileID: -8803232639650860418}
   - component: {fileID: -4612171648409301265}
   - component: {fileID: 7547199397856450842}
+  - component: {fileID: 2049456666435968279}
   m_Layer: 6
   m_Name: Battery
   m_TagString: Item
@@ -888,6 +889,23 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.2, y: 3, z: 1.05}
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+--- !u!114 &2049456666435968279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4000812808525828990}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abba81b95eeeefa47b53e97ff1f27c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipHeaderText: Battery
+  tooltipBodyText: Used to store energy. Empty by default. Find a charger (defense
+    node) and hold left click while in its proximity to charge.
+  headerFontSize: 30
+  bodyFontSize: 18
 --- !u!1 &4854985489436628266
 GameObject:
   m_ObjectHideFlags: 0
