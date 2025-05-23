@@ -166,11 +166,29 @@ public abstract class Item : NetworkBehaviour
         //Debug.Log("Switched items, charge cancelled for: " + gameObject.name);
     }
 
+    // called when turret locks on target (facing target)
+    // ex. start channeled behaviors such as flamethrower FlameStarted = true;
+    public virtual void OnTurretStartLockon(GameObject turret)
+    {
+        //Debug.Log("Turret active: " + gameObject.name);
+    }
+    
+    public virtual void TurretItemLoopBehavior(GameObject turret, float lastUsed)
+    {
+
+    }
+
+    // called when turret no longer has a target.
+    // ex. stop channeled behaviors such as flamethrower FlameStarted = false;
+    public virtual void OnTurretStopLockon(GameObject turret)
+    {
+        //Debug.Log("Turret inactive: " + gameObject.name);
+    }
 
     #endregion
 
 
-    #region HELPERS
+    #region SYNCHELPERS
     // Helpers. Used by the UI cooldown script. =======================================================================
     public float GetCooldownRemaining()
     {
@@ -250,7 +268,26 @@ public abstract class Item : NetworkBehaviour
 
 
 
+    #region TURRETHELPERS
+    #endregion
 
+    public bool TurretNullChecksFailed(GameObject turret)
+    {
+        if (turret == null)
+        {
+            Debug.LogError("Pistol_MONO: TurretNullChecksFailed() turret is null.");
+            return true;
+        }
+        return false;
+    }
+    public bool TurretCooldownCheckFailed(float lastUsed)
+    {
+        if (lastUsed + cooldown > Time.time)
+        {
+            return true;
+        }
+        return false;
+    }
 
 
     #region HELPERS
