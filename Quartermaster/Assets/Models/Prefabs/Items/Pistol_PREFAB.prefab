@@ -80,6 +80,7 @@ GameObject:
   - component: {fileID: 7164629334594917200}
   - component: {fileID: 6507172093306377568}
   - component: {fileID: 5455063385664742638}
+  - component: {fileID: 4700419119561097239}
   m_Layer: 6
   m_Name: Pistol_PREFAB
   m_TagString: Item
@@ -301,15 +302,21 @@ MonoBehaviour:
   quantity: 1
   icon: {fileID: 2800000, guid: a002029af78d6c64ca5345ef4598ac37, type: 3}
   soundEmitters: []
-  IsPickedUp: 0
-  attachedWeaponSlot: {fileID: 0}
   userRef: {fileID: 0}
+  IsPickedUp: 0
+  n_isPickedUp:
+    m_InternalValue: 0
+  n_isCurrentlySelected:
+    m_InternalValue: 0
+  attachedWeaponSlot: {fileID: 0}
+  n_syncedQuantity:
+    m_InternalValue: 1
   _pistolDamage: 40
   _maxRange: 40
   _enemyHitEffect: Sample
   _barrelFireEffect: PistolBarrelFire
   shotOrigin: {fileID: 7617768287357453825}
-  trailRenderID: 2
+  trailRenderID: 0
 --- !u!114 &5455063385664742638
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -326,6 +333,22 @@ MonoBehaviour:
   tooltipBodyText: Tap LCLICK to fire. Single target damage.
   headerFontSize: 30
   bodyFontSize: 18
+--- !u!114 &4700419119561097239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8519617277999394602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e56f4f38f40fd4145bcf95130f1abbc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  bulletTrailPrefab:
+  - {fileID: 3492294749685168360, guid: 8064f3d936d68ad4f8c4ff24afd625f8, type: 3}
+  trailDuration: 0.3
 --- !u!1001 &4164805173475431474
 PrefabInstance:
   m_ObjectHideFlags: 0

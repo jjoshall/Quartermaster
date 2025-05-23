@@ -122,7 +122,7 @@ public class Pistol_MONO : Item
             //Debug.DrawRay(shotOrigin.transform.position, hit.point - shotOrigin.transform.position, Color.green, 2f);
 
             // ~---- SPAWN TRAIL RENDER FROM SHOT ORIGIN TO HIT POINT ----~
-            WeaponEffects effects = user.GetComponent<WeaponEffects>();
+            WeaponEffects effects = GetComponent<WeaponEffects>(); // get from item instead of player obj.
             NetworkObject userNetObj = user.GetComponent<NetworkObject>();
 
             if (effects != null && userNetObj != null)
