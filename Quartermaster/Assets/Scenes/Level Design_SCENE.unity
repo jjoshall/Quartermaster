@@ -710,6 +710,7 @@ MonoBehaviour:
   playerUICanvas: {fileID: 0}
   settingsCanvas: {fileID: 0}
   gameOverCanvas: {fileID: 0}
+  PlayerUI: {fileID: 0}
 --- !u!1 &221602454
 GameObject:
   m_ObjectHideFlags: 0
@@ -5317,6 +5318,7 @@ MonoBehaviour:
   playerUICanvas: {fileID: 1639294570150000244}
   settingsCanvas: {fileID: 2137648931}
   gameOverCanvas: {fileID: 1302733816}
+  PlayerUI: {fileID: 2091593735}
 --- !u!1 &1252595535
 GameObject:
   m_ObjectHideFlags: 0
@@ -8190,6 +8192,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+--- !u!1 &2091593735 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9086176220433939304, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+  m_PrefabInstance: {fileID: 2091593734}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &2091593739 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1598054534006325840, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
