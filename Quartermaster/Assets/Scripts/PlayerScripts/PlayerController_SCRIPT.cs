@@ -33,7 +33,9 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private Transform spawnLocation;
     public float livesCount = 5;
     private IEnumerator respawnCoroutine;
+    private IEnumerator spawnImmunityCoroutine;
     public float SecondsToRespawn = 5;
+    public float ImmunitySeconds = 0.5f;
 
     [Header("Movement")]
     private Vector3 worldspaceMove = Vector3.zero;
@@ -556,21 +558,30 @@ public class PlayerController : NetworkBehaviour
 
     void OnDie() {
         //Debug.Log($"[{Time.time}] {gameObject.name} died. Respawning...");
-        if (health != null) health.SetInvincibleServerRpc(true);
+        if (health != null) {
+            health.HealServerRpc(1000f);
+            health.SetInvincibleServerRpc(true);
+        }
         playerVelocity = Vector3.zero;
         targetHeight = CapsuleHeightStanding;
+        // transform.position = Vector3.zero;
         disableCharacterController();
 
-        HealthBarUI.instance.ToggleRespawnCanvas(true);
+        if (Controller != null && Controller.enabled == false && health.Invincible.Value == false) { // to prevent client from getting stuck in a damage loop
+            health.SetInvincibleServerRpc(true);
+        }
 
-        // if (respawnCoroutine != null)
-        // StopCoroutine(respawnCoroutine); // in case a previous one is running
+        HealthBarUI.instance.ToggleRespawnCanvas(true); // toggles respawn text
+
+        if (respawnCoroutine != null)
+        StopCoroutine(respawnCoroutine); // in case a previous one is running
 
         respawnCoroutine = RespawnTimer(SecondsToRespawn);
         StartCoroutine(respawnCoroutine);
     }
     private IEnumerator RespawnTimer(float SecondsToRespawn) {
         yield return new WaitForSeconds(SecondsToRespawn);
+
         if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
             AnalyticsService.Instance.RecordEvent("PlayerDeath");
         }
@@ -587,7 +598,7 @@ public class PlayerController : NetworkBehaviour
 
         if (health != null) {
             health.HealServerRpc(1000f);
-            health.SetInvincibleServerRpc(false);
+            // health.SetInvincibleServerRpc(false);
         }
 
         if (livesCount <= 0) {
@@ -595,10 +606,26 @@ public class PlayerController : NetworkBehaviour
         }
 
         HealthBarUI.instance.UpdateHealthBar(health);
-        HealthBarUI.instance.ToggleRespawnCanvas(false);
+        HealthBarUI.instance.ToggleRespawnCanvas(false); // turns off respawn text since player should be back at spawn by now
 
         GameManager.instance.IncrementPlayerDeathsServerRpc();
         GameManager.instance.AddScoreServerRpc(GameManager.instance.ScorePenaltyOnDeath);
+
+        if (spawnImmunityCoroutine != null)
+        StopCoroutine(spawnImmunityCoroutine); // in case a previous one is running
+
+        spawnImmunityCoroutine = RespawnImmunity(ImmunitySeconds);
+        StartCoroutine(spawnImmunityCoroutine);
+    }
+
+    private IEnumerator RespawnImmunity(float ImmunitySeconds) { // coroutine for immunity frames after being teleported back to spawn, should help prevent over-damage
+        yield return new WaitForSeconds(ImmunitySeconds);
+        
+        if (health != null) {
+            health.HealServerRpc(1000f);
+            health.SetInvincibleServerRpc(false);
+            HealthBarUI.instance.UpdateHealthBar(health);
+        }
     }
 
     void OnDamaged(float damage, GameObject damageSource)
