@@ -6,19 +6,14 @@ public class MedKit_MONO : Item
     #region ItemSettings
     #endregion
     [Header("MedKit Settings")]
-    // [SerializeField] private float _medKitBaseVelocity = 1f; // originally 5f
     [SerializeField] private float _medKitMaxVelocity = 10f; // originally 30f
-    // [SerializeField] private float _medKitMaxChargeTime = 1.0f; // originally 1.0f
-    // [SerializeField] private float _medKitTapThreshold = 0.1f;
     [SerializeField] private float _medKitExpireTimer = 2.0f; // expire timer after hitting non player.
     [SerializeField] private float _healAmount = 6.0f; // originally 6.0f
+    [SerializeField] private bool throwCameraOrRaycast = true; // if true, throw grenade in direction of camera. if false, throw grenade in direction of raycast hit point.
+    [SerializeField] private LayerMask _throwRaycastables = 0;
 
     #region RuntimeVars
     #endregion 
-    // private float _medKitChargeTime = 0f; // time MedKit has been charged for.
-    // private float _medKitTapTime = 0f;
-    // private float _medKitVelocity = 0f; // velocity of MedKit.
-    // private bool _medKitTapped;
 
     public override void OnButtonUse(GameObject user){
         if (NullChecks(user)) {
@@ -32,69 +27,6 @@ public class MedKit_MONO : Item
         ImmediateMedKitUsage(user);
     }
 
-    public override void OnButtonHeld(GameObject user){
-        // if (NullChecks(user)) {
-        //     Debug.LogError("MedKit_MONO: ButtonHeld() NullChecks failed.");
-        //     return;
-        // }
-        // if (!_medKitTapped){
-        //     _medKitVelocity = _medKitBaseVelocity;
-        //     _medKitChargeTime = 0.0f;
-        //     _medKitTapTime = Time.time;
-        //     _medKitTapped = true;
-        //     return;
-        // }
-        // if (user.GetComponent<PlayerStatus>().GetHealSpecLvl() == 0){
-        //     return;
-        // }
-        // if (Time.time < _medKitTapTime + _medKitTapThreshold) {
-        //     return;
-        // }
-        // // Increment the charge time
-        // _medKitChargeTime += Time.deltaTime;
-        // float t = Mathf.Clamp01(_medKitChargeTime / _medKitMaxChargeTime);
-        // _medKitVelocity = Mathf.Lerp(_medKitBaseVelocity, _medKitMaxVelocity, t);
-
-        // // Update the line renderer
-        // UpdateLineRenderer(user);
-    }
-
-    public override void OnButtonRelease(GameObject user){
-        // if (NullChecks(user)) {
-        //     Debug.LogError("MedKit_MONO: ButtonRelease() NullChecks failed.");
-        //     return;
-        // }
-
-        // PlayerStatus s = user.GetComponent<PlayerStatus>();
-
-        // int healSpec = s.GetHealSpecLvl();
-        // if (healSpec == 0){
-        //     return;
-        // }
-
-        // if (Time.time < _medKitTapTime + _medKitTapThreshold){ 
-        //     ImmediateMedKitUsage(user);
-        //     return;
-        // }
-
-        // Transform camera = user.GetComponent<Inventory>().orientation;
-        // Vector3 direction = camera.forward;
-        // // Throw the MedKit.
-        // ProjectileManager.instance.SpawnSelfThenAll("MedKit", 
-        //         camera.transform.position + camera.right * 0.1f, 
-        //         camera.transform.rotation, 
-        //         direction, 
-        //         _medKitVelocity, 
-        //         user,
-        //         _healAmount);
-
-        // quantity--;
-        // SetLastUsed(Time.time);
-        // ProjectileManager.instance.DestroyLineRenderer();
-        // _medKitVelocity = _medKitBaseVelocity;
-        // _medKitChargeTime = 0.0f;
-        // _medKitTapped = false;
-    }
 
     public override void OnAltUse(GameObject user)
     {
@@ -111,10 +43,14 @@ public class MedKit_MONO : Item
         var totalHeal = _healAmount * (1 + ps.GetHealBonus());
 
         Transform camera = user.GetComponent<Inventory>().orientation;
-        Vector3 direction = camera.forward;
+
+        Vector3 direction;
+        Vector3 throwOrigin;
+        GetThrowData(camera, user.transform, user.GetComponent<Inventory>().weaponSlot.transform, out throwOrigin, out direction);
+
         // Throw the MedKit.
         ProjectileManager.instance.SpawnSelfThenAll("MedKit", 
-                camera.transform.position + camera.right * 0.1f, 
+                throwOrigin, 
                 camera.transform.rotation, 
                 direction, 
                 _medKitMaxVelocity, 
@@ -124,31 +60,9 @@ public class MedKit_MONO : Item
 
         quantity--;
         SetLastUsed(Time.time);
-        // ProjectileManager.instance.DestroyLineRenderer();
-        // _medKitVelocity = _medKitBaseVelocity;
-        // _medKitChargeTime = 0.0f;
-        // _medKitTapped = false;
     }
 
-    public override void OnDrop(GameObject user)
-    {
-        // ProjectileManager.instance.DestroyLineRenderer();
-        // _medKitVelocity = _medKitBaseVelocity;
-        // _medKitChargeTime = 0.0f;
-        // _medKitTapped = false;
-    }
 
-    public override void OnSwapOut(GameObject user){
-        // if (NullChecks(user)) {
-        //     Debug.LogError("MedKit_MONO: SwapCancel() NullChecks failed.");
-        //     return;
-        // }
-
-        // ProjectileManager.instance.DestroyLineRenderer();
-        // _medKitVelocity = _medKitBaseVelocity;
-        // _medKitChargeTime = 0.0f;
-        // _medKitTapped = false;
-    }
 
 
     #region MedKitHelpers
@@ -161,9 +75,6 @@ public class MedKit_MONO : Item
         Debug.Log ("MedKit_MONO: ImmediateMedKitUsage() called. Quantity after: " + quantity.ToString());
 
         SetLastUsed(Time.time);
-        // user.GetComponent<PlayerHealth>().Heal(HEAL_AMOUNT);
-        // What handles health now?
-        // Generate a quaternion for the particle effect to have no rotation
         Health hp = user.GetComponent<Health>();
         if (hp == null) {
             Debug.LogError("MedKit: ItemEffect: No Health component found on user.");
@@ -181,18 +92,34 @@ public class MedKit_MONO : Item
         hp.HealServerRpc(totalHeal);
         ParticleManager.instance.SpawnSelfThenAll("Healing", user.transform.position, Quaternion.Euler(-90, 0, 0));
 
-        // _medKitTapTime = 0.0f; // Reset the tap timer
-        // _medKitTapped = false;
-    }
-
-    private void UpdateLineRenderer (GameObject user){
-        // Transform camera = user.GetComponent<Inventory>().orientation;
-        // ProjectileManager.instance.UpdateLineRenderer(camera, _medKitVelocity);
     }
 
     #region GeneralHelpers
     #endregion 
 
+    private void GetThrowData(Transform camera, Transform user, Transform weaponSlot, out Vector3 throwOriginPosition, out Vector3 throwDirection)
+    {
+        if (throwCameraOrRaycast)
+        {
+            throwOriginPosition = camera.position;
+            throwDirection = camera.forward;
+        }
+        else
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(camera.position, camera.forward, out hit, 100f, _throwRaycastables))
+            {
+                throwOriginPosition = weaponSlot.position;
+                throwDirection = (hit.point - weaponSlot.position).normalized;
+            }
+            else
+            {
+                throwOriginPosition = weaponSlot.position;
+                var throwDestination = camera.position + camera.forward * 100f;
+                throwDirection = (throwDestination - weaponSlot.position).normalized;
+            }
+        }
+    }
     private bool NullChecks(GameObject user){
         if (user == null) {
             Debug.LogError ("MedKit_MONO: NullChecks() user is null.");
