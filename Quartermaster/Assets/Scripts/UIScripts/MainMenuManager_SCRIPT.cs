@@ -27,12 +27,10 @@ public class MainMenuManager : MonoBehaviour {
     }
 
     private void OnTutorialButtonClicked() {
-        Debug.Log("going to tutorial");
         tutorialCanvasPrefab.SetActive(true);
     }
 
     private void OnSettingsButtonClicked() {
-        Debug.Log("going to settings");
         settingsCanvasPrefab.SetActive(true);
     }
 
