@@ -9,6 +9,7 @@ public class MainMenuManager : MonoBehaviour {
     [SerializeField] private Button tutorialButton;
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button quitButton;
+    [SerializeField] private GameObject mainMenuCanvasPrefab;
     [SerializeField] private GameObject settingsCanvasPrefab;
     [SerializeField] private GameObject tutorialCanvasPrefab;
 
@@ -28,10 +29,12 @@ public class MainMenuManager : MonoBehaviour {
 
     private void OnTutorialButtonClicked() {
         tutorialCanvasPrefab.SetActive(true);
+        mainMenuCanvasPrefab.SetActive(false);
     }
 
     private void OnSettingsButtonClicked() {
         settingsCanvasPrefab.SetActive(true);
+        mainMenuCanvasPrefab.SetActive(false);
     }
 
     private void OnQuitButtonClicked() {
