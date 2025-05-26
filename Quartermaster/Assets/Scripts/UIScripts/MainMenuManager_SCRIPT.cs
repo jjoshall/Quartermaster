@@ -6,13 +6,16 @@ using TMPro;
 
 public class MainMenuManager : MonoBehaviour {
     [SerializeField] private Button playButton;
+    [SerializeField] private Button tutorialButton;
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button quitButton;
     [SerializeField] private GameObject settingsCanvasPrefab;
+    [SerializeField] private GameObject tutorialCanvasPrefab;
 
     private void Start() {
         playButton.onClick.AddListener(OnPlayButtonClicked);
         settingsButton.onClick.AddListener(OnSettingsButtonClicked);
+        tutorialButton.onClick.AddListener(OnTutorialButtonClicked);
         quitButton.onClick.AddListener(OnQuitButtonClicked);
 
         Cursor.lockState = CursorLockMode.None;
@@ -23,7 +26,13 @@ public class MainMenuManager : MonoBehaviour {
         SceneManager.LoadScene("Level Design_SCENE");
     }
 
+    private void OnTutorialButtonClicked() {
+        Debug.Log("going to tutorial");
+        tutorialCanvasPrefab.SetActive(true);
+    }
+
     private void OnSettingsButtonClicked() {
+        Debug.Log("going to settings");
         settingsCanvasPrefab.SetActive(true);
     }
 
