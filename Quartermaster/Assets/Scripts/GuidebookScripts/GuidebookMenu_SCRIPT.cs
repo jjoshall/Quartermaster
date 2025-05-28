@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class TutorialMenu_SCRIPT : MonoBehaviour
+public class GuidebookMenu_SCRIPT : MonoBehaviour
 {
     [SerializeField] private Button returnToMainMenuBtn;
     [SerializeField] private GameObject tutorialCanvas;
