@@ -9,6 +9,9 @@ public class HealthBarUI : MonoBehaviour {
     public TextMeshProUGUI lives;
     public float livesRemaining = 10000; // its just a random number
 
+    [SerializeField] private GameObject respawnCanvas;
+    [SerializeField] private GameObject playerUICanvas;
+
     // [Header("Player Health Reference")]
     // // Reference to the player's Health component; assign this via code or the inspector
     // public Health playerHealth;
@@ -39,6 +42,12 @@ public class HealthBarUI : MonoBehaviour {
             lives.text = "Lives: " + livesCount.ToString();
         }
         livesRemaining = livesCount;
+    }
+
+    public void ToggleRespawnCanvas(bool state) {
+        respawnCanvas.gameObject.SetActive(state);
+        playerUICanvas.gameObject.SetActive(!state);
+        PauseMenuToggler.IsPaused = state;
     }
     
     void Start() {
