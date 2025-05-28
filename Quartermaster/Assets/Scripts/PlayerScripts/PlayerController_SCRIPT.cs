@@ -103,6 +103,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private Transform playerSpawnPoints;
 
     public bool movementRestricted = true;
+    private bool noNetworkInitialization = false;
 
     #region Dev Functions
     private void SpawnDevController()
@@ -123,7 +124,7 @@ public class PlayerController : NetworkBehaviour
     #endregion
 
     #region Start Up Functions
-    private void EnablePlayerControls()
+    public void EnablePlayerControls()
     {
         // Main Camera and Audio Listener
         if (PlayerCamera != null)
@@ -233,6 +234,39 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    private void InitializePlayer()
+    {
+        Controller = GetComponent<CharacterController>();
+        InputHandler = GetComponent<PlayerInputHandler>();
+        PlayerInput = GetComponent<PlayerInput>();
+        health = GetComponent<Health>();
+
+        miniMapCanvas = GetComponentInChildren<Canvas>(true);
+        miniMapRawImage = miniMapCanvas?.GetComponentInChildren<RawImage>();
+
+        foreach (var r in localRenderersToTurnOff) r.enabled = false;
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.playerTransform = transform;
+        }
+        GetComponent<AudioListener>().enabled = true;
+
+        EnablePlayerControls();
+
+        if (health != null)
+        {
+            health.OnDie += OnDie;
+            health.OnDamaged += OnDamaged;
+            health.OnHealed += OnHealed;
+        }
+
+        InitializeStateMachine();
+        UpdateHeight(true);
+
+    }
+
+
     #endregion
 
     #region Unity Functions
@@ -251,41 +285,7 @@ public class PlayerController : NetworkBehaviour
             return;
         }
 
-        if (playerSpawnPoints == null)
-        {
-            playerSpawnPoints = GameObject.Find("PlayerSpawnPoints").transform;
-        }
-
-        SetInitialLocation();
-
-        foreach (Renderer r in localRenderersToTurnOff)
-        {
-            r.enabled = false;
-        }
-
-        AudioManager.Instance.playerTransform = transform;
-        GetComponent<AudioListener>().enabled = true;
-
-        Controller = GetComponent<CharacterController>();
-        InputHandler = GetComponent<PlayerInputHandler>();
-        PlayerInput = GetComponent<PlayerInput>();
-        health = GetComponent<Health>();
-
-        miniMapCanvas = GetComponentInChildren<Canvas>(true);
-        miniMapRawImage = miniMapCanvas?.GetComponentInChildren<RawImage>();
-
-        EnablePlayerControls();
-
-
-        if (health != null)
-        {
-            health.OnDie += OnDie;
-            health.OnDamaged += OnDamaged;
-            health.OnHealed += OnHealed;
-        }
-
-        InitializeStateMachine();
-        UpdateHeight(true);
+        InitializePlayer();
     }
 
     void Update()
@@ -295,6 +295,7 @@ public class PlayerController : NetworkBehaviour
         {
             return;
         }
+
 
         // If player falls too far, kill them
         if (transform.position.y <= -25f)
@@ -345,6 +346,17 @@ public class PlayerController : NetworkBehaviour
     }
 
     #endregion
+
+    public void ManualMovementEnable()
+    {
+        Debug.Log("ManualMovementEnable called");
+
+        InitializePlayer();
+        movementRestricted = false;
+
+        Debug.Log("movementRestricted = false");
+    }
+
 
     #region Movement Functions
     void HandleLook()
