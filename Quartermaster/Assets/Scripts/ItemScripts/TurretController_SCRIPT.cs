@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.Netcode;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using System.Collections;
 
 
 [RequireComponent(typeof(SphereCollider))]
@@ -9,10 +10,14 @@ public class TurretController_SCRIPT : NetworkBehaviour
 {
     private List<NetworkObject> _InRange;   // all valid enemies in range of detection
     public NetworkObject target;    // current target to attack
+    private bool _IsNewTarget = false;
     public Transform BulletSpawnPoint;  // empty game object to calculate what turret can "see" and fire from
     private float BulletRange;  //differs from sphere collider range because bullets spawn from nozzle, not center of model
     private float DetectionRadius;
-    private readonly int BulletLayerMask = LayerMask.GetMask("Enemy","Bulding");
+    [SerializeField] private float RotationSpeed = 2f;    // how fast turret rotates to lock on targets
+    private Coroutine RotateCoroutine;
+    private int BulletLayerMask;
+    private string _TargetTag = "Player";    // tag given to what to be considered a valid target
     //  public Item weapon;         // current item given to turret to use
     /*
     NOTE:
@@ -26,11 +31,16 @@ public class TurretController_SCRIPT : NetworkBehaviour
 
 
     public override void OnNetworkSpawn() {
+        if (!IsServer) return;
+        Debug.Log("turret spawned in network");
         enemySpawner = EnemySpawner.instance;
         if (!enemySpawner){
             Debug.LogError("EnemySpawner singleton not found!");
         }
         enemySpawner.OnEnemyDespawn += OnEnemyDespawn;
+
+        _InRange = new List<NetworkObject>();
+        BulletLayerMask = LayerMask.GetMask("Enemy","Bulding");
 
         Vector3 worldDistance = BulletSpawnPoint.position - transform.position;
         worldDistance.y = 0;
@@ -45,11 +55,18 @@ public class TurretController_SCRIPT : NetworkBehaviour
     }
 
     void Update() {
+        if (!IsServer) return;
         /*
         Lock On to target if needed
         Fire projectile at target
         */
         UpdateTarget();
+        if (target){
+            if (_IsNewTarget){
+                StartRotating();
+            }
+            Shoot();
+        }
     }
 
     void UpdateTarget(){
@@ -58,20 +75,15 @@ public class TurretController_SCRIPT : NetworkBehaviour
             RaycastHit hit;
             foreach((float _, NetworkObject potentialTarget) in orderedTargets){
                 if (Physics.Raycast(transform.position, (transform.position - potentialTarget.transform.position).normalized, out hit, DetectionRadius, BulletLayerMask)){
-                    if (hit.collider.CompareTag("Enemy")){
+                    if (hit.collider.CompareTag(_TargetTag)){
                         target = hit.collider.GetComponent<NetworkObject>();
+                        _IsNewTarget = true;
                         break;
                     }
                 }
             }
         }
-        // if no target, loop through list, finding closest
-        // "look at" the target and maintain raycast from firing position
-        transform.LookAt(target.transform);
-        // if raycast hits building, get new target
-        // if raycast hits a different enemy, set that enemy to new target
-
-        // next, rotate angle accordingly / look at target
+        _IsNewTarget = false;
     }
     List<(float distance, NetworkObject target)> GetOrderedTargets(){
         List<(float distance, NetworkObject target)> orderedTargets = new List<(float distance, NetworkObject target)>();
@@ -92,11 +104,38 @@ public class TurretController_SCRIPT : NetworkBehaviour
         return orderedTargets;
     }
 
+    void StartRotating(){
+        if (RotateCoroutine != null){
+            StopCoroutine(RotateCoroutine);
+        }
+        RotateCoroutine = StartCoroutine(RotateToTarget());
+    }
+
+    private IEnumerator RotateToTarget(){
+        // only doing horizontal rotation for now until turret model is deicded on and pivot location is known
+        Quaternion lookRotation = Quaternion.LookRotation(target.transform.position - transform.position);
+        // ensure this rotation is only horizontal
+        lookRotation = Quaternion.Euler(transform.rotation.eulerAngles.x, lookRotation.eulerAngles.y, transform.rotation.eulerAngles.z);
+        float time = 0;
+        while (time < 1){
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, time);
+            time += Time.deltaTime * RotationSpeed;
+            yield return null;
+        }
+    }
+
+    void Shoot(){
+        // raycast in forward direction
+        // if raycast hits, do damage
+        if (!IsServer) return;
+        Debug.Log("TURRET: shooting at target");
+    }
+
     #region Enemy Detection
     private void OnTriggerEnter(Collider other)
     {
         NetworkObject netObj = other.GetComponent<NetworkObject>();
-        if (netObj != null && other.CompareTag("Enemy")){
+        if (netObj != null && other.CompareTag(_TargetTag)){
             _InRange.Add(netObj);
         }
     }
