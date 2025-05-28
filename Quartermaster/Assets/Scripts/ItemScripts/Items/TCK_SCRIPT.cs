@@ -8,7 +8,8 @@ public class TCK_SCRIPT : Item
     private bool _isRaycasting = false;
 
     [SerializeField] private GameObject _turretIndicatorObj; // child obj of this item.
-
+    [SerializeField] private GameObject _turretPrefab; 
+    
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -60,56 +61,73 @@ public class TCK_SCRIPT : Item
     }   
 
     private void SpawnTurret(){
+        // Logic to spawn the turret at the raycasted position.
+        Vector3 targetPosition = GetRaycastedPointFromCamera();
+        if (targetPosition != Vector3.zero)
+        {
+            SpawnTurretServerRpc(targetPosition);
+            Debug.Log("Spawning turret at: " + targetPosition);
+        }
+        else
+        {
+            Debug.LogWarning("Target position for turret spawn is invalid.");
+        }
+    }
 
+    [ServerRpc(RequireOwnership = false)]
+    private void SpawnTurretServerRpc(Vector3 targetPosition){
+        GameObject turret = Instantiate(_turretPrefab, targetPosition, Quaternion.identity);
+        turret.GetComponent<NetworkObject>().Spawn();
+        Debug.Log("Spawning turret at: " + targetPosition + " on server.");
     }
 
     void Update()
     {
         if (_isRaycasting)
         {
-            // Raycast from the camera to the target position.
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hitInfo))
-            {
-                Draw(hitInfo.point);
-            }
+            Draw();
         }
         else
         {
-            // Hide the indicator when not raycasting.
-            if (_turretIndicatorObj != null)
-            {
-                _turretIndicatorObj.SetActive(false);
-            }
+            _turretIndicatorObj.SetActive(false);
         }
     }
 
+
+    private void Draw(){
+        Vector3 targetPosition = GetRaycastedPointFromCamera();
+        DrawLineToTarget(targetPosition);
+        DrawCircle();
+        UpdateIndicatorObj(targetPosition);
+    }
+    
     private Vector3 GetRaycastedPointFromCamera(){
         Vector3 target = Vector3.zero;
-        return target;
-    }
-
-    private void Draw(Vector3 targetPosition){
-        DrawLineToTarget(targetPosition);
-        if (_turretIndicatorObj != null)
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit))
         {
-            _turretIndicatorObj.transform.position = targetPosition;
-            _turretIndicatorObj.SetActive(_isRaycasting);
+            target = hit.point;
         }
+        else
+        {
+            target = Camera.main.transform.position + Camera.main.transform.forward * 10f; // 10 units in front of the camera.
+        }
+        return target;
     }
 
     private void DrawLineToTarget(Vector3 targetPosition)
     {
-        if (_isRaycasting)
-        {
-            Debug.DrawLine(transform.position, targetPosition, Color.red);
-        }
+        Vector3 origin = transform.position;
+        Debug.DrawLine(transform.position, targetPosition, Color.red);
     }
     private void DrawCircle(){
 
     }
 
-    private void DrawIndicatorPrefab(){
-
+    private void UpdateIndicatorObj(Vector3 targetPosition)
+    {
+        _turretIndicatorObj.transform.position = targetPosition;
+        _turretIndicatorObj.SetActive(_isRaycasting);
     }
 }
