@@ -17,17 +17,20 @@ public class Turret_SCRIPT : NetworkBehaviour
     private Transform _barrelTip;
     [SerializeField, Tooltip("Used for tracking targets")]
     private GameObject _targetTriggerVolume;
+
     [SerializeField]
     private float _attackRange = 10f;
     [SerializeField]
     private float _maxHorizontalRotationSpeed = 2f; // degrees per second.
     [SerializeField]
     private float _maxVerticalRotationSpeed = 2f; // degrees per second.
+    [SerializeField]
+    private float _lookDifferenceThreshold = 5f; // degrees, how close the turret needs to be to the target direction before firing.
 
 
     public float lastAttackTime = float.MinValue;
-    private Item weaponItem;
-    private List<Item> _items = new List<Item>();
+    private GameObject weaponItem;
+    private List<GameObject> _items = new List<GameObject>();
 
     public override void OnNetworkSpawn()
     {
@@ -52,7 +55,17 @@ public class Turret_SCRIPT : NetworkBehaviour
         
     }
 
-    private bool LockOnTarget(){
+    private bool LockedOnTarget(GameObject target){
+        // if look direction within 
+        if (target == null) return false; // no target to lock on to.
+        RotateHorizontal(target);
+        RotateVertical(target);
+        
+        if (Vector3.Angle(_barrelTip.forward, target.transform.position - _barrelTip.position) < _lookDifferenceThreshold)
+        {
+            // if the target is within the look difference threshold, we are locked on.
+            return true;
+        }
         return false;
     }
 
@@ -85,21 +98,17 @@ public class Turret_SCRIPT : NetworkBehaviour
         }
     }
 
-    private bool ContainsWeapon(){
+    private bool HasWeapon(){
+        if (weaponItem != null) return true; // has a weapon item.
         return false;
     }
 
     void Update()
     {
         GameObject target = _targetTriggerVolume.GetComponent<TargetTriggerVolume_SCRIPT>().GetTurretTarget();
-        if (target != null)
-        {
-            RotateHorizontal(target);
-            RotateVertical(target);
-            if (ContainsWeapon())
-            {
-                AttackTarget();
-            }
+        if (LockedOnTarget(target) && HasWeapon()){
+            AttackTarget();
         }
+        
     }
 }
