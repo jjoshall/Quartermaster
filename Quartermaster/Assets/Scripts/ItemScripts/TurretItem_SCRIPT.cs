@@ -1,9 +1,11 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.Netcode;
 
 public class TurretItem_MONO : Item
 {
     [SerializeField] private GameObject _previewGameObjectPrefab; // assign in editor
+    [SerializeField] private NetworkObject _turretObjectPrefab;
     private GameObject _previewGameObject;
     #region item settings
     [SerializeField] private float _previewDistance = 10f;
@@ -75,6 +77,9 @@ public class TurretItem_MONO : Item
         if (_previewIsValid){
             // instantiate turret and destroy preview object
             Debug.Log("TurretItem_MONO: turret placed here");
+            RemovePreview();
+            Destroy(_previewGameObject);
+            _turretObjectPrefab.Spawn(true);
         }else{
             Debug.Log("TurretItem_MONO: turret cannot be placed here");
             RemovePreview();
