@@ -102,6 +102,24 @@ public class GameManager : NetworkBehaviour {
     [SerializeField] private bool explosiveEnemy_UseGlobalTarget;
     [SerializeField] private float explosiveEnemy_Speed;
 
+    [Header("Big Melee Enemy Settings")]
+    [SerializeField] private float bigMeleeEnemy_Health;
+    [SerializeField] private float bigMeleeEnemy_AttackCooldown;
+    [SerializeField] private float bigMeleeEnemy_AttackRange;
+    [SerializeField] private int bigMeleeEnemy_AttackDamage;
+    [SerializeField] private float bigMeleeEnemy_AttackRadius;
+    [SerializeField] private bool bigMeleeEnemy_UseGlobalTarget;
+    [SerializeField] private float bigMeleeEnemy_Speed;
+
+    [Header("Small Exploding Enemy Settings")]
+    [SerializeField] private float smallExplosiveEnemy_Health;
+    [SerializeField] private float smallExplosiveEnemy_AttackCooldown;
+    [SerializeField] private float smallExplosiveEnemy_AttackRange;
+    [SerializeField] private int smallExplosiveEnemy_AttackDamage;
+    [SerializeField] private float smallExplosiveEnemy_AttackRadius;
+    [SerializeField] private bool smallExplosiveEnemy_UseGlobalTarget;
+    [SerializeField] private float smallExplosiveEnemy_Speed;
+
     [SerializeField] private float[] _playersToEnemyHpMultiplier = new float[10] {  0.1f, 
                                                                                     1.0f, 
                                                                                     1.5f, 
@@ -203,6 +221,22 @@ public class GameManager : NetworkBehaviour {
     public float ExplosiveEnemy_AttackRadius => explosiveEnemy_AttackRadius;
     public bool ExplosiveEnemy_UseGlobalTarget => explosiveEnemy_UseGlobalTarget;
     public float ExplosiveEnemy_Speed => explosiveEnemy_Speed * EnemySpeedMultiplier;
+
+    public float BigMeleeEnemy_Health => bigMeleeEnemy_Health * EnemyHealthMultiplier;
+    public float BigMeleeEnemy_AttackCooldown => bigMeleeEnemy_AttackCooldown;
+    public float BigMeleeEnemy_AttackRange => bigMeleeEnemy_AttackRange;
+    public int BigMeleeEnemy_AttackDamage => bigMeleeEnemy_AttackDamage;
+    public float BigMeleeEnemy_AttackRadius => bigMeleeEnemy_AttackRadius;
+    public bool BigMeleeEnemy_UseGlobalTarget => bigMeleeEnemy_UseGlobalTarget;
+    public float BigMeleeEnemy_Speed => bigMeleeEnemy_Speed * EnemySpeedMultiplier;
+
+    public float SmallExplosiveEnemy_Health => smallExplosiveEnemy_Health * EnemyHealthMultiplier;
+    public float SmallExplosiveEnemy_AttackCooldown => smallExplosiveEnemy_AttackCooldown;
+    public float SmallExplosiveEnemy_AttackRange => smallExplosiveEnemy_AttackRange;
+    public int SmallExplosiveEnemy_AttackDamage => smallExplosiveEnemy_AttackDamage;
+    public float SmallExplosiveEnemy_AttackRadius => smallExplosiveEnemy_AttackRadius;
+    public bool SmallExplosiveEnemy_UseGlobalTarget => smallExplosiveEnemy_UseGlobalTarget;
+    public float SmallExplosiveEnemy_Speed => smallExplosiveEnemy_Speed * EnemySpeedMultiplier;
 
     public int ScorePerObjective => scorePerObjective;
     public int ScorePerEnemyKill => scorePerEnemyKill;
