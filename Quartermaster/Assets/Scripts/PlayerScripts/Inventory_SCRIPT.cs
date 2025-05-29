@@ -105,7 +105,10 @@ public class Inventory : NetworkBehaviour {
 
         // Update the UI highlight for the current slot.
         _uiManager.HighlightSlot(_currentInventoryIndex);
-        _uiManager.WriteLabel(GetItemAt(_currentInventoryIndex));
+
+        // update the item name display over the inventory slots
+        AnimatedTooltippable itemTooltip = GetItemAt(_currentInventoryIndex).GetComponentInChildren<AnimatedTooltippable>();
+        _uiManager.WriteLabel(itemTooltip.tooltipHeaderText);
     }
 
     void SetIndex(int index) {
