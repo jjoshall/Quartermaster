@@ -5,7 +5,7 @@ using TMPro;
 public class GuidebookMenu_SCRIPT : MonoBehaviour
 {
     [SerializeField] private Button returnToMainMenuBtn;
-    [SerializeField] private GameObject tutorialCanvas;
+    [SerializeField] private GameObject guidebookCanvas;
     [SerializeField] private GameObject mainMenuCanvas;
 
     [Header("Bot Codex")]
@@ -18,13 +18,13 @@ public class GuidebookMenu_SCRIPT : MonoBehaviour
     private GameObject currentBotPage = null;
 
     public void ReturnToMainMenu() {
-        if (tutorialCanvas == null || mainMenuCanvas == null) {
+        if (guidebookCanvas == null || mainMenuCanvas == null) {
             Debug.LogError("Tutorial or Main Menu canvas is not assigned.");
             return;
         }
-
-        tutorialCanvas.SetActive(false);
+        
         mainMenuCanvas.SetActive(true);
+        guidebookCanvas.SetActive(false);
     }
 
     #region Bot Codex
