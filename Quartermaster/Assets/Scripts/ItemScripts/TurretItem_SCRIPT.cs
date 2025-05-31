@@ -1,11 +1,12 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.BossRoom.Infrastructure;
 
 public class TurretItem_MONO : Item
 {
     [SerializeField] private GameObject _previewGameObjectPrefab; // assign in editor
-    [SerializeField] private NetworkObject _turretObjectPrefab;
+    [SerializeField] private GameObject _turretObjectPrefab;
     private GameObject _previewGameObject;
     #region item settings
     [SerializeField] private float _previewDistance = 10f;
@@ -20,12 +21,18 @@ public class TurretItem_MONO : Item
     [SerializeField] private Color _validColor;             // assign in editor
     [SerializeField] private Color _invalidColor;           // assign in editor
     #endregion
+    private NetworkObjectPool _objectPool;
 
     public override void OnPickUp(GameObject user)
     {
         base.OnPickUp(user);
         _previewGameObject = Instantiate(_previewGameObjectPrefab, user.transform.position, user.transform.rotation);
         _previewGameObject.SetActive(false);
+        _objectPool = NetworkObjectPool.Singleton;
+        if (_objectPool == null) {
+            Debug.LogError("NetworkObjectPool not found.");
+            return;
+        }
 
     }
     public override void OnButtonHeld(GameObject user)
@@ -78,8 +85,10 @@ public class TurretItem_MONO : Item
             // instantiate turret and destroy preview object
             Debug.Log("TurretItem_MONO: turret placed here");
             RemovePreview();
-            Destroy(_previewGameObject);
-            _turretObjectPrefab.Spawn(true);
+            //quantity--;                       // uncomment when turret actually gets placed
+            //Destroy(_previewGameObject);      // uncomment when implementing item getting used up
+            //_turretObjectPrefab.Spawn(true);  // swap to using pool
+            SpawnTurret();
         }else{
             Debug.Log("TurretItem_MONO: turret cannot be placed here");
             RemovePreview();
@@ -120,6 +129,20 @@ public class TurretItem_MONO : Item
         _previewGameObject.SetActive(false);
         _previewIsActive = false;
         _previewIsValid = false;
+    }
+
+    private void SpawnTurret(){
+        NetworkObject networkTurret = _objectPool.GetNetworkObject(
+            _turretObjectPrefab,
+            _previewGameObject.transform.position,
+            Quaternion.identity
+        );
+        if (networkTurret.IsSpawned) {
+            Debug.Log($"Tried to spawn {networkTurret.name} but it is already spawned.");
+            return;
+        }
+        networkTurret.Spawn(true);
+
     }
     private bool NullChecks(GameObject user){
         if (user == null) {

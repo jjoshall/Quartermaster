@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: -7264105916764725100}
   - component: {fileID: 5324541719908093842}
   - component: {fileID: 6427313796859599948}
+  - component: {fileID: 1036220462428459868}
   m_Layer: 6
   m_Name: TurretItem_PICKUP
   m_TagString: Item
@@ -244,11 +245,34 @@ MonoBehaviour:
   quantity: 1
   icon: {fileID: 0}
   soundEmitters: []
-  IsPickedUp: 0
-  attachedWeaponSlot: {fileID: 0}
   userRef: {fileID: 0}
+  IsPickedUp: 0
+  n_isPickedUp:
+    m_InternalValue: 0
+  n_isCurrentlySelected:
+    m_InternalValue: 0
+  attachedWeaponSlot: {fileID: 0}
+  n_syncedQuantity:
+    m_InternalValue: 1
   _previewGameObjectPrefab: {fileID: 6752743026892006491, guid: e23a42a952b5e4a5eb1429e14ec80402, type: 3}
+  _turretObjectPrefab: {fileID: 0}
   _previewDistance: 10
   _previewMaterial: {fileID: 2100000, guid: 74f8ba42f10004fff9ba43ae5ec9b436, type: 2}
   _validColor: {r: 0.21176471, g: 0.8352941, b: 1, a: 0.27450982}
   _invalidColor: {r: 0.9150943, g: 0.16834284, b: 0.16834284, a: 0.27450982}
+--- !u!114 &1036220462428459868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1895807861175784113}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abba81b95eeeefa47b53e97ff1f27c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipHeaderText: Default Tooltip Text
+  tooltipBodyText: Default Tooltip Body Text
+  headerFontSize: 30
+  bodyFontSize: 18
