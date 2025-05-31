@@ -375,9 +375,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  MaxHealth: 10
+  MaxHealth: 10000
   CriticalHealthRatio: 0.1
+  hoveringHealthBar: {fileID: 0}
+  fillImage: {fileID: 0}
+  lives: {fileID: 0}
+  healthRatio:
+    m_InternalValue: 1
   CurrentHealth:
+    m_InternalValue: 0
+  Invincible:
     m_InternalValue: 0
   _damageEffect: {fileID: 0}
 --- !u!114 &6073005085154520232
@@ -407,7 +414,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _attackDelay: 2
   originalPrefab: {fileID: 0}
   enemySpawner: {fileID: 0}
   _localDetectionRange: 20

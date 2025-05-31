@@ -138,7 +138,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.38
-  m_Speed: 5
+  m_Speed: 6
   m_Acceleration: 4
   avoidancePriority: 50
   m_AngularSpeed: 800
@@ -163,9 +163,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  MaxHealth: 100
+  MaxHealth: 10000
   CriticalHealthRatio: 0.3
+  hoveringHealthBar: {fileID: 0}
+  fillImage: {fileID: 0}
+  lives: {fileID: 0}
+  healthRatio:
+    m_InternalValue: 1
   CurrentHealth:
+    m_InternalValue: 0
+  Invincible:
     m_InternalValue: 0
   _damageEffect: {fileID: 0}
 --- !u!114 &4975842382590010180
@@ -195,7 +202,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _attackDelay: 2
   originalPrefab: {fileID: 0}
   enemySpawner: {fileID: 0}
   _localDetectionRange: 20

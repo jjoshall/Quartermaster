@@ -9,6 +9,7 @@ using UnityEngine.Localization.SmartFormat.Utilities;
 using Unity.VisualScripting;
 using System.Collections.Generic;
 using UnityEngine.Analytics;
+using System.Collections;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler), typeof(Health))]
 public class PlayerController : NetworkBehaviour
@@ -31,6 +32,10 @@ public class PlayerController : NetworkBehaviour
     [Header("Player Spawn Settings")]
     [SerializeField] private Transform spawnLocation;
     public float livesCount = 5;
+    private IEnumerator respawnCoroutine;
+    private IEnumerator spawnImmunityCoroutine;
+    public float SecondsToRespawn = 5;
+    public float ImmunitySeconds = 0.5f;
 
     [Header("Movement")]
     private Vector3 worldspaceMove = Vector3.zero;
@@ -98,6 +103,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private Transform playerSpawnPoints;
 
     public bool movementRestricted = true;
+    private bool noNetworkInitialization = false;
 
     #region Dev Functions
     private void SpawnDevController()
@@ -118,7 +124,7 @@ public class PlayerController : NetworkBehaviour
     #endregion
 
     #region Start Up Functions
-    private void EnablePlayerControls()
+    public void EnablePlayerControls()
     {
         // Main Camera and Audio Listener
         if (PlayerCamera != null)
@@ -228,6 +234,39 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    private void InitializePlayer()
+    {
+        Controller = GetComponent<CharacterController>();
+        InputHandler = GetComponent<PlayerInputHandler>();
+        PlayerInput = GetComponent<PlayerInput>();
+        health = GetComponent<Health>();
+
+        miniMapCanvas = GetComponentInChildren<Canvas>(true);
+        miniMapRawImage = miniMapCanvas?.GetComponentInChildren<RawImage>();
+
+        foreach (var r in localRenderersToTurnOff) r.enabled = false;
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.playerTransform = transform;
+        }
+        GetComponent<AudioListener>().enabled = true;
+
+        EnablePlayerControls();
+
+        if (health != null)
+        {
+            health.OnDie += OnDie;
+            health.OnDamaged += OnDamaged;
+            health.OnHealed += OnHealed;
+        }
+
+        InitializeStateMachine();
+        UpdateHeight(true);
+
+    }
+
+
     #endregion
 
     #region Unity Functions
@@ -246,41 +285,7 @@ public class PlayerController : NetworkBehaviour
             return;
         }
 
-        if (playerSpawnPoints == null)
-        {
-            playerSpawnPoints = GameObject.Find("PlayerSpawnPoints").transform;
-        }
-
-        SetInitialLocation();
-
-        foreach (Renderer r in localRenderersToTurnOff)
-        {
-            r.enabled = false;
-        }
-
-        AudioManager.Instance.playerTransform = transform;
-        GetComponent<AudioListener>().enabled = true;
-
-        Controller = GetComponent<CharacterController>();
-        InputHandler = GetComponent<PlayerInputHandler>();
-        PlayerInput = GetComponent<PlayerInput>();
-        health = GetComponent<Health>();
-
-        miniMapCanvas = GetComponentInChildren<Canvas>(true);
-        miniMapRawImage = miniMapCanvas?.GetComponentInChildren<RawImage>();
-
-        EnablePlayerControls();
-
-
-        if (health != null)
-        {
-            health.OnDie += OnDie;
-            health.OnDamaged += OnDamaged;
-            health.OnHealed += OnHealed;
-        }
-
-        InitializeStateMachine();
-        UpdateHeight(true);
+        InitializePlayer();
     }
 
     void Update()
@@ -290,6 +295,7 @@ public class PlayerController : NetworkBehaviour
         {
             return;
         }
+
 
         // If player falls too far, kill them
         if (transform.position.y <= -25f)
@@ -340,6 +346,17 @@ public class PlayerController : NetworkBehaviour
     }
 
     #endregion
+
+    public void ManualMovementEnable()
+    {
+        Debug.Log("ManualMovementEnable called");
+
+        InitializePlayer();
+        movementRestricted = false;
+
+        Debug.Log("movementRestricted = false");
+    }
+
 
     #region Movement Functions
     void HandleLook()
@@ -551,40 +568,76 @@ public class PlayerController : NetworkBehaviour
         return true;
     }
 
-    void OnDie()
-    {
+    void OnDie() {
         //Debug.Log($"[{Time.time}] {gameObject.name} died. Respawning...");
+        if (health != null) {
+            health.HealServerRpc(1000f);
+            health.SetInvincibleServerRpc(true);
+        }
+        playerVelocity = Vector3.zero;
+        targetHeight = CapsuleHeightStanding;
+        // transform.position = Vector3.zero;
+        disableCharacterController();
 
-        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady())
-        {
+        if (Controller != null && Controller.enabled == false && health.Invincible.Value == false) { // to prevent client from getting stuck in a damage loop
+            health.SetInvincibleServerRpc(true);
+        }
+
+        HealthBarUI.instance.ToggleRespawnCanvas(true); // toggles respawn text
+
+        if (respawnCoroutine != null)
+        StopCoroutine(respawnCoroutine); // in case a previous one is running
+
+        respawnCoroutine = RespawnTimer(SecondsToRespawn);
+        StartCoroutine(respawnCoroutine);
+    }
+    private IEnumerator RespawnTimer(float SecondsToRespawn) {
+        yield return new WaitForSeconds(SecondsToRespawn);
+
+        if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
             AnalyticsService.Instance.RecordEvent("PlayerDeath");
         }
         livesCount--;
         HealthBarUI.instance.UpdateLives(livesCount);
 
-        if (health != null) health.Invincible = true;
+        // if (health != null) health.Invincible = true;
 
-        playerVelocity = Vector3.zero;
-        targetHeight = CapsuleHeightStanding;
-        disableCharacterController();
+        // playerVelocity = Vector3.zero;
+        // targetHeight = CapsuleHeightStanding;
+        // disableCharacterController();
         transform.position = Vector3.zero;
         enableCharacterController();
 
-        if (health != null)
-        {
+        if (health != null) {
             health.HealServerRpc(1000f);
-            health.Invincible = false;
+            // health.SetInvincibleServerRpc(false);
         }
 
-        if (livesCount <= 0)
-        {
+        if (livesCount <= 0) {
             disableCharacterController();
         }
 
         HealthBarUI.instance.UpdateHealthBar(health);
+        HealthBarUI.instance.ToggleRespawnCanvas(false); // turns off respawn text since player should be back at spawn by now
 
         GameManager.instance.IncrementPlayerDeathsServerRpc();
         GameManager.instance.AddScoreServerRpc(GameManager.instance.ScorePenaltyOnDeath);
+
+        if (spawnImmunityCoroutine != null)
+        StopCoroutine(spawnImmunityCoroutine); // in case a previous one is running
+
+        spawnImmunityCoroutine = RespawnImmunity(ImmunitySeconds);
+        StartCoroutine(spawnImmunityCoroutine);
+    }
+
+    private IEnumerator RespawnImmunity(float ImmunitySeconds) { // coroutine for immunity frames after being teleported back to spawn, should help prevent over-damage
+        yield return new WaitForSeconds(ImmunitySeconds);
+        
+        if (health != null) {
+            health.HealServerRpc(1000f);
+            health.SetInvincibleServerRpc(false);
+            HealthBarUI.instance.UpdateHealthBar(health);
+        }
     }
 
     void OnDamaged(float damage, GameObject damageSource)

@@ -45,19 +45,9 @@ public class UIManager : MonoBehaviour {
             inventorySlotImages[selectedSlot].rectTransform.localScale = Vector3.one * highlightScale;
         }
     }
-    public void WriteLabel(Item item) {
-        if (item) {
-            inventorySlotLabel.text = item.ToString();
-            int underscoreIndex = inventorySlotLabel.text.IndexOf('_');
-            string cleaned = underscoreIndex >= 0 ? inventorySlotLabel.text.Substring(0, underscoreIndex) : inventorySlotLabel.text;
-
-            cleaned = System.Text.RegularExpressions.Regex.Replace(
-                cleaned,
-                "(?<!^)([A-Z])",
-                " $1"
-            );
-
-            inventorySlotLabel.text = cleaned;
+    public void WriteLabel(string item) {
+        if (item != null) {
+            inventorySlotLabel.text = item;
         }
         else {
             inventorySlotLabel.text = "";
