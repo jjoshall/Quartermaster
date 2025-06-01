@@ -26,8 +26,8 @@ public class EnemySpawner : NetworkBehaviour {
     [SerializeField] private List<GameObject> _enemySpawnPoints;
     //[SerializeField] private List<GameObject> _enemyPackSpawnPoints;
 
-    [HideInInspector] public float globalAggroUpdateIntervalMultiplier = 1.0f;
-    [HideInInspector] public float spawnCooldownMultiplier = 1.0f;
+    public float globalAggroUpdateIntervalMultiplier = 1.0f;
+    public float spawnCooldownMultiplier = 1.0f;
 
     public List<GameObject> enemyList = new List<GameObject>();
     private List<GameObject> playerList; // players in game.
