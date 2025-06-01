@@ -172,22 +172,29 @@ public class PortalKey_MONO : Item
     // Save return position data in synced networklists.
     private void TeleportAll(){
         Vector3 offsetDestination = _teleportDestination.transform.position + _teleportOffset;
-        foreach (GameObject player in _playersToTeleport){
+        foreach (GameObject player in _playersToTeleport)
+        {
             NetworkObject n_playerObj = player.GetComponent<NetworkObject>();
-            if (n_playerObj == null) {
+            if (n_playerObj == null)
+            {
                 Debug.LogError("PortalKey_MONO: Teleport() player has no NetworkObject component.");
                 continue;
             }
-            SaveReturnPosition (player);
-            TeleportPlayerServerRpc (n_playerObj, offsetDestination, Quaternion.Euler(0, 0, 0));
+            SaveReturnPosition(player);
+            TeleportPlayerServerRpc(n_playerObj, offsetDestination, Quaternion.Euler(0, 0, 0));
+            AddPlayerToActivePlayerListServerRpc(n_playerObj); // add player to active player list.
         }
 
         NetworkObject n_lastOwnerObj;
         // get lastOwner from n_lastOwnerReference
-        if (n_lastOwner.Value.TryGet(out n_lastOwnerObj)){
-            SaveReturnPosition (n_lastOwnerObj.gameObject);
-            TeleportPlayerServerRpc (n_lastOwnerObj, offsetDestination, Quaternion.Euler(0, 0, 0));
-        } else {
+        if (n_lastOwner.Value.TryGet(out n_lastOwnerObj))
+        {
+            SaveReturnPosition(n_lastOwnerObj.gameObject);
+            TeleportPlayerServerRpc(n_lastOwnerObj, offsetDestination, Quaternion.Euler(0, 0, 0));
+            AddPlayerToActivePlayerListServerRpc(n_lastOwner.Value); // add last owner to active player list.
+        }
+        else
+        {
             Debug.LogError("PortalKey_MONO: Teleport() n_lastOwnerReference is null.");
             return;
         }
@@ -220,17 +227,23 @@ public class PortalKey_MONO : Item
     }
 
     // Returns all players in n_playersInPocket to index positions. O(n)
-    private void Return(){
-        for (int i = 0; i < n_playersInPocket.Count; i++){
+    private void Return()
+    {
+        for (int i = 0; i < n_playersInPocket.Count; i++)
+        {
             NetworkObjectReference n_player = n_playersInPocket[i];
             NetworkObject n_playerObj;
-            if (n_player.TryGet(out n_playerObj)){
+            if (n_player.TryGet(out n_playerObj))
+            {
                 // GameObject player = n_playerObj.gameObject;
                 Vector3 returnPosition = n_returnPositions[i];
-                Debug.Log ("return position: " + returnPosition);
+                Debug.Log("return position: " + returnPosition);
                 Quaternion returnRotation = n_returnRotations[i];
-                TeleportPlayerServerRpc (n_player, returnPosition, returnRotation);
-            } else {
+                TeleportPlayerServerRpc(n_player, returnPosition, returnRotation);
+                RemovePlayerFromActivePlayerListServerRpc(n_player); // remove player from active player list.
+            }
+            else
+            {
                 Debug.LogError("PortalKey_MONO: Return() n_player is null.");
             }
         }
@@ -260,6 +273,17 @@ public class PortalKey_MONO : Item
                                         user.transform.position, 
                                         user.transform.rotation);
     }
+    [ServerRpc(RequireOwnership = false)]
+    private void AddPlayerToActivePlayerListServerRpc(NetworkObjectReference player){
+        if (EnemySpawner.instance.activePlayerList.Contains(player)) return; // already in pocket.
+        EnemySpawner.instance.activePlayerList.Add(player);
+    }
+    [ServerRpc(RequireOwnership = false)]
+    private void RemovePlayerFromActivePlayerListServerRpc(NetworkObjectReference player){
+        if (!EnemySpawner.instance.activePlayerList.Contains(player)) return; // already in pocket.
+        EnemySpawner.instance.activePlayerList.Remove(player);
+    }
+
 
     [ServerRpc(RequireOwnership = false)]
     private void AddPlayerToPocketServerRpc(NetworkObjectReference player, Vector3 position, Quaternion rotation){
