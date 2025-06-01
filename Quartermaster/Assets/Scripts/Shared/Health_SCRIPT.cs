@@ -39,8 +39,10 @@ public class Health : NetworkBehaviour {
 
     public override void OnNetworkSpawn()
     {
-        CurrentHealth.Value = MaxHealth;
-
+        if (IsServer) {
+            CurrentHealth.Value = MaxHealth;
+        }
+        
         if (IsLocalPlayer)
         {
             CurrentHealth.OnValueChanged += ScreenDamageIndicator;

@@ -15,13 +15,13 @@ GameObject:
   - component: {fileID: 5802189680121364290}
   - component: {fileID: 7631245261395493158}
   - component: {fileID: 4975842382590010180}
-  - component: {fileID: 4520578236394344229}
   - component: {fileID: 559437968811191426}
   - component: {fileID: -4193943459062670178}
   - component: {fileID: 670477347733715727}
   - component: {fileID: 7565283431715044315}
+  - component: {fileID: 1631067355527730565}
   m_Layer: 7
-  m_Name: NormalMeleeEnemy_PREFAB
+  m_Name: BigMeleeEnemy_PREFAB
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -36,8 +36,8 @@ Transform:
   m_GameObject: {fileID: 4108908729984213791}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -29.31, y: 0, z: -36.57}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -29.31, y: -4.3708, z: -36.57}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 145402389922235848}
@@ -79,7 +79,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3174674402
+  GlobalObjectIdHash: 4034292724
   InScenePlacedSourceGlobalObjectIdHash: 3174674402
   DeferredDespawnTick: 0
   Ownership: 1
@@ -138,11 +138,11 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.38
-  m_Speed: 6
+  m_Speed: 2
   m_Acceleration: 4
   avoidancePriority: 50
   m_AngularSpeed: 800
-  m_StoppingDistance: 5
+  m_StoppingDistance: 3
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
@@ -189,32 +189,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DamageMultiplier: 1
   SensibilityToSelfdamage: 0.1
---- !u!114 &4520578236394344229
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4108908729984213791}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66add7937ee2b214fabeb9e093850def, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  originalPrefab: {fileID: 0}
-  enemySpawner: {fileID: 0}
-  _localDetectionRange: 20
-  _aggroPropagationRange: 20
-  _useSeparation: 1
-  _maxNeighbors: 3
-  _separationRadius: 4
-  _separationStrength: 0.1
-  _separationDecay: 0.106
-  AISpeedMultiplier: 1
-  AIDmgMultiplier: 1
-  floatingTextPrefab: {fileID: 550058981611720628, guid: 2f1aa88225abaa94ea335fa199c81f1d, type: 3}
-  enemyType: 0
 --- !u!114 &559437968811191426
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -279,6 +253,32 @@ MonoBehaviour:
   soundAddressableKeys:
   - Enemy/Melee_Punch.ogg
   emitterTypes: []
+--- !u!114 &1631067355527730565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4108908729984213791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a686f804ecb4f944ea7d83c73dd134d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  originalPrefab: {fileID: 0}
+  enemySpawner: {fileID: 0}
+  _localDetectionRange: 20
+  _aggroPropagationRange: 10
+  _useSeparation: 0
+  _maxNeighbors: 3
+  _separationRadius: 10
+  _separationStrength: 3
+  _separationDecay: 0.9
+  AISpeedMultiplier: 1
+  AIDmgMultiplier: 1
+  floatingTextPrefab: {fileID: 550058981611720628, guid: 2f1aa88225abaa94ea335fa199c81f1d, type: 3}
+  enemyType: 0
 --- !u!1 &4278244825390974661
 GameObject:
   m_ObjectHideFlags: 0
@@ -305,8 +305,8 @@ Transform:
   m_GameObject: {fileID: 4278244825390974661}
   serializedVersion: 2
   m_LocalRotation: {x: -0.4030474, y: 0.5809934, z: -0.58099157, w: -0.40304863}
-  m_LocalPosition: {x: 0, y: 9, z: 0}
-  m_LocalScale: {x: 0.3000001, y: 0.30000007, z: 0.30000004}
+  m_LocalPosition: {x: -0, y: 3.76, z: -0}
+  m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6449858844552445292}
@@ -551,6 +551,10 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -3117304102112690911, guid: ba4c1c73936bdee4f9a35a74e2cf7f69, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 38ab5a6e2085f484b9ae44514b8fd57b, type: 2}
     - target: {fileID: 919132149155446097, guid: ba4c1c73936bdee4f9a35a74e2cf7f69, type: 3}
       propertyPath: m_Name
       value: EnemyMelee

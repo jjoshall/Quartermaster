@@ -256,10 +256,10 @@ public class ObjectiveManager : NetworkBehaviour {
 
     private void AddObjectiveToTaskList(int randType, int randValid) {
         if (randType == 0) {
-            taskList.text += "-Deliver the item to the mailbox. " + $"<size=1%>{randValid + 11}</size>" + "\n";
+            taskList.text += "-Deliver the item to the mailbox. " + "\n  - " + $"<size=1%>{randValid + 11}</size><color=red>Incomplete</color>" + " \n";
         }
         else if (randType == 1) {
-            taskList.text += "-Locate and defend the node! " + $"<size=1%>{randValid + 11}</size>" + "\n";
+            taskList.text += "-Locate and defend the node! " + "\n  - " + $"<size=1%>{randValid + 11}</size><color=red>Incomplete</color>" + " \n";
         }
     }
 
@@ -303,12 +303,12 @@ public class ObjectiveManager : NetworkBehaviour {
     }
     [ClientRpc]
     private void ListCompleteClientRpc(){
-        taskList.text += "<color=green>All objectives complete!</color>" + "\n";
+        taskList.text += "\n" + "<color=green>All objectives complete!</color>" + "\n";
     }
     [ClientRpc]
     private void UpdateTaskListClientRpc(int index) {
         taskList.text = taskList.text.Replace(
-            (index + 11).ToString(), $"<color=green><size=100%> Complete!</size></color>"
+            $"<size=1%>{index + 11}</size><color=red>Incomplete</color>", $"<color=green><size=100%> Complete!</size></color>"
         );
     }
 
