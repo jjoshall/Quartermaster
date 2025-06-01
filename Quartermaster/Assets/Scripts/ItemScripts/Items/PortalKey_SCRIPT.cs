@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.Netcode;
-using Unity.Netcode.Components; // Add this for NetworkTransform
+using Unity.Netcode.Components;
+using Unity.VisualScripting; // Add this for NetworkTransform
 
 public class PortalKey_MONO : Item
 {
@@ -182,7 +183,7 @@ public class PortalKey_MONO : Item
             }
             SaveReturnPosition(player);
             TeleportPlayerServerRpc(n_playerObj, offsetDestination, Quaternion.Euler(0, 0, 0));
-            AddPlayerToActivePlayerListServerRpc(n_playerObj); // add player to active player list.
+            RemovePlayerFromActivePlayerListServerRpc(n_playerObj); // remove player from active player list.
         }
 
         NetworkObject n_lastOwnerObj;
@@ -191,7 +192,7 @@ public class PortalKey_MONO : Item
         {
             SaveReturnPosition(n_lastOwnerObj.gameObject);
             TeleportPlayerServerRpc(n_lastOwnerObj, offsetDestination, Quaternion.Euler(0, 0, 0));
-            AddPlayerToActivePlayerListServerRpc(n_lastOwner.Value); // add last owner to active player list.
+            RemovePlayerFromActivePlayerListServerRpc(n_lastOwnerObj); // remove last owner from active player list.
         }
         else
         {
@@ -240,7 +241,7 @@ public class PortalKey_MONO : Item
                 Debug.Log("return position: " + returnPosition);
                 Quaternion returnRotation = n_returnRotations[i];
                 TeleportPlayerServerRpc(n_player, returnPosition, returnRotation);
-                RemovePlayerFromActivePlayerListServerRpc(n_player); // remove player from active player list.
+                AddPlayerToActivePlayerListServerRpc(n_player); // add player to active player list.
             }
             else
             {
