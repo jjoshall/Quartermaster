@@ -339,11 +339,34 @@ public class Inventory : NetworkBehaviour {
         }
     }
 
+    // only called by itemacquisitionrange for collision on autolootable items. REFACTOR THIS LATER.
+    public void TryStackExternal(GameObject pickedUp)
+    {
+        if (TryStackItem(pickedUp))
+        {
+            pickedUp.GetComponent<Item>().OnPickUp(_playerObj); // Call the item's onPickUp function
+            RemoveFromItemAcqLocal(pickedUp);
+            var netObj = pickedUp.GetComponent<NetworkObject>();
+            if (netObj != null)
+            {
+                DespawnItemServerRpc(netObj);
+            }
+            else
+            {
+                Debug.LogError("Picked up item does not have a NetworkObject component.");
+            }
+            // Destroy(pickedUp);
+            UpdateInventoryWeight();
+            UpdateAllInventoryUI();
+            return;
+        }
+    }
 
     // -------------------------------------------------------------------------------------------------------------------------
     #region PickupHelpers
     #endregion 
-    private void AddToInventory(GameObject pickedUp) {
+    private void AddToInventory(GameObject pickedUp)
+    {
         GetPickupVars(pickedUp, out var item, out var itemNO, out var playerNO);
         if (item == null || itemNO == null || playerNO == null) return;
 
@@ -355,10 +378,11 @@ public class Inventory : NetworkBehaviour {
         PropagateItemAttachmentServerRpc(itemNO, playerNO, true);
 
         HandleItemExclusivity(item);
-        
 
-        if (TryPlaceInCurrentSlot(pickedUp, item) || AddToFirstEmptySlot(pickedUp)) { // short circuits on first success. 
-                                                                                      // sets inventory[i] to pickedUp and calls OnPickup.
+
+        if (TryPlaceInCurrentSlot(pickedUp, item) || AddToFirstEmptySlot(pickedUp))
+        { // short circuits on first success. 
+          // sets inventory[i] to pickedUp and calls OnPickup.
             _currentHeldItems++;
             UpdateHeldItem();
             UpdateHeldItemNetworkReference();

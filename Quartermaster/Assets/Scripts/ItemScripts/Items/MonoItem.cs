@@ -19,6 +19,7 @@ public abstract class Item : NetworkBehaviour
     [Tooltip("Current stack quantity, also modified during runtime")] public int quantity = 1;
     [Tooltip("Item icon")] public Texture icon = null;
     [Tooltip("OnUse sound emitters")] public SoundEmitter[] soundEmitters = null;
+    [Tooltip("IsAutolootable")] public bool IsAutolootable = false;
     // [HideInInspector]                                                       public NetworkVariable<bool> CurrentlySelected = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     #endregion
