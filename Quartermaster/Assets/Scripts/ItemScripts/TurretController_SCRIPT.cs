@@ -9,7 +9,7 @@ using System.Collections;
 public class TurretController_SCRIPT : NetworkBehaviour
 {
     private List<NetworkObject> _InRange;   // all valid enemies in range of detection
-    public NetworkObject target;    // current target to attack
+    public NetworkObject target = null;    // current target to attack
     private bool _IsNewTarget = false;
     public Transform BulletSpawnPoint;  // empty game object to calculate what turret can "see" and fire from
     private float BulletRange;  //differs from sphere collider range because bullets spawn from nozzle, not center of model
@@ -28,6 +28,7 @@ public class TurretController_SCRIPT : NetworkBehaviour
 
     // Subscribe to OnEnemyDespawn event to handle removing enemies from _inRange
     private EnemySpawner enemySpawner;
+    private List<GameObject> _items = new List<GameObject>();
 
 
     public override void OnNetworkSpawn() {
@@ -40,13 +41,24 @@ public class TurretController_SCRIPT : NetworkBehaviour
         enemySpawner.OnEnemyDespawn += OnEnemyDespawn;
 
         _InRange = new List<NetworkObject>();
-        BulletLayerMask = LayerMask.GetMask("Enemy","Bulding");
+        BulletLayerMask = LayerMask.GetMask(_TargetTag,"Building");
 
         Vector3 worldDistance = BulletSpawnPoint.position - transform.position;
         worldDistance.y = 0;
         float bulletSpawnOffset = worldDistance.magnitude;
         DetectionRadius = GetComponent<SphereCollider>().radius;
         BulletRange = DetectionRadius - bulletSpawnOffset;
+        _items.Clear();
+
+        // register enemies that are already inside detection radius when turret spawns
+        // layer name and tag name are same for enemies so reusing _TargetTag is fine
+        Collider[] targets = Physics.OverlapSphere(transform.position, GetComponent<SphereCollider>().radius, LayerMask.GetMask(_TargetTag));
+        foreach (Collider potentialTarget in targets){
+            if (potentialTarget.CompareTag(_TargetTag) && potentialTarget.TryGetComponent(out NetworkObject netobj)){
+                _InRange.Add(netobj);
+            }
+        }
+        Debug.Log("TurretController: Number of targets already in range: " + _InRange.Count);
     }
 
     public override void OnNetworkDespawn() {
@@ -56,21 +68,18 @@ public class TurretController_SCRIPT : NetworkBehaviour
 
     void Update() {
         if (!IsServer) return;
-        /*
-        Lock On to target if needed
-        Fire projectile at target
-        */
         UpdateTarget();
         if (target){
             if (_IsNewTarget){
                 StartRotating();
             }
-            Shoot();
+            Shoot();    // server rpc?
         }
     }
 
     void UpdateTarget(){
         if (target == null){
+            Debug.Log("TurretController: target was null");
             List<(float distance, NetworkObject target)> orderedTargets = GetOrderedTargets();
             RaycastHit hit;
             foreach((float _, NetworkObject potentialTarget) in orderedTargets){
@@ -101,6 +110,7 @@ public class TurretController_SCRIPT : NetworkBehaviour
                 orderedTargets.Add((sqrDistance , potentialTarget));
             }
         }
+        Debug.Log("TurretController: ordered targets size: "+orderedTargets.Count);
         return orderedTargets;
     }
 

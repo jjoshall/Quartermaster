@@ -85,10 +85,10 @@ public class TurretItem_MONO : Item
             // instantiate turret and destroy preview object
             Debug.Log("TurretItem_MONO: turret placed here");
             RemovePreview();
-            //quantity--;                       // uncomment when turret actually gets placed
-            //Destroy(_previewGameObject);      // uncomment when implementing item getting used up
+            quantity--;                       // uncomment when turret actually gets placed
+            Destroy(_previewGameObject);      // uncomment when implementing item getting used up
             //_turretObjectPrefab.Spawn(true);  // swap to using pool
-            SpawnTurret();
+            SpawnTurretServerRPC();             // change later to be a function that grabs from object pool
         }else{
             Debug.Log("TurretItem_MONO: turret cannot be placed here");
             RemovePreview();
@@ -131,7 +131,9 @@ public class TurretItem_MONO : Item
         _previewIsValid = false;
     }
 
-    private void SpawnTurret(){
+    [ServerRpc(RequireOwnership = false)]
+    private void SpawnTurretServerRPC(){
+        /* This part tried to grab the turret from the object pool, not as a serverRPC
         NetworkObject networkTurret = _objectPool.GetNetworkObject(
             _turretObjectPrefab,
             _previewGameObject.transform.position,
@@ -141,8 +143,9 @@ public class TurretItem_MONO : Item
             Debug.Log($"Tried to spawn {networkTurret.name} but it is already spawned.");
             return;
         }
-        networkTurret.Spawn(true);
-
+        networkTurret.Spawn(true);*/
+        GameObject newTurret = Instantiate(_turretObjectPrefab, _previewGameObject.transform.position, Quaternion.identity);
+        newTurret.GetComponent<NetworkObject>().Spawn(true);
     }
     private bool NullChecks(GameObject user){
         if (user == null) {
