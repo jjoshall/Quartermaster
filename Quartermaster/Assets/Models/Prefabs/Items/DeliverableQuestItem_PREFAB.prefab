@@ -36,7 +36,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -7.6419435, y: -0.04663462, z: 9.789383}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.32}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3550331305949875194}
@@ -264,9 +264,16 @@ MonoBehaviour:
   quantity: 1
   icon: {fileID: 2800000, guid: 0b4580a8cfef587469bf4639d7bec309, type: 3}
   soundEmitters: []
-  IsPickedUp: 0
-  attachedWeaponSlot: {fileID: 0}
+  IsAutolootable: 1
   userRef: {fileID: 0}
+  IsPickedUp: 0
+  n_isPickedUp:
+    m_InternalValue: 0
+  n_isCurrentlySelected:
+    m_InternalValue: 0
+  attachedWeaponSlot: {fileID: 0}
+  n_syncedQuantity:
+    m_InternalValue: 1
   t: {fileID: 0}
 --- !u!114 &9019644584106698474
 MonoBehaviour:

@@ -367,9 +367,16 @@ MonoBehaviour:
   quantity: 1
   icon: {fileID: 2800000, guid: e2ff992b8bfca034b817d47086fbf850, type: 3}
   soundEmitters: []
-  IsPickedUp: 0
-  attachedWeaponSlot: {fileID: 0}
+  IsAutolootable: 1
   userRef: {fileID: 0}
+  IsPickedUp: 0
+  n_isPickedUp:
+    m_InternalValue: 0
+  n_isCurrentlySelected:
+    m_InternalValue: 0
+  attachedWeaponSlot: {fileID: 0}
+  n_syncedQuantity:
+    m_InternalValue: 1
   _healIncreasePerLevel: 0.1
   _pickUpEffect: 
   _dropEffect: 
