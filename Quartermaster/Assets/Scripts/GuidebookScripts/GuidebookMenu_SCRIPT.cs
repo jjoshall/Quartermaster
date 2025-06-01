@@ -12,9 +12,13 @@ public class GuidebookMenu_SCRIPT : MonoBehaviour
     [SerializeField] private Button punchBotBtn;
     [SerializeField] private Button gunBotBtn;
     [SerializeField] private Button boomBotBtn;
+    [SerializeField] private Button bigPunchBotBtn;
+    [SerializeField] private Button smallBoomBotBtn;
     [SerializeField] private GameObject punchBotPage;
     [SerializeField] private GameObject gunBotPage;
     [SerializeField] private GameObject boomBotPage;
+    [SerializeField] private GameObject bigPunchBotPage;
+    [SerializeField] private GameObject smallBoomBotPage;
     private GameObject currentBotPage = null;
 
     public void ReturnToMainMenu() {
@@ -74,5 +78,31 @@ public class GuidebookMenu_SCRIPT : MonoBehaviour
         currentBotPage = boomBotPage;
     }
 
+    public void BigPunchBotButton() {
+        if (bigPunchBotPage == null) {
+            Debug.LogError("Big Punch Bot Page is not assigned.");
+            return;
+        }
+        if (currentBotPage == bigPunchBotPage) return;
+        if (currentBotPage != null) {
+            currentBotPage.SetActive(false);
+        }
+        bigPunchBotPage.SetActive(true);
+        currentBotPage = bigPunchBotPage;
+    }
+
+    public void SmallBoomBotButton() {
+        if (smallBoomBotPage == null) {
+            Debug.LogError("Small Boom Bot Page is not assigned.");
+            return;
+        }
+        if (currentBotPage == smallBoomBotPage) return;
+
+        if (currentBotPage != null) {
+            currentBotPage.SetActive(false);
+        }
+        smallBoomBotPage.SetActive(true);
+        currentBotPage = smallBoomBotPage;
+    }
         #endregion
 }
