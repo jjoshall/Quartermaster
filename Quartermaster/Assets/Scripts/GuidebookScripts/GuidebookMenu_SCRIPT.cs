@@ -24,6 +24,28 @@ public class GuidebookMenu_SCRIPT : MonoBehaviour
     [Header("Items Section")]
     [SerializeField] private Button QSRBtn;
     [SerializeField] private GameObject QSRPage;
+    [SerializeField] private Button pistolBtn;
+    [SerializeField] private GameObject pistolPage;
+    [SerializeField] private Button railgunBtn;
+    [SerializeField] private GameObject railgunPage;
+    [SerializeField] private Button flamethrowerBtn;
+    [SerializeField] private GameObject flamethrowerPage;
+    [SerializeField] private Button medkitBtn;
+    [SerializeField] private GameObject medkitPage;
+    [SerializeField] private Button grenadeBtn;
+    [SerializeField] private GameObject grenadePage;
+    [SerializeField] private Button slowTrapBtn;
+    [SerializeField] private GameObject slowTrapPage;
+    [SerializeField] private Button stimBtn;
+    [SerializeField] private GameObject stimPage;
+    [SerializeField] private Button healSpecBtn;
+    [SerializeField] private GameObject healSpecPage;
+    [SerializeField] private Button damageSpecBtn;
+    [SerializeField] private GameObject damageSpecPage;
+    [SerializeField] private Button turretBtn;
+    [SerializeField] private GameObject turretPage;
+    [SerializeField] private Button batteryBtn;
+    [SerializeField] private GameObject batteryPage;
     private GameObject currentItemPage = null;
 
     public void ReturnToMainMenu() {
@@ -125,6 +147,150 @@ public class GuidebookMenu_SCRIPT : MonoBehaviour
         }
         QSRPage.SetActive(true);
         currentItemPage = QSRPage;
+    }
+
+    public void PistolButton() {
+        if (pistolPage == null) {
+            Debug.LogError("Pistol Page is not assigned.");
+            return;
+        }
+        if (currentItemPage == pistolPage) return;
+
+        if (currentItemPage != null) {
+            currentItemPage.SetActive(false);
+        }
+        pistolPage.SetActive(true);
+        currentItemPage = pistolPage;
+    }
+
+    public void RailgunButton() {
+        if (railgunPage == null) {
+            Debug.LogError("Railgun Page is not assigned.");
+            return;
+        }
+        if (currentItemPage == railgunPage) return;
+        if (currentItemPage != null) {
+            currentItemPage.SetActive(false);
+        }
+        railgunPage.SetActive(true);
+        currentItemPage = railgunPage;
+    }
+
+    public void FlamethrowerButton() {
+        if (flamethrowerPage == null) {
+            Debug.LogError("Flamethrower Page is not assigned.");
+            return;
+        }
+        if (currentItemPage == flamethrowerPage) return;
+        if (currentItemPage != null) {
+            currentItemPage.SetActive(false);
+        }
+        flamethrowerPage.SetActive(true);
+        currentItemPage = flamethrowerPage;
+    }
+
+    public void MedkitButton() {
+        if (medkitPage == null) {
+            Debug.LogError("Medkit Page is not assigned.");
+            return;
+        }
+        if (currentItemPage == medkitPage) return;
+        if (currentItemPage != null) {
+            currentItemPage.SetActive(false);
+        }
+        medkitPage.SetActive(true);
+        currentItemPage = medkitPage;
+    }
+
+    public void GrenadeButton() {
+        if (grenadePage == null) {
+            Debug.LogError("Grenade Page is not assigned.");
+            return;
+        }
+        if (currentItemPage == grenadePage) return;
+        if (currentItemPage != null) {
+            currentItemPage.SetActive(false);
+        }
+        grenadePage.SetActive(true);
+        currentItemPage = grenadePage;
+    }
+
+    public void SlowTrapButton() {
+        if (slowTrapPage == null) {
+            Debug.LogError("Slow Trap Page is not assigned.");
+            return;
+        }
+        if (currentItemPage == slowTrapPage) return;
+        if (currentItemPage != null) {
+            currentItemPage.SetActive(false);
+        }
+        slowTrapPage.SetActive(true);
+        currentItemPage = slowTrapPage;
+    }
+
+    public void StimButton() {
+        if (stimPage == null) {
+            Debug.LogError("Stim Page is not assigned.");
+            return;
+        }
+        if (currentItemPage == stimPage) return;
+        if (currentItemPage != null) {
+            currentItemPage.SetActive(false);
+        }
+        stimPage.SetActive(true);
+        currentItemPage = stimPage;
+    }
+
+    public void HealSpecButton() {
+        if (healSpecPage == null) {
+            Debug.LogError("Heal Spec Page is not assigned.");
+            return;
+        }
+        if (currentItemPage == healSpecPage) return;
+        if (currentItemPage != null) {
+            currentItemPage.SetActive(false);
+        }
+        healSpecPage.SetActive(true);
+        currentItemPage = healSpecPage;
+    }
+
+    public void DamageSpecButton() {
+        if (damageSpecPage == null) {
+            Debug.LogError("Damage Spec Page is not assigned.");
+            return;
+        }
+        if (currentItemPage == damageSpecPage) return;
+        if (currentItemPage != null) {
+            currentItemPage.SetActive(false);
+        }
+        damageSpecPage.SetActive(true);
+        currentItemPage = damageSpecPage;
+    }
+
+    public void TurretButton() {
+        if (turretPage == null) {
+            Debug.LogError("Turret Page is not assigned.");
+            return;
+        }
+        if (currentItemPage == turretPage) return;
+        if (currentItemPage != null) {
+            currentItemPage.SetActive(false);
+        }
+        turretPage.SetActive(true);
+        currentItemPage = turretPage;
+    }
+
+    public void BatteryButton() {
+        if (batteryPage == null) {
+            Debug.LogError("Battery Page is not assigned.");
+            return;
+        }
+        if (currentItemPage == batteryPage) return;
+        if (currentItemPage != null) {
+            currentItemPage.SetActive(false);
+        }
+        batteryPage.SetActive(true);
+        currentItemPage = batteryPage;
     }
 
     #endregion
