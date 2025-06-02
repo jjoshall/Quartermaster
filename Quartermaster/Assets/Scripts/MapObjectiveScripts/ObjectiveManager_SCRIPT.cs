@@ -160,7 +160,7 @@ public class ObjectiveManager : NetworkBehaviour {
 
     [ServerRpc(RequireOwnership = false)]
     private void SpawnRandomObjectiveServerRpc(){
-        int randType = UnityEngine.Random.Range(0, minPerObjective.Count);
+        int randType = UnityEngine.Random.Range(0, minPerObjective.Count);  // random objective in range of minperobj
         GameObject prefab = minPerObjective[randType].objectivePrefab;
         
         int randValid = GetRandomValidPoint();
@@ -179,6 +179,13 @@ public class ObjectiveManager : NetworkBehaviour {
 
         n_objectivesToWin.Value--;
         n_minPerObjective[randType]--;
+        var objType = minPerObjective[randType];
+        objType.minimumToSpawn--;
+        minPerObjective[randType] = objType;
+        if (minPerObjective[randType].minimumToSpawn <= 0){
+            minPerObjective.RemoveAt(randType);
+            n_minPerObjective.RemoveAt(randType);
+        }
 
         n_randType.Add(randType);
         n_randValid.Add(randValid);
