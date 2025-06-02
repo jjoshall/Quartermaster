@@ -441,7 +441,9 @@ MonoBehaviour:
   objectiveRing: {fileID: 1871320238847786716}
   n_defenseCompleted:
     m_InternalValue: 0
-  nodeDefenseDuration: 15
+  nodeDefenseDuration: 30
+  spawnCdMultiplier: 0.25
+  globalAggroMultiplier: 0.1
 --- !u!114 &3325286732709450222
 MonoBehaviour:
   m_ObjectHideFlags: 0
