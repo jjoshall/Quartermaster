@@ -9,7 +9,7 @@ public class SlowTrapChildTrigger : MonoBehaviour
                 Debug.LogError ("slowtrap: enemy tag without BaseEnemyClass_SCRIPT component: " + other.name);
                 return;
             }
-            baseEnemy.ApplySlowDebuffServerRpc();
+            baseEnemy.ApplySlowTrapDebuffServerRpc();
         }
     }
 
@@ -20,7 +20,7 @@ public class SlowTrapChildTrigger : MonoBehaviour
                 Debug.LogError ("slowtrap: enemy tag without BaseEnemyClass_SCRIPT component: " + other.name);
                 return;
             }
-            baseEnemy.RemoveSlowDebuffServerRpc();
+            baseEnemy.RemoveSlowTrapDebuffServerRpc();
         }
     }
 
@@ -39,7 +39,7 @@ public class SlowTrapChildTrigger : MonoBehaviour
                     Debug.LogError ("slowtrap: enemy tag without BaseEnemyClass_SCRIPT component: " + hit.name);
                     return;
                 }
-                baseEnemy.ApplySlowDebuffServerRpc();
+                baseEnemy.ApplySlowTrapDebuffServerRpc();
             }
         }
     }
@@ -55,7 +55,7 @@ public class SlowTrapChildTrigger : MonoBehaviour
                     Debug.LogError ("slowtrap: enemy tag without BaseEnemyClass_SCRIPT component: " + hit.name);
                     return;
                 }
-                baseEnemy.RemoveSlowDebuffServerRpc();
+                baseEnemy.RemoveSlowTrapDebuffServerRpc();
             }
         }
 
