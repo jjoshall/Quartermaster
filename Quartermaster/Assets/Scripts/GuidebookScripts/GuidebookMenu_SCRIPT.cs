@@ -21,6 +21,11 @@ public class GuidebookMenu_SCRIPT : MonoBehaviour
     [SerializeField] private GameObject smallBoomBotPage;
     private GameObject currentBotPage = null;
 
+    [Header("Items Section")]
+    [SerializeField] private Button QSRBtn;
+    [SerializeField] private GameObject QSRPage;
+    private GameObject currentItemPage = null;
+
     public void ReturnToMainMenu() {
         if (guidebookCanvas == null || mainMenuCanvas == null) {
             Debug.LogError("Tutorial or Main Menu canvas is not assigned.");
@@ -104,5 +109,23 @@ public class GuidebookMenu_SCRIPT : MonoBehaviour
         smallBoomBotPage.SetActive(true);
         currentBotPage = smallBoomBotPage;
     }
-        #endregion
+    #endregion
+
+    #region Items Section
+
+    public void QSRButton() {
+        if (QSRPage == null) {
+            Debug.LogError("QSR Page is not assigned.");
+            return;
+        }
+        if (currentItemPage == QSRPage) return;
+
+        if (currentItemPage != null) {
+            currentItemPage.SetActive(false);
+        }
+        QSRPage.SetActive(true);
+        currentItemPage = QSRPage;
+    }
+
+    #endregion
 }
