@@ -255,7 +255,7 @@ public class ObjectiveManager : NetworkBehaviour {
 
     private void AddObjectiveToTaskList(int randType, int randValid) {
         if (randType == 0) {
-            taskList.text += "-Deliver the item to the mailbox. " + "\n  - " + $"ReplaceThis<size=1%>{randValid + 11}</size><color=red>Incomplete</color> " + " \n";
+            taskList.text += "-Deliver the item to the mailbox. " + "\n  - " + $"0 Items Delivered: <size=1%>{randValid + 11}</size><color=red>Incomplete</color> " + " \n";
         }
         else if (randType == 1) {
             taskList.text += "-Locate and defend the node! " + "\n  - " + $"<size=1%>{randValid + 11}</size><color=red>Incomplete</color>" + " \n";
@@ -282,9 +282,9 @@ public class ObjectiveManager : NetworkBehaviour {
         string text = (-1 * (remaining - total)) + " / " + total + " Items Delivered: ";
         string prevText = (-1 * (previous - total)) + " / " + total + " Items Delivered: ";
 
-        if (taskList.text.Contains("ReplaceThis")) {
+        if (taskList.text.Contains("0 Items Delivered: ")) {
                 taskList.text = taskList.text.Replace(
-                $"ReplaceThis<size=1%>{index + 11}</size><color=red>Incomplete</color> ", $"{text}<size=1%>{index + 11}</size><color=red>Incomplete</color> "
+                $"0 Items Delivered: <size=1%>{index + 11}</size><color=red>Incomplete</color> ", $"{text}<size=1%>{index + 11}</size><color=red>Incomplete</color> "
             );
         }
         else {
