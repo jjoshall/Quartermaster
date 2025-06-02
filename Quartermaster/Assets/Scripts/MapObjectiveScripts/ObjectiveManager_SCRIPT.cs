@@ -256,7 +256,7 @@ public class ObjectiveManager : NetworkBehaviour {
 
     private void AddObjectiveToTaskList(int randType, int randValid) {
         if (randType == 0) {
-            taskList.text += "-Deliver the item to the mailbox. " + "\n  - " + $"<size=1%>{randValid + 11}</size><color=red>Incomplete</color>" + " \n";
+            taskList.text += "-Deliver the item to the mailbox. " + "\n  - " + $"ReplaceThis<size=1%>{randValid + 11}</size><color=red>Incomplete</color> " + " \n";
         }
         else if (randType == 1) {
             taskList.text += "-Locate and defend the node! " + "\n  - " + $"<size=1%>{randValid + 11}</size><color=red>Incomplete</color>" + " \n";
@@ -273,6 +273,30 @@ public class ObjectiveManager : NetworkBehaviour {
             nodeDefensePopUpTip.text = "";
             BOOL_nodeDefensePopUpTip = false;
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void MailboxTextHelperServerRpc(int remaining, int total, int previous, int index) {
+        Debug.Log("remaining is: " + remaining + ", total is: " + total + ", previous is: " + previous);
+        MailboxTextHelperClientRpc(remaining, total, previous, index);
+    }
+
+    [ClientRpc]
+    public void MailboxTextHelperClientRpc(int remaining, int total, int previous, int index) {
+        string text = (-1 * (remaining - total)) + " / " + total + " Items Delivered: ";
+        string prevText = (-1 * (previous - total)) + " / " + total + " Items Delivered: ";
+        // n_mailboxPopUpTip.Value = text;
+        if (taskList.text.Contains("ReplaceThis")) {
+                taskList.text = taskList.text.Replace(
+                $"ReplaceThis<size=1%>{index + 11}</size><color=red>Incomplete</color> ", $"{text}<size=1%>{index + 11}</size><color=red>Incomplete</color> "
+            );
+        }
+        else {
+                taskList.text = taskList.text.Replace(
+                $"{prevText}<size=1%>{index + 11}</size><color=red>Incomplete</color> ", $"{text}<size=1%>{index + 11}</size><color=red>Incomplete</color> "
+            );
+        }
+        
     }
 
     #endregion 

@@ -12,4 +12,7 @@ public abstract class IObjective : NetworkBehaviour
     public void NodeZoneTextHelper(){
         ObjectiveManager.instance.NodeZoneTextHelperClientRpc();
     }
+    public void MailboxTextHelper(int remaining, int total, int previous){
+        ObjectiveManager.instance.MailboxTextHelperServerRpc(remaining, total, previous, indexOfSpawnPoint.Value);
+    }
 }
