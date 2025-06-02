@@ -38,11 +38,6 @@ public abstract class Item : NetworkBehaviour
     [HideInInspector] public NetworkVariable<bool> n_isCurrentlySelected = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     [HideInInspector] public GameObject attachedWeaponSlot = null;
     [HideInInspector] public NetworkVariable<int> n_syncedQuantity = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-    // public float lastUsed
-    // {
-    //     get => userRef.GetComponent<PlayerStatus>().GetLastUsed(uniqueID);
-    //     set => userRef.GetComponent<PlayerStatus>().SetLastUsed(uniqueID, value);
-    // }
 
     public float GetLastUsed()
     {
