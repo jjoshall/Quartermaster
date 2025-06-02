@@ -88,6 +88,27 @@ public class DefendNodeObjective : IObjective
             return;
             // _particleInterval = 1000f;
         }
+        if (HasPlayersInRange()) {
+            for (int i = 0; i < _playersInRange.Count; i++) {
+                Health health = _playersInRange[i].GetComponent<Health>();
+                if (health) {
+                    if (health.Invincible.Value) {
+                        SetNodeDefenseActiveServerRpc(false);
+                        NodeZoneTextHelper(false);   
+                        _playersInRange.Remove(_playersInRange[i]);
+                    }
+                    else {
+                        SetNodeDefenseActiveServerRpc(true);
+                        NodeZoneTextHelper(true);  
+                    }
+                }
+            }
+        }
+        else {
+            SetNodeDefenseActiveServerRpc(false);
+            NodeZoneTextHelper(false);
+        }
+
         if (n_nodeDefenseActive.Value){
             _currentDefenseTimer += Time.deltaTime;
         } else {
@@ -104,7 +125,7 @@ public class DefendNodeObjective : IObjective
     [ServerRpc(RequireOwnership = false)]
     public void SetDefenseCompletedServerRpc(bool completed){
         n_defenseCompleted.Value = completed;
-        NodeZoneTextHelper();
+        NodeZoneTextHelper(false);
         EnemySpawner.instance.globalAggroUpdateIntervalMultiplier = 1f;
         EnemySpawner.instance.spawnCooldownMultiplier = 1f;
     }
@@ -122,7 +143,7 @@ public class DefendNodeObjective : IObjective
         if (other.gameObject.tag == "Player"){
             _playersInRange.Add(other.gameObject);
             SetNodeDefenseActiveServerRpc(true);
-            NodeZoneTextHelper();
+            NodeZoneTextHelper(true);
         }
     }
 
@@ -134,7 +155,7 @@ public class DefendNodeObjective : IObjective
                 _currentDefenseTimer = 0f;
                 // _particleTimer = 0f;
             }
-            NodeZoneTextHelper();
+            NodeZoneTextHelper(false);
         }
     }
 

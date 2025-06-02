@@ -8363,6 +8363,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: GoToMainMenu
       objectReference: {fileID: 0}
+    - target: {fileID: 6326531186877224067, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1842907323
+      objectReference: {fileID: 0}
     - target: {fileID: 7213803613440124995, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -8518,6 +8522,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 9086176220433939304, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
   m_PrefabInstance: {fileID: 2091593734}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2091593736 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8033290196966376251, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+  m_PrefabInstance: {fileID: 2091593734}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &2091593739 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1598054534006325840, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
@@ -8650,6 +8665,10 @@ PrefabInstance:
       propertyPath: initialSpawnCount
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 634689250593608552, guid: 4fe3661616668e247af39131ae7f1837, type: 3}
+      propertyPath: nodeDefensePopUpTip
+      value: 
+      objectReference: {fileID: 2091593736}
     - target: {fileID: 634689250593608552, guid: 4fe3661616668e247af39131ae7f1837, type: 3}
       propertyPath: objectivesList.Array.size
       value: 2
