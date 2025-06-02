@@ -17,7 +17,6 @@ public class ObjectiveManager : NetworkBehaviour {
 
     [SerializeField] private TextMeshProUGUI taskList;
     [SerializeField] private TextMeshProUGUI nodeDefensePopUpTip;
-    private bool BOOL_nodeDefensePopUpTip;
 
     public List<ObjectiveType> minPerObjective; // minimum number of each objective to spawn
     [System.Serializable]
@@ -264,20 +263,17 @@ public class ObjectiveManager : NetworkBehaviour {
     }
 
     [ClientRpc]
-    public void NodeZoneTextHelperClientRpc() {
-        if (!BOOL_nodeDefensePopUpTip) {
-            nodeDefensePopUpTip.text = "<color=#00FFFF>Stay in the zone for 15 seconds to complete the objective!</color>";
-            BOOL_nodeDefensePopUpTip = true;
+    public void NodeZoneTextHelperClientRpc(bool active) {
+        if (active) {
+            nodeDefensePopUpTip.text = "<color=#00FFFF>Stay in the zone for 30 seconds to complete the objective!</color>";
         }
         else {
             nodeDefensePopUpTip.text = "";
-            BOOL_nodeDefensePopUpTip = false;
         }
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void MailboxTextHelperServerRpc(int remaining, int total, int previous, int index) {
-        Debug.Log("remaining is: " + remaining + ", total is: " + total + ", previous is: " + previous);
         MailboxTextHelperClientRpc(remaining, total, previous, index);
     }
 
@@ -285,7 +281,7 @@ public class ObjectiveManager : NetworkBehaviour {
     public void MailboxTextHelperClientRpc(int remaining, int total, int previous, int index) {
         string text = (-1 * (remaining - total)) + " / " + total + " Items Delivered: ";
         string prevText = (-1 * (previous - total)) + " / " + total + " Items Delivered: ";
-        // n_mailboxPopUpTip.Value = text;
+
         if (taskList.text.Contains("ReplaceThis")) {
                 taskList.text = taskList.text.Replace(
                 $"ReplaceThis<size=1%>{index + 11}</size><color=red>Incomplete</color> ", $"{text}<size=1%>{index + 11}</size><color=red>Incomplete</color> "

@@ -9,8 +9,8 @@ public abstract class IObjective : NetworkBehaviour
     public void ClearObjective(){
         ObjectiveManager.instance.ClearObjectiveServerRpc(this.GetComponent<NetworkObject>(), indexOfSpawnPoint.Value);
     }
-    public void NodeZoneTextHelper(){
-        ObjectiveManager.instance.NodeZoneTextHelperClientRpc();
+    public void NodeZoneTextHelper(bool active){
+        ObjectiveManager.instance.NodeZoneTextHelperClientRpc(active);
     }
     public void MailboxTextHelper(int remaining, int total, int previous){
         ObjectiveManager.instance.MailboxTextHelperServerRpc(remaining, total, previous, indexOfSpawnPoint.Value);
