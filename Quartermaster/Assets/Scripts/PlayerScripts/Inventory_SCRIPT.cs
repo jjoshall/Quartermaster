@@ -106,8 +106,17 @@ public class Inventory : NetworkBehaviour {
         // Update the UI highlight for the current slot.
         _uiManager.HighlightSlot(_currentInventoryIndex);
 
+        Item currentItem = GetItemAt(_currentInventoryIndex);
+        if (currentItem == null) {
+            _uiManager.WriteLabel("No item selected");
+            return;
+        }
         // update the item name display over the inventory slots
         AnimatedTooltippable itemTooltip = GetItemAt(_currentInventoryIndex).GetComponentInChildren<AnimatedTooltippable>();
+        if (itemTooltip == null) {
+            Debug.LogWarning("Item at index " + _currentInventoryIndex + " does not have an AnimatedTooltippable component.");
+            return;
+        }
         _uiManager.WriteLabel(itemTooltip.tooltipHeaderText);
     }
 
