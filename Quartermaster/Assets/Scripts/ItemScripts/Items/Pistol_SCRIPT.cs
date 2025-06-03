@@ -196,9 +196,12 @@ public class Pistol_MONO : Item
     public override void TurretItemLoopBehavior(GameObject turret, float lastUsed)
     {
         if (TurretNullChecksFailed(turret)) return;
-        if (TurretCooldownCheckFailed(lastUsed)) return;
+        //if (TurretCooldownCheckFailed(lastUsed)) return;
 
-        SetLastUsed(Time.time);
+        if (GetLastUsedTurret(turret) + turretCooldown > Time.time){
+            return;
+        }
+        SetLastUsedTurret(turret, Time.time);
         TurretFire(turret);
 
     }

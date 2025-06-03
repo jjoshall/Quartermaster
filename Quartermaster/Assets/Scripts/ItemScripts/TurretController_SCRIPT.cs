@@ -21,8 +21,9 @@ public class TurretController_SCRIPT : NetworkBehaviour
     private Coroutine LifetimeCoroutine;
     private float _lifetime = 30f;
     private float _elapsedTime = 0f;
+    public float _timeLastUsed = 0f;
     public int BulletLayerMask;
-    public string _TargetTag = "Enemy";    // tag given to what to be considered a valid target
+    public string _TargetTag {get; private set;} = "Enemy";    // tag given to what to be considered a valid target
     //  public Item weapon;         // current item given to turret to use
     /*
     NOTE:
