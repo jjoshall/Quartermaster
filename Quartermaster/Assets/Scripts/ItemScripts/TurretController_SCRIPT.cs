@@ -8,6 +8,8 @@ using System.Collections;
 [RequireComponent(typeof(SphereCollider))]
 public class TurretController_SCRIPT : NetworkBehaviour
 {
+    [SerializeField] Transform StemPivot;
+    [SerializeField] Transform NozzlePivot;
     private List<NetworkObject> _InRange;   // all valid enemies in range of detection
     public NetworkObject target = null;    // current target to attack
     private bool _IsNewTarget = false;
@@ -16,8 +18,11 @@ public class TurretController_SCRIPT : NetworkBehaviour
     private float DetectionRadius;
     [SerializeField] private float RotationSpeed = 10f;    // how fast turret rotates to lock on targets
     private Coroutine RotateCoroutine;
-    private int BulletLayerMask;
-    private string _TargetTag = "Player";    // tag given to what to be considered a valid target
+    private Coroutine LifetimeCoroutine;
+    private float _lifetime = 30f;
+    private float _elapsedTime = 0f;
+    public int BulletLayerMask;
+    public string _TargetTag = "Enemy";    // tag given to what to be considered a valid target
     //  public Item weapon;         // current item given to turret to use
     /*
     NOTE:
@@ -28,7 +33,8 @@ public class TurretController_SCRIPT : NetworkBehaviour
 
     // Subscribe to OnEnemyDespawn event to handle removing enemies from _inRange
     private EnemySpawner enemySpawner;
-    private List<GameObject> _items = new List<GameObject>();
+    //private List<GameObject> _items = new List<GameObject>();
+    private Item _weapon;
 
 
     public override void OnNetworkSpawn() {
@@ -40,6 +46,13 @@ public class TurretController_SCRIPT : NetworkBehaviour
         }
         enemySpawner.OnEnemyDespawn += OnEnemyDespawn;
 
+        if (!StemPivot){
+            Debug.LogError("Turret: Stem Pivot not assigned");
+        }
+        if (!NozzlePivot){
+            Debug.LogError("Turret: Nozzle Pivot not assigned");
+        }
+
         _InRange = new List<NetworkObject>();
         BulletLayerMask = LayerMask.GetMask(_TargetTag,"Building");
 
@@ -48,7 +61,8 @@ public class TurretController_SCRIPT : NetworkBehaviour
         float bulletSpawnOffset = worldDistance.magnitude;
         DetectionRadius = GetComponent<SphereCollider>().radius;
         BulletRange = DetectionRadius - bulletSpawnOffset;
-        _items.Clear();
+        //_items.Clear();
+        _weapon = gameObject.AddComponent(typeof(Pistol_MONO)) as Pistol_MONO;
 
         // register enemies that are already inside detection radius when turret spawns
         // layer name and tag name are same for enemies so reusing _TargetTag is fine
@@ -58,7 +72,9 @@ public class TurretController_SCRIPT : NetworkBehaviour
                 AddUnique(netobj);
             }
         }
-        Debug.Log("TurretController: Number of targets already in range: " + _InRange.Count);
+        //Debug.Log("TurretController: Number of targets already in range: " + _InRange.Count);
+
+        LifetimeCoroutine = StartCoroutine(DespawnTimer());
     }
 
     public override void OnNetworkDespawn() {
@@ -73,6 +89,7 @@ public class TurretController_SCRIPT : NetworkBehaviour
             /*if (_IsNewTarget){
                 StartRotating();
             }*/
+            //Debug.DrawRay(NozzlePivot.position, (target.transform.position - NozzlePivot.position).normalized*DetectionRadius, Color.red, 2f);
             StartRotating();
             Shoot();    // server rpc?
         }
@@ -80,24 +97,25 @@ public class TurretController_SCRIPT : NetworkBehaviour
 
     void UpdateTarget(){
         if (target == null){
-            Debug.Log("TurretController: target was null");
+            //Debug.Log("TurretController: target was null");
             List<(float distance, NetworkObject target)> orderedTargets = GetOrderedTargets();
             RaycastHit hit;
             foreach((float _, NetworkObject potentialTarget) in orderedTargets){
-                Debug.DrawRay(transform.position, (potentialTarget.transform.position - transform.position).normalized*DetectionRadius, Color.red, 2f);
+                //Debug.DrawRay(NozzlePivot.position, (potentialTarget.transform.position - NozzlePivot.position).normalized*DetectionRadius, Color.red, 2f);
                 if (Physics.Raycast(transform.position, (potentialTarget.transform.position - transform.position).normalized, out hit, DetectionRadius, BulletLayerMask)){
                     if (hit.collider.CompareTag(_TargetTag)){
-                        Debug.Log("TurretController: found unobstructed new target");
+                        //Debug.Log("TurretController: found unobstructed new target");
                         target = hit.collider.GetComponent<NetworkObject>();
                         _IsNewTarget = true;
                         break;
                     }
                 }else{
-                    Debug.Log("TurretController: raycast obstructed");
+                    //Debug.Log("TurretController: raycast obstructed");
                 }
             }
+        }else{
+            _IsNewTarget = false;
         }
-        _IsNewTarget = false;
         // do new raycast to see if current target is behind a building
     }
     List<(float distance, NetworkObject target)> GetOrderedTargets(){
@@ -116,14 +134,17 @@ public class TurretController_SCRIPT : NetworkBehaviour
                 orderedTargets.Add((sqrDistance , potentialTarget));
             }
         }
-        Debug.Log("TurretController: ordered targets size: "+orderedTargets.Count);
+        //Debug.Log("TurretController: ordered targets size: "+orderedTargets.Count);
         /*foreach((float _, NetworkObject potentialTarget) in orderedTargets){
             Debug.Log(potentialTarget.name);
         }*/
-        Debug.Log("TurretController: _InRange size: "+_InRange.Count);
+        //Debug.Log("TurretController: _InRange size: "+_InRange.Count);
         return orderedTargets;
     }
 
+    // NOTE: This method causes the turret to rotate once towards the target in a fluid motion
+    //       However, this may not "feel" good in terms of the game and may need a complete redo
+    //       will probably swap to LookAt() in the future
     void StartRotating(){
         if (RotateCoroutine == null){
             RotateCoroutine = StartCoroutine(RotateToTarget());
@@ -132,16 +153,32 @@ public class TurretController_SCRIPT : NetworkBehaviour
 
     private IEnumerator RotateToTarget(){
         // only doing horizontal rotation for now until turret model is deicded on and pivot location is known
-        Quaternion lookRotation = Quaternion.LookRotation(target.transform.position - transform.position);
+        Quaternion lookRotationStem = Quaternion.LookRotation(target.transform.position - StemPivot.position);
+        Quaternion lookRotationNozzle = Quaternion.LookRotation(target.transform.position - NozzlePivot.position);
         // ensure this rotation is only horizontal
-        lookRotation = Quaternion.Euler(transform.rotation.eulerAngles.x, lookRotation.eulerAngles.y, transform.rotation.eulerAngles.z);
+        Quaternion lookRotationY = Quaternion.Euler(0, lookRotationStem.eulerAngles.y, 0);
+        Quaternion lookRotationX = Quaternion.Euler(lookRotationNozzle.eulerAngles.x, 0, 0);
         float time = 0;
         while (time < 1){
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, time);
+            StemPivot.rotation = Quaternion.Slerp(StemPivot.rotation, lookRotationY, time);
+            NozzlePivot.localRotation = Quaternion.Slerp(NozzlePivot.localRotation, lookRotationX, time);
             time += Time.deltaTime * RotationSpeed;
             yield return null;
         }
         RotateCoroutine = null;
+    }
+
+    private IEnumerator DespawnTimer(){
+        while (_elapsedTime <= _lifetime){
+            _elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        Debug.Log("TURRET: turret lifetime completed with total lifetime of: "+_lifetime);
+        //Despawn(gameObject);      // tell game manager to do this instead?
+    }
+
+    public void ExtendTurretLifetime(float seconds){
+        _lifetime += seconds;
     }
 
     void Shoot(){
@@ -149,6 +186,7 @@ public class TurretController_SCRIPT : NetworkBehaviour
         // if raycast hits, do damage
         if (!IsServer) return;
         //Debug.Log("TURRET: shooting at target");
+        _weapon.TurretItemLoopBehavior(gameObject, Time.time);
     }
 
     #region Enemy Detection
@@ -156,7 +194,8 @@ public class TurretController_SCRIPT : NetworkBehaviour
     {
         NetworkObject netObj = other.GetComponent<NetworkObject>();
         if (netObj != null && other.CompareTag(_TargetTag)){
-            Debug.Log("TurretController: OnTriggerEnter called");
+            //Debug.Log("TurretController: OnTriggerEnter called with tag: "+other.gameObject.tag);
+            //Debug.Log("TurretController: Target Tag is "+_TargetTag);
             AddUnique(netObj);
         }
     }

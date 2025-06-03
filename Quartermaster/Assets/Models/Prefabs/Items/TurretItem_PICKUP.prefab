@@ -162,7 +162,7 @@ MonoBehaviour:
   SyncRotAngleX: 1
   SyncRotAngleY: 1
   SyncRotAngleZ: 1
-  SyncScaleX: 1
+  SyncScaleX: 0
   SyncScaleY: 0
   SyncScaleZ: 0
   PositionThreshold: 0.001
@@ -245,6 +245,7 @@ MonoBehaviour:
   quantity: 1
   icon: {fileID: 0}
   soundEmitters: []
+  IsAutolootable: 0
   userRef: {fileID: 0}
   IsPickedUp: 0
   n_isPickedUp:
@@ -272,7 +273,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abba81b95eeeefa47b53e97ff1f27c5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tooltipHeaderText: Default Tooltip Text
-  tooltipBodyText: Default Tooltip Body Text
+  tooltipHeaderText: Turret Spawner
+  tooltipBodyText: Spawn a turret anywhere!
   headerFontSize: 30
   bodyFontSize: 18
