@@ -304,6 +304,7 @@ MonoBehaviour:
   quantity: 1
   icon: {fileID: 2800000, guid: a002029af78d6c64ca5345ef4598ac37, type: 3}
   soundEmitters: []
+  IsAutolootable: 0
   userRef: {fileID: 0}
   IsPickedUp: 0
   n_isPickedUp:
@@ -332,7 +333,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipHeaderText: 'WEAPON: Pistol'
-  tooltipBodyText: Tap LCLICK to fire. Single target damage.
+  tooltipBodyText: Tap LCLICK to fire. Single target damage. Effective versus large
+    robots.
   headerFontSize: 30
   bodyFontSize: 18
 --- !u!114 &4700419119561097239
