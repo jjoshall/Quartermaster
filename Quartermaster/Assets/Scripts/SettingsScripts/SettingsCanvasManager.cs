@@ -11,6 +11,7 @@ public class SettingsCanvasManager : MonoBehaviour
     [SerializeField] private bool isMainMenuContext = false;
     
     [SerializeField] private Canvas pauseCanvas;
+    [SerializeField] private GameObject mainMenuCanvasPrefab;
     [SerializeField] private Canvas settingsCanvas;
     [SerializeField] private GameObject codeField;
 
@@ -33,6 +34,7 @@ public class SettingsCanvasManager : MonoBehaviour
             // Cursor.lockState = CursorLockMode.Locked;
             // Cursor.visible = false;
             settingsCanvas.gameObject.SetActive(false);
+            mainMenuCanvasPrefab.SetActive(true);
             if (pauseCanvas != null)
             {
                 pauseCanvas.gameObject.SetActive(true);
