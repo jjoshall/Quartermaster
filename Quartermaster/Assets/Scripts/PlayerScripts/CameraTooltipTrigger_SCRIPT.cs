@@ -11,6 +11,9 @@ public class CameraTooltipTrigger : NetworkBehaviour
     public float raycastRange = 15f; // Raycast range for tooltip trigger
     public GameObject animatedTooltipPrefab;
 
+    private float raycastDelay = 5f; // There's some animatedtooltip bug in first few seconds.
+    private float raycastTimer = 0f;
+
     // Runtime
     private float hoverTime = 0f;
     private GameObject prevTarget;
@@ -25,25 +28,33 @@ public class CameraTooltipTrigger : NetworkBehaviour
 
     void Update()
     {
+        if (!IsOwner) return;
+        if (raycastTimer < raycastDelay)
+        {
+            raycastTimer += Time.deltaTime;
+            return;
+        }
         RayCastCheck();
     }
 
-    void RayCastCheck(){
+    void RayCastCheck()
+    {
 
         // Create a ray from the main camera through the mouse cursor position.
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        // Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward); // Use camera's forward direction for raycasting.
         // RaycastHit hit;
 
         RaycastHit[] hits = Physics.RaycastAll(ray, raycastRange);
-        if (hits.Length == 0){
-            if (prevTarget && prevTooltippable) Destroy(prevTooltippable); // destroy the previous tooltip if it exists.
+        if (hits.Length == 0)
+        {
+            if (prevTooltippable) Destroy(prevTooltippable); // destroy the previous tooltip if it exists.
             prevTarget = null; // reset the previous target.
             hoverTime = 0f; // reset the hover time.
             tooltipShown = false; // reset the tooltip shown flag.
             return;
         }
 
-        // int i = 1;
         RaycastHit closestHit = hits[0];
         for (int i = 0; i < hits.Length; i++)
         {
@@ -58,15 +69,18 @@ public class CameraTooltipTrigger : NetworkBehaviour
 
         GameObject currGO = closestHit.collider.gameObject;
 
-        if (closestHit.collider == null || currGO == null || currGO.GetComponent<AnimatedTooltippable>() == null)
+        if (currGO == null || currGO.GetComponent<AnimatedTooltippable>() == null)
         {
-            if (prevTarget && prevTooltippable) Destroy(prevTooltippable);
+            // we raycast something, but it's null or doesn't have a tooltippable component.
+            if (prevTooltippable) Destroy(prevTooltippable);
             hoverTime = 0f;
             tooltipShown = false;
             return;
-        } else if (currGO != prevTarget){
+        }
+        if (currGO != prevTarget)
+        {
             // We hit something but it's not the previous object we tooltipped.
-            if (prevTarget && prevTooltippable) Destroy(prevTooltippable);
+            if (prevTooltippable) Destroy(prevTooltippable);
             prevTarget = currGO;
             hoverTime = 0f;
             tooltipShown = false;
@@ -82,7 +96,7 @@ public class CameraTooltipTrigger : NetworkBehaviour
                 GameObject tooltip = Instantiate(animatedTooltipPrefab, UIManager.instance.playerDrawCanvas.transform);
                 tooltip.GetComponent<UITargetCircle>().Initialize(this.gameObject, currGO, at.tooltipHeaderText, at.headerFontSize, at.tooltipBodyText, at.bodyFontSize);
 
-                if (prevTarget && prevTooltippable) Destroy(prevTooltippable); // destroy the previous tooltip if it exists.
+                if (prevTooltippable) Destroy(prevTooltippable); // destroy the previous tooltip if it exists.
                 tooltipShown = true;
                 prevTooltippable = tooltip; // store the tooltip for later destruction.
                 prevTarget = currGO; // store the current target for hover time tracking.
