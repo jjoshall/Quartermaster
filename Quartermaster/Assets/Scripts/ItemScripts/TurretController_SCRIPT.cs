@@ -63,7 +63,11 @@ public class TurretController_SCRIPT : NetworkBehaviour
         DetectionRadius = GetComponent<SphereCollider>().radius;
         BulletRange = DetectionRadius - bulletSpawnOffset;
         //_items.Clear();
-        _weapon = gameObject.AddComponent(typeof(Pistol_MONO)) as Pistol_MONO;
+        //_weapon = gameObject.AddComponent(typeof(Pistol_MONO)) as Pistol_MONO;
+        _weapon = GetComponent<Pistol_MONO>();
+        if (!_weapon){
+            Debug.LogError("Turret: Pistol not detected!");
+        }
 
         // register enemies that are already inside detection radius when turret spawns
         // layer name and tag name are same for enemies so reusing _TargetTag is fine

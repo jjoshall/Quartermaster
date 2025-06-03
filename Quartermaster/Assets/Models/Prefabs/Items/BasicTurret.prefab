@@ -437,6 +437,10 @@ GameObject:
   - component: {fileID: 3152812889118481074}
   - component: {fileID: 7437477996807539475}
   - component: {fileID: 150809632650151847}
+  - component: {fileID: 5465965356381501936}
+  - component: {fileID: 6673356697362353367}
+  - component: {fileID: 273241280468409576}
+  - component: {fileID: 4345470300150283694}
   m_Layer: 0
   m_Name: BasicTurret
   m_TagString: Turret
@@ -560,8 +564,8 @@ MonoBehaviour:
   target: {fileID: 0}
   BulletSpawnPoint: {fileID: 4252283853314798058}
   RotationSpeed: 2
+  _timeLastUsed: 0
   BulletLayerMask: 0
-  _TargetTag: Enemy
 --- !u!54 &150809632650151847
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -589,6 +593,92 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 1
+--- !u!114 &5465965356381501936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7079561429385710670}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec35b16e6255d3f4e90b9efd603f863b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  uniqueID: 
+  IsWeapon: 0
+  IsClassSpec: 0
+  CanAutoFire: 0
+  cooldown: 0
+  turretCooldown: 0.25
+  StackLimit: 1
+  weight: 0
+  quantity: 1
+  icon: {fileID: 0}
+  soundEmitters: []
+  IsAutolootable: 0
+  userRef: {fileID: 0}
+  IsPickedUp: 0
+  n_isPickedUp:
+    m_InternalValue: 0
+  n_isCurrentlySelected:
+    m_InternalValue: 0
+  attachedWeaponSlot: {fileID: 0}
+  n_syncedQuantity:
+    m_InternalValue: 1
+  _pistolDamage: 17
+  _maxRange: 40
+  _enemyHitEffect: Sample
+  _barrelFireEffect: PistolBarrelFire
+  shotOrigin: {fileID: 1062987779354032485}
+  trailRenderID: 0
+--- !u!114 &6673356697362353367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7079561429385710670}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e56f4f38f40fd4145bcf95130f1abbc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  bulletTrailPrefab:
+  - {fileID: 3492294749685168360, guid: 97d3b70fbea7c2b418e4753da8bd372e, type: 3}
+  trailDuration: 0.3
+--- !u!114 &273241280468409576
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7079561429385710670}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01db514f5e6309c4e9942a6913481df6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  emitterID: pistol_shot
+  destinationMixer: Weapons
+  soundAddressableKeys:
+  - Weapon/PistolShot.ogg
+  emitterTypes: []
+--- !u!114 &4345470300150283694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7079561429385710670}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46358f51093a922409c7ec1e106ec6eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &7243809360267453437
 GameObject:
   m_ObjectHideFlags: 0
