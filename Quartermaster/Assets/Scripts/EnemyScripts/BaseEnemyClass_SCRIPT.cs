@@ -309,7 +309,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             enemySpawner.SpawnDamageNumberFromPool(floatingTextPrefab, floatingTextPosition, damage);  // show floating damage numbers with pooling
         }
 
-        PlaySoundForEmitter("melee_damaged", transform.position);
+        // PlaySoundForEmitter("melee_damaged", transform.position);
 
         if (damageSource.CompareTag("Player")){
             AddAttackingPlayer(damageSource); // add the player that hit this enemy to the list of players that hit this enemy

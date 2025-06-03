@@ -33,13 +33,15 @@ public class ParticleManager : NetworkBehaviour
                                                         // ParticleType struct: key, duration, prefab
     private Dictionary<string, List<GameObject>> particlePool; // separate pool for each type.
                                                                // all pools are local. not networked.
-    
+
     [System.Serializable]
     public struct ParticleType
     {
         public string key;
         public float duration;
         public GameObject particlePrefab;
+        public float cooldown;
+        public float lastSpawnTime;
     }
     #endregion
 
@@ -76,9 +78,26 @@ public class ParticleManager : NetworkBehaviour
             Debug.LogError("Particle key not found in ParticleManager: " + key);
             return;
         }
+        float cd = particleTypesPrefabList.Find(x => x.key == key).cooldown;
+        float lastSpawned = particleTypesPrefabList.Find(x => x.key == key).lastSpawnTime;
+        if (Time.time < lastSpawned + cd)
+        {
+            Debug.Log ("ParticleManager: ParticleSpawn skipped due to cooldown: " + key);
+            return;
+        }
+
+        UpdateParticleCooldown(key);
         SpawnParticleLocal(key, position, rotation, scale);
         // Call SpawnParticleForOtherClientsServerRpc with the calling player's client id
         SpawnParticleForOthersServerRpc(key, position, rotation, scale, localClientId);
+    }
+
+    private void UpdateParticleCooldown(string key)
+    {
+        ParticleType newCd = particleTypesPrefabList.Find(x => x.key == key);
+        newCd.lastSpawnTime = Time.time;
+        particleTypesPrefabList[particleTypesPrefabList.FindIndex(x => x.key == key)] = newCd;
+
     }
 
     [ServerRpc(RequireOwnership = false)]

@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 3598719706095241124}
   - component: {fileID: -5889698936226163515}
   - component: {fileID: 68888377786486415}
-  - component: {fileID: 8052534689514430513}
+  - component: {fileID: 5699660804674047032}
   m_Layer: 6
   m_Name: StimPack_PREFAB
   m_TagString: Item
@@ -209,8 +209,8 @@ MonoBehaviour:
   stimAspdMultiplier: 2
   stimMspdMultiplier: 1.1
   stimDuration: 7
---- !u!136 &8052534689514430513
-CapsuleCollider:
+--- !u!65 &5699660804674047032
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -227,10 +227,8 @@ CapsuleCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 1
-  m_Direction: 1
+  serializedVersion: 3
+  m_Size: {x: 0.5, y: 1, z: 0.5}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &354620928565997181
 PrefabInstance:

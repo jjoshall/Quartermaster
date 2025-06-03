@@ -36,6 +36,11 @@ public class EnemySpawner : NetworkBehaviour {
                                            // players in these areas will be occluded from activePlayerList.
                                            // for pathing / enemyspawner / aidirector purposes.
 
+    private int _floatingTextCooldownThreshold = 10;
+    private int _floatingTextCooldownCount = 0;
+    private float _floatingTextLastSpawned = 0f;
+    private float _floatingTextCooldown = 0.5f;
+
     // static 
     public static EnemySpawner instance;
 
@@ -185,6 +190,28 @@ public class EnemySpawner : NetworkBehaviour {
     /// </summary>
     public async void SpawnDamageNumberFromPool(GameObject floatingTextPrefab, Vector3 spawnPosition, float damage) {
         if (!IsServer) return;
+
+        // Cooldown check only triggers when threshold reached. 
+        if (_floatingTextCooldownCount >= _floatingTextCooldownThreshold)
+        {
+            // if threshold reached, check cooldown.
+            if (Time.time < _floatingTextLastSpawned + _floatingTextCooldown)
+            {
+                Debug.Log("Floating text cooldown active, skipping dmg text number");
+                return;
+            }
+            else
+            {
+                // Reset cooldown count
+                _floatingTextCooldownCount = 0;
+                _floatingTextLastSpawned = Time.time; // Update last spawned time
+            }
+        }
+        else
+        {
+            // Increment cooldown count
+            _floatingTextCooldownCount++;
+        }
 
         // Just get any object from the object pool
         NetworkObject networkObject = _objectPool.GetNetworkObject(
