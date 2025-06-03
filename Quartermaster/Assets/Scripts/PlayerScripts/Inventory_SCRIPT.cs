@@ -108,7 +108,8 @@ public class Inventory : NetworkBehaviour {
 
         Item currentItem = GetItemAt(_currentInventoryIndex);
         if (currentItem == null) {
-            _uiManager.WriteLabel("No item selected");
+            _uiManager.WriteLabel("[Hold TAB for more info]");
+            _uiManager.WriteAdditionalInfo("CURRENTLY HOLDING: Nothing" + "\n\n" + "Hold TAB while holding an item to reveal additional info about that item.");
             return;
         }
         // update the item name display over the inventory slots
@@ -118,6 +119,7 @@ public class Inventory : NetworkBehaviour {
             return;
         }
         _uiManager.WriteLabel(itemTooltip.tooltipHeaderText);
+        _uiManager.WriteAdditionalInfo(itemTooltip.tooltipHeaderText + "\n\n" + itemTooltip.tooltipBodyText);
     }
 
     void SetIndex(int index) {

@@ -16,7 +16,9 @@ public class UIManager : MonoBehaviour {
     [Header("Inventory UI Elements")]
     [SerializeField] private RawImage[] inventorySlotImages;
     [SerializeField] private TextMeshProUGUI[] inventorySlotQuantityTexts;
+
     [SerializeField] private TextMeshProUGUI inventorySlotLabel;
+    [SerializeField] private TextMeshProUGUI additionalInfo;
 
     [SerializeField] public Image weaponCooldownRadial;
 
@@ -51,6 +53,14 @@ public class UIManager : MonoBehaviour {
         }
         else {
             inventorySlotLabel.text = "";
+        }
+    }
+    public void WriteAdditionalInfo(string panel) {
+        if (panel != null) {
+            additionalInfo.text = panel;
+        }
+        else {
+            additionalInfo.text = "";
         }
     }
 }
