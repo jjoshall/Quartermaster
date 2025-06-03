@@ -106,12 +106,20 @@ public class Inventory : NetworkBehaviour {
         // Update the UI highlight for the current slot.
         _uiManager.HighlightSlot(_currentInventoryIndex);
 
-        // update the item name display over the inventory slots
-        Item heldItem = GetItemAt(_currentInventoryIndex);
-        if (heldItem){
-            AnimatedTooltippable itemTooltip = heldItem.GetComponentInChildren<AnimatedTooltippable>();
-            _uiManager.WriteLabel(itemTooltip.tooltipHeaderText);
+        Item currentItem = GetItemAt(_currentInventoryIndex);
+        if (currentItem == null) {
+            _uiManager.WriteLabel("[Hold TAB for more info]");
+            _uiManager.WriteAdditionalInfo("CURRENTLY HOLDING: Nothing" + "\n\n" + "Hold TAB while holding an item to reveal additional info about that item.");
+            return;
         }
+        // update the item name display over the inventory slots
+        AnimatedTooltippable itemTooltip = GetItemAt(_currentInventoryIndex).GetComponentInChildren<AnimatedTooltippable>();
+        if (itemTooltip == null) {
+            Debug.LogWarning("Item at index " + _currentInventoryIndex + " does not have an AnimatedTooltippable component.");
+            return;
+        }
+        _uiManager.WriteLabel(itemTooltip.tooltipHeaderText);
+        _uiManager.WriteAdditionalInfo(itemTooltip.tooltipHeaderText + "\n\n" + itemTooltip.tooltipBodyText);
     }
 
     void SetIndex(int index) {

@@ -269,6 +269,7 @@ MonoBehaviour:
   quantity: 1
   icon: {fileID: 2800000, guid: 2a980c474bcfc804c8c1714aa1ac5659, type: 3}
   soundEmitters: []
+  IsAutolootable: 0
   userRef: {fileID: 0}
   IsPickedUp: 0
   n_isPickedUp:
@@ -278,9 +279,11 @@ MonoBehaviour:
   attachedWeaponSlot: {fileID: 0}
   n_syncedQuantity:
     m_InternalValue: 1
-  _railgunDamage: 34
-  _explosionRadius: 6
+  _railgunDamage: 17
+  _explosionRadius: 8
   _maxRange: 25
+  _slowPotency: 0.9
+  _slowDuration: 3
   _enemyHitEffect: Sample
   _explosionEffect: RailgunExplosion
   _barrelLaserEffect: 
@@ -298,8 +301,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abba81b95eeeefa47b53e97ff1f27c5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tooltipHeaderText: 'WEAPON: Railgun'
-  tooltipBodyText: Tap LCLICK to fire. Long-ranged AoE.
+  tooltipHeaderText: 'WEAPON: EMP Blaster'
+  tooltipBodyText: Tap LCLICK to fire. Does minimal damage, but slows enemies significantly.
   headerFontSize: 30
   bodyFontSize: 18
 --- !u!1001 &8267966065220538142

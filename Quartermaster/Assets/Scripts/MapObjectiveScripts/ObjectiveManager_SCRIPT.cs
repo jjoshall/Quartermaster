@@ -17,7 +17,6 @@ public class ObjectiveManager : NetworkBehaviour {
 
     [SerializeField] private TextMeshProUGUI taskList;
     [SerializeField] private TextMeshProUGUI nodeDefensePopUpTip;
-    private bool BOOL_nodeDefensePopUpTip;
 
     public List<ObjectiveType> minPerObjective; // minimum number of each objective to spawn
     [System.Serializable]
@@ -161,7 +160,7 @@ public class ObjectiveManager : NetworkBehaviour {
 
     [ServerRpc(RequireOwnership = false)]
     private void SpawnRandomObjectiveServerRpc(){
-        int randType = UnityEngine.Random.Range(0, minPerObjective.Count);
+        int randType = UnityEngine.Random.Range(0, minPerObjective.Count);  // random objective in range of minperobj
         GameObject prefab = minPerObjective[randType].objectivePrefab;
         
         int randValid = GetRandomValidPoint();
@@ -180,6 +179,13 @@ public class ObjectiveManager : NetworkBehaviour {
 
         n_objectivesToWin.Value--;
         n_minPerObjective[randType]--;
+        var objType = minPerObjective[randType];
+        objType.minimumToSpawn--;
+        minPerObjective[randType] = objType;
+        if (minPerObjective[randType].minimumToSpawn <= 0){
+            minPerObjective.RemoveAt(randType);
+            n_minPerObjective.RemoveAt(randType);
+        }
 
         n_randType.Add(randType);
         n_randValid.Add(randValid);
@@ -256,7 +262,7 @@ public class ObjectiveManager : NetworkBehaviour {
 
     private void AddObjectiveToTaskList(int randType, int randValid) {
         if (randType == 0) {
-            taskList.text += "-Deliver the item to the mailbox. " + "\n  - " + $"<size=1%>{randValid + 11}</size><color=red>Incomplete</color>" + " \n";
+            taskList.text += "-Deliver the item to the mailbox. " + "\n  - " + $"0 Items Delivered: <size=1%>{randValid + 11}</size><color=red>Incomplete</color> " + " \n";
         }
         else if (randType == 1) {
             taskList.text += "-Locate and defend the node! " + "\n  - " + $"<size=1%>{randValid + 11}</size><color=red>Incomplete</color>" + " \n";
@@ -264,15 +270,36 @@ public class ObjectiveManager : NetworkBehaviour {
     }
 
     [ClientRpc]
-    public void NodeZoneTextHelperClientRpc() {
-        if (!BOOL_nodeDefensePopUpTip) {
-            nodeDefensePopUpTip.text = "<color=#00FFFF>Stay in the zone for 15 seconds to complete the objective!</color>";
-            BOOL_nodeDefensePopUpTip = true;
+    public void NodeZoneTextHelperClientRpc(bool active) {
+        if (active) {
+            nodeDefensePopUpTip.text = "<color=#00FFFF>Stay in the zone for 30 seconds to complete the objective!</color>";
         }
         else {
             nodeDefensePopUpTip.text = "";
-            BOOL_nodeDefensePopUpTip = false;
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void MailboxTextHelperServerRpc(int remaining, int total, int previous, int index) {
+        MailboxTextHelperClientRpc(remaining, total, previous, index);
+    }
+
+    [ClientRpc]
+    public void MailboxTextHelperClientRpc(int remaining, int total, int previous, int index) {
+        string text = (-1 * (remaining - total)) + " / " + total + " Items Delivered: ";
+        string prevText = (-1 * (previous - total)) + " / " + total + " Items Delivered: ";
+
+        if (taskList.text.Contains("0 Items Delivered: ")) {
+                taskList.text = taskList.text.Replace(
+                $"0 Items Delivered: <size=1%>{index + 11}</size><color=red>Incomplete</color> ", $"{text}<size=1%>{index + 11}</size><color=red>Incomplete</color> "
+            );
+        }
+        else {
+                taskList.text = taskList.text.Replace(
+                $"{prevText}<size=1%>{index + 11}</size><color=red>Incomplete</color> ", $"{text}<size=1%>{index + 11}</size><color=red>Incomplete</color> "
+            );
+        }
+        
     }
 
     #endregion 

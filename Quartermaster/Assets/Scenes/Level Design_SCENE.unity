@@ -626,6 +626,7 @@ MonoBehaviour:
   settingsCanvas: {fileID: 0}
   gameOverCanvas: {fileID: 0}
   PlayerUI: {fileID: 0}
+  AdditionalInfoPanel: {fileID: 0}
 --- !u!1001 &183563130
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1005,6 +1006,11 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!1 &266761008 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2367679609314962634, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+  m_PrefabInstance: {fileID: 2091593734}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &267678452
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5220,6 +5226,7 @@ MonoBehaviour:
   - {fileID: 8363071947408148266}
   - {fileID: 8000073096864266970}
   inventorySlotLabel: {fileID: 582595508}
+  additionalInfo: {fileID: 2000323246}
   weaponCooldownRadial: {fileID: 6991113687584073653}
   highlightScale: 1.5
 --- !u!4 &1228006887
@@ -5271,6 +5278,7 @@ MonoBehaviour:
   settingsCanvas: {fileID: 2137648931}
   gameOverCanvas: {fileID: 1302733816}
   PlayerUI: {fileID: 2091593735}
+  AdditionalInfoPanel: {fileID: 266761008}
 --- !u!1001 &1246649415
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7947,6 +7955,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 115923006168949762, guid: 234571e13fa73e94fa9088589014f97a, type: 3}
   m_PrefabInstance: {fileID: 1980235117}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2000323246 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8174108683200986964, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+  m_PrefabInstance: {fileID: 2091593734}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2007084238
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8363,6 +8382,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: GoToMainMenu
       objectReference: {fileID: 0}
+    - target: {fileID: 6326531186877224067, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1842907323
+      objectReference: {fileID: 0}
     - target: {fileID: 7213803613440124995, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -8518,6 +8541,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 9086176220433939304, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
   m_PrefabInstance: {fileID: 2091593734}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2091593736 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8033290196966376251, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
+  m_PrefabInstance: {fileID: 2091593734}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &2091593739 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1598054534006325840, guid: d175a29868c362e4c83cd9eff8157693, type: 3}
@@ -8650,6 +8684,10 @@ PrefabInstance:
       propertyPath: initialSpawnCount
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 634689250593608552, guid: 4fe3661616668e247af39131ae7f1837, type: 3}
+      propertyPath: nodeDefensePopUpTip
+      value: 
+      objectReference: {fileID: 2091593736}
     - target: {fileID: 634689250593608552, guid: 4fe3661616668e247af39131ae7f1837, type: 3}
       propertyPath: objectivesList.Array.size
       value: 2
