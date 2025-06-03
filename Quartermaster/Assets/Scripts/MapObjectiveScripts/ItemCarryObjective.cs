@@ -8,7 +8,10 @@ public class ItemCarryObjective : IObjective
     [SerializeField] private int _rngMinDeliverableRequired = 1;
     [SerializeField] private int _rngMaxDeliverableRequired = 1;
 
+    private NetworkVariable<int> n_totalItems = new NetworkVariable<int>();
+
     private NetworkVariable<int> n_itemsToDeliver = new NetworkVariable<int>();
+    private NetworkVariable<int> n_storePrevItemsToDeliver = new NetworkVariable<int>();
 
 
     public override void OnNetworkSpawn()
@@ -20,6 +23,9 @@ public class ItemCarryObjective : IObjective
     public void SetItemsToDeliverServerRpc(int items)
     {
         n_itemsToDeliver.Value = items;
+
+        n_totalItems.Value = n_itemsToDeliver.Value;
+        MailboxTextHelper(n_itemsToDeliver.Value, n_totalItems.Value, n_totalItems.Value);
     }
 
     public override bool IsComplete()
@@ -69,13 +75,19 @@ public class ItemCarryObjective : IObjective
         yield return new WaitForSeconds(delay);
         Debug.Log ("ItemCarry: Despawning item");
         if (obj == null) { yield break; }
+        n_storePrevItemsToDeliver.Value = n_itemsToDeliver.Value;
         n_itemsToDeliver.Value -= obj.GetComponent<Item>().quantity;
         NetworkObjectReference objRef = new NetworkObjectReference(obj.GetComponent<NetworkObject>());
         DespawnItemServerRpc(objRef);
         // ParticleManager.instance.SpawnSelfThenAll(1, obj.transform.position, Quaternion.Euler(0, 0, 0));
+        MailboxTextHelper(n_itemsToDeliver.Value, n_totalItems.Value, n_storePrevItemsToDeliver.Value);
         if (n_itemsToDeliver.Value <= 0) {
             GameManager.instance.totalScore.Value += GameManager.instance.ScorePerObjective;
             Debug.Log("Total score " + GameManager.instance.totalScore.Value);
+
+            n_storePrevItemsToDeliver.Value = n_itemsToDeliver.Value;
+            n_itemsToDeliver.Value = 0;
+            MailboxTextHelper(n_itemsToDeliver.Value, n_totalItems.Value, n_storePrevItemsToDeliver.Value);
             ClearObjective();
         }
         yield return null;
