@@ -76,7 +76,7 @@ public class ItemCarryObjective : IObjective
         Debug.Log ("ItemCarry: Despawning item");
         if (obj == null) { yield break; }
         n_storePrevItemsToDeliver.Value = n_itemsToDeliver.Value;
-        n_itemsToDeliver.Value -= obj.GetComponent<Item>().quantity;
+        n_itemsToDeliver.Value -= obj.GetComponent<Item>().n_syncedQuantity.Value;
         NetworkObjectReference objRef = new NetworkObjectReference(obj.GetComponent<NetworkObject>());
         DespawnItemServerRpc(objRef);
         // ParticleManager.instance.SpawnSelfThenAll(1, obj.transform.position, Quaternion.Euler(0, 0, 0));

@@ -164,8 +164,14 @@ public class Health : NetworkBehaviour {
 
         // call OnDamage action
         float trueDamageAmount = healthBefore - CurrentHealth.Value;
-        if (trueDamageAmount > 0f) {
-            OnDamaged?.Invoke(trueDamageAmount, damageSource);
+        // Debug.Log ("TrueDamageAmount: " + trueDamageAmount + " DamageSource: " + damageSource);
+        if (damage > 0f)
+        {
+            if (damage > 99999f)
+            {
+                Debug.Log ("damage: " + damage + " trueDamageAmount: " + trueDamageAmount + " damageSource: " + damageSource);
+            }
+            OnDamaged?.Invoke(damage, damageSource);
             UpdateClientHealthClientRpc(trueDamageAmount, damageSourceRef);
         }
 
@@ -196,7 +202,7 @@ public class Health : NetworkBehaviour {
 
     void HandleDeath() {
         if (CurrentHealth.Value <= 0f) {
-            CurrentHealth.Value = 2147483000; // added hp buffer for multiplayer
+            CurrentHealth.Value = 2147483000; // DEPRECATED? no time to test taking itout.
             //IsDead = true;
             OnDie?.Invoke();
             NotifyDeathClientRpc();

@@ -62,6 +62,9 @@ public class ObjectiveManager : NetworkBehaviour {
     private NetworkList<int> n_randType = new NetworkList<int>();
     private NetworkList<int> n_randValid = new NetworkList<int>();
 
+    private NetworkVariable<bool> n_exclusiveItem = new NetworkVariable<bool>();
+    private NetworkVariable<bool> n_exclusiveNode = new NetworkVariable<bool>();
+
     #endregion
 
     void Start(){
@@ -160,7 +163,7 @@ public class ObjectiveManager : NetworkBehaviour {
 
     [ServerRpc(RequireOwnership = false)]
     private void SpawnRandomObjectiveServerRpc(){
-        int randType = UnityEngine.Random.Range(0, minPerObjective.Count);
+        int randType = UnityEngine.Random.Range(0, minPerObjective.Count);  // random objective in range of minperobj
         GameObject prefab = minPerObjective[randType].objectivePrefab;
         
         int randValid = GetRandomValidPoint();
@@ -179,7 +182,26 @@ public class ObjectiveManager : NetworkBehaviour {
 
         n_objectivesToWin.Value--;
         n_minPerObjective[randType]--;
+        var objType = minPerObjective[randType];
+        objType.minimumToSpawn--;
+        minPerObjective[randType] = objType;
+        if (minPerObjective[randType].minimumToSpawn <= 0){
+            minPerObjective.RemoveAt(randType);
+            n_minPerObjective.RemoveAt(randType);
+        }
 
+        if (randType == 0 && !n_exclusiveItem.Value) {
+            n_exclusiveItem.Value = true;
+        }
+        else if (randType == 0 && n_exclusiveItem.Value) {
+            randType = 1;
+        }
+        if (randType == 1 && !n_exclusiveNode.Value) {
+            n_exclusiveNode.Value = true;
+        }
+        else if (randType == 1 && n_exclusiveNode.Value) {
+            randType = 0;
+        }
         n_randType.Add(randType);
         n_randValid.Add(randValid);
 
@@ -255,7 +277,7 @@ public class ObjectiveManager : NetworkBehaviour {
 
     private void AddObjectiveToTaskList(int randType, int randValid) {
         if (randType == 0) {
-            taskList.text += "-Deliver the item to the mailbox. " + "\n  - " + $"0 Items Delivered: <size=1%>{randValid + 11}</size><color=red>Incomplete</color> " + " \n";
+            taskList.text += "-Deliver the item to the mailbox. " + "\n  - " + $"No items delivered yet. <size=1%>{randValid + 11}</size><color=red>Incomplete</color> " + " \n";
         }
         else if (randType == 1) {
             taskList.text += "-Locate and defend the node! " + "\n  - " + $"<size=1%>{randValid + 11}</size><color=red>Incomplete</color>" + " \n";
@@ -282,16 +304,14 @@ public class ObjectiveManager : NetworkBehaviour {
         string text = (-1 * (remaining - total)) + " / " + total + " Items Delivered: ";
         string prevText = (-1 * (previous - total)) + " / " + total + " Items Delivered: ";
 
-        if (taskList.text.Contains("0 Items Delivered: ")) {
+        if (taskList.text.Contains("No items delivered yet. ")) {
                 taskList.text = taskList.text.Replace(
-                $"0 Items Delivered: <size=1%>{index + 11}</size><color=red>Incomplete</color> ", $"{text}<size=1%>{index + 11}</size><color=red>Incomplete</color> "
+                $"No items delivered yet. <size=1%>{index + 11}</size><color=red>Incomplete</color> ", $"{text}<size=1%>{index + 11}</size><color=red>Incomplete</color> "
             );
         }
-        else {
-                taskList.text = taskList.text.Replace(
-                $"{prevText}<size=1%>{index + 11}</size><color=red>Incomplete</color> ", $"{text}<size=1%>{index + 11}</size><color=red>Incomplete</color> "
-            );
-        }
+            taskList.text = taskList.text.Replace(
+            $"{prevText}<size=1%>{index + 11}</size><color=red>Incomplete</color> ", $"{text}<size=1%>{index + 11}</size><color=red>Incomplete</color> "
+        );
         
     }
 
