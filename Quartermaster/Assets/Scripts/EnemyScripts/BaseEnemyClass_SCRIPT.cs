@@ -390,6 +390,16 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         n_railgunSlowMultiplier.Value = slowMultiplier;
         n_railgunSlowExpireTime.Value = Time.time + duration;
         UpdateSpeedServerRpc();
+
+        StartCoroutine(RemoveTimedSlow(duration));
+    }
+
+    private System.Collections.IEnumerator RemoveTimedSlow(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        n_railgunSlowMultiplier.Value = 0.0f;
+        n_railgunSlowExpireTime.Value = 0.0f;
+        UpdateSpeedServerRpc();
     }
 
     [ServerRpc(RequireOwnership = false)]   
