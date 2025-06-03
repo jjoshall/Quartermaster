@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1751609586792904570}
   - component: {fileID: 3677700440353942820}
   - component: {fileID: 4654695858413278938}
-  m_Layer: 0
+  m_Layer: 17
   m_Name: StartPointChestPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2596884308
+  GlobalObjectIdHash: 485326682
   InScenePlacedSourceGlobalObjectIdHash: 2596884308
   DeferredDespawnTick: 0
   Ownership: 1
@@ -74,7 +74,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   _chestPrefab: {fileID: 7402761068970283670, guid: f426e0ecc94a39d43b92a1199446b305, type: 3}
-  _GetRandom: 0
+  _GetRandom: 1
   _SpawnChestOnNetworkSpawn: 1
   _SpawnChestOnlyOnceOnServer: 0
   _possibleDropTableList:
@@ -85,7 +85,9 @@ MonoBehaviour:
       quantity: 1
     - itemPrefab: {fileID: 8519617277999394602, guid: 71b297f5108d1b84197b3aa4db2f9ffb, type: 3}
       quantity: 50
-    weight: 0
+    - itemPrefab: {fileID: 8519617277999394602, guid: 20539a68fc8b107439269a555fcc3a48, type: 3}
+      quantity: 5
+    weight: 1
   - dropTable:
     - itemPrefab: {fileID: 8519617277999394602, guid: 86bee22b740b0a2458c0aea0bcce5b6d, type: 3}
       quantity: 1
@@ -93,14 +95,18 @@ MonoBehaviour:
       quantity: 50
     - itemPrefab: {fileID: 8519617277999394602, guid: 70aec5c8417023c46b813500f0ce3f65, type: 3}
       quantity: 3
-    weight: 0
+    - itemPrefab: {fileID: 7727275518780203837, guid: 36303cc5c7f35a34f881a3c59bf109c7, type: 3}
+      quantity: 3
+    weight: 1
   - dropTable:
     - itemPrefab: {fileID: 6213748935702998764, guid: 5523809b3e9f8654f8d46da3fa5188a2, type: 3}
       quantity: 1
     - itemPrefab: {fileID: 8519617277999394602, guid: 71b297f5108d1b84197b3aa4db2f9ffb, type: 3}
       quantity: 50
-    - itemPrefab: {fileID: 3214981217242712164, guid: e2c71f19634ffd946a0845d909b595da, type: 3}
-      quantity: 3
+    - itemPrefab: {fileID: 7727275518780203837, guid: 36303cc5c7f35a34f881a3c59bf109c7, type: 3}
+      quantity: 1
+    - itemPrefab: {fileID: 8519617277999394602, guid: 20539a68fc8b107439269a555fcc3a48, type: 3}
+      quantity: 5
     weight: 0
   - dropTable:
     - itemPrefab: {fileID: 2182478556217154093, guid: bc72dde888b5ce5469fd9ce91e531350, type: 3}
@@ -109,7 +115,9 @@ MonoBehaviour:
       quantity: 3
     - itemPrefab: {fileID: 8519617277999394602, guid: 71b297f5108d1b84197b3aa4db2f9ffb, type: 3}
       quantity: 50
-    weight: 0
+    - itemPrefab: {fileID: 7727275518780203837, guid: 36303cc5c7f35a34f881a3c59bf109c7, type: 3}
+      quantity: 1
+    weight: 1
 --- !u!23 &3677700440353942820
 MeshRenderer:
   m_ObjectHideFlags: 0
