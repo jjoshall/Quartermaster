@@ -7,6 +7,8 @@ public class ScoreUIUpdater_SCRIPT : NetworkBehaviour
     [SerializeField] private TextMeshProUGUI scoreNum;
     [SerializeField] private TextMeshProUGUI killsNum;
 
+    [SerializeField] private GameManager gameManager;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -25,24 +27,37 @@ public class ScoreUIUpdater_SCRIPT : NetworkBehaviour
     //    GameManager.instance.totalScore.OnValueChanged -= OnScoreChanged;
     //}
 
-    private void OnScoreChanged(int oldValue, int newValue) {
+    private void OnScoreChanged(int oldValue, int newValue)
+    {
         UpdateScore(newValue);
     }
 
-    private void OnKillsChanged(int oldValue, int newValue) {
+    private void OnKillsChanged(int oldValue, int newValue)
+    {
         UpdateKills(newValue);
     }
 
-    private void UpdateScore(int score) {
-        if (scoreNum != null) {
+    private void UpdateScore(int score)
+    {
+        if (scoreNum != null)
+        {
             scoreNum.text = $"{score}";
         }
     }
 
-    private void UpdateKills(int kills) {
-        if (killsNum != null) {
+    private void UpdateKills(int kills)
+    {
+        if (killsNum != null)
+        {
             Debug.Log($"Kills: {kills}");
             killsNum.text = $"{kills}";
         }
+    }
+
+
+    private void OnEnable()
+    {
+        gameManager.SetSteamLeaderboardClientRpc("Total Kills", GameManager.instance.totalEnemyKills.Value);
+        gameManager.SetSteamLeaderboardClientRpc("Highest Score", GameManager.instance.totalScore.Value);
     }
 }

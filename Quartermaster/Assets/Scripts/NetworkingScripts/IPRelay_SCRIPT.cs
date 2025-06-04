@@ -8,13 +8,10 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 using TMPro;
-using System.Collections;
-using System.Threading.Tasks;
 using Steamworks;
 using UnityEngine.UI;
 
-public class IPRelay : NetworkBehaviour
-{
+public class IPRelay : NetworkBehaviour {
     #region Variables
     [SerializeField] private TMP_Text joinCodeText;
 
@@ -117,7 +114,7 @@ public class IPRelay : NetworkBehaviour
         RefreshLobbyProfiles();
     }
 
-    private void OnDestroy()
+    private new void OnDestroy()
     {
         if (NetworkManager.Singleton != null)
         {

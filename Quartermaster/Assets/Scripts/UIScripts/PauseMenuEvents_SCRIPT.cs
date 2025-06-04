@@ -40,8 +40,10 @@ public class PauseMenuToggler : MonoBehaviour
                     settingsCanvas.gameObject.SetActive(false);
                 }
             }
-            if (HealthBarUI.instance.livesRemaining <= 0) {
+            if (HealthBarUI.instance.livesRemaining <= 0)
+            {
                 OpenGameOverCanvas();
+                
             }
             if (AdditionalInfoPanel != null) {
                 AdditionalInfoPanel.SetActive(Input.GetKey(KeyCode.Tab));
@@ -132,5 +134,6 @@ public class PauseMenuToggler : MonoBehaviour
         IsPaused = true;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
     }
 }
