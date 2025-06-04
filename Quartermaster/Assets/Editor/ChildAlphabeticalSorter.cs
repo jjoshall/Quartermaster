@@ -12,9 +12,7 @@ public class ChildAlphabeticalSorter : EditorWindow
     private const string k_ImageUp = "Assets/Editor/Icons/up.png";
     private Texture2D _buttonIconDown;
     private Texture2D _buttonIconUp;
-
-    int _tabIndex = 0;
-    readonly string[] _tabNames = { "Children Sorter", "Tab 2" };
+    
 
     double _successEndTime;
 
@@ -51,47 +49,34 @@ public class ChildAlphabeticalSorter : EditorWindow
             fixedHeight = 100
         };
 
-        _tabIndex = GUILayout.Toolbar(_tabIndex, _tabNames);
-
-        switch (_tabIndex)
-        {
-            case 0:
-                EditorGUILayout.LabelField("Sorter data", EditorStyles.boldLabel);
-                parentObject = (GameObject)EditorGUILayout.ObjectField("Parent Object", parentObject, typeof(GameObject), true);
-
-                EditorGUILayout.Space();
-                //EditorGUILayout.Space();
-
-                EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
-                GUI.enabled = parentObject != null;
-
-                var content_down = new GUIContent(_buttonIconDown);
-                var buttonWidth = GUILayout.Width(60);
-                var buttonHeight = GUILayout.Height(60);
-
-                EditorGUILayout.BeginHorizontal();
-
-                // sort descending
-                GUILayout.BeginVertical(layout_vertical_style);
-                if (GUILayout.Button(content_down, buttonWidth, buttonHeight))
-                {
-                    SortChildrenAlphabetically();
-                }
-                GUILayout.Label("Sort\nDescending", EditorStyles.label);
-                GUILayout.EndVertical();
-
-                EditorGUILayout.EndHorizontal();
-                break;
-
-
-            case 1:
-                GUILayout.Label("Area 2");
-                break;
-        }
-
-
 
         
+
+        EditorGUILayout.LabelField("Sorter data", EditorStyles.boldLabel);
+        parentObject = (GameObject)EditorGUILayout.ObjectField("Parent Object", parentObject, typeof(GameObject), true);
+
+        EditorGUILayout.Space();
+        //EditorGUILayout.Space();
+
+        EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
+        GUI.enabled = parentObject != null;
+
+        var content_down = new GUIContent(_buttonIconDown);
+        var buttonWidth = GUILayout.Width(60);
+        var buttonHeight = GUILayout.Height(60);
+
+        EditorGUILayout.BeginHorizontal();
+
+        // sort descending
+        GUILayout.BeginVertical(layout_vertical_style);
+        if (GUILayout.Button(content_down, buttonWidth, buttonHeight))
+        {
+            SortChildrenAlphabetically();
+        }
+        GUILayout.Label("Sort\nDescending", EditorStyles.label);
+        GUILayout.EndVertical();
+
+        EditorGUILayout.EndHorizontal();
 
 
 
