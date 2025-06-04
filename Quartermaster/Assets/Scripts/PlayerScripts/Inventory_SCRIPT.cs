@@ -106,9 +106,20 @@ public class Inventory : NetworkBehaviour {
         // Update the UI highlight for the current slot.
         _uiManager.HighlightSlot(_currentInventoryIndex);
 
+        Item currentItem = GetItemAt(_currentInventoryIndex);
+        if (currentItem == null) {
+            _uiManager.WriteLabel("[Hold TAB for more info]");
+            _uiManager.WriteAdditionalInfo("CURRENTLY HOLDING: Nothing" + "\n\n" + "Hold TAB while holding an item to reveal additional info about that item.");
+            return;
+        }
         // update the item name display over the inventory slots
         AnimatedTooltippable itemTooltip = GetItemAt(_currentInventoryIndex).GetComponentInChildren<AnimatedTooltippable>();
+        if (itemTooltip == null) {
+            Debug.LogWarning("Item at index " + _currentInventoryIndex + " does not have an AnimatedTooltippable component.");
+            return;
+        }
         _uiManager.WriteLabel(itemTooltip.tooltipHeaderText);
+        _uiManager.WriteAdditionalInfo(itemTooltip.tooltipHeaderText + "\n\n" + itemTooltip.tooltipBodyText);
     }
 
     void SetIndex(int index) {
@@ -336,11 +347,34 @@ public class Inventory : NetworkBehaviour {
         }
     }
 
+    // only called by itemacquisitionrange for collision on autolootable items. REFACTOR THIS LATER.
+    public void TryStackExternal(GameObject pickedUp)
+    {
+        if (TryStackItem(pickedUp))
+        {
+            pickedUp.GetComponent<Item>().OnPickUp(_playerObj); // Call the item's onPickUp function
+            RemoveFromItemAcqLocal(pickedUp);
+            var netObj = pickedUp.GetComponent<NetworkObject>();
+            if (netObj != null)
+            {
+                DespawnItemServerRpc(netObj);
+            }
+            else
+            {
+                Debug.LogError("Picked up item does not have a NetworkObject component.");
+            }
+            // Destroy(pickedUp);
+            UpdateInventoryWeight();
+            UpdateAllInventoryUI();
+            return;
+        }
+    }
 
     // -------------------------------------------------------------------------------------------------------------------------
     #region PickupHelpers
     #endregion 
-    private void AddToInventory(GameObject pickedUp) {
+    private void AddToInventory(GameObject pickedUp)
+    {
         GetPickupVars(pickedUp, out var item, out var itemNO, out var playerNO);
         if (item == null || itemNO == null || playerNO == null) return;
 
@@ -352,10 +386,11 @@ public class Inventory : NetworkBehaviour {
         PropagateItemAttachmentServerRpc(itemNO, playerNO, true);
 
         HandleItemExclusivity(item);
-        
 
-        if (TryPlaceInCurrentSlot(pickedUp, item) || AddToFirstEmptySlot(pickedUp)) { // short circuits on first success. 
-                                                                                      // sets inventory[i] to pickedUp and calls OnPickup.
+
+        if (TryPlaceInCurrentSlot(pickedUp, item) || AddToFirstEmptySlot(pickedUp))
+        { // short circuits on first success. 
+          // sets inventory[i] to pickedUp and calls OnPickup.
             _currentHeldItems++;
             UpdateHeldItem();
             UpdateHeldItemNetworkReference();

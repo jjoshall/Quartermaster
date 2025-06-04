@@ -13,6 +13,8 @@ public class PauseMenuToggler : MonoBehaviour
 
     [SerializeField] private GameObject PlayerUI;     // The Player UI
 
+    [SerializeField] private GameObject AdditionalInfoPanel;     // Additional Info Panel
+
     private bool isPauseCanvasActive = false;
     public static bool IsPaused { get; set; } = false;
 
@@ -30,6 +32,7 @@ public class PauseMenuToggler : MonoBehaviour
     {
         if (playerUICanvas != null && playerUICanvas.gameObject.activeSelf && PlayerUI != null && PlayerUI.gameObject.activeSelf)
         {
+            
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 TogglePauseMenu();
@@ -39,6 +42,9 @@ public class PauseMenuToggler : MonoBehaviour
             }
             if (HealthBarUI.instance.livesRemaining <= 0) {
                 OpenGameOverCanvas();
+            }
+            if (AdditionalInfoPanel != null) {
+                AdditionalInfoPanel.SetActive(Input.GetKey(KeyCode.Tab));
             }
         }
         else if (PlayerUI != null && !PlayerUI.gameObject.activeSelf) {

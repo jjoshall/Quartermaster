@@ -64,9 +64,16 @@ public class SmallExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
         float finalSpeed = _baseSpeed;  
         float finalAcceleration = _baseAcceleration;
 
-        if (n_isSlowed.Value > 0){
-            finalSpeed *= 1 - n_slowMultiplier.Value;
-            finalAcceleration *= 1 - n_slowMultiplier.Value;
+        if (n_isTrapSlowed.Value > 0){
+            finalSpeed *= 1 - n_trapSlowMultiplier.Value;
+            finalAcceleration *= 1 - n_trapSlowMultiplier.Value;
+        }
+        
+        if (Time.time < n_railgunSlowExpireTime.Value)
+        {
+            Debug.Log ("Is Slowed by Railgun");
+            finalSpeed *= 1 - n_railgunSlowMultiplier.Value;
+            finalAcceleration *= 1 - n_railgunSlowMultiplier.Value;
         }
 
         if (isBlinking.Value){

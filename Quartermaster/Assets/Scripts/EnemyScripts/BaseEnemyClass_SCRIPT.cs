@@ -59,8 +59,13 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     // Yes I did - Norman
     protected float _baseSpeed = 0.0f;
     protected float _baseAcceleration = 0.0f;
-    protected NetworkVariable<int> n_isSlowed = new NetworkVariable<int>(0); // int is used in case of multiple slow traps.
-    protected NetworkVariable<float> n_slowMultiplier = new NetworkVariable<float>(0.0f);
+
+    protected NetworkVariable<int> n_isTrapSlowed = new NetworkVariable<int>(0); // int is used in case of multiple slow traps.
+    protected NetworkVariable<float> n_trapSlowMultiplier = new NetworkVariable<float>(0.0f);
+
+    protected NetworkVariable<float> n_railgunSlowMultiplier = new NetworkVariable<float>(0.0f); // used for railgun slow debuff
+    protected NetworkVariable<float> n_railgunSlowExpireTime = new NetworkVariable<float>(0.0f); // used for railgun slow debuff
+
     [HideInInspector] public float AISpeedMultiplier = 1.0f; // don't change. set by AIDirector at run-time.
     [HideInInspector] public float AIDmgMultiplier = 1.0f;
 
@@ -153,7 +158,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             bool inRange = Vector3.Distance(transform.position, targetPosition) <= attackRange;
 
             // If a player's in range for that enemy, attack.
-            if (targetIsPlayer && inRange && _lastAttackTime + attackCooldown < Time.time) {
+            if (targetIsPlayer && inRange && _lastAttackTime + attackCooldown < Time.time && n_railgunSlowExpireTime.Value < Time.time) {
                 // Enemies in range to attack look at the player.
                 Vector3 lookPosition = targetPosition;
                 lookPosition.y = transform.position.y;
@@ -304,7 +309,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             enemySpawner.SpawnDamageNumberFromPool(floatingTextPrefab, floatingTextPosition, damage);  // show floating damage numbers with pooling
         }
 
-        PlaySoundForEmitter("melee_damaged", transform.position);
+        // PlaySoundForEmitter("melee_damaged", transform.position);
 
         if (damageSource.CompareTag("Player")){
             AddAttackingPlayer(damageSource); // add the player that hit this enemy to the list of players that hit this enemy
@@ -355,9 +360,16 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         float finalSpeed = _baseSpeed;
         float finalAcceleration = _baseAcceleration;
 
-        if (n_isSlowed.Value > 0){
-            finalSpeed *= 1 - n_slowMultiplier.Value;
-            finalAcceleration *= 1 - n_slowMultiplier.Value;
+        if (n_isTrapSlowed.Value > 0){
+            finalSpeed *= 1 - n_trapSlowMultiplier.Value;
+            finalAcceleration *= 1 - n_trapSlowMultiplier.Value;
+        }
+
+        if (Time.time < n_railgunSlowExpireTime.Value)
+        {
+            Debug.Log ("Is Slowed by Railgun");
+            finalSpeed *= 1 - n_railgunSlowMultiplier.Value;
+            finalAcceleration *= 1 - n_railgunSlowMultiplier.Value;
         }
 
         UpdateSpeedClientRpc(finalSpeed, finalAcceleration);
@@ -370,17 +382,36 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         agent.velocity = agent.velocity.normalized * finalSpeed;
     }
 
-    [ServerRpc(RequireOwnership = false)]   
-    public void ApplySlowDebuffServerRpc(){
-        n_isSlowed.Value = n_isSlowed.Value + 1;
-        n_slowMultiplier.Value = GameManager.instance.SlowTrap_SlowByPct;
+
+    // Used for railgun slow debuff. REFACTOR THIS + DEPRECATED SLOW TRAP (?)
+    [ServerRpc(RequireOwnership = false)]
+    public void ApplyTimedSlowServerRpc(float slowMultiplier, float duration)
+    {
+        n_railgunSlowMultiplier.Value = slowMultiplier;
+        n_railgunSlowExpireTime.Value = Time.time + duration;
+        UpdateSpeedServerRpc();
+
+        StartCoroutine(RemoveTimedSlow(duration));
+    }
+
+    private System.Collections.IEnumerator RemoveTimedSlow(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        n_railgunSlowMultiplier.Value = 0.0f;
+        n_railgunSlowExpireTime.Value = 0.0f;
         UpdateSpeedServerRpc();
     }
 
     [ServerRpc(RequireOwnership = false)]   
-    public void RemoveSlowDebuffServerRpc(){
-        n_isSlowed.Value = n_isSlowed.Value - 1;
-        n_slowMultiplier.Value = GameManager.instance.SlowTrap_SlowByPct;
+    public void ApplySlowTrapDebuffServerRpc(){
+        n_isTrapSlowed.Value = n_isTrapSlowed.Value + 1;
+        n_trapSlowMultiplier.Value = GameManager.instance.SlowTrap_SlowByPct;
+        UpdateSpeedServerRpc();
+    }
+    [ServerRpc(RequireOwnership = false)]   
+    public void RemoveSlowTrapDebuffServerRpc(){
+        n_isTrapSlowed.Value = n_isTrapSlowed.Value - 1;
+        n_trapSlowMultiplier.Value = GameManager.instance.SlowTrap_SlowByPct;
         UpdateSpeedServerRpc();
     }
 

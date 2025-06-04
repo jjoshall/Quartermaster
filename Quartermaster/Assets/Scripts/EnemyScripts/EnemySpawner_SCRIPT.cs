@@ -12,7 +12,7 @@ public class EnemySpawner : NetworkBehaviour {
     [Header("Spawner Timer")]
     private float _lastSpawnTime = 0f;
     public float spawnCooldown = 3f;
-    public int spawnTimeDelay = 5;
+
 
     [Header("Spawner Settings")]
     public bool isSpawning = false;
@@ -26,12 +26,20 @@ public class EnemySpawner : NetworkBehaviour {
     [SerializeField] private List<GameObject> _enemySpawnPoints;
     //[SerializeField] private List<GameObject> _enemyPackSpawnPoints;
 
+    public float globalAggroUpdateIntervalMultiplier = 1.0f;
+    public float spawnCooldownMultiplier = 1.0f;
+
     public List<GameObject> enemyList = new List<GameObject>();
     private List<GameObject> playerList; // players in game.
     public List<GameObject> activePlayerList; // players in active playable area.
     public List<GameObject> inactiveAreas; // pathable areas that are not playable. set in inspector.
                                            // players in these areas will be occluded from activePlayerList.
                                            // for pathing / enemyspawner / aidirector purposes.
+
+    private int _floatingTextCooldownThreshold = 10;
+    private int _floatingTextCooldownCount = 0;
+    private float _floatingTextLastSpawned = 0f;
+    private float _floatingTextCooldown = 0.5f;
 
     // static 
     public static EnemySpawner instance;
@@ -72,6 +80,8 @@ public class EnemySpawner : NetworkBehaviour {
         NetworkManager.Singleton.OnClientDisconnectCallback += RefreshPlayerLists;
     }
 
+    #region whatthis?
+    public int spawnTimeDelay = 5; // what is this for? seems unused -norman
     private void EnableSpawning()
     {
         EnableSpawningClientRpc();
@@ -89,7 +99,7 @@ public class EnemySpawner : NetworkBehaviour {
     {
         yield return new WaitForSeconds(spawnTimeDelay);
     }
-
+    #endregion
 
 
     private void RefreshPlayerLists(ulong u)
@@ -127,7 +137,7 @@ public class EnemySpawner : NetworkBehaviour {
 
         // less than max enemies, and more than 0 players in playable area.
         // Managed by InactiveAreaCollider s adding/removing from activePlayerList
-        if (Time.time >= _lastSpawnTime + spawnCooldown) {
+        if (Time.time >= _lastSpawnTime + spawnCooldown * spawnCooldownMultiplier) {
             //Debug.Log("Spawning enemy");
             SpawnOneEnemy();
             _lastSpawnTime = Time.time;
@@ -180,6 +190,28 @@ public class EnemySpawner : NetworkBehaviour {
     /// </summary>
     public async void SpawnDamageNumberFromPool(GameObject floatingTextPrefab, Vector3 spawnPosition, float damage) {
         if (!IsServer) return;
+
+        // Cooldown check only triggers when threshold reached. 
+        if (_floatingTextCooldownCount >= _floatingTextCooldownThreshold)
+        {
+            // if threshold reached, check cooldown.
+            if (Time.time < _floatingTextLastSpawned + _floatingTextCooldown)
+            {
+                Debug.Log("Floating text cooldown active, skipping dmg text number");
+                return;
+            }
+            else
+            {
+                // Reset cooldown count
+                _floatingTextCooldownCount = 0;
+                _floatingTextLastSpawned = Time.time; // Update last spawned time
+            }
+        }
+        else
+        {
+            // Increment cooldown count
+            _floatingTextCooldownCount++;
+        }
 
         // Just get any object from the object pool
         NetworkObject networkObject = _objectPool.GetNetworkObject(
@@ -291,7 +323,7 @@ public class EnemySpawner : NetworkBehaviour {
 
     private void UpdateGlobalAggroTargetTimer() {
         globalAggroUpdateTimer += Time.deltaTime;
-        if (globalAggroUpdateTimer >= globalAggroUpdateInterval) {
+        if (globalAggroUpdateTimer >= globalAggroUpdateInterval * globalAggroUpdateIntervalMultiplier) {
             globalAggroUpdateTimer = 0.0f;
 
             for (int i = 0; i < playerList.Count; i++) {

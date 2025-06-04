@@ -5,6 +5,7 @@ using UnityEngine;
 public class ItemAcquisitionRange : MonoBehaviour {
     private bool DEBUG_FLAG = true;
     private GameObject _playerObj;
+    private Inventory _inventory;
     public GameObject _playerCam;
 
     private List<GameObject> _itemsInRange = new List<GameObject>();
@@ -20,6 +21,10 @@ public class ItemAcquisitionRange : MonoBehaviour {
 
     void Start() {
         _playerObj = transform.parent.gameObject;
+        _inventory = _playerObj.GetComponent<Inventory>();
+        if (_inventory == null) {
+            Debug.LogError("ItemAcquisitionRange: Start() - Inventory component not found on player object.");
+        }
         var spherecol = this.GetComponent<SphereCollider>();
         if (spherecol != null) {
             spherecol.radius = raycastPickupRange + raycastOffset;
@@ -34,8 +39,15 @@ public class ItemAcquisitionRange : MonoBehaviour {
     }
 
     void OnTriggerEnter(Collider other) {
-        if (IsAnItem(other.gameObject)) {
-            AddItem(other.gameObject);
+        if (IsAnItem(other.gameObject))
+        {
+            if (other.gameObject.GetComponent<Item>().IsAutolootable)
+            {
+                _inventory.TryStackExternal(other.gameObject);
+            }
+            if (other.gameObject != null && other.gameObject.GetComponent<Item>() != null && !other.gameObject.GetComponent<Item>().IsPickedUp) {
+                AddItem(other.gameObject);
+            }
         }
     }
 
