@@ -39,6 +39,7 @@ namespace Unity.BossRoom.Infrastructure
         }
 
         public override void OnNetworkSpawn() {
+            return;
             InitializePool();
         }
 

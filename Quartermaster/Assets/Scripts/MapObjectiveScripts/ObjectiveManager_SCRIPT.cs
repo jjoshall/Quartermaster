@@ -71,11 +71,16 @@ public class ObjectiveManager : NetworkBehaviour {
         // InitializeObjectiveManager();
     }
     public override void OnNetworkSpawn(){
-        if (IsServer){
+        return;
+        if (IsServer)
+        {
             InitializeObjectiveManager();
-        } else if (IsClient){
+        }
+        else if (IsClient)
+        {
             Debug.Log("ObjectiveManager: OnNetworkSpawn() client.");
-            for (int i = 0; i < n_randType.Count; i++) {
+            for (int i = 0; i < n_randType.Count; i++)
+            {
                 AddObjectiveToTaskList(n_randType[i], n_randValid[i]);
             }
             // Spawn n_activeobjectives

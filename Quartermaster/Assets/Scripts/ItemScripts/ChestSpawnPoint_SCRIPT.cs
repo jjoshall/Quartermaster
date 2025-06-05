@@ -29,6 +29,7 @@ public class ChestSpawnPoint : NetworkBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public override void OnNetworkSpawn()
     {
+        return;
         if (_SpawnChestOnNetworkSpawn)
             SpawnChestAtSelfServerRpc();
         else if (_SpawnChestOnlyOnceOnServer && IsServer)
