@@ -18,6 +18,8 @@ public class ObjectiveManager : NetworkBehaviour {
     [SerializeField] private TextMeshProUGUI taskList;
     [SerializeField] private TextMeshProUGUI nodeDefensePopUpTip;
 
+    [SerializeField] private List<GameObject> _objectiveSpawnPoints;
+
     public List<ObjectiveType> minPerObjective; // minimum number of each objective to spawn
     [System.Serializable]
     public struct ObjectiveType {   
@@ -102,13 +104,16 @@ public class ObjectiveManager : NetworkBehaviour {
 
 
     [ServerRpc(RequireOwnership = false)]
-    private void GrabValidPointsServerRpc(){
+    private void GrabValidPointsServerRpc()
+    {
         // get all children of this object
-        foreach (Transform child in transform){
+        foreach (GameObject child in _objectiveSpawnPoints)
+        {
             // add all children to the objectivesList
             _validPointsList.Add(child.gameObject);
             n_validPointHasObj.Add(false);
         }
+        
     }
 
     [ServerRpc(RequireOwnership = false)]

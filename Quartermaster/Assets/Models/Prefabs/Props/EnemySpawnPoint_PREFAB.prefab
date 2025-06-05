@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6279143240490528680}
   - component: {fileID: 4192319421674854450}
+  - component: {fileID: 192539518989285614}
   m_Layer: 0
   m_Name: EnemySpawnPoint_PREFAB
   m_TagString: Untagged
@@ -56,6 +57,23 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+--- !u!114 &192539518989285614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7524076807781158576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 671eca6b282082c4dbbc2d6441f3b465, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  icon: {fileID: 2800000, guid: 33e97e5b3d0fb9642a45d5e67843da3c, type: 3}
+  verticalOffset: 1.5
+  minSize: 48
+  maxSize: 48
+  sizeMultiplier: 4
 --- !u!1001 &7663304886408918099
 PrefabInstance:
   m_ObjectHideFlags: 0
