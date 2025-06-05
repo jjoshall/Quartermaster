@@ -8,10 +8,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 using TMPro;
+using System.Collections;
+using System.Threading.Tasks;
 using Steamworks;
 using UnityEngine.UI;
 
-public class IPRelay : NetworkBehaviour {
+public class IPRelay : NetworkBehaviour
+{
     #region Variables
     [SerializeField] private TMP_Text joinCodeText;
 
@@ -111,10 +114,19 @@ public class IPRelay : NetworkBehaviour {
 
     private void Update()
     {
-        RefreshLobbyProfiles();
+        
+        if (gameObject.activeSelf)
+        {
+            #if !UNITY_EDITOR
+            RefreshLobbyProfiles();
+            #endif
+        }  
+
     }
 
-    private new void OnDestroy()
+//has some override issue with it but it didn't come up before so idk
+#pragma warning disable 0114
+    private void OnDestroy()
     {
         if (NetworkManager.Singleton != null)
         {
@@ -159,7 +171,9 @@ public class IPRelay : NetworkBehaviour {
         currentLobbyID = new CSteamID(enter.m_ulSteamIDLobby);
         Debug.LogError($"Entered steam lobby with steam id: {currentLobbyID}");
 
+        #if !UNITY_EDITOR
         RefreshLobbyProfiles();
+        #endif
 
 
 
@@ -235,7 +249,11 @@ public class IPRelay : NetworkBehaviour {
         if (left || dropped)
         {
             if (lobbyMenuCanvas != null && lobbyMenuCanvas.gameObject.activeSelf)
+            {
+                #if !UNITY_EDITOR
                 RefreshLobbyProfiles();
+                #endif               
+            }
 
             CSteamID owner = SteamMatchmaking.GetLobbyOwner(currentLobbyID);
             if (steamID == owner && !IsOwner)
