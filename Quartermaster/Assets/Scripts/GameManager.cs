@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using System.Collections.Generic;
+using Steamworks;
 
 public class GameManager : NetworkBehaviour {
     #region InspectorSettings
@@ -10,8 +11,8 @@ public class GameManager : NetworkBehaviour {
     [SerializeField] private float _dropItemVelocity;
 
     [Header("Weapon Settings")]
-    [Header("Flamethrower Settings")]
-    // Weapons should not scale at run-time. Scale enemy hp instead.
+    // Weapons should not scale at run-time. Scale enemy hp instead.\
+    //[Header("Flamethrower Settings")]
     // [SerializeField] private float flame_Damage;
     // [SerializeField] private float flame_Range;
     // [SerializeField] private float flame_EndRadius; // The radius of the circle at the end of the flamethrower capsulecast
@@ -304,6 +305,53 @@ public class GameManager : NetworkBehaviour {
 
     #endregion
 
+    #region Steam Stuff
+    [Header("Steam Callbacks")]
+    protected Callback<LeaderboardFindResult_t> leaderboardFindResult;
+
+    private string pendingLeaderboardName;
+    private int pendingScore;
+
+
+
+
+    [ClientRpc]
+    public void SetSteamLeaderboardClientRpc(string leaderboardName, int score) {
+        pendingLeaderboardName = leaderboardName;
+        pendingScore = score;
+
+
+        SteamUserStats.FindLeaderboard(leaderboardName);
+
+        Debug.Log($"Setting Steam leaderboard score for {leaderboardName} to {score}");
+    }
+
+    public void OnLeaderboardFindResult(LeaderboardFindResult_t result)
+    {
+        if (result.m_bLeaderboardFound == 1)
+        {
+            Debug.Log($"Leaderboard found: {result.m_hSteamLeaderboard}");
+
+            SteamUserStats.UploadLeaderboardScore(
+                result.m_hSteamLeaderboard,
+                ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodKeepBest,
+                pendingScore,
+                null,
+                0
+            );
+
+            Debug.Log($"Score {pendingScore} uploaded to leaderboard {pendingLeaderboardName}");
+            
+        }
+        else
+        {
+            Debug.LogError("Leaderboard not found.");
+        }
+    }
+
+    #endregion
+
+
     #region GameStatistics
     [ServerRpc(RequireOwnership = false)]
     public void IncrementEnemyKillsServerRpc() {
@@ -338,20 +386,24 @@ public class GameManager : NetworkBehaviour {
     #endregion
 
     #region GameManagerSetup
-    public NetworkList<NetworkObjectReference> n_players { get; private set;}
+    public NetworkList<NetworkObjectReference> n_players { get; private set; }
     public NetworkList<NetworkObjectReference> n_enemies { get; private set;}
     public NetworkList<NetworkObjectReference> n_worldItems { get; private set;}
 
     // singleton code
     public static GameManager instance;
-    private void Awake() {
-        if (instance == null) {
+    private void Awake()
+    {
+        if (instance == null)
+        {
             instance = this;
         }
-        else {
+        else
+        {
             Destroy(this);
         }
         InitializeRuntimeVars();
+        leaderboardFindResult = Callback<LeaderboardFindResult_t>.Create(OnLeaderboardFindResult);
     }
 
     public override void OnNetworkSpawn() {
