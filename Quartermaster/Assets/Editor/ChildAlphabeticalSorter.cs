@@ -2,6 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using UnityEngine.Rendering.Universal;
 
 public class ChildAlphabeticalSorter : EditorWindow
 {
@@ -12,6 +13,8 @@ public class ChildAlphabeticalSorter : EditorWindow
     private const string k_ImageUp = "Assets/Editor/Icons/up.png";
     private Texture2D _buttonIconDown;
     private Texture2D _buttonIconUp;
+
+    private bool showHelp = false;
     
 
     double _successEndTime;
@@ -49,14 +52,46 @@ public class ChildAlphabeticalSorter : EditorWindow
             fixedHeight = 100
         };
 
+        //help section
+        showHelp = EditorGUILayout.Foldout(showHelp, "Help & Instructions");
+        if (showHelp)
+        {
+            EditorGUILayout.HelpBox(
+                "fuck you there's no help here", MessageType.Info
+            );
+            GUILayout.Space(1);
+        }
+
+
 
         
-
         EditorGUILayout.LabelField("Sorter data", EditorStyles.boldLabel);
-        parentObject = (GameObject)EditorGUILayout.ObjectField("Parent Object", parentObject, typeof(GameObject), true);
 
+        EditorGUILayout.BeginHorizontal();
+
+        EditorGUIUtility.labelWidth = 100;
+        parentObject = (GameObject)EditorGUILayout.ObjectField("Parent Object", parentObject, typeof(GameObject), true, GUILayout.Width(150));
         EditorGUILayout.Space();
-        //EditorGUILayout.Space();
+
+        var button_style = new GUIStyle(GUI.skin.button)
+        {
+            hover = {
+                textColor = Color.red,
+            },
+
+            fontStyle = FontStyle.Bold
+        };
+
+
+        if (GUILayout.Button("CLEAR PARENT", button_style))
+        {
+            parentObject = null;
+        }
+
+        EditorGUIUtility.labelWidth = 100;
+
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Space();
 
         EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
         GUI.enabled = parentObject != null;
@@ -64,6 +99,10 @@ public class ChildAlphabeticalSorter : EditorWindow
         var content_down = new GUIContent(_buttonIconDown);
         var buttonWidth = GUILayout.Width(60);
         var buttonHeight = GUILayout.Height(60);
+
+
+
+
 
         EditorGUILayout.BeginHorizontal();
 
