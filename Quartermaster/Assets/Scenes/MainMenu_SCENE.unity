@@ -957,7 +957,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &58757387
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4523,7 +4523,7 @@ RectTransform:
   m_Father: {fileID: 1117763862}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.295, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -6353,15 +6353,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2214651842299323774, guid: 70aec5c8417023c46b813500f0ce3f65, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 452.00592
+      value: 439
       objectReference: {fileID: 0}
     - target: {fileID: 2214651842299323774, guid: 70aec5c8417023c46b813500f0ce3f65, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 126.99816
+      value: 123
       objectReference: {fileID: 0}
     - target: {fileID: 2214651842299323774, guid: 70aec5c8417023c46b813500f0ce3f65, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -212.0025
+      value: -217
       objectReference: {fileID: 0}
     - target: {fileID: 2214651842299323774, guid: 70aec5c8417023c46b813500f0ce3f65, type: 3}
       propertyPath: m_LocalRotation.w
@@ -8410,7 +8410,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '- blah'
+  m_text: '- The player is immune to the Grenade''s detonation.
+
+    - Most effective
+    when thrown into a large group of Attack Bots.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
   m_sharedMaterial: {fileID: 2164040, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
@@ -8723,7 +8726,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0.078
+  m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -8784,7 +8787,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: blah
+  m_text: The Heal Spec provides regenerative qualities that can help everyone on
+    the team. Keep you and your allies alive with this item.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8dac076914752d845aff8606e9673145, type: 2}
   m_sharedMaterial: {fileID: -6620277793620483413, guid: 8dac076914752d845aff8606e9673145, type: 2}
@@ -9179,15 +9183,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2214651842299323774, guid: 4517d0fd632c62a47894ae9d02b43138, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 413.0609
+      value: 392
       objectReference: {fileID: 0}
     - target: {fileID: 2214651842299323774, guid: 4517d0fd632c62a47894ae9d02b43138, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 121.01423
+      value: 123
       objectReference: {fileID: 0}
     - target: {fileID: 2214651842299323774, guid: 4517d0fd632c62a47894ae9d02b43138, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -267.98944
+      value: -286
       objectReference: {fileID: 0}
     - target: {fileID: 2214651842299323774, guid: 4517d0fd632c62a47894ae9d02b43138, type: 3}
       propertyPath: m_LocalRotation.w
@@ -11798,7 +11802,7 @@ RectTransform:
   m_Father: {fileID: 284694496}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.114, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -12374,7 +12378,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '- blah'
+  m_text: '- Increases base damage for all weapons when held in inventory.
+
+    -
+    Holding more of these in your inventory exponentially increases damage.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
   m_sharedMaterial: {fileID: 2164040, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
@@ -15827,10 +15834,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '- Fully Automatic making it strong against large groups of enemies
+  m_text: '- Fully Automatic making it strong against large groups of enemies.
 
     -
-    Use with the Damage Spec for boosted effectiveness'
+    Use with the Damage Spec for boosted effectiveness.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
   m_sharedMaterial: {fileID: 2164040, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
@@ -16369,7 +16376,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: blah
+  m_text: The Overclock Chip turbocharges your processors making you move swiftly
+    and shoot even faster. A great item to always keep on hand.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8dac076914752d845aff8606e9673145, type: 2}
   m_sharedMaterial: {fileID: -6620277793620483413, guid: 8dac076914752d845aff8606e9673145, type: 2}
@@ -16505,10 +16513,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '- AoE and slowing effect makes this a strong support weapon
+  m_text: '- AoE and slowing effect makes this a strong support weapon.
 
     - Most
-    effective with large swarms of enemies/faster enemies'
+    effective with large swarms of enemies/faster enemies.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
   m_sharedMaterial: {fileID: 2164040, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
@@ -17925,7 +17933,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: blah
+  m_text: 'Acting as a more compact EMP Blast, the Slow Trap will weaken the conduits
+    in all Attack Bots within its sphere, decreasing their speed by half. '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8dac076914752d845aff8606e9673145, type: 2}
   m_sharedMaterial: {fileID: -6620277793620483413, guid: 8dac076914752d845aff8606e9673145, type: 2}
@@ -18843,7 +18852,7 @@ RectTransform:
   m_Father: {fileID: 683853735}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.078, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -19655,7 +19664,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1022438141
 RectTransform:
   m_ObjectHideFlags: 0
@@ -22613,7 +22622,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '- blah'
+  m_text: '- You move 10% faster and shoot 2 times faster.
+
+    - Lasts for 7 seconds.
+
+    -
+    Very effective with every weapon.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
   m_sharedMaterial: {fileID: 2164040, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
@@ -23973,7 +23987,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: blah
+  m_text: The Damage Spec amplifies all tech within your weapons heavily increasing
+    their damage. A must have for taking down Attack Bots.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8dac076914752d845aff8606e9673145, type: 2}
   m_sharedMaterial: {fileID: -6620277793620483413, guid: 8dac076914752d845aff8606e9673145, type: 2}
@@ -25058,7 +25073,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: blah
+  m_text: Modeled after a stolen Boom Bot core, the Grenade packs a blast capable
+    of destroying a small swarm. The quick explosion can give you just enough time
+    to escape an onslaught.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8dac076914752d845aff8606e9673145, type: 2}
   m_sharedMaterial: {fileID: -6620277793620483413, guid: 8dac076914752d845aff8606e9673145, type: 2}
@@ -25442,7 +25459,7 @@ RectTransform:
   m_Father: {fileID: 930176620}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.13, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -26223,15 +26240,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2214651842299323774, guid: 71b297f5108d1b84197b3aa4db2f9ffb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 476.05695
+      value: 480
       objectReference: {fileID: 0}
     - target: {fileID: 2214651842299323774, guid: 71b297f5108d1b84197b3aa4db2f9ffb, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 131.33148
+      value: 118
       objectReference: {fileID: 0}
     - target: {fileID: 2214651842299323774, guid: 71b297f5108d1b84197b3aa4db2f9ffb, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -150.57986
+      value: -150
       objectReference: {fileID: 0}
     - target: {fileID: 2214651842299323774, guid: 71b297f5108d1b84197b3aa4db2f9ffb, type: 3}
       propertyPath: m_LocalRotation.w
@@ -26427,7 +26444,13 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '- blah'
+  m_text: '- Increases the Medkit''s base healing amount when held in inventory.
+
+    -
+    Can throw heals to teammates with ''Right Click''.
+
+    - Holding more of these
+    in your inventory exponentially increases the healing amount.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
   m_sharedMaterial: {fileID: 2164040, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
@@ -27361,7 +27384,13 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '- blah'
+  m_text: '- Strong support item that slows all Attack Bots.
+
+    - Effect stays
+    for quite awhile.
+
+    - Holding the throw button will extend the distance of
+    the throw.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
   m_sharedMaterial: {fileID: 2164040, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
@@ -27812,7 +27841,7 @@ RectTransform:
   m_Father: {fileID: 670281773}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.13, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -27911,7 +27940,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '- High DPS weapon
+  m_text: '- Very High DPS weapon.
 
     - Most effective at taking out stonger enemies
     and ranged enemies.
@@ -34408,7 +34437,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '- Heals '
+  m_text: '- Heals for 8% of your max health
+
+    - Can stack up to 50 in your inventory'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
   m_sharedMaterial: {fileID: 2164040, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
@@ -34435,8 +34466,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 32
+  m_fontSizeBase: 32
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -35071,27 +35102,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2214651842299323774, guid: 20539a68fc8b107439269a555fcc3a48, type: 3}
       propertyPath: m_LocalScale.x
-      value: 310.62823
+      value: 250.22348
       objectReference: {fileID: 0}
     - target: {fileID: 2214651842299323774, guid: 20539a68fc8b107439269a555fcc3a48, type: 3}
       propertyPath: m_LocalScale.y
-      value: 310.33795
+      value: 249.98964
       objectReference: {fileID: 0}
     - target: {fileID: 2214651842299323774, guid: 20539a68fc8b107439269a555fcc3a48, type: 3}
       propertyPath: m_LocalScale.z
-      value: 310.62823
+      value: 250.22348
       objectReference: {fileID: 0}
     - target: {fileID: 2214651842299323774, guid: 20539a68fc8b107439269a555fcc3a48, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 367
+      value: 365
       objectReference: {fileID: 0}
     - target: {fileID: 2214651842299323774, guid: 20539a68fc8b107439269a555fcc3a48, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 119.18422
+      value: 130
       objectReference: {fileID: 0}
     - target: {fileID: 2214651842299323774, guid: 20539a68fc8b107439269a555fcc3a48, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -334
+      value: -332
       objectReference: {fileID: 0}
     - target: {fileID: 2214651842299323774, guid: 20539a68fc8b107439269a555fcc3a48, type: 3}
       propertyPath: m_LocalRotation.w
@@ -37438,7 +37469,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0.125
+  m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
