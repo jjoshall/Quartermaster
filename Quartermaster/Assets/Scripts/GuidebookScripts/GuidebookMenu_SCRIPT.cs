@@ -44,8 +44,6 @@ public class GuidebookMenu_SCRIPT : MonoBehaviour
     [SerializeField] private GameObject damageSpecPage;
     [SerializeField] private Button turretBtn;
     [SerializeField] private GameObject turretPage;
-    [SerializeField] private Button batteryBtn;
-    [SerializeField] private GameObject batteryPage;
     private GameObject currentItemPage = null;
 
     public void ReturnToMainMenu() {
@@ -278,19 +276,6 @@ public class GuidebookMenu_SCRIPT : MonoBehaviour
         }
         turretPage.SetActive(true);
         currentItemPage = turretPage;
-    }
-
-    public void BatteryButton() {
-        if (batteryPage == null) {
-            Debug.LogError("Battery Page is not assigned.");
-            return;
-        }
-        if (currentItemPage == batteryPage) return;
-        if (currentItemPage != null) {
-            currentItemPage.SetActive(false);
-        }
-        batteryPage.SetActive(true);
-        currentItemPage = batteryPage;
     }
 
     #endregion
