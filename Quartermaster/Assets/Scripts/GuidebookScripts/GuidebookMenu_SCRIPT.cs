@@ -46,6 +46,13 @@ public class GuidebookMenu_SCRIPT : MonoBehaviour
     [SerializeField] private GameObject turretPage;
     private GameObject currentItemPage = null;
 
+    [Header("Objectives Section")]
+    [SerializeField] private Button nodeBtn;
+    [SerializeField] private GameObject nodePage;
+    [SerializeField] private Button deliveryBtn;
+    [SerializeField] private GameObject deliveryPage;
+    private GameObject currentObjectivePage = null;
+
     public void ReturnToMainMenu() {
         if (guidebookCanvas == null || mainMenuCanvas == null) {
             Debug.LogError("Tutorial or Main Menu canvas is not assigned.");
@@ -276,6 +283,36 @@ public class GuidebookMenu_SCRIPT : MonoBehaviour
         }
         turretPage.SetActive(true);
         currentItemPage = turretPage;
+    }
+
+    #endregion
+
+    #region Objectives
+
+    public void NodeButton() {
+        if (nodePage == null) {
+            Debug.LogError("Node Page is not assigned.");
+            return;
+        }
+        if (currentObjectivePage == nodePage) return;
+        if (currentObjectivePage != null) {
+            currentObjectivePage.SetActive(false);
+        }
+        nodePage.SetActive(true);
+        currentObjectivePage = nodePage;
+    }
+
+    public void DeliveryButton() {
+        if (deliveryPage == null) {
+            Debug.LogError("Delivery Page is not assigned.");
+            return;
+        }
+        if (currentObjectivePage == deliveryPage) return;
+        if (currentObjectivePage != null) {
+            currentObjectivePage.SetActive(false);
+        }
+        deliveryPage.SetActive(true);
+        currentObjectivePage = deliveryPage;
     }
 
     #endregion
