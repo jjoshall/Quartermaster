@@ -44,9 +44,14 @@ public class GuidebookMenu_SCRIPT : MonoBehaviour
     [SerializeField] private GameObject damageSpecPage;
     [SerializeField] private Button turretBtn;
     [SerializeField] private GameObject turretPage;
-    [SerializeField] private Button batteryBtn;
-    [SerializeField] private GameObject batteryPage;
     private GameObject currentItemPage = null;
+
+    [Header("Objectives Section")]
+    [SerializeField] private Button nodeBtn;
+    [SerializeField] private GameObject nodePage;
+    [SerializeField] private Button deliveryBtn;
+    [SerializeField] private GameObject deliveryPage;
+    private GameObject currentObjectivePage = null;
 
     public void ReturnToMainMenu() {
         if (guidebookCanvas == null || mainMenuCanvas == null) {
@@ -280,17 +285,34 @@ public class GuidebookMenu_SCRIPT : MonoBehaviour
         currentItemPage = turretPage;
     }
 
-    public void BatteryButton() {
-        if (batteryPage == null) {
-            Debug.LogError("Battery Page is not assigned.");
+    #endregion
+
+    #region Objectives
+
+    public void NodeButton() {
+        if (nodePage == null) {
+            Debug.LogError("Node Page is not assigned.");
             return;
         }
-        if (currentItemPage == batteryPage) return;
-        if (currentItemPage != null) {
-            currentItemPage.SetActive(false);
+        if (currentObjectivePage == nodePage) return;
+        if (currentObjectivePage != null) {
+            currentObjectivePage.SetActive(false);
         }
-        batteryPage.SetActive(true);
-        currentItemPage = batteryPage;
+        nodePage.SetActive(true);
+        currentObjectivePage = nodePage;
+    }
+
+    public void DeliveryButton() {
+        if (deliveryPage == null) {
+            Debug.LogError("Delivery Page is not assigned.");
+            return;
+        }
+        if (currentObjectivePage == deliveryPage) return;
+        if (currentObjectivePage != null) {
+            currentObjectivePage.SetActive(false);
+        }
+        deliveryPage.SetActive(true);
+        currentObjectivePage = deliveryPage;
     }
 
     #endregion
