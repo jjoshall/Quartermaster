@@ -81,7 +81,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 8651424075776
-    m_Localized: CONTROLS
+    m_Localized: BOT CODEX
     m_Metadata:
       m_Items: []
   - m_Id: 8699587268608
@@ -195,42 +195,39 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2157500829732864
-    m_Localized: 'Slow Trap. Places a trap. That slows. '
+    m_Localized: Slow Trap
     m_Metadata:
       m_Items: []
   - m_Id: 2160998199791616
-    m_Localized: Flamethrower. High DPS, low range. Only 1 PRIMARY can be held.
+    m_Localized: Flamethrower
     m_Metadata:
       m_Items: []
   - m_Id: 2161177661476864
-    m_Localized: Railgun. Pierces enemies, explodes on walls. Only 1 PRIMARY can
-      be held.
+    m_Localized: EMP Blaster
     m_Metadata:
       m_Items: []
   - m_Id: 2161237614858240
-    m_Localized: MedKit. Heals. What else would it do, doofus.
+    m_Localized: Medkit
     m_Metadata:
       m_Items: []
   - m_Id: 2161288131055616
-    m_Localized: Grenade. Consumable. Can hold left click to throw.
+    m_Localized: Grenade
     m_Metadata:
       m_Items: []
   - m_Id: 2161357114773504
-    m_Localized: Pistol. Fast-firing single target. Can be held with other weapons.
+    m_Localized: Pistol
     m_Metadata:
       m_Items: []
   - m_Id: 2161419958030336
-    m_Localized: The One Portal Key to rule them all. Use to store and retrieve items!
+    m_Localized: Quantam Storage Key
     m_Metadata:
       m_Items: []
   - m_Id: 2161509049241600
-    m_Localized: +HEAL Chip. +MedKit effectiveness. Allows throwing! Stacks. Only
-      one TYPE of chip can be held.
+    m_Localized: Heal Spec
     m_Metadata:
       m_Items: []
   - m_Id: 2161565546516480
-    m_Localized: +DMG Chip. DMG +10%. Stacks with itself. Only one TYPE of chip can
-      be held.
+    m_Localized: Damage Spec
     m_Metadata:
       m_Items: []
   - m_Id: 2161622303838208
@@ -263,6 +260,345 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 18517667348815872
     m_Localized: GAME OVER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27918311434092544
+    m_Localized: GUIDE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32644563546013696
+    m_Localized: CONTROLS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32645068624101376
+    m_Localized: LANGUAGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32645937327374336
+    m_Localized: BACK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32646846803476480
+    m_Localized: ITEMS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32647155424559104
+    m_Localized: OBJECTIVES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32647515337785344
+    m_Localized: Punch Bot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32647631968796672
+    m_Localized: Gun Bot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32647813150146560
+    m_Localized: Punch Bot MKII
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32647965772480512
+    m_Localized: Boom Bot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32648194517237760
+    m_Localized: Boom Bot MKII
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32733410120302592
+    m_Localized: The Punch Bot is the most common type of Attack Bot found in these
+      parts. By themselves, their metal hammerfists are far from the strongest, but
+      with a group, they are a force to be reckoned with.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32733851310751744
+    m_Localized: "- Punch Bots can only attack at very close ranges. \n- The Railgun
+      and Flamethrower are your best option to take out large swarms of them."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32734190969683968
+    m_Localized: ATTACK DAMAGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32734288587915264
+    m_Localized: HEALTH
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32734433018773504
+    m_Localized: SPEED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32736422385549312
+    m_Localized: '- Gun Bots keep their distance from you and attack from medium
+      to long distances.
+
+      - Kill them with the Pistol before you get within
+      their shooting range for optimal results.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32736509828399104
+    m_Localized: The Gun Bot uses its dual antigravity discs to zip around the city
+      looking to shoot whatever comes close to them. Beware when you see these deadly
+      rifles aiming at you.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32737465496371200
+    m_Localized: '- Boom Bots explode on death or after a 3-second timer.
+
+      -
+      They get 30% faster during their ticking sequence.
+
+      - Use the Pistol
+      to keep their blasts at a distance.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32737494265102336
+    m_Localized: The Boom Bot is among the most dangerous robots to be developed.
+      The combination of chasedown speed and explosive power makes these bots feared
+      by all.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32737522496962560
+    m_Localized: '- Attacks at very close ranges.
+
+      - It''s slow speed makes
+      it easy to run away, but not forever.
+
+      - Keep your distance and focus
+      fire on this bot with your team to ensure elimination.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32737599986728960
+    m_Localized: Punch MKII was made purely for the intimidation factor with its
+      immense size. The reinforced alloy it was developed with allows this bot to
+      withstand all firepower for quite a while.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32737634312912896
+    m_Localized: '- Possesses all qualities of the original Boom Bot.
+
+      - Hits
+      harder and moves faster.
+
+      - A combination of the Slowing Trap and a Pistol
+      can handle this challenging foe.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32737711592964096
+    m_Localized: Boom MKII has quickly devestated the remaining survivors of this
+      city. Built as a more compact and deadly successor to the Boom Bot, more tests
+      are being run to see just how efficient it can get.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32743237085167616
+    m_Localized: Overclock Chip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32743907553050624
+    m_Localized: Turret
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32746172070363136
+    m_Localized: '- Use the QSK to drop and store extra items you can''t fit in your
+      inventory.
+
+      - This can be used anywhere in the map.
+
+      - Teammates
+      in your vicinity can also be teleported.
+
+      - This area can be used as
+      a resting place if needed.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32746208044908544
+    m_Localized: The QSK is the most essential item needed to survive this city.
+      This advanced teleporting tech provides extra storage space and safe place
+      to catch a breath in a blink of an eye.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32746476480364544
+    m_Localized: WEIGHT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32746493106585600
+    m_Localized: COOLDOWN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32746515416088576
+    m_Localized: DAMAGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32747490474328064
+    m_Localized: This Pistol was created with elite Attack Bots in mind with the
+      high damage output. Always make sure to one teammate carries one to deal with
+      the stronger bots at a range.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32747522120351744
+    m_Localized: '- Very High DPS weapon.
+
+      - Most effective at taking out stonger
+      enemies and ranged enemies.
+
+      - Use with the Overclock Chip to turn this
+      automatic.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32747616903233536
+    m_Localized: The EMP Blaster creates an overcharge of the Attack Bot circuitry
+      effectively slowing them down in the process. This weapon will be the best
+      friend of any support player.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32747635685326848
+    m_Localized: '- AoE and slowing effect makes this a strong support weapon.
+
+      -
+      Most effective with large swarms of enemies/faster enemies.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32747672058331136
+    m_Localized: The Flamethrower ignites any Attack Bot within range. The low cooldown
+      allows for constant offensive pressure when getting overwhelmed by swarms.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32747688772632576
+    m_Localized: '- Fully Automatic making it strong against large groups of enemies.
+
+      -
+      Use with the Damage Spec for boosted effectiveness.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32747735723671552
+    m_Localized: '- Heals for 8% of your max health
+
+      - Can stack up to 50 in
+      your inventory'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32747707043020800
+    m_Localized: The Medkit restores your health systems helping you get back into
+      the fight as soon as possible. Make sure to stack up on these before you get
+      in a pinch.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32747753247473664
+    m_Localized: Modeled after a stolen Boom Bot core, the Grenade packs a blast
+      capable of destroying a small swarm. The quick explosion can give you just
+      enough time to escape an onslaught.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32747775619891200
+    m_Localized: '- The player is immune to the Grenade''s detonation.
+
+      - Most
+      effective when thrown into a large group of Attack Bots.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32747870859952128
+    m_Localized: '- Strong support item that slows all Attack Bots.
+
+      - Effect
+      stays for quite awhile.
+
+      - Holding the throw button will extend the distance
+      of the throw.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32747853847855104
+    m_Localized: 'Acting as a more compact EMP Blast, the Slow Trap will weaken the
+      conduits in all Attack Bots within its sphere, decreasing their speed by half. '
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32747907274899456
+    m_Localized: '- You move 10% faster and shoot 2 times faster.
+
+      - Lasts
+      for 7 seconds.
+
+      - Very effective with every weapon.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32747891156189184
+    m_Localized: The Overclock Chip turbocharges your processors making you move
+      swiftly and shoot even faster. A great item to always keep on hand.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32748007673954304
+    m_Localized: '- Increases the Medkit''s base healing amount when held in inventory.
+
+      -
+      Can throw heals to teammates with ''Right Click''.
+
+      - Holding more of
+      these in your inventory exponentially increases the healing amount.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32747935167021056
+    m_Localized: The Heal Spec provides regenerative qualities that can help everyone
+      on the team. Keep you and your allies alive with this item.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32748024992235520
+    m_Localized: '- Increases base damage for all weapons when held in inventory.
+
+      -
+      Holding more of these in your inventory exponentially increases damage.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32747971242229760
+    m_Localized: The Damage Spec amplifies all tech within your weapons heavily increasing
+      their damage. A must have for taking down Attack Bots.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32755014254592000
+    m_Localized: Node Defense
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32755034924122112
+    m_Localized: Item Delivery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32755559413448704
+    m_Localized: LOCATE DEFENSE NODE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32755696542023680
+    m_Localized: Search the city for the bright beam to find the node.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32755576035475456
+    m_Localized: DEFEND AND SURVIVE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32755733418344448
+    m_Localized: Stay alive in the circle for 30 seconds to complete.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32757900715884544
+    m_Localized: COLLECT PACKAGES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32757939748077568
+    m_Localized: Find and pick up packages dropped by Attack Bots.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32757970186141696
+    m_Localized: LOCATE MAILBOX
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32757991602257920
+    m_Localized: Search the city for the bright beam to find the mailbox.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32758010157858816
+    m_Localized: DEPOSIT PACKAGES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32758027958484992
+    m_Localized: Drop the packages near the mailbox until the team reaches the quota.
     m_Metadata:
       m_Items: []
   references:
