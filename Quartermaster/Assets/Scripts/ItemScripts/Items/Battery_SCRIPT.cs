@@ -63,6 +63,15 @@ public class Battery : Item
         SetChargingStatusServerRpc(false);
     }
 
+    public override void OnAltUse(GameObject user){
+        base.OnAltUse(user);
+        if (_batteryChargerDetector._inRangeOfTurret){
+            _batteryChargerDetector._turretInRange.GetComponent<TurretController_SCRIPT>().ExtendTurretLifetime(5f);
+            // reduce battery charge
+            // _currentCharge -= 10f;       // do this differently?
+        }
+    }
+
     public override void OnSwapOut(GameObject user)
     {
         base.OnSwapOut(user);

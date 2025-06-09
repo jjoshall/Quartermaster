@@ -4,6 +4,7 @@ using Unity.Netcode;
 using UnityEngine;
 using System.Threading.Tasks;
 using Unity.BossRoom.Infrastructure;
+using UnityEngine.Events;
 using System.Linq;    // Add this for network object pooling
 using TMPro;        // Add this for TextMeshPro
 using UnityEngine.Events;
@@ -40,6 +41,7 @@ public class EnemySpawner : NetworkBehaviour {
     private int _floatingTextCooldownCount = 0;
     private float _floatingTextLastSpawned = 0f;
     private float _floatingTextCooldown = 0.5f;
+    public UnityAction<NetworkObject> OnEnemyDespawn;
 
     // static 
     public static EnemySpawner instance;
@@ -351,7 +353,10 @@ public class EnemySpawner : NetworkBehaviour {
             BaseEnemyClass_SCRIPT enemyScript = networkObject.GetComponent<BaseEnemyClass_SCRIPT>();
             GameObject originalPrefab = enemyScript.originalPrefab;
 
-            // Despawn from network first
+            // Fire enemyDespawning Event for entities that need to know if an Enemy is destroyed
+            // Currently used by Turret, as it contains a list of Network Objects as valid targets
+            OnEnemyDespawn?.Invoke(networkObject);
+            // Despawn from network
             networkObject.Despawn();
 
             // Return to pool

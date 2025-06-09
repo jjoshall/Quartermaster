@@ -14,6 +14,7 @@ public abstract class Item : NetworkBehaviour
     [Tooltip("Causes item drop on picking up unique class spec")] public bool IsClassSpec = false;
     [Tooltip("Enables repeated use on holding left click")] public bool CanAutoFire = false;
     [Tooltip("Use cooldown")] public float cooldown = 0f;
+    [Tooltip("Turret use cooldown")] public float turretCooldown = 0.25f;
     [Tooltip("Max stack size")] public int StackLimit = 1;
     [Tooltip("Weight per unit of item")] public float weight = 0.0f;
     [Tooltip("Current stack quantity, also modified during runtime")] public int quantity = 1;
@@ -283,6 +284,16 @@ public abstract class Item : NetworkBehaviour
             return true;
         }
         return false;
+    }
+
+    public float GetLastUsedTurret(GameObject turret){
+        return turret.GetComponent<TurretController_SCRIPT>()._timeLastUsed;
+    }
+
+    public void SetLastUsedTurret(GameObject turret, float time){
+        // set turret's last used to time
+        TurretController_SCRIPT tc = turret.GetComponent<TurretController_SCRIPT>();
+        tc._timeLastUsed = time;
     }
 
 

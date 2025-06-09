@@ -196,8 +196,12 @@ public class Pistol_MONO : Item
     public override void TurretItemLoopBehavior(GameObject turret, float lastUsed)
     {
         if (TurretNullChecksFailed(turret)) return;
-        if (TurretCooldownCheckFailed(lastUsed)) return;
+        //if (TurretCooldownCheckFailed(lastUsed)) return;
 
+        if (GetLastUsedTurret(turret) + turretCooldown > Time.time){
+            return;
+        }
+        SetLastUsedTurret(turret, Time.time);
         TurretFire(turret);
 
     }
@@ -205,12 +209,19 @@ public class Pistol_MONO : Item
     private void TurretFire(GameObject turret)
     {
         PlaySoundEmitter("pistol_shot");
+        TurretController_SCRIPT tc = turret.GetComponent<TurretController_SCRIPT>();
+        if (tc == null){
+            Debug.LogError("Pistol: Turret Controller not found");
+            return;
+        }
 
-        GameObject turretPointer = turret;  // replace this with whatever object is actually aligned with the turret's targeting
+        // this should also be shot origin?
+        GameObject turretPointer = tc.BulletSpawnPoint.gameObject;  // replace this with whatever object is actually aligned with the turret's targeting
 
-        int enemyLayer = LayerMask.GetMask("Enemy");
+        int enemyLayer = LayerMask.GetMask(tc._TargetTag);
         int buildingLayer = LayerMask.GetMask("Building");
-        int combinedLayerMask = enemyLayer | buildingLayer;
+        //int combinedLayerMask = enemyLayer | buildingLayer;
+        int combinedLayerMask = tc.BulletLayerMask;
 
         //Debug.DrawRay(camera.transform.position, camera.transform.forward * 100, Color.yellow, 2f);
         if (Physics.Raycast(turretPointer.transform.position, turretPointer.transform.forward, out RaycastHit hit, _maxRange, combinedLayerMask, QueryTriggerInteraction.Ignore))
@@ -251,13 +262,13 @@ public class Pistol_MONO : Item
 
             // Loop through parents in case enemies have child objs blocking raycast.
             Transform enemyRootObj = hit.transform;
-            while (enemyRootObj.parent != null && !enemyRootObj.CompareTag("Enemy"))
+            while (enemyRootObj.parent != null && !enemyRootObj.CompareTag(tc._TargetTag))
             {
                 enemyRootObj = enemyRootObj.parent;
                 //Debug.Log("Enemy that was hit: " + enemyRootObj.name);
             }
 
-            if (enemyRootObj.CompareTag("Enemy"))
+            if (enemyRootObj.CompareTag(tc._TargetTag))
             {
                 // get the rotation based on surface normal of the hit on the enemy
                 Vector3 hitNormal = hit.normal;
