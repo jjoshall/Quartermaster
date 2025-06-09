@@ -32,6 +32,10 @@ public class DefendNodeObjective : IObjective
     private float _currentDefenseTimer = 0f;
     private List<GameObject> _playersInRange = new List<GameObject>();
 
+    [SerializeField] private GameObject _turretItemPrefab;
+    [SerializeField] private List<GameObject> _turretItemsSpawned = new List<GameObject>();
+    
+
     // STRETCH GOAL: Additional node defense constraints.
     //               - Keep track of player. Each player has to contribute to the inRange condition.
     //               - 
@@ -39,7 +43,7 @@ public class DefendNodeObjective : IObjective
     // private float _particleTimer = 0f;
     // private float _particleInterval = 2.0f;
 
-    #endregion 
+    #endregion
 
 
 
