@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.BossRoom.Infrastructure;
+using UnityEngine.Events;
 
 public class TurretItem_MONO : Item
 {
@@ -22,6 +23,18 @@ public class TurretItem_MONO : Item
     [SerializeField] private Color _invalidColor;           // assign in editor
     #endregion
     private NetworkObjectPool _objectPool;
+    
+    private UnityEvent _onNodeDefenseDeactivated;
+
+    public void InitEvent(UnityEvent nodeDeactivate)
+    {
+        if (nodeDeactivate == null)
+        {
+            Debug.LogError("TurretItem_MONO: InitEvent() nodeDeactivate is null.");
+            return;
+        }
+        _onNodeDefenseDeactivated = nodeDeactivate;
+    }
 
     public override void OnPickUp(GameObject user)
     {
@@ -29,7 +42,8 @@ public class TurretItem_MONO : Item
         _previewGameObject = Instantiate(_previewGameObjectPrefab, user.transform.position, user.transform.rotation);
         _previewGameObject.SetActive(false);
         _objectPool = NetworkObjectPool.Singleton;
-        if (_objectPool == null) {
+        if (_objectPool == null)
+        {
             Debug.LogError("NetworkObjectPool not found.");
             return;
         }
@@ -142,7 +156,8 @@ public class TurretItem_MONO : Item
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SpawnTurretServerRPC(){
+    private void SpawnTurretServerRPC()
+    {
         /* This part tried to grab the turret from the object pool, not as a serverRPC
         NetworkObject networkTurret = _objectPool.GetNetworkObject(
             _turretObjectPrefab,
@@ -156,6 +171,8 @@ public class TurretItem_MONO : Item
         networkTurret.Spawn(true);*/
         GameObject newTurret = Instantiate(_turretObjectPrefab, _previewGameObject.transform.position, Quaternion.identity);
         newTurret.GetComponent<NetworkObject>().Spawn(true);
+        
+        newTurret.GetComponent<TurretController_SCRIPT>().InitDeactivateEventSubscription(_onNodeDefenseDeactivated);
     }
     private bool NullChecks(GameObject user){
         if (user == null) {

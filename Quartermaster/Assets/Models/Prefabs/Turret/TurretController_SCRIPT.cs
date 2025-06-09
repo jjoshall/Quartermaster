@@ -3,6 +3,7 @@ using Unity.Netcode;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using System.Collections;
+using UnityEngine.Events;
 
 
 [RequireComponent(typeof(SphereCollider))]
@@ -38,24 +39,65 @@ public class TurretController_SCRIPT : NetworkBehaviour
     private Item _weapon;
 
 
-    public override void OnNetworkSpawn() {
+    public void InitDeactivateEventSubscription(UnityEvent deactivateEvent)
+    {
+        if (deactivateEvent == null)
+        {
+            Debug.LogError("TurretController: InitDeactivateEventSubscription() deactivateEvent is null.");
+            return;
+        }
+        deactivateEvent.AddListener(CleanSelf);
+    }
+
+    private void CleanSelf()
+    {
+        //despawn self
+        DespawnServerRpc();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void DespawnServerRpc()
+    {
+        if (!IsServer) return;
+        Debug.Log("TurretController: DespawnServerRpc called");
+        enemySpawner.OnEnemyDespawn -= OnEnemyDespawn;
+        _InRange.Clear();
+        target = null;
+        if (RotateCoroutine != null)
+        {
+            StopCoroutine(RotateCoroutine);
+            RotateCoroutine = null;
+        }
+        if (LifetimeCoroutine != null)
+        {
+            StopCoroutine(LifetimeCoroutine);
+            LifetimeCoroutine = null;
+        }
+        NetworkObject.Despawn();
+    }
+
+    public override void OnNetworkSpawn()
+    {
         if (!IsServer) return;
         Debug.Log("turret spawned in network");
         enemySpawner = EnemySpawner.instance;
-        if (!enemySpawner){
+        if (!enemySpawner)
+        {
             Debug.LogError("EnemySpawner singleton not found!");
         }
         enemySpawner.OnEnemyDespawn += OnEnemyDespawn;
 
-        if (!StemPivot){
+        if (!StemPivot)
+        {
             Debug.LogError("Turret: Stem Pivot not assigned");
         }
-        if (!NozzlePivot){
+        if (!NozzlePivot)
+        {
             Debug.LogError("Turret: Nozzle Pivot not assigned");
         }
 
         _InRange = new List<NetworkObject>();
-        BulletLayerMask = LayerMask.GetMask(_TargetTag,"Building");
+        BulletLayerMask = LayerMask.GetMask(_TargetTag, "Building");
 
         Vector3 worldDistance = BulletSpawnPoint.position - transform.position;
         worldDistance.y = 0;
@@ -65,15 +107,18 @@ public class TurretController_SCRIPT : NetworkBehaviour
         //_items.Clear();
         //_weapon = gameObject.AddComponent(typeof(Pistol_MONO)) as Pistol_MONO;
         _weapon = GetComponent<Pistol_MONO>();
-        if (!_weapon){
+        if (!_weapon)
+        {
             Debug.LogError("Turret: Pistol not detected!");
         }
 
         // register enemies that are already inside detection radius when turret spawns
         // layer name and tag name are same for enemies so reusing _TargetTag is fine
         Collider[] targets = Physics.OverlapSphere(transform.position, GetComponent<SphereCollider>().radius, LayerMask.GetMask(_TargetTag));
-        foreach (Collider potentialTarget in targets){
-            if (potentialTarget.CompareTag(_TargetTag) && potentialTarget.TryGetComponent(out NetworkObject netobj)){
+        foreach (Collider potentialTarget in targets)
+        {
+            if (potentialTarget.CompareTag(_TargetTag) && potentialTarget.TryGetComponent(out NetworkObject netobj))
+            {
                 AddUnique(netobj);
             }
         }

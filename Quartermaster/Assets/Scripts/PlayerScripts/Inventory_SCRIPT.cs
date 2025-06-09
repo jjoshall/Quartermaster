@@ -242,18 +242,25 @@ public class Inventory : NetworkBehaviour {
         UpdateAllInventoryUI();
     }
 
-    void QuantityCheck(){
-        if (_inventoryMono[_currentInventoryIndex].GetComponent<Item>().quantity <= 0) {
-            Debug.Log ("Inventory: QuantityCheck() - Item quantity is 0. Despawning item");
-            // despawn network item 
-            NetworkObject n_item = _inventoryMono[_currentInventoryIndex].GetComponent<NetworkObject>();
-            if (n_item != null) {
-                DespawnItemServerRpc(n_item);
-            } else {
-                Debug.LogError("Inventory: QuantityCheck() - Item is null.");
+    public void QuantityCheck(){
+        for (int i = 0; i < _inventoryMono.Length; i++)
+        {
+            if (_inventoryMono[i].GetComponent<Item>().quantity <= 0)
+            {
+                Debug.Log("Inventory: QuantityCheck() - Item quantity is 0. Despawning item");
+                // despawn network item 
+                NetworkObject n_item = _inventoryMono[i].GetComponent<NetworkObject>();
+                if (n_item != null)
+                {
+                    DespawnItemServerRpc(n_item);
+                }
+                else
+                {
+                    Debug.LogError("Inventory: QuantityCheck() - Item is null.");
+                }
+                _inventoryMono[i] = null;
+                _currentHeldItems--;
             }
-            _inventoryMono[_currentInventoryIndex] = null;
-            _currentHeldItems--;
         }
     }
 
