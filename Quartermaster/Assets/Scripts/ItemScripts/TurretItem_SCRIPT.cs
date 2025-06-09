@@ -35,38 +35,47 @@ public class TurretItem_MONO : Item
         }
 
     }
+
     public override void OnButtonHeld(GameObject user)
     {
         //base.OnButtonUse(user);
         /*
         spawn preview that can change colors based on validity of placement
         */
-        if (NullChecks(user)){
+        if (NullChecks(user))
+        {
             Debug.LogError("TurretItem_MONO: Button hold failed");
             return;
         }
         //Debug.Log("TurretItem_MONO: turret holding");
-        if (_userCamera == null){
+        if (_userCamera == null)
+        {
             _userCamera = user.transform.Find("Camera").gameObject;
         }
-        if (Physics.Raycast(_userCamera.transform.position, _userCamera.transform.forward, out RaycastHit hit, _previewDistance, LayerMask.GetMask("whatIsGround"))){
+        if (Physics.Raycast(_userCamera.transform.position, _userCamera.transform.forward, out RaycastHit hit, _previewDistance, LayerMask.GetMask("whatIsGround")))
+        {
             _currentPlacementPosition = hit.point;
             Quaternion rotation = Quaternion.Euler(0f, _userCamera.transform.eulerAngles.y, 0f);
             _previewGameObject.SetActive(true);
             _previewGameObject.transform.position = _currentPlacementPosition;
             _previewGameObject.transform.rotation = rotation;
             _previewIsActive = true;
-            
+
             //modify color based on if placeable
             _previewIsValid = _previewGameObject.GetComponent<TurretPreviewValidation>().IsValid;
-            if (_previewIsValid){
+            if (_previewIsValid)
+            {
                 // make color valid
                 _previewMaterial.color = _validColor;
-            }else{
+            }
+            else
+            {
                 // make color invalid
                 _previewMaterial.color = _invalidColor;
             }
-        }else{
+        }
+        else
+        {
             RemovePreview();
         }
     }
@@ -126,9 +135,10 @@ public class TurretItem_MONO : Item
     }
 
     private void RemovePreview(){
+        _previewGameObject.GetComponent<TurretPreviewValidation>().ResetValidation();
         _previewGameObject.SetActive(false);
         _previewIsActive = false;
-        _previewIsValid = false;
+        _previewIsValid = true;
     }
 
     [ServerRpc(RequireOwnership = false)]
