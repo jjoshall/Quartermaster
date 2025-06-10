@@ -275,6 +275,8 @@ GameObject:
   - component: {fileID: 4017880992523904337}
   - component: {fileID: 8040091630801542255}
   - component: {fileID: -8023752636163863637}
+  - component: {fileID: 6443635065045707803}
+  - component: {fileID: 6785961180906223713}
   m_Layer: 6
   m_Name: SlowTrap_PREFAB
   m_TagString: Item
@@ -455,19 +457,28 @@ MonoBehaviour:
   IsClassSpec: 0
   CanAutoFire: 0
   cooldown: 1
+  turretCooldown: 0.25
   StackLimit: 3
   weight: 0
   quantity: 1
   icon: {fileID: 2800000, guid: 2263076bda62b18478952a7bcc0644d1, type: 3}
   soundEmitters: []
-  IsPickedUp: 0
-  attachedWeaponSlot: {fileID: 0}
+  IsAutolootable: 0
   userRef: {fileID: 0}
+  IsPickedUp: 0
+  n_isPickedUp:
+    m_InternalValue: 0
+  n_isCurrentlySelected:
+    m_InternalValue: 0
+  attachedWeaponSlot: {fileID: 0}
+  n_syncedQuantity:
+    m_InternalValue: 1
   _SlowTrapBaseVelocity: 5
   _SlowTrapMaxVelocity: 10
   _SlowTrapMaxChargeTime: 0.5
   _SlowTrapScale: 5
   _SlowTrapSlowAmount: 0.5
+  _SlowTrapExpireTime: 10
 --- !u!114 &-8023752636163863637
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -485,3 +496,83 @@ MonoBehaviour:
     lasts a moderate amount of time.
   headerFontSize: 30
   bodyFontSize: 18
+--- !u!114 &6443635065045707803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8519617277999394602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56eb0353ae6e5124bb35b17aff880f16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_StringReference:
+    m_TableReference:
+      m_TableCollectionName: GUID:1d91ff0c2c24ec9428d1aca7faa073e1
+    m_TableEntryReference:
+      m_KeyId: 32915265394311168
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  m_FormatArguments: []
+  m_UpdateString:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: -8023752636163863637}
+        m_TargetAssemblyTypeName: AnimatedTooltippable, Assembly-CSharp
+        m_MethodName: UpdateTooltipHeader
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &6785961180906223713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8519617277999394602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56eb0353ae6e5124bb35b17aff880f16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_StringReference:
+    m_TableReference:
+      m_TableCollectionName: GUID:1d91ff0c2c24ec9428d1aca7faa073e1
+    m_TableEntryReference:
+      m_KeyId: 32915241449029632
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  m_FormatArguments: []
+  m_UpdateString:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: -8023752636163863637}
+        m_TargetAssemblyTypeName: AnimatedTooltippable, Assembly-CSharp
+        m_MethodName: UpdateTooltipBody
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  references:
+    version: 2
+    RefIds: []

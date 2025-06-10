@@ -48,6 +48,8 @@ GameObject:
   - component: {fileID: 3771922141467902033}
   - component: {fileID: -3167123653091355442}
   - component: {fileID: -846577308615417839}
+  - component: {fileID: 9218374628587608287}
+  - component: {fileID: -4270415618781732037}
   m_Layer: 6
   m_Name: Railgun_PICKUP
   m_TagString: Item
@@ -264,6 +266,7 @@ MonoBehaviour:
   IsClassSpec: 0
   CanAutoFire: 0
   cooldown: 0.3
+  turretCooldown: 0.25
   StackLimit: 1
   weight: 0
   quantity: 1
@@ -305,6 +308,86 @@ MonoBehaviour:
   tooltipBodyText: Tap LCLICK to fire. Does minimal damage, but slows enemies significantly.
   headerFontSize: 30
   bodyFontSize: 18
+--- !u!114 &9218374628587608287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6213748935702998764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56eb0353ae6e5124bb35b17aff880f16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_StringReference:
+    m_TableReference:
+      m_TableCollectionName: GUID:1d91ff0c2c24ec9428d1aca7faa073e1
+    m_TableEntryReference:
+      m_KeyId: 32914837353005056
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  m_FormatArguments: []
+  m_UpdateString:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: -846577308615417839}
+        m_TargetAssemblyTypeName: AnimatedTooltippable, Assembly-CSharp
+        m_MethodName: UpdateTooltipHeader
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &-4270415618781732037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6213748935702998764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56eb0353ae6e5124bb35b17aff880f16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_StringReference:
+    m_TableReference:
+      m_TableCollectionName: GUID:1d91ff0c2c24ec9428d1aca7faa073e1
+    m_TableEntryReference:
+      m_KeyId: 32914818994536448
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  m_FormatArguments: []
+  m_UpdateString:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: -846577308615417839}
+        m_TargetAssemblyTypeName: AnimatedTooltippable, Assembly-CSharp
+        m_MethodName: UpdateTooltipBody
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  references:
+    version: 2
+    RefIds: []
 --- !u!1001 &8267966065220538142
 PrefabInstance:
   m_ObjectHideFlags: 0
