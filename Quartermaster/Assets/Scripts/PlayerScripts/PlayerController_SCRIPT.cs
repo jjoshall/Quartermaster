@@ -4,11 +4,7 @@ using Unity.Services.Analytics;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using System;
-using UnityEngine.Localization.SmartFormat.Utilities;
-using Unity.VisualScripting;
 using System.Collections.Generic;
-using UnityEngine.Analytics;
 using System.Collections;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler), typeof(Health))]
@@ -105,10 +101,37 @@ public class PlayerController : NetworkBehaviour
     public bool movementRestricted = true;
     private bool noNetworkInitialization = false;
 
+    [SerializeField] private GameObject _grayScaleVolumeChildObj; 
+
     #region Dev Functions
+    private void TempButtons()
+    {
+        if (Input.GetKeyDown(KeyCode.RightBracket))
+        {
+            SpawnDevController();
+        }
+        if (Input.GetKeyDown(KeyCode.LeftBracket))
+        {
+            ToggleGrayScale();
+        }
+    }
+    private void ToggleGrayScale()
+    {
+        if (_grayScaleVolumeChildObj != null)
+        {
+            _grayScaleVolumeChildObj.SetActive(!_grayScaleVolumeChildObj.activeSelf);
+            Debug.Log("Toggled Grayscale Effect");
+        }
+        else
+        {
+            Debug.LogError("GrayScale Volume Child Object is not assigned.");
+        }
+    }
+
     private void SpawnDevController()
     {
         if (!IsOwner) return;
+        Debug.Log("spawndevcontroller");
         if (_devReference == null)
         {
             _devReference = Instantiate(_devPrefab, this.gameObject.transform.position, this.gameObject.transform.rotation);
@@ -320,10 +343,7 @@ public class PlayerController : NetworkBehaviour
 
         if (stateMachine != null) { stateMachine.Update(); }
 
-        // getkeydown ] to spawn dev controller
-        //if (Input.GetKeyDown(KeyCode.RightBracket)){
-        //    SpawnDevController();
-        //}
+        TempButtons();
     }
 
     void FixedUpdate()

@@ -275,38 +275,42 @@ public class EnemySpawner : NetworkBehaviour {
     //    if (!IsServer) return;
     //    SpawnEnemyPackAtRandomPoint(count, position, spread);
     //}
-    //public void SpawnEnemyPack(int count, Vector3 position, float spread = 2f) {
-    //    if (!IsServer) return;
 
-    //    for (int i = 0; i < count; i++) {
-    //        // Add slight randomization to position so enemies don't stack
-    //        Vector3 randomOffset = new Vector3(
-    //            Random.Range(-spread, spread),
-    //            0f,
-    //            Random.Range(-spread, spread)
-    //        );
+    [ServerRpc(RequireOwnership = false)]
+    public void SpawnEnemyPackServerRpc(int count, Vector3 position, float spread = 2f) {
+        if (!IsServer) return;
+        for (int i = 0; i < count; i++)
+        {
+            // Get a random enemy prefab from the pool
+            GameObject enemyPrefab = GetWeightedRandomInactivePrefab();
+            if (enemyPrefab == null) continue; // No available enemies in pool.
 
-    //        Vector3 spawnPosition = position + randomOffset;
-    //        spawnPosition.y = 5f; // Same height as your other spawns
+            // Calculate spawn position with spread
+            Vector3 spawnPosition = position + new Vector3(
+                Random.Range(-spread, spread),
+                0f, // Y is fixed for simplicity
+                Random.Range(-spread, spread)
+            );
 
-    //        Transform enemyPrefab = GetWeightedRandomEnemyPrefab();
-    //        if (enemyPrefab != null)
-    //        {
-    //            Transform enemyTransform = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
-    //            enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemySpawner = this;
-    //            enemyTransform.GetComponent<BaseEnemyClass_SCRIPT>().enemyType = GetEnemyType(enemyPrefab);
-    //            enemyTransform.GetComponent<NetworkObject>().Spawn(true);
-    //            enemyList.Add(enemyTransform);
-    //            enemyTransform.SetParent(this.gameObject.transform);
-    //        }
-    //    }
-    //}
+            // Just get any object from the object pool
+            NetworkObject networkObject = _objectPool.GetNetworkObject(
+                enemyPrefab,
+                spawnPosition,
+                Quaternion.identity
+            );
 
-    //[ServerRpc(RequireOwnership = false)]
-    //public void SpawnEnemyPackServerRpc(int count, Vector3 position, float spread = 2f) {
-    //    if (!IsServer) return;
-    //    SpawnEnemyPack(count, position, spread);
-    //}
+            if (networkObject.IsSpawned) {
+                Debug.LogWarning($"Tried to spawn {networkObject.name} but it is already spawned.");
+                continue;
+            }
+
+            // Spawn on network
+            networkObject.Spawn(true);
+
+            // Make sure enemy uses enemy spawner instance
+            BaseEnemyClass_SCRIPT enemyScript = networkObject.GetComponent<BaseEnemyClass_SCRIPT>();
+        }
+    }
 
     #endregion
 

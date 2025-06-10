@@ -52,13 +52,13 @@ public class DevController : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        //MouseCameraMovement();
-        //WASD(); // checks wasd hold for movement.
-        //ItemSpawn(); // checks 123456qert keydown for item spawn at raycast.
-        ////EnemySpawn();
-        //Sprint();
-        //ReturnToBeingPlayer();
-        //IncreaseDecreaseSpeed();
+        MouseCameraMovement();
+        WASD(); // checks wasd hold for movement.
+        ItemSpawn(); // checks 123456qert keydown for item spawn at raycast.
+        EnemySpawn();
+        Sprint();
+        ReturnToBeingPlayer();
+        IncreaseDecreaseSpeed();
 
     }
 
@@ -91,17 +91,21 @@ public class DevController : NetworkBehaviour
         
     }
 
-    //private void EnemySpawn(){
-    //    if (Input.GetKeyDown(KeyCode.G)){
-    //        Vector3 spawnPosition = RaycastGround();
+    private void EnemySpawn(){
+       if (Input.GetKeyDown(KeyCode.G)){
+           Vector3 spawnPosition = RaycastGround();
 
-    //        if (spawnPosition != Vector3.zero) {
-    //            if (enemySpawner != null) {
-    //                enemySpawner.SpawnEnemyPackAtRandomPointServerRpc(packSize, spawnPosition, enemySpread);
-    //            }
-    //        }
-    //    }
-    //}
+           if (spawnPosition != Vector3.zero) {
+               if (enemySpawner != null) {
+                   enemySpawner.SpawnEnemyPackServerRpc(
+                       10,
+                       spawnPosition,
+                       2f
+                   );
+               }
+           }
+       }
+    }
 
     private void Sprint(){
         if (Input.GetKeyDown(KeyCode.LeftShift)){
