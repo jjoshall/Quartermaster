@@ -138,11 +138,11 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.38
-  m_Speed: 6
-  m_Acceleration: 4
+  m_Speed: 10
+  m_Acceleration: 5
   avoidancePriority: 50
   m_AngularSpeed: 800
-  m_StoppingDistance: 5
+  m_StoppingDistance: 3
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
@@ -204,8 +204,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   originalPrefab: {fileID: 0}
   enemySpawner: {fileID: 0}
-  _localDetectionRange: 20
-  _aggroPropagationRange: 20
+  _localDetectionRange: 50
+  _aggroPropagationRange: 5
   _useSeparation: 1
   _maxNeighbors: 3
   _separationRadius: 4

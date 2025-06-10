@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using Unity.Netcode;
+using UnityEngine.Events;
 
 public class DefendNodeObjective : IObjective
 {
@@ -32,9 +33,12 @@ public class DefendNodeObjective : IObjective
     private float _currentDefenseTimer = 0f;
     private List<GameObject> _playersInRange = new List<GameObject>();
 
-    [SerializeField] private GameObject _turretItemPrefab;
-    [SerializeField] private List<GameObject> _turretItemsSpawned = new List<GameObject>();
-    
+    [SerializeField]
+    private GameObject _turretItemPrefab;
+    private List<GameObject> _turretItemsSpawned = new List<GameObject>();
+
+    // create a Unity event for when the node defense is completed or deactivated 
+    [HideInInspector] public UnityEvent onNodeDefenseDeactivated = new UnityEvent();
 
     // STRETCH GOAL: Additional node defense constraints.
     //               - Keep track of player. Each player has to contribute to the inRange condition.
@@ -127,24 +131,64 @@ public class DefendNodeObjective : IObjective
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SetDefenseCompletedServerRpc(bool completed){
+    public void SetDefenseCompletedServerRpc(bool completed)
+    {
         n_defenseCompleted.Value = completed;
         NodeZoneTextHelper(false);
         EnemySpawner.instance.globalAggroUpdateIntervalMultiplier = 1f;
         EnemySpawner.instance.spawnCooldownMultiplier = 1f;
+        
+        SetNodeDefenseActiveServerRpc(false);
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void SetNodeDefenseActiveServerRpc(bool active)
     {
+        if (active && !n_nodeDefenseActive.Value)
+            SpawnTurretItemsServerRpc();
+        if (!active && n_nodeDefenseActive.Value)
+            ClearItemsServerRpc();
+
         n_nodeDefenseActive.Value = active;
         EnemySpawner.instance.globalAggroUpdateIntervalMultiplier = active ? globalAggroMultiplier : 1f;
         EnemySpawner.instance.spawnCooldownMultiplier = active ? spawnCdMultiplier : 1f;
-    }   
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SpawnTurretItemsServerRpc()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            Vector3 spawnPosition = new Vector3(
+                transform.position.x + Random.Range(-2f, 2f),
+                transform.position.y + 2.0f,
+                transform.position.z + Random.Range(-2f, 2f)
+            );
+            GameObject turretItem = Instantiate(_turretItemPrefab, spawnPosition, Quaternion.identity);
+            turretItem.GetComponent<NetworkObject>().Spawn(true);
+            turretItem.GetComponent<TurretItem_MONO>().InitEvent(onNodeDefenseDeactivated);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void ClearItemsServerRpc() {
+        // If the node defense is deactivated, we can clear the turret items.
+        // foreach (GameObject turretItem in _turretItemsSpawned)
+        // {
+        //     if (turretItem != null)
+        //     {
+        //         Destroy(turretItem);
+        //     }
+        // }
+        onNodeDefenseDeactivated.Invoke();
+        _turretItemsSpawned.Clear();
+    }
 
     // Using ObjectiveRing's trigger instead.
-    public void PublicTriggerEnter (Collider other){
-        if (other.gameObject.tag == "Player"){
+    public void PublicTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "Player")
+        {
             _playersInRange.Add(other.gameObject);
             SetNodeDefenseActiveServerRpc(true);
             NodeZoneTextHelper(true);

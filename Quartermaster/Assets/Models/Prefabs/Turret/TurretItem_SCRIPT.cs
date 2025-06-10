@@ -34,6 +34,29 @@ public class TurretItem_MONO : Item
             return;
         }
         _onNodeDefenseDeactivated = nodeDeactivate;
+        _onNodeDefenseDeactivated.AddListener(NodeDefenseDeactivated);
+    }
+
+    private void NodeDefenseDeactivated()
+    {
+        if (!IsServer)
+        {
+            Debug.LogError("TurretItem_MONO: NodeDefenseDeactivated called on non-server.");
+            return;
+        }
+        if (_previewIsActive)
+        {
+            RemovePreview();
+        }
+
+        Inventory inventory = userRef.GetComponent<Inventory>();
+        if (inventory == null)
+        {
+            Debug.LogError("TurretItem_MONO: NodeDefenseDeactivated called but user has no Inventory component.");
+            return;
+        }
+        inventory.QuantityCheck();
+        NetworkObject.Despawn(true);
     }
 
     public override void OnPickUp(GameObject user)

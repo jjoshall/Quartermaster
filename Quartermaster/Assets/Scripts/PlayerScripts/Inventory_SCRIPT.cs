@@ -169,7 +169,6 @@ public class Inventory : NetworkBehaviour {
         item.OnAltUse(_playerObj);
 
         QuantityCheck(); 
-        UpdateAllInventoryUI();
     }
 
     void HeldAlt(){
@@ -180,7 +179,6 @@ public class Inventory : NetworkBehaviour {
         item.OnAltHeld(_playerObj);
 
         QuantityCheck();
-        UpdateAllInventoryUI();
     }
 
     void ReleaseAlt(bool b) {
@@ -191,7 +189,6 @@ public class Inventory : NetworkBehaviour {
         item.OnAltRelease(_playerObj);
 
         QuantityCheck();
-        UpdateAllInventoryUI();
     }
 
 
@@ -217,7 +214,6 @@ public class Inventory : NetworkBehaviour {
         item.OnButtonUse(_playerObj);
 
         QuantityCheck(); 
-        UpdateAllInventoryUI();
     }
 
     void HeldItem(){
@@ -228,7 +224,6 @@ public class Inventory : NetworkBehaviour {
         item.OnButtonHeld(_playerObj);
 
         QuantityCheck();
-        UpdateAllInventoryUI();
     }
 
     void ReleaseItem(bool b) {
@@ -239,10 +234,10 @@ public class Inventory : NetworkBehaviour {
         item.OnButtonRelease(_playerObj);
 
         QuantityCheck();
-        UpdateAllInventoryUI();
     }
 
-    public void QuantityCheck(){
+    public void QuantityCheck()
+    {
         for (int i = 0; i < _inventoryMono.Length; i++)
         {
             if (_inventoryMono[i].GetComponent<Item>().quantity <= 0)
@@ -262,6 +257,7 @@ public class Inventory : NetworkBehaviour {
                 _currentHeldItems--;
             }
         }
+        UpdateAllInventoryUI();
     }
 
     [ServerRpc(RequireOwnership = false)]

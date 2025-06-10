@@ -46,13 +46,7 @@ public class TurretController_SCRIPT : NetworkBehaviour
             Debug.LogError("TurretController: InitDeactivateEventSubscription() deactivateEvent is null.");
             return;
         }
-        deactivateEvent.AddListener(CleanSelf);
-    }
-
-    private void CleanSelf()
-    {
-        //despawn self
-        DespawnServerRpc();
+        deactivateEvent.AddListener(DespawnServerRpc);
     }
 
     [ServerRpc(RequireOwnership = false)]
