@@ -104,7 +104,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private GameObject _grayScaleVolumeChildObj; 
 
     #region Dev Functions
-    private void TempButtons()
+    private void KeyDownButtonsForDevOrGrayScale()
     {
         if (Input.GetKeyDown(KeyCode.RightBracket))
         {
@@ -319,6 +319,7 @@ public class PlayerController : NetworkBehaviour
             return;
         }
 
+        KeyDownButtonsForDevOrGrayScale();
 
         // If player falls too far, kill them
         if (transform.position.y <= -25f)
@@ -343,7 +344,6 @@ public class PlayerController : NetworkBehaviour
 
         if (stateMachine != null) { stateMachine.Update(); }
 
-        TempButtons();
     }
 
     void FixedUpdate()
