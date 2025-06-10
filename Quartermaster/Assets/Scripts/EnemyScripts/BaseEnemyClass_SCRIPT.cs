@@ -40,6 +40,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     [Header("Enemy pathing")]
     [SerializeField] private float _localDetectionRange = 20f; // how far to switch from global to direct aggro
+    [SerializeField] private bool _useAggroPropagation = false; // if true, enemies will propagate aggro to other enemies that are within aggroPropagationRange
     [SerializeField] private float _aggroPropagationRange = 10f; // radius for aggro propagation if one enemy is hit.
     
     [Header("Separation Pathing")]
@@ -313,16 +314,19 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
         if (damageSource.CompareTag("Player")){
             AddAttackingPlayer(damageSource); // add the player that hit this enemy to the list of players that hit this enemy
-            
-            // layer mask for fellow enemies
-            int enemyLayer = LayerMask.NameToLayer("Enemy");
-            Collider[] colliders = Physics.OverlapSphere(transform.position, _aggroPropagationRange, enemyLayer);
-            foreach (Collider nearbyObject in colliders){
-                var alliedEnemy = nearbyObject.gameObject;
-                if (alliedEnemy == null || alliedEnemy == gameObject) continue; // skip self
-                var enemy = alliedEnemy.GetComponent<BaseEnemyClass_SCRIPT>();
-                if (enemy != null && enemy != this) {
-                    enemy.AddAttackingPlayer(damageSource); // add the player that hit this enemy to the list of players that hit this enemy
+
+            if (_useAggroPropagation)
+            {
+                // layer mask for fellow enemies
+                int enemyLayer = LayerMask.NameToLayer("Enemy");
+                Collider[] colliders = Physics.OverlapSphere(transform.position, _aggroPropagationRange, enemyLayer);
+                foreach (Collider nearbyObject in colliders){
+                    var alliedEnemy = nearbyObject.gameObject;
+                    if (alliedEnemy == null || alliedEnemy == gameObject) continue; // skip self
+                    var enemy = alliedEnemy.GetComponent<BaseEnemyClass_SCRIPT>();
+                    if (enemy != null && enemy != this) {
+                        enemy.AddAttackingPlayer(damageSource); // add the player that hit this enemy to the list of players that hit this enemy
+                    }
                 }
             }
 
