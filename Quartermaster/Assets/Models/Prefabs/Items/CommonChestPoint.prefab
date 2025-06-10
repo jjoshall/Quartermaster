@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1751609586792904570}
   - component: {fileID: -2510028127965292118}
   - component: {fileID: -7941650745565627460}
+  - component: {fileID: 1242098553989759057}
   m_Layer: 17
   m_Name: CommonChestPoint
   m_TagString: Untagged
@@ -47,7 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 850363505
+  GlobalObjectIdHash: 1658732398
   InScenePlacedSourceGlobalObjectIdHash: 850363505
   DeferredDespawnTick: 0
   Ownership: 1
@@ -185,3 +186,20 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &1242098553989759057
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8287957544559852650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 671eca6b282082c4dbbc2d6441f3b465, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  icon: {fileID: 2800000, guid: 5cc330804927e7a4894527c48058c6d5, type: 3}
+  verticalOffset: 1.5
+  minSize: 48
+  maxSize: 48
+  sizeMultiplier: 4
