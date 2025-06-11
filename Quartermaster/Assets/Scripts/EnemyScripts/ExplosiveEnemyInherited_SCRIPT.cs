@@ -176,7 +176,8 @@ public class ExplosiveMeleeEnemyInherited_SCRIPT : BaseEnemyClass_SCRIPT {
             }
 
             enemySpawner.RemoveEnemyFromList(gameObject);
-            enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
+            if (NetworkObject.IsSpawned)
+                enemySpawner.destroyEnemyServerRpc(GetComponent<NetworkObject>());
         }
     }
 
