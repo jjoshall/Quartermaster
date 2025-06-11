@@ -23,7 +23,7 @@ public class SettingsCanvasManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Return button is not assigned in SettingsCanvasManager.");
+            // Debug.LogError("Return button is not assigned in SettingsCanvasManager.");
         }
     }
 

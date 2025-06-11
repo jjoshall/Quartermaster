@@ -240,6 +240,7 @@ public class Inventory : NetworkBehaviour {
     {
         for (int i = 0; i < _inventoryMono.Length; i++)
         {
+            if (_inventoryMono[i] == null) continue;
             if (_inventoryMono[i].GetComponent<Item>().quantity <= 0)
             {
                 Debug.Log("Inventory: QuantityCheck() - Item quantity is 0. Despawning item");
