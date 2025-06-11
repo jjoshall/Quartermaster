@@ -57,10 +57,12 @@ public class UIManager : MonoBehaviour {
     }
     public void WriteAdditionalInfo(string panel) {
         if (panel != null) {
-            additionalInfo.text = panel;
+            if (additionalInfo != null)
+                additionalInfo.text = panel;
         }
         else {
-            additionalInfo.text = "";
+            if (additionalInfo != null)
+                additionalInfo.text = "";
         }
     }
 }

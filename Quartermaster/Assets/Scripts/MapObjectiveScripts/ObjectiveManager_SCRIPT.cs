@@ -292,10 +292,12 @@ public class ObjectiveManager : NetworkBehaviour {
     [ClientRpc]
     public void NodeZoneTextHelperClientRpc(bool active) {
         if (active) {
-            nodeDefensePopUpTip.text = "<color=#00FFFF>Stay in the zone for 30 seconds to complete the objective!</color>";
+            if (nodeDefensePopUpTip != null)
+                nodeDefensePopUpTip.text = "<color=#00FFFF>Stay in the zone for 30 seconds to complete the objective!</color>";
         }
         else {
-            nodeDefensePopUpTip.text = "";
+            if (nodeDefensePopUpTip != null)
+                nodeDefensePopUpTip.text = "";
         }
     }
 
