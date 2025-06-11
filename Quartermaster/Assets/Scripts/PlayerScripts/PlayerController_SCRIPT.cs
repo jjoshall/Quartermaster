@@ -496,14 +496,11 @@ public class PlayerController : NetworkBehaviour
                     // handle snapping to the ground
                     if (hit.distance > Controller.skinWidth)
                     {
-                        if (Controller != null && Controller.gameObject.activeInHierarchy && Controller.enabled)
+                        if (Controller != null && Controller.enabled)
                         {
                             Controller.Move(Vector3.down * hit.distance);
                         }
-                        else
-                        {
-                            return;
-                        }
+                    }
                 }
             }
         }
