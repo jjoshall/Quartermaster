@@ -49,13 +49,16 @@ public class TurretItem_MONO : Item
             RemovePreview();
         }
 
-        Inventory inventory = userRef.GetComponent<Inventory>();
-        if (inventory == null)
+        if (userRef != null)
         {
-            Debug.LogError("TurretItem_MONO: NodeDefenseDeactivated called but user has no Inventory component.");
-            return;
+            Inventory inventory = userRef.GetComponent<Inventory>();
+            if (inventory == null)
+            {
+                Debug.LogError("TurretItem_MONO: NodeDefenseDeactivated called but user has no Inventory component.");
+                return;
+            }
+            inventory.QuantityCheck();
         }
-        inventory.QuantityCheck();
         NetworkObject.Despawn(true);
     }
 

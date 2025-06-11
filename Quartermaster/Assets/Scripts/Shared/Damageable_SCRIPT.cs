@@ -34,8 +34,11 @@ public class Damageable : MonoBehaviour {
 
             // apply the damages
             if (damageSource.TryGetComponent(out NetworkObject damageNetworkObject)) {
-                NetworkObjectReference damageSourceRef = damageNetworkObject;
-                Health.TakeDamageServerRpc(totalDamage, damageSourceRef);
+                if (damageNetworkObject.IsSpawned)
+                {
+                    NetworkObjectReference damageSourceRef = damageNetworkObject;
+                    Health.TakeDamageServerRpc(totalDamage, damageSourceRef);
+                }
             }
         }
     }
