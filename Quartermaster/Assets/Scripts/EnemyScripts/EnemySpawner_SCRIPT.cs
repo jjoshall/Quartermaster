@@ -223,7 +223,7 @@ public class EnemySpawner : NetworkBehaviour {
         );
 
         if (networkObject.IsSpawned) {
-            Debug.LogWarning($"Tried to spawn {networkObject.name} but it is already spawned.");
+            // Debug.LogWarning($"Tried to spawn {networkObject.name} but it is already spawned.");
             return;
         }
 
