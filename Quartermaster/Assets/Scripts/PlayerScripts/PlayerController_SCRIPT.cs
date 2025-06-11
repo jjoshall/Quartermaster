@@ -414,9 +414,14 @@ public class PlayerController : NetworkBehaviour
 
         Vector3 capsuleBottomBeforeMove = GetCapsuleBottomHemisphere();
         Vector3 capsuleTopBeforeMove = GetCapsuleTopHemisphere(Controller.height);
-
-        Controller.Move(playerVelocity * Time.deltaTime);
-
+        if (Controller != null && Controller.gameObject.activeInHierarchy && Controller.enabled)
+        {
+            Controller.Move(playerVelocity * Time.deltaTime);
+        }
+        else
+        {
+            return;
+        }
         // detect obstructions to adjust velocity accordingly
         lastImpactSpeed = Vector3.zero;
 
