@@ -5,9 +5,6 @@ using UnityEngine;
 using System.Threading.Tasks;
 using Unity.BossRoom.Infrastructure;
 using UnityEngine.Events;
-using System.Linq;    // Add this for network object pooling
-using TMPro;        // Add this for TextMeshPro
-using UnityEngine.Events;
 
 public class EnemySpawner : NetworkBehaviour {
     [Header("Spawner Timer")]

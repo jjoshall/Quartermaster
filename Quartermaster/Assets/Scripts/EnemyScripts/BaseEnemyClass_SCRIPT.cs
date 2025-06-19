@@ -307,7 +307,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         Vector3 floatingTextPosition = transform.position;
         
         if (floatingTextPrefab != null) {
-            enemySpawner.SpawnDamageNumberFromPool(floatingTextPrefab, floatingTextPosition, damage);  // show floating damage numbers with pooling
+            //enemySpawner.SpawnDamageNumberFromPool(floatingTextPrefab, floatingTextPosition, damage);  // show floating damage numbers with pooling
         }
 
         // PlaySoundForEmitter("melee_damaged", transform.position);

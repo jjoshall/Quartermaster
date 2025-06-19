@@ -5396,7 +5396,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1818070474}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
   m_Name: 
@@ -5566,6 +5566,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PoolManager
       objectReference: {fileID: 0}
+    - target: {fileID: 2252270999769582739, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: ourEnemy
       value: 
@@ -5596,7 +5600,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: _maxEnemyInstanceCount
-      value: 1000
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: globalAggroUpdateInterval
@@ -5656,7 +5660,7 @@ PrefabInstance:
       objectReference: {fileID: 4108908729984213791, guid: f9e0d41d7de8cf940b0224449f9fdaa3, type: 3}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: weightedPrefabs.Array.data[0].Weight
-      value: 60
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: weightedPrefabs.Array.data[1].Prefab
@@ -5672,7 +5676,7 @@ PrefabInstance:
       objectReference: {fileID: 5746035906590994295, guid: 8ee66f5ce3f72cc4bb6aade7e36c6e5e, type: 3}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: weightedPrefabs.Array.data[2].Weight
-      value: 10
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 3636692678263731651, guid: 4cd4a086aeda4b14c8fa5e61e4c20d81, type: 3}
       propertyPath: weightedPrefabs.Array.data[3].Prefab
@@ -7112,6 +7116,10 @@ PrefabInstance:
     - target: {fileID: 6759900571765479070, guid: 8a1b920d764b38e4591395446cefd90a, type: 3}
       propertyPath: m_Name
       value: DamageIndicatorManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 6759900571765479070, guid: 8a1b920d764b38e4591395446cefd90a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

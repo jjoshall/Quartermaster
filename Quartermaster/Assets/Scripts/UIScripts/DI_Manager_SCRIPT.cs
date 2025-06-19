@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using System.Collections.Generic;
+using System.Linq;
 
 public class DI_Manager_SCRIPT : NetworkBehaviour {
     [SerializeField] private DamageIndicator[] damageIndicators;
@@ -28,7 +29,7 @@ public class DI_Manager_SCRIPT : NetworkBehaviour {
 
         if (Instance == null) {
             Instance = this;
-        }
+        } 
     }
 
     public void ShowDamageIndicator(Vector3 damageLocation) {
@@ -51,17 +52,19 @@ public class DI_Manager_SCRIPT : NetworkBehaviour {
     }
 
     private DamageIndicator FindOldestActiveIndicator() {
-        DamageIndicator oldestIndicator = null;
-        float lowestRemainingTime = float.MaxValue;
+        return damageIndicators.Where(ind => ind.gameObject.activeSelf).OrderBy(ind => ind.RemainingFadeTime).FirstOrDefault();
 
-        foreach (DamageIndicator indicator in damageIndicators) {
-            if (indicator.gameObject.activeSelf && indicator.RemainingFadeTime < lowestRemainingTime) {
-                lowestRemainingTime = indicator.RemainingFadeTime;
-                oldestIndicator = indicator;
-            }
-        }
+        // DamageIndicator oldestIndicator = null;
+        // float lowestRemainingTime = float.MaxValue;
 
-        return oldestIndicator;
+        // foreach (DamageIndicator indicator in damageIndicators) {
+        //     if (indicator.gameObject.activeSelf && indicator.RemainingFadeTime < lowestRemainingTime) {
+        //         lowestRemainingTime = indicator.RemainingFadeTime;
+        //         oldestIndicator = indicator;
+        //     }
+        // }
+
+        // return oldestIndicator;
     }
 
     public void ReturnIndicatorToPool(DamageIndicator indicator) {
