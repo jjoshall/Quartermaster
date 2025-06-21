@@ -185,7 +185,6 @@ MonoBehaviour:
     m_InternalValue: 0
   Invincible:
     m_InternalValue: 0
-  _damageEffect: {fileID: 0}
 --- !u!114 &5353155373365359537
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -216,6 +215,7 @@ MonoBehaviour:
   originalPrefab: {fileID: 0}
   enemySpawner: {fileID: 0}
   _localDetectionRange: 50
+  _useAggroPropagation: 0
   _aggroPropagationRange: 5
   _useSeparation: 0
   _maxNeighbors: 3
@@ -669,7 +669,7 @@ Animator:
   m_Enabled: 1
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: eb5bc01ece28fb1498710aa45617b6a5, type: 2}
-  m_CullingMode: 0
+  m_CullingMode: 2
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0

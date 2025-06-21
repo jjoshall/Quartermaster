@@ -386,7 +386,6 @@ MonoBehaviour:
     m_InternalValue: 0
   Invincible:
     m_InternalValue: 0
-  _damageEffect: {fileID: 0}
 --- !u!114 &6073005085154520232
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -417,6 +416,7 @@ MonoBehaviour:
   originalPrefab: {fileID: 0}
   enemySpawner: {fileID: 0}
   _localDetectionRange: 50
+  _useAggroPropagation: 0
   _aggroPropagationRange: 5
   _useSeparation: 0
   _maxNeighbors: 3
@@ -748,6 +748,10 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -466329591000292508, guid: 7e03dc3061a309940a88b3bae2b0fb7d, type: 3}
+      propertyPath: m_Name
+      value: explosive_enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 7e03dc3061a309940a88b3bae2b0fb7d, type: 3}
       propertyPath: m_Name
       value: EnemyExplosive
@@ -776,7 +780,7 @@ Animator:
   m_Enabled: 1
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: b1cefdf9144285949be597751d894750, type: 2}
-  m_CullingMode: 0
+  m_CullingMode: 2
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
