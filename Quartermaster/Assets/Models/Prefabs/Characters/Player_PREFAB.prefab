@@ -509,15 +509,15 @@ MonoBehaviour:
   livesCount: 7
   SecondsToRespawn: 5
   ImmunitySeconds: 0.5
-  groundSpeed: 2.5
-  maxAirSpeed: 2.5
-  airAcceleration: 2
+  groundSpeed: 10
+  maxAirSpeed: 10
+  airAcceleration: 3
   minSlideSpeed: 0.5
   slideDeceleration: 3
   backwardsMovementPenalty: 0.4
   stimAspdMultiplier: 1
   stimMspdMultiplier: 1
-  groundSharpness: 15
+  groundSharpness: 20
   PlayerCamera: {fileID: 7563249083227475095}
   MiniMapCamera: {fileID: 8752640832171391135}
   invertVerticalInput: 1
@@ -527,7 +527,7 @@ MonoBehaviour:
   GroundLayers:
     serializedVersion: 2
     m_Bits: 8
-  jumpForce: 5
+  jumpForce: 7.5
   visualTransform: {fileID: 6195205799938994444}
   crouchingSharpness: 5
   _devPrefab: {fileID: 533627647367738219, guid: 34171f0fbc7fbe143af57441fdc77eb0, type: 3}
