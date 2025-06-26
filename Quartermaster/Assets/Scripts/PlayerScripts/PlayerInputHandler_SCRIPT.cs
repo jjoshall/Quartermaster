@@ -84,12 +84,12 @@ public class PlayerInputHandler : NetworkBehaviour {
     public void Crouch(InputAction.CallbackContext ctx) {
         if(!IsOwner) return;
 
-        // if (ctx.performed) {
-        //     isCrouching = true;
-        // }
-        // else if (ctx.canceled) {
-        //     isCrouching = false;
-        // }
+        if (ctx.performed) {
+            isCrouching = true;
+        }
+        else if (ctx.canceled) {
+            isCrouching = false;
+        }
     }
 
     public void Look(InputAction.CallbackContext ctx) {

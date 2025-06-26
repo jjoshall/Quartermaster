@@ -47,13 +47,13 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 5333576958288503675}
   - {fileID: 6912990487037761207}
   - {fileID: 5437704285612138240}
   - {fileID: 6510128164420213327}
   - {fileID: 8019774696052710998}
   - {fileID: 6195205799938994444}
   - {fileID: 6319570716621287494}
-  - {fileID: 5333576958288503675}
   - {fileID: 5832225581637432980}
   - {fileID: 8390052266842905436}
   - {fileID: 4431900162670032686}
@@ -507,17 +507,17 @@ MonoBehaviour:
   - {fileID: 313669229880681147}
   spawnLocation: {fileID: 0}
   livesCount: 7
-  SecondsToRespawn: 5
+  SecondsToRespawn: 2
   ImmunitySeconds: 0.5
-  groundSpeed: 7
-  maxAirSpeed: 7
+  groundSpeed: 6
+  maxAirSpeed: 5
   airAcceleration: 5
   minSlideSpeed: 0.5
   slideDeceleration: 3
   backwardsMovementPenalty: 0.4
   stimAspdMultiplier: 1
   stimMspdMultiplier: 1
-  groundSharpness: 20
+  groundSharpness: 15
   PlayerCamera: {fileID: 7563249083227475095}
   MiniMapCamera: {fileID: 8752640832171391135}
   invertVerticalInput: 1
@@ -527,7 +527,7 @@ MonoBehaviour:
   GroundLayers:
     serializedVersion: 2
     m_Bits: 8
-  jumpForce: 7
+  jumpForce: 4.5
   visualTransform: {fileID: 6195205799938994444}
   crouchingSharpness: 5
   _devPrefab: {fileID: 533627647367738219, guid: 34171f0fbc7fbe143af57441fdc77eb0, type: 3}
@@ -1572,8 +1572,8 @@ Transform:
   m_GameObject: {fileID: 7398416487075975118}
   serializedVersion: 2
   m_LocalRotation: {x: 0.70710576, y: -0, z: -0, w: 0.7071079}
-  m_LocalPosition: {x: 0, y: 9, z: 0}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_LocalPosition: {x: 0, y: 5, z: 0}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 9178118900874394549}
