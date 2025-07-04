@@ -42,7 +42,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     [SerializeField] private float _localDetectionRange = 20f; // how far to switch from global to direct aggro
     [SerializeField] private bool _useAggroPropagation = false; // if true, enemies will propagate aggro to other enemies that are within aggroPropagationRange
     [SerializeField] private float _aggroPropagationRange = 10f; // radius for aggro propagation if one enemy is hit.
-    
+
     [Header("Separation Pathing")]
     [SerializeField, Tooltip("Higher neighbor counts computation heavy.")] private bool _useSeparation = false;
     [SerializeField, Tooltip("Higher neighbor counts computation heavy.")] private int _maxNeighbors = 3; // max number of neighbors to consider for separation
@@ -75,7 +75,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     private float _attackTimer = 0.0f;      // to prevent attacks happening too quickly
     public EnemyType enemyType;
 
-    protected Vector3 targetPosition; 
+    protected Vector3 targetPosition;
     protected bool targetIsPlayer;
 
     protected List<GameObject> playersThatHitMe;
@@ -85,6 +85,8 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         _baseSpeed = agent.speed;
         _baseAcceleration = agent.acceleration;
         _velocityVector = Vector3.zero;
+
+        EnsureAgentOnNavMesh();
 
         health = GetComponent<Health>();
 
@@ -132,12 +134,27 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     public void OnEnable() {
         if (agent != null) {
             agent.enabled = true;
+            EnsureAgentOnNavMesh();
         }
     }
 
     public void OnDisable() {
         if (agent != null) {
             agent.enabled = false;
+        }
+    }
+
+    private void EnsureAgentOnNavMesh() {
+        if (agent != null && !agent.isOnNavMesh) {
+            NavMeshHit hit;
+            const float maxSampleDistance = 1.0f;
+            if (NavMesh.SamplePosition(transform.position, out hit, maxSampleDistance, NavMesh.AllAreas)) {
+                agent.Warp(hit.position);
+            }
+            else {
+                // If we can't find a nearby point, disable movement until repositioned
+                agent.enabled = false;
+            }
         }
     }
 
@@ -153,7 +170,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         }
     }
 
-    private void Pathing() {        
+    private void Pathing() {
         if (targetPosition != null) {
             // Each enemy has a different attack range
             bool inRange = Vector3.Distance(transform.position, targetPosition) <= attackRange;
@@ -169,7 +186,9 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
                 _lastAttackTime = Time.time;
             }
             else {
-                agent.SetDestination(targetPosition);  
+                if (agent != null && agent.enabled && agent.isOnNavMesh) {
+                    agent.SetDestination(targetPosition);
+                }
             }
         }
     }
@@ -185,6 +204,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     }
     // Apply boids separation for fluid-like emergent behavior.
     private void ApplySeparationForce() {
+        if (agent == null || !agent.enabled || !agent.isOnNavMesh) return;
         int count = 0;
         int enemyLayer = LayerMask.NameToLayer("Enemy");
         int enemyLayerMask = 1 << enemyLayer;
@@ -205,7 +225,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
             float magnitude = dir.magnitude;
             if (magnitude <= 0.1) magnitude = 0.1f;
             Vector3 separationForce = dir.normalized / magnitude;       // inverse proportional to distance
-            
+
             separationVector += separationForce;
 
             count++;
@@ -218,6 +238,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         _velocityVector *= _separationDecay;
         _velocityVector += separationVector;
 
+        ///////////here
         agent.Move(_velocityVector * Time.deltaTime);  // move the agent with the velocity vector
     }
     #endregion
@@ -243,23 +264,23 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         // WIP: We can possibly abstract this function to create enemies that can propagate aggro.
         if (playersThatHitMe.Count > 0) {
             closestPlayer = ClosestInPlayersThatHitMe();
-            if (closestPlayer){
+            if (closestPlayer) {
                 targetPosition = closestPlayer.transform.position;
                 targetIsPlayer = true;
             }
         }
-        
+
         // Highest priority = closest player in localDetectionRange.
-        if (enemySpawner.activePlayerList.Count > 0){
+        if (enemySpawner.activePlayerList.Count > 0) {
             closestPlayer = ClosestPlayerInLocalDetectionRange();
-            if (closestPlayer){
+            if (closestPlayer) {
                 targetPosition = closestPlayer.transform.position;
                 targetIsPlayer = true;
             }
         }
     }
 
-    private GameObject ClosestInPlayersThatHitMe(){
+    private GameObject ClosestInPlayersThatHitMe() {
         GameObject closestPlayer = null;
 
         foreach (GameObject obj in playersThatHitMe) {
@@ -274,7 +295,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         return closestPlayer;
     }
 
-    private GameObject ClosestPlayerInLocalDetectionRange(){
+    private GameObject ClosestPlayerInLocalDetectionRange() {
         GameObject closestPlayer = null;
 
         foreach (GameObject obj in enemySpawner.activePlayerList) {
@@ -305,22 +326,21 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     protected virtual void OnDamaged(float damage, GameObject damageSource) {
         Debug.Log("Damage taken: " + damage);
         Vector3 floatingTextPosition = transform.position;
-        
+
         if (floatingTextPrefab != null) {
             //enemySpawner.SpawnDamageNumberFromPool(floatingTextPrefab, floatingTextPosition, damage);  // show floating damage numbers with pooling
         }
 
         // PlaySoundForEmitter("melee_damaged", transform.position);
 
-        if (damageSource.CompareTag("Player")){
+        if (damageSource.CompareTag("Player")) {
             AddAttackingPlayer(damageSource); // add the player that hit this enemy to the list of players that hit this enemy
 
-            if (_useAggroPropagation)
-            {
+            if (_useAggroPropagation) {
                 // layer mask for fellow enemies
                 int enemyLayer = LayerMask.NameToLayer("Enemy");
                 Collider[] colliders = Physics.OverlapSphere(transform.position, _aggroPropagationRange, enemyLayer);
-                foreach (Collider nearbyObject in colliders){
+                foreach (Collider nearbyObject in colliders) {
                     var alliedEnemy = nearbyObject.gameObject;
                     if (alliedEnemy == null || alliedEnemy == gameObject) continue; // skip self
                     var enemy = alliedEnemy.GetComponent<BaseEnemyClass_SCRIPT>();
@@ -333,7 +353,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         }
     }
 
-    public void AddAttackingPlayer(GameObject player){ 
+    public void AddAttackingPlayer(GameObject player) {
         // prevent same player from being added multiple times
         if (!playersThatHitMe.Contains(player)) {
             playersThatHitMe.Add(player);
@@ -359,19 +379,18 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     }
 
     #region SpeedChanged
-    [ServerRpc(RequireOwnership = false)]   
-    public virtual void UpdateSpeedServerRpc(){
+    [ServerRpc(RequireOwnership = false)]
+    public virtual void UpdateSpeedServerRpc() {
         float finalSpeed = _baseSpeed;
         float finalAcceleration = _baseAcceleration;
 
-        if (n_isTrapSlowed.Value > 0){
+        if (n_isTrapSlowed.Value > 0) {
             finalSpeed *= 1 - n_trapSlowMultiplier.Value;
             finalAcceleration *= 1 - n_trapSlowMultiplier.Value;
         }
 
-        if (Time.time < n_railgunSlowExpireTime.Value)
-        {
-            Debug.Log ("Is Slowed by Railgun");
+        if (Time.time < n_railgunSlowExpireTime.Value) {
+            Debug.Log("Is Slowed by Railgun");
             finalSpeed *= 1 - n_railgunSlowMultiplier.Value;
             finalAcceleration *= 1 - n_railgunSlowMultiplier.Value;
         }
@@ -380,7 +399,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
     }
 
     [ClientRpc]
-    private void UpdateSpeedClientRpc(float finalSpeed, float finalAcceleration){
+    private void UpdateSpeedClientRpc(float finalSpeed, float finalAcceleration) {
         agent.speed = finalSpeed;
         agent.acceleration = finalAcceleration;
         agent.velocity = agent.velocity.normalized * finalSpeed;
@@ -389,8 +408,7 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
 
     // Used for railgun slow debuff. REFACTOR THIS + DEPRECATED SLOW TRAP (?)
     [ServerRpc(RequireOwnership = false)]
-    public void ApplyTimedSlowServerRpc(float slowMultiplier, float duration)
-    {
+    public void ApplyTimedSlowServerRpc(float slowMultiplier, float duration) {
         n_railgunSlowMultiplier.Value = slowMultiplier;
         n_railgunSlowExpireTime.Value = Time.time + duration;
         UpdateSpeedServerRpc();
@@ -398,22 +416,21 @@ public abstract class BaseEnemyClass_SCRIPT : NetworkBehaviour {
         StartCoroutine(RemoveTimedSlow(duration));
     }
 
-    private System.Collections.IEnumerator RemoveTimedSlow(float duration)
-    {
+    private System.Collections.IEnumerator RemoveTimedSlow(float duration) {
         yield return new WaitForSeconds(duration);
         n_railgunSlowMultiplier.Value = 0.0f;
         n_railgunSlowExpireTime.Value = 0.0f;
         UpdateSpeedServerRpc();
     }
 
-    [ServerRpc(RequireOwnership = false)]   
-    public void ApplySlowTrapDebuffServerRpc(){
+    [ServerRpc(RequireOwnership = false)]
+    public void ApplySlowTrapDebuffServerRpc() {
         n_isTrapSlowed.Value = n_isTrapSlowed.Value + 1;
         n_trapSlowMultiplier.Value = GameManager.instance.SlowTrap_SlowByPct;
         UpdateSpeedServerRpc();
     }
-    [ServerRpc(RequireOwnership = false)]   
-    public void RemoveSlowTrapDebuffServerRpc(){
+    [ServerRpc(RequireOwnership = false)]
+    public void RemoveSlowTrapDebuffServerRpc() {
         n_isTrapSlowed.Value = n_isTrapSlowed.Value - 1;
         n_trapSlowMultiplier.Value = GameManager.instance.SlowTrap_SlowByPct;
         UpdateSpeedServerRpc();

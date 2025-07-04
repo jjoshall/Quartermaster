@@ -3,8 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
 
-public class PauseMenuToggler : MonoBehaviour
-{
+public class PauseMenuToggler : MonoBehaviour {
     [Header("UI References")]
     [SerializeField] private Canvas pauseCanvas;      // Your PauseMenu Canvas
     [SerializeField] private Canvas playerUICanvas;     // The main Player UI Canvas
@@ -15,11 +14,14 @@ public class PauseMenuToggler : MonoBehaviour
 
     [SerializeField] private GameObject AdditionalInfoPanel;     // Additional Info Panel
 
+    [Header("Player")]
+    [Tooltip("Player controller for movement restrictions")]
+    [SerializeField] private PlayerController playerController;
+
     private bool isPauseCanvasActive = false;
     public static bool IsPaused { get; set; } = false;
 
-    private void Start()
-    {
+    private void Start() {
         if (pauseCanvas != null)
             pauseCanvas.gameObject.SetActive(false);
         if (settingsCanvas != null)
@@ -28,22 +30,18 @@ public class PauseMenuToggler : MonoBehaviour
             gameOverCanvas.gameObject.SetActive(false);
     }
 
-    private void Update()
-    {
-        if (playerUICanvas != null && playerUICanvas.gameObject.activeSelf && PlayerUI != null && PlayerUI.gameObject.activeSelf)
-        {
-            
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
+    private void Update() {
+        if (playerUICanvas != null && playerUICanvas.gameObject.activeSelf && PlayerUI != null && PlayerUI.gameObject.activeSelf) {
+
+            if (Input.GetKeyDown(KeyCode.Escape)) {
                 TogglePauseMenu();
                 if (settingsCanvas) {
                     settingsCanvas.gameObject.SetActive(false);
                 }
             }
-            if (HealthBarUI.instance.livesRemaining <= 0)
-            {
+            if (HealthBarUI.instance.livesRemaining <= 0) {
                 OpenGameOverCanvas();
-                
+
             }
             if (AdditionalInfoPanel != null) {
                 AdditionalInfoPanel.SetActive(Input.GetKey(KeyCode.Tab));
@@ -60,29 +58,25 @@ public class PauseMenuToggler : MonoBehaviour
         }
     }
 
-    private void TogglePauseMenu()
-    {
+    private void TogglePauseMenu() {
         isPauseCanvasActive = !isPauseCanvasActive;
         IsPaused = isPauseCanvasActive;
 
         if (pauseCanvas != null)
             pauseCanvas.gameObject.SetActive(isPauseCanvasActive);
 
-        if (isPauseCanvasActive)
-        {
+        if (isPauseCanvasActive) {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
             // No longer resetting movement here.
         }
-        else
-        {
+        else {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
     }
 
-    public void ReturnToGame()
-    {
+    public void ReturnToGame() {
         isPauseCanvasActive = false;
         IsPaused = false;
         if (pauseCanvas != null)
@@ -92,10 +86,8 @@ public class PauseMenuToggler : MonoBehaviour
         Cursor.visible = false;
     }
 
-    public void GoToMainMenu()
-    {
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
-        {
+    public void GoToMainMenu() {
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening) {
             NetworkManager.Singleton.Shutdown();
             Debug.Log("NetworkManager shut down.");
         }
@@ -109,8 +101,7 @@ public class PauseMenuToggler : MonoBehaviour
         SceneManager.LoadScene("MainMenu_SCENE");
     }
 
-    public void OpenSettingsCanvas()
-    {
+    public void OpenSettingsCanvas() {
         if (pauseCanvas != null)
             pauseCanvas.gameObject.SetActive(false);
         if (settingsCanvas != null)
@@ -120,8 +111,7 @@ public class PauseMenuToggler : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
-    public void OpenGameOverCanvas()
-    {
+    public void OpenGameOverCanvas() {
         if (pauseCanvas != null)
             pauseCanvas.gameObject.SetActive(false);
         if (settingsCanvas != null)

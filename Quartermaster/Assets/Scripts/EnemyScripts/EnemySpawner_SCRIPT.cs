@@ -5,6 +5,7 @@ using UnityEngine;
 using System.Threading.Tasks;
 using Unity.BossRoom.Infrastructure;
 using UnityEngine.Events;
+using UnityEngine.AI;
 
 public class EnemySpawner : NetworkBehaviour {
     [Header("Spawner Timer")]
@@ -81,38 +82,31 @@ public class EnemySpawner : NetworkBehaviour {
 
     #region whatthis?
     public int spawnTimeDelay = 5; // what is this for? seems unused -norman
-    private void EnableSpawning()
-    {
+    private void EnableSpawning() {
         EnableSpawningClientRpc();
     }
 
     [ClientRpc]
-    public void EnableSpawningClientRpc(ClientRpcParams clientRpcParams = default)
-    {
+    public void EnableSpawningClientRpc(ClientRpcParams clientRpcParams = default) {
         StartCoroutine(EnableSpawningAfterDelay());
         isSpawning = true;
         Debug.Log("Spawning enabled from EnemySpawner");
     }
 
-    private IEnumerator EnableSpawningAfterDelay()
-    {
+    private IEnumerator EnableSpawningAfterDelay() {
         yield return new WaitForSeconds(spawnTimeDelay);
     }
     #endregion
 
 
-    private void RefreshPlayerLists(ulong u)
-    {
+    private void RefreshPlayerLists(ulong u) {
         playerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
 
         activePlayerList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
-        foreach (GameObject area in inactiveAreas)
-        {
-            foreach (GameObject player in activePlayerList)
-            {
+        foreach (GameObject area in inactiveAreas) {
+            foreach (GameObject player in activePlayerList) {
                 Collider areaCollider = area.GetComponent<Collider>();
-                if (areaCollider != null && areaCollider.bounds.Contains(player.transform.position))
-                {
+                if (areaCollider != null && areaCollider.bounds.Contains(player.transform.position)) {
                     activePlayerList.Remove(player);
                 }
             }
@@ -191,23 +185,19 @@ public class EnemySpawner : NetworkBehaviour {
         if (!IsServer) return;
 
         // Cooldown check only triggers when threshold reached. 
-        if (_floatingTextCooldownCount >= _floatingTextCooldownThreshold)
-        {
+        if (_floatingTextCooldownCount >= _floatingTextCooldownThreshold) {
             // if threshold reached, check cooldown.
-            if (Time.time < _floatingTextLastSpawned + _floatingTextCooldown)
-            {
+            if (Time.time < _floatingTextLastSpawned + _floatingTextCooldown) {
                 Debug.Log("Floating text cooldown active, skipping dmg text number");
                 return;
             }
-            else
-            {
+            else {
                 // Reset cooldown count
                 _floatingTextCooldownCount = 0;
                 _floatingTextLastSpawned = Time.time; // Update last spawned time
             }
         }
-        else
-        {
+        else {
             // Increment cooldown count
             _floatingTextCooldownCount++;
         }
@@ -408,12 +398,17 @@ public class EnemySpawner : NetworkBehaviour {
         }
 
         // Choose a random spawn point index
-        GameObject spawnPoint = _enemySpawnPoints[Random.Range(0, _enemySpawnPoints.Count)];
+        Vector3 rawPoint = _enemySpawnPoints[Random.Range(0, _enemySpawnPoints.Count)].transform.position;
 
-        float spawnX = spawnPoint.transform.position.x;
-        float spawnY = 5f;
-        float spawnZ = spawnPoint.transform.position.z;
-        return new Vector3(spawnX, spawnY, spawnZ);
+        NavMeshHit hit;
+        const float maxDistance = 5f;
+        if (NavMesh.SamplePosition(rawPoint, out hit, maxDistance, NavMesh.AllAreas)) {
+            return hit.position;
+        }
+        else {
+            Debug.LogWarning($"Could not find NavMesh within {maxDistance} units of {rawPoint}. Spawning at raw point.");
+            return rawPoint;
+        }
     }
 
     public void RemoveEnemyFromList(GameObject enemy) {
