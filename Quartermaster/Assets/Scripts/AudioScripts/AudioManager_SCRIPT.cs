@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.Audio;
-using System.Collections.Generic;
 
 public class AudioManager : MonoBehaviour {
     public static AudioManager Instance { get; private set; }
@@ -17,7 +16,8 @@ public class AudioManager : MonoBehaviour {
         if (Instance == null) {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-        } else {
+        }
+        else {
             Destroy(gameObject);
         }
     }
@@ -33,19 +33,22 @@ public class AudioManager : MonoBehaviour {
 
         if (gameMixer.GetFloat("MusicVolume", out musicVol)) {
             Debug.Log($"[AudioManager] Music Volume: {musicVol} dB");
-        } else {
+        }
+        else {
             Debug.LogWarning("[AudioManager] MusicVolume parameter not found in Audio Mixer.");
         }
 
         if (gameMixer.GetFloat("SFXVolume", out sfxVol)) {
             Debug.Log($"[AudioManager] SFX Volume: {sfxVol} dB");
-        } else {
+        }
+        else {
             Debug.LogWarning("[AudioManager] SFXVolume parameter not found in Audio Mixer.");
         }
 
         if (gameMixer.GetFloat("MasterVolume", out masterVol)) {
             Debug.Log($"[AudioManager] Master Volume: {masterVol} dB");
-        } else {
+        }
+        else {
             Debug.LogWarning("[AudioManager] MasterVolume parameter not found in Audio Mixer.");
         }
     }
@@ -70,7 +73,6 @@ public class AudioManager : MonoBehaviour {
     }
     // Plays the clip at the given position with 3D settings.
     public void PlaySoundAtPosition(AudioClip clip, Vector3 sourcePosition, string destinationMixer, bool isLooped = false) {
-        //Debug.Log("Before temp audio created");
         GameObject tempGO = new GameObject("TempAudio");
         tempGO.transform.position = sourcePosition;
         AudioSource aSource = tempGO.AddComponent<AudioSource>();
@@ -85,13 +87,12 @@ public class AudioManager : MonoBehaviour {
         //Debug.Log("[AudioManager] Playing sound: " + clip.name);
 
         aSource.Play();
-        //Debug.Log("After temp audio played");
         if (!isLooped) {
             Destroy(tempGO, clip.length);
         }
     }
 
     public void DestroySoundByGameObject() {
-        
+
     }
 }

@@ -15,10 +15,6 @@ public class PauseMenuToggler : NetworkBehaviour {
 
     [SerializeField] private GameObject AdditionalInfoPanel;     // Additional Info Panel
 
-    [Header("Player")]
-    [Tooltip("Player controller for movement restrictions")]
-    private PlayerController localPlayerController;
-
     private bool isPauseCanvasActive = false;
     public static bool IsPaused { get; set; } = false;
 
@@ -34,7 +30,7 @@ public class PauseMenuToggler : NetworkBehaviour {
     private void Update() {
         if (playerUICanvas != null && playerUICanvas.gameObject.activeSelf && PlayerUI != null && PlayerUI.gameObject.activeSelf) {
 
-            if (Input.GetKeyDown(KeyCode.Escape)) {
+            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P)) {
                 TogglePauseMenu();
                 if (settingsCanvas) {
                     settingsCanvas.gameObject.SetActive(false);
@@ -57,20 +53,15 @@ public class PauseMenuToggler : NetworkBehaviour {
                 Cursor.visible = false;
             }
         }
+
+
+
     }
 
     public override void OnNetworkSpawn() {
         if (!IsOwner) {
             enabled = false;
             return;
-        }
-
-        var all = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
-        foreach (var pc in all) {
-            if (pc.IsOwner) {
-                localPlayerController = pc;
-                break;
-            }
         }
 
         if (pauseCanvas != null) pauseCanvas.gameObject.SetActive(false);
@@ -85,18 +76,19 @@ public class PauseMenuToggler : NetworkBehaviour {
         if (pauseCanvas != null)
             pauseCanvas.gameObject.SetActive(isPauseCanvasActive);
 
-        if (localPlayerController != null) {
-            localPlayerController.movementRestricted = isPauseCanvasActive;
-        }
 
         if (isPauseCanvasActive) {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-            // No longer resetting movement here.
+
+            PlayerController.LocalPlayer.movementRestricted = true;
+
         }
         else {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+
+            PlayerController.LocalPlayer.movementRestricted = false;
         }
     }
 
@@ -106,9 +98,7 @@ public class PauseMenuToggler : NetworkBehaviour {
         if (pauseCanvas != null)
             pauseCanvas.gameObject.SetActive(false);
 
-        if (localPlayerController != null) {
-            localPlayerController.movementRestricted = false;
-        }
+        PlayerController.LocalPlayer.movementRestricted = false;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -135,9 +125,7 @@ public class PauseMenuToggler : NetworkBehaviour {
         if (settingsCanvas != null)
             settingsCanvas.gameObject.SetActive(true);
 
-        if (localPlayerController != null) {
-            localPlayerController.movementRestricted = true;
-        }
+        PlayerController.LocalPlayer.movementRestricted = true;
 
 
         IsPaused = true;
@@ -154,9 +142,8 @@ public class PauseMenuToggler : NetworkBehaviour {
         if (gameOverCanvas != null)
             gameOverCanvas.gameObject.SetActive(true);
 
-        if (localPlayerController != null) {
-            localPlayerController.movementRestricted = true;
-        }
+        PlayerController.LocalPlayer.movementRestricted = true;
+
         IsPaused = true;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;

@@ -7,7 +7,8 @@ using UnityEngine.SceneManagement;
 public class SettingsCanvasManager : MonoBehaviour {
     [SerializeField] private Button returnToPrevBtn;
 
-    [SerializeField] private bool isMainMenuContext = false;
+    //mark false in game, true in menu
+    [SerializeField] private bool inMainMenu = false;
 
     [SerializeField] private Canvas pauseCanvas;
     [SerializeField] private GameObject mainMenuCanvasPrefab;
@@ -15,6 +16,7 @@ public class SettingsCanvasManager : MonoBehaviour {
 
     private void Awake() {
         if (returnToPrevBtn != null) {
+
             returnToPrevBtn.onClick.AddListener(ReturnToPrevious);
         }
         else {
@@ -23,7 +25,7 @@ public class SettingsCanvasManager : MonoBehaviour {
     }
 
     private void ReturnToPrevious() {
-        if (isMainMenuContext) {
+        if (inMainMenu) {
             // Cursor.lockState = CursorLockMode.Locked;
             // Cursor.visible = false;
             settingsCanvas.gameObject.SetActive(false);
@@ -34,9 +36,9 @@ public class SettingsCanvasManager : MonoBehaviour {
         }
         else {
             if (pauseCanvas != null) {
+                settingsCanvas.gameObject.SetActive(false);
                 pauseCanvas.gameObject.SetActive(true);
             }
-            // gameObject.SetActive(false); commented this out for now bc pressing return would disable UIManager
         }
     }
 
@@ -64,5 +66,6 @@ public class SettingsCanvasManager : MonoBehaviour {
     private void ChangeTextColor(TextMeshProUGUI text, Color color) {
         text.color = color;
     }
+
 }
 
