@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class SettingsCanvasManager : MonoBehaviour {
     [SerializeField] private Button returnToPrevBtn;
@@ -14,6 +15,9 @@ public class SettingsCanvasManager : MonoBehaviour {
     [SerializeField] private GameObject mainMenuCanvasPrefab;
     [SerializeField] private Canvas settingsCanvas;
 
+    public TMP_Dropdown resolutionDropdown;
+    Resolution[] resolutions;
+
     private void Awake() {
         if (returnToPrevBtn != null) {
 
@@ -22,6 +26,31 @@ public class SettingsCanvasManager : MonoBehaviour {
         else {
             // Debug.LogError("Return button is not assigned in SettingsCanvasManager.");
         }
+    }
+
+    void Start() {
+        resolutions = Screen.resolutions;
+        resolutionDropdown.ClearOptions();
+
+        List<string> resolutionOptions = new List<string>();
+
+        int currResIndex = 0;
+        for (int i = 0; i < resolutions.Length; i++) {
+            string option = resolutions[i].width + " x " + resolutions[i].height;
+            resolutionOptions.Add(option);
+
+            if (resolutions[i].width == Screen.currentResolution.width &&
+                resolutions[i].height == Screen.currentResolution.height) {
+                currResIndex = i;
+            }
+        }
+
+
+        resolutionDropdown.AddOptions(resolutionOptions);
+        resolutionDropdown.value = currResIndex;
+        resolutionDropdown.RefreshShownValue();
+
+
     }
 
     private void ReturnToPrevious() {
@@ -41,6 +70,7 @@ public class SettingsCanvasManager : MonoBehaviour {
             }
         }
     }
+
 
     private void AddHoverEffect(Button button) {
         TextMeshProUGUI buttonText = button.GetComponentInChildren<TextMeshProUGUI>();
@@ -65,6 +95,19 @@ public class SettingsCanvasManager : MonoBehaviour {
 
     private void ChangeTextColor(TextMeshProUGUI text, Color color) {
         text.color = color;
+    }
+
+    public void SetQuality(int qualityIndex) {
+        QualitySettings.SetQualityLevel(qualityIndex);
+    }
+
+    public void SetFullscreen(bool isFullscreen) {
+        Screen.fullScreen = isFullscreen;
+    }
+
+    public void SetResolution(int resolutionIndex) {
+        Resolution resolution = resolutions[resolutionIndex];
+        Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
     }
 
 }

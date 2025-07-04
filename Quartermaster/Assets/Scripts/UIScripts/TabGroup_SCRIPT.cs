@@ -21,6 +21,7 @@ public class TabGroup : MonoBehaviour {
             customTabButtons = new List<CustomTabButton>();
         }
         customTabButtons.Add(button);
+        Debug.Log($"Subscribed {button.name} to TabGroup {gameObject.name}");
         button.background.color = tabIdleColor;
     }
 
@@ -38,6 +39,8 @@ public class TabGroup : MonoBehaviour {
 
     public void OnTabSelected(CustomTabButton button) {
         selectedTabRef = button;
+
+
         ResetTabs();
 
         // Reset text color for the newly selected tab.
@@ -47,7 +50,7 @@ public class TabGroup : MonoBehaviour {
         }
 
         button.background.color = tabActiveColor;
-        
+
         int index = button.transform.GetSiblingIndex();
         for (int i = 0; i < objectsToSwap.Count; i++) {
             objectsToSwap[i].SetActive(i == index);
@@ -60,7 +63,7 @@ public class TabGroup : MonoBehaviour {
             if (selectedTabRef != null && button == selectedTabRef)
                 continue;
             button.background.color = tabIdleColor;
-            
+
             // Reset the text color for each non-selected tab.
             TabHoverColor_TMP hoverScript = button.GetComponentInChildren<TabHoverColor_TMP>();
             if (hoverScript != null) {

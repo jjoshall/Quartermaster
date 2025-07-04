@@ -9,43 +9,6 @@ public class GameManager : NetworkBehaviour {
     [Header("Player Settings")]
     // HP and player speed set in the Player prefab settings.
     [SerializeField] private float _dropItemVelocity;
-
-    [Header("Weapon Settings")]
-    // Weapons should not scale at run-time. Scale enemy hp instead.\
-    //[Header("Flamethrower Settings")]
-    // [SerializeField] private float flame_Damage;
-    // [SerializeField] private float flame_Range;
-    // [SerializeField] private float flame_EndRadius; // The radius of the circle at the end of the flamethrower capsulecast
-    // [SerializeField] private float flame_Cooldown;
-    // [SerializeField] private string flame_EnemyHitEffect = "Sample"; // effect spawned on center of every enemy hit.
-    // [SerializeField] private string flame_BarrelEffect = "PistolBarrelFire"; // effect at player
-
-    // [Header("Railgun Settings")]
-    // [SerializeField] private float railgun_Damage;
-    // [SerializeField] private float railgun_AoeRadius;
-    // [SerializeField] private float railgun_Cooldown;
-
-    // [Header("Pistol Settings")]
-    // [SerializeField] private float pistol_Damage;
-    // [SerializeField] private float pistol_Cooldown;
-
-    // [SerializeField] public GameObject bulletTracerPrefab;
-
-    // [Header("Item Settings")]
-    // [Header("Portal Key Settings")]
-    // [SerializeField] private float portalKey_Cooldown;
-    // [SerializeField] private float portalKey_TeleportRadius;
-
-    // [Header("Grenade Settings")]
-    // [SerializeField] private float grenade_Damage;
-    // [SerializeField] private float grenade_AoeRadius;
-    // [SerializeField] private float grenade_ChargeTime;
-    // [SerializeField] private float grenade_MinVelocity;
-    // [SerializeField] private float grenade_MaxVelocity;
-    // [SerializeField] private float grenade_Cooldown;
-    // [SerializeField] private float grenade_ExpireTimer;
-    // [SerializeField] private int grenade_StackLimit;
-
     [Header("Slow Trap Settings")]
     [SerializeField] private float slowTrap_SlowByPct;// give enemy a debuff flag. enemy checks for debuff then accesses this value to adjust their own speed.
     [SerializeField] private float slowTrap_Duration;   // duration of the trap itself. 
@@ -56,26 +19,7 @@ public class GameManager : NetworkBehaviour {
     [SerializeField] private float slowTrap_MinVelocity;
     [SerializeField] private float slowTrap_MaxVelocity;
 
-    // [Header("MedKit Settings")]
-    // [SerializeField] private float medKit_HealAmount ;
-    // [SerializeField] private float medKit_Cooldown ;
-    // [SerializeField] private int medKit_StackLimit;
-    // [SerializeField] private float _medKit_ChargeTime;
-    // [SerializeField] private float _medKit_TapThreshold;
-    // [SerializeField] private float _medKit_MinVelocity;
-    // [SerializeField] private float _medKit_MaxVelocity;
-    // [SerializeField] private float _medKit_ExpireTimer;
-
-    // [Header("Quest Item Settings")]
-    // [SerializeField] private int questItem_StackLimit;
-
-    // [Header("Heal Spec Settings")]
-    // [SerializeField] private int _healSpec_StackLimit;
-    // [SerializeField] private float _healSpec_MultiplierPer;
-
-    // [Header("Damage Spec Settings")]
-    // [SerializeField] private int _dmgSpec_StackLimit;
-    // [SerializeField] private float _dmgSpec_MultiplierPer;
+    #region Enemy Settings
 
     [Header("Melee Enemy Settings")]
     [SerializeField] private float meleeEnemy_Health;
@@ -121,6 +65,8 @@ public class GameManager : NetworkBehaviour {
     [SerializeField] private bool smallExplosiveEnemy_UseGlobalTarget;
     [SerializeField] private float smallExplosiveEnemy_Speed;
 
+    #endregion
+
     [SerializeField]
     private float[] _playersToEnemyHpMultiplier = new float[10] {  0.1f,
                                                                                     1.0f,
@@ -143,35 +89,6 @@ public class GameManager : NetworkBehaviour {
 
     #region ReadonlyAccess
     public float DropItemVelocity => _dropItemVelocity;
-
-    // public float Flame_Damage => flame_Damage;
-    // public float Flame_Range => flame_Range;
-    // public float Flame_EndRadius => flame_EndRadius;
-    // public float Flame_Cooldown => flame_Cooldown;
-    // public string Flame_EnemyHitEffect => flame_EnemyHitEffect;
-    // public string Flame_BarrelEffect => flame_BarrelEffect;
-
-    // public float Railgun_Damage => railgun_Damage;
-    // public float Railgun_AoeRadius => railgun_AoeRadius;
-    // public float Railgun_Cooldown => railgun_Cooldown;
-
-    // public float Pistol_Damage => pistol_Damage;
-    // public float Pistol_Cooldown => pistol_Cooldown;
-
-    // public GameObject Pistol_TrailPrefab => bulletTracerPrefab;
-
-    // public float PortalKey_Cooldown => portalKey_Cooldown;
-    // public float PortalKey_TeleportRadius => portalKey_TeleportRadius;
-
-    // public float Grenade_Damage => grenade_Damage;
-    // public float Grenade_AoeRadius => grenade_AoeRadius;
-    // public float Grenade_ChargeTime => grenade_ChargeTime;
-    // public float Grenade_MinVelocity => grenade_MinVelocity;
-    // public float Grenade_MaxVelocity => grenade_MaxVelocity;
-    // public float Grenade_Cooldown => grenade_Cooldown;
-    // public float Grenade_ExpireTimer => grenade_ExpireTimer;
-    // public int Grenade_StackLimit => grenade_StackLimit;
-
     public float SlowTrap_SlowByPct => slowTrap_SlowByPct;
     public float SlowTrap_Duration => slowTrap_Duration;
     public float SlowTrap_Cooldown => slowTrap_Cooldown;
@@ -181,22 +98,6 @@ public class GameManager : NetworkBehaviour {
     public float SlowTrap_MinVelocity => slowTrap_MinVelocity;
     public float SlowTrap_MaxVelocity => slowTrap_MaxVelocity;
 
-    // public float MedKit_HealAmount => medKit_HealAmount;
-    // public float MedKit_Cooldown => medKit_Cooldown;
-    // public int MedKit_StackLimit => medKit_StackLimit;
-    // public float MedKit_ChargeTime => _medKit_ChargeTime;
-    // public float MedKit_TapThreshold => _medKit_TapThreshold;
-    // public float MedKit_MinVelocity => _medKit_MinVelocity;
-    // public float MedKit_MaxVelocity => _medKit_MaxVelocity;
-    // public float MedKit_ExpireTimer => _medKit_ExpireTimer;
-
-    // public int QuestItem_StackLimit => questItem_StackLimit;
-
-    // public float HealSpec_MultiplierPer => _healSpec_MultiplierPer;
-    // public int HealSpec_StackLimit => _healSpec_StackLimit;
-
-    // public float DmgSpec_MultiplierPer => _dmgSpec_MultiplierPer;
-    // public int DmgSpec_StackLimit => _dmgSpec_StackLimit;
     public float EnemySpeedMultiplier { get; set; } = 1.0f;
     public float EnemyHealthMultiplier { get; set; } = 1.0f;
     public float SpawnRateMultiplier { get; set; } = 0.0f;

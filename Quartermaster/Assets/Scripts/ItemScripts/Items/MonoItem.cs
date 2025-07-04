@@ -1,11 +1,10 @@
 using UnityEngine;
 using Unity.Netcode;
-using System.Collections.Generic;
+using System.Collections;
 using System;
 using UnityEngine.Events;
 
-public abstract class Item : NetworkBehaviour
-{
+public abstract class Item : NetworkBehaviour {
 
     #region SUBCLASS PROPERTIES
     // DEFINITIONS ========================================================================================
@@ -22,6 +21,8 @@ public abstract class Item : NetworkBehaviour
     [Tooltip("Item icon")] public Texture icon = null;
     [Tooltip("OnUse sound emitters")] public SoundEmitter[] soundEmitters = null;
     [Tooltip("IsAutolootable")] public bool IsAutolootable = false;
+
+    [HideInInspector] public bool autoDespawn = false;
     // [HideInInspector]                                                       public NetworkVariable<bool> CurrentlySelected = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     #endregion
@@ -41,45 +42,37 @@ public abstract class Item : NetworkBehaviour
     [HideInInspector] public GameObject attachedWeaponSlot = null;
     [HideInInspector] public NetworkVariable<int> n_syncedQuantity = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-    public float GetLastUsed()
-    {
-        if (userRef == null)
-        {
+    public float GetLastUsed() {
+        if (userRef == null) {
             Debug.LogError("GetLastUsed: userRef is null.");
             return 0f;
         }
         var ps = userRef.GetComponent<PlayerStatus>();
-        if (ps == null)
-        {
+        if (ps == null) {
             Debug.LogError("GetLastUsed: PlayerStatus component not found on userRef.");
             return 0f;
         }
         return userRef.GetComponent<PlayerStatus>().GetLastUsed(uniqueID);
     }
-    public void SetLastUsed(float time)
-    {
-        if (userRef == null)
-        {
+    public void SetLastUsed(float time) {
+        if (userRef == null) {
             Debug.LogError("SetLastUsed: userRef is null.");
             return;
         }
         var ps = userRef.GetComponent<PlayerStatus>();
-        if (ps == null)
-        {
+        if (ps == null) {
             Debug.LogError("SetLastUsed: PlayerStatus component not found on userRef.");
             return;
         }
         userRef.GetComponent<PlayerStatus>().SetLastUsed(uniqueID, time);
     }
 
-    void LateUpdate()
-    {
+    void LateUpdate() {
         if (IsPickedUp)
             UpdateHoldablePosition(); // causes jitter if placed in Update() instead.
     }
 
-    void UpdateHoldablePosition()
-    {
+    void UpdateHoldablePosition() {
         if (attachedWeaponSlot == null)
             return;
 
@@ -98,21 +91,22 @@ public abstract class Item : NetworkBehaviour
 
     #region FUNCTIONS
     // FUNCTION ABSTRACTS ===============================================================================================
-    public override void OnNetworkSpawn()
-    {
+    public override void OnNetworkSpawn() {
         // Called when the item is spawned on the server.
         //Debug.Log("Spawned item: " + gameObject.name);
         // owner client id
         ulong clientId = NetworkManager.Singleton.LocalClientId;
         SyncLocalToServerServerRpc(clientId);
+
+        if (IsServer && autoDespawn) {
+            StartCoroutine(AutoDespawnSequence());
+        }
     }
-    public virtual void OnSpawn()
-    {
+    public virtual void OnSpawn() {
         SyncServerNetVarToLocal();
     }
 
-    public virtual void OnPickUp(GameObject user)
-    {
+    public virtual void OnPickUp(GameObject user) {
         // On pickup.
         //Debug.Log("Picked up item: " + gameObject.name);
         userRef = user;
@@ -121,65 +115,54 @@ public abstract class Item : NetworkBehaviour
 
         SyncServerNetVarToLocal();
     }
-    public virtual void OnDrop(GameObject user)
-    {
+    public virtual void OnDrop(GameObject user) {
         // On drop.
         //Debug.Log("Dropped item: " + gameObject.name);
         SyncServerNetVarToLocal();
     }
-    public virtual void OnButtonUse(GameObject user)
-    {
+    public virtual void OnButtonUse(GameObject user) {
         // Fire once when use is pressed.
         //Debug.Log("Used item: " + gameObject.name);
     }
-    public virtual void OnButtonHeld(GameObject user)
-    {
+    public virtual void OnButtonHeld(GameObject user) {
         // Fire every frame when use is held.
         //Debug.Log("Held item: " + gameObject.name);
     }
-    public virtual void OnButtonRelease(GameObject user)
-    {
+    public virtual void OnButtonRelease(GameObject user) {
         // Fire once when use is released.
         //Debug.Log("Released item: " + gameObject.name);
     }
 
-    public virtual void OnAltUse(GameObject user)
-    {
+    public virtual void OnAltUse(GameObject user) {
         // Fire once when alt use is pressed.
         //Debug.Log("Alt used item: " + gameObject.name);
     }
-    public virtual void OnAltHeld(GameObject user)
-    {
+    public virtual void OnAltHeld(GameObject user) {
         // Fire every frame when alt use is held.
         //Debug.Log("Alt held item: " + gameObject.name);
     }
-    public virtual void OnAltRelease(GameObject user)
-    {
+    public virtual void OnAltRelease(GameObject user) {
         // Fire once when alt use is released.
         //Debug.Log("Alt released item: " + gameObject.name);
     }
-    public virtual void OnSwapOut(GameObject user)
-    {
+    public virtual void OnSwapOut(GameObject user) {
         // Called when the item is swapped out.
         //Debug.Log("Switched items, charge cancelled for: " + gameObject.name);
     }
 
     // called when turret locks on target (facing target)
     // ex. start channeled behaviors such as flamethrower FlameStarted = true;
-    public virtual void OnTurretStartLockon(GameObject turret)
-    {
+    public virtual void OnTurretStartLockon(GameObject turret) {
         //Debug.Log("Turret active: " + gameObject.name);
     }
-    
-    public virtual void TurretItemLoopBehavior(GameObject turret, float lastUsed)
-    {
+
+    public virtual void TurretItemLoopBehavior(GameObject turret, float lastUsed) {
 
     }
 
     // called when turret no longer has a target.
     // ex. stop channeled behaviors such as flamethrower FlameStarted = false;
-    public virtual void OnTurretStopLockon(GameObject turret)
-    {
+    public virtual void OnTurretStopLockon(GameObject turret) {
         //Debug.Log("Turret inactive: " + gameObject.name);
     }
 
@@ -188,28 +171,22 @@ public abstract class Item : NetworkBehaviour
 
     #region SYNCHELPERS
     // Helpers. Used by the UI cooldown script. =======================================================================
-    public float GetCooldownRemaining()
-    {
+    public float GetCooldownRemaining() {
         return Mathf.Max(0, GetLastUsed() + cooldown - Time.time);
     }
-    public float GetMaxCooldown()
-    {
+    public float GetMaxCooldown() {
         return cooldown;
     }
 
 
     // Sets server quantity to local quantity (passed as parameter).
-    public void SyncServerNetVarToLocal()
-    {
-        if (userRef == null)
-        {
+    public void SyncServerNetVarToLocal() {
+        if (userRef == null) {
             SyncServerToLocalServerRpc(quantity, IsPickedUp);
         }
-        else
-        {
+        else {
             var userNetObj = userRef.GetComponent<NetworkObject>();
-            if (userNetObj == null)
-            {
+            if (userNetObj == null) {
                 Debug.LogError("SyncServerNetVarToLocal: userRef is null.");
                 return;
             }
@@ -217,15 +194,13 @@ public abstract class Item : NetworkBehaviour
         }
     }
     [ServerRpc(RequireOwnership = false)]
-    private void SyncServerToLocalServerRpc(int quantity, bool isPickedUp)
-    {
+    private void SyncServerToLocalServerRpc(int quantity, bool isPickedUp) {
         n_syncedQuantity.Value = quantity;
         n_isPickedUp.Value = isPickedUp;
         // SyncClientsToServer();
     }
     [ServerRpc(RequireOwnership = false)]
-    private void SyncServerToLocalServerRpc(int quantity, bool isPickedUp, NetworkObjectReference userNetObj)
-    {
+    private void SyncServerToLocalServerRpc(int quantity, bool isPickedUp, NetworkObjectReference userNetObj) {
         // Sync the local variables to the server.
         n_syncedQuantity.Value = quantity;
         n_isPickedUp.Value = isPickedUp;
@@ -234,12 +209,9 @@ public abstract class Item : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SyncLocalToServerServerRpc(ulong clientId = 0)
-    {
-        ClientRpcParams rpcParams = new ClientRpcParams
-        {
-            Send = new ClientRpcSendParams
-            {
+    private void SyncLocalToServerServerRpc(ulong clientId = 0) {
+        ClientRpcParams rpcParams = new ClientRpcParams {
+            Send = new ClientRpcSendParams {
                 TargetClientIds = new ulong[] { clientId }
             }
         };
@@ -247,15 +219,13 @@ public abstract class Item : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void SyncLocalToServerClientRpc(ClientRpcParams clientRpcParams = default)
-    {
+    private void SyncLocalToServerClientRpc(ClientRpcParams clientRpcParams = default) {
 
         //Debug.Log("Syncing local to server for item: " + uniqueID);
         quantity = n_syncedQuantity.Value;
         IsPickedUp = n_isPickedUp.Value;
         bool hideItem = (!n_isCurrentlySelected.Value && IsPickedUp) ? true : false;
-        foreach (Renderer r in GetComponentsInChildren<Renderer>())
-        {
+        foreach (Renderer r in GetComponentsInChildren<Renderer>()) {
             r.enabled = !hideItem;
         }
         userRef = GetGameObjectFromNetObj(n_userRef.Value);
@@ -264,34 +234,63 @@ public abstract class Item : NetworkBehaviour
 
     #endregion
 
+    private IEnumerator AutoDespawnSequence() {
+        yield return new WaitForSeconds(3f);
+        FlickerClientRpc();
+        yield return new WaitForSeconds(1.4f);
+
+        var netObj = GetComponent<NetworkObject>();
+        if (netObj != null && netObj.IsSpawned) {
+            netObj.Despawn();
+        }
+        Destroy(gameObject);
+    }
+
+    [ClientRpc]
+    private void FlickerClientRpc(ClientRpcParams clientRpcParams = default) {
+        StartCoroutine(FlickerCoroutine());
+    }
+
+    private IEnumerator FlickerCoroutine() {
+        var renderers = GetComponentsInChildren<Renderer>();
+        float flickerDuration = 1f;
+        float interval = 0.1f;
+        float elapsed = 0f;
+
+        while (elapsed < flickerDuration) {
+            foreach (var r in renderers)
+                r.enabled = !r.enabled;
+            yield return new WaitForSeconds(interval);
+            elapsed += interval;
+        }
+        // restore visibility
+        foreach (var r in renderers)
+            r.enabled = true;
+    }
 
 
     #region TURRETHELPERS
     #endregion
 
-    public bool TurretNullChecksFailed(GameObject turret)
-    {
-        if (turret == null)
-        {
+    public bool TurretNullChecksFailed(GameObject turret) {
+        if (turret == null) {
             Debug.LogError("Pistol_MONO: TurretNullChecksFailed() turret is null.");
             return true;
         }
         return false;
     }
-    public bool TurretCooldownCheckFailed(float lastUsed)
-    {
-        if (lastUsed + cooldown > Time.time)
-        {
+    public bool TurretCooldownCheckFailed(float lastUsed) {
+        if (lastUsed + cooldown > Time.time) {
             return true;
         }
         return false;
     }
 
-    public float GetLastUsedTurret(GameObject turret){
+    public float GetLastUsedTurret(GameObject turret) {
         return turret.GetComponent<TurretController_SCRIPT>()._timeLastUsed;
     }
 
-    public void SetLastUsedTurret(GameObject turret, float time){
+    public void SetLastUsedTurret(GameObject turret, float time) {
         // set turret's last used to time
         TurretController_SCRIPT tc = turret.GetComponent<TurretController_SCRIPT>();
         tc._timeLastUsed = time;
@@ -299,51 +298,41 @@ public abstract class Item : NetworkBehaviour
 
 
     #region HELPERS
-    protected void PlaySoundEmitter(string soundId)
-    { 
+    protected void PlaySoundEmitter(string soundId) {
         soundEmitters = GetComponents<SoundEmitter>();
         string emitterId = soundId;
 
 
-        foreach (SoundEmitter emitter in soundEmitters)
-        {
-            if (emitter.emitterID == emitterId)
-            {
+        foreach (SoundEmitter emitter in soundEmitters) {
+            if (emitter.emitterID == emitterId) {
                 emitter.PlayNetworkedSound(transform.position);
 
             }
         }
     }
 
-    private GameObject GetWeaponSlot(GameObject player)
-    {
-        if (player == null)
-        {
+    private GameObject GetWeaponSlot(GameObject player) {
+        if (player == null) {
             //Debug.Log("GetWeaponSlot: player is null.");
             return null;
         }
         Inventory inv = player.GetComponent<Inventory>();
-        if (inv == null)
-        {
+        if (inv == null) {
             Debug.LogError("GetWeaponSlot: Inventory component not found on player.");
             return null;
         }
         GameObject weaponSlot = inv.weaponSlot;
-        if (weaponSlot == null)
-        {
+        if (weaponSlot == null) {
             Debug.LogError("GetWeaponSlot: Weapon slot not found.");
             return null;
         }
         return weaponSlot;
     }
-    private GameObject GetGameObjectFromNetObj(NetworkObjectReference netObj)
-    {
-        if (netObj.TryGet(out NetworkObject obj))
-        {
+    private GameObject GetGameObjectFromNetObj(NetworkObjectReference netObj) {
+        if (netObj.TryGet(out NetworkObject obj)) {
             return obj.gameObject;
         }
-        else
-        {
+        else {
             Debug.Log("GetGameObjectFromNetObj: Could not get game object from network object reference. UserRef set null.");
             return null;
         }
