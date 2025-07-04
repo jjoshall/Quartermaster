@@ -121,15 +121,16 @@ public class GameManager : NetworkBehaviour {
     [SerializeField] private bool smallExplosiveEnemy_UseGlobalTarget;
     [SerializeField] private float smallExplosiveEnemy_Speed;
 
-    [SerializeField] private float[] _playersToEnemyHpMultiplier = new float[10] {  0.1f, 
-                                                                                    1.0f, 
-                                                                                    1.5f, 
-                                                                                    2.0f, 
-                                                                                    2.25f, 
-                                                                                    2.5f, 
-                                                                                    2.675f, 
-                                                                                    2.75f, 
-                                                                                    2.875f, 
+    [SerializeField]
+    private float[] _playersToEnemyHpMultiplier = new float[10] {  0.1f,
+                                                                                    1.0f,
+                                                                                    1.5f,
+                                                                                    2.0f,
+                                                                                    2.25f,
+                                                                                    2.5f,
+                                                                                    2.675f,
+                                                                                    2.75f,
+                                                                                    2.875f,
                                                                                     3.0f }; // Multiplier for enemy hp based on player count
 
     [Header("BurstDropRate")]
@@ -326,10 +327,8 @@ public class GameManager : NetworkBehaviour {
         Debug.Log($"Setting Steam leaderboard score for {leaderboardName} to {score}");
     }
 
-    public void OnLeaderboardFindResult(LeaderboardFindResult_t result)
-    {
-        if (result.m_bLeaderboardFound == 1)
-        {
+    public void OnLeaderboardFindResult(LeaderboardFindResult_t result) {
+        if (result.m_bLeaderboardFound == 1) {
             Debug.Log($"Leaderboard found: {result.m_hSteamLeaderboard}");
 
             SteamUserStats.UploadLeaderboardScore(
@@ -341,10 +340,9 @@ public class GameManager : NetworkBehaviour {
             );
 
             Debug.Log($"Score {pendingScore} uploaded to leaderboard {pendingLeaderboardName}");
-            
+
         }
-        else
-        {
+        else {
             Debug.LogError("Leaderboard not found.");
         }
     }
@@ -387,19 +385,16 @@ public class GameManager : NetworkBehaviour {
 
     #region GameManagerSetup
     public NetworkList<NetworkObjectReference> n_players { get; private set; }
-    public NetworkList<NetworkObjectReference> n_enemies { get; private set;}
-    public NetworkList<NetworkObjectReference> n_worldItems { get; private set;}
+    public NetworkList<NetworkObjectReference> n_enemies { get; private set; }
+    public NetworkList<NetworkObjectReference> n_worldItems { get; private set; }
 
     // singleton code
     public static GameManager instance;
-    private void Awake()
-    {
-        if (instance == null)
-        {
+    private void Awake() {
+        if (instance == null) {
             instance = this;
         }
-        else
-        {
+        else {
             Destroy(this);
         }
         InitializeRuntimeVars();
@@ -414,7 +409,6 @@ public class GameManager : NetworkBehaviour {
 
         UpdatePlayerCount();
 
-        timerRunning = true;
     }
 
     private void OnClientConnected(ulong clientId) {
@@ -470,8 +464,7 @@ public class GameManager : NetworkBehaviour {
         n_worldItems = new NetworkList<NetworkObjectReference>();
     }
 
-    public override void OnNetworkDespawn()
-    {
+    public override void OnNetworkDespawn() {
         if (!IsServer || NetworkManager.Singleton == null) return;
 
         NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;

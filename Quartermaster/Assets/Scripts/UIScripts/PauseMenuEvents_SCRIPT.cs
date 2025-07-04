@@ -2,8 +2,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
+using UnityEngine.SocialPlatforms;
 
-public class PauseMenuToggler : MonoBehaviour {
+public class PauseMenuToggler : NetworkBehaviour {
     [Header("UI References")]
     [SerializeField] private Canvas pauseCanvas;      // Your PauseMenu Canvas
     [SerializeField] private Canvas playerUICanvas;     // The main Player UI Canvas
@@ -16,7 +17,7 @@ public class PauseMenuToggler : MonoBehaviour {
 
     [Header("Player")]
     [Tooltip("Player controller for movement restrictions")]
-    [SerializeField] private PlayerController playerController;
+    private PlayerController localPlayerController;
 
     private bool isPauseCanvasActive = false;
     public static bool IsPaused { get; set; } = false;
@@ -58,12 +59,35 @@ public class PauseMenuToggler : MonoBehaviour {
         }
     }
 
+    public override void OnNetworkSpawn() {
+        if (!IsOwner) {
+            enabled = false;
+            return;
+        }
+
+        var all = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        foreach (var pc in all) {
+            if (pc.IsOwner) {
+                localPlayerController = pc;
+                break;
+            }
+        }
+
+        if (pauseCanvas != null) pauseCanvas.gameObject.SetActive(false);
+        if (settingsCanvas != null) settingsCanvas.gameObject.SetActive(false);
+        if (gameOverCanvas != null) gameOverCanvas.gameObject.SetActive(false);
+    }
+
     private void TogglePauseMenu() {
         isPauseCanvasActive = !isPauseCanvasActive;
         IsPaused = isPauseCanvasActive;
 
         if (pauseCanvas != null)
             pauseCanvas.gameObject.SetActive(isPauseCanvasActive);
+
+        if (localPlayerController != null) {
+            localPlayerController.movementRestricted = isPauseCanvasActive;
+        }
 
         if (isPauseCanvasActive) {
             Cursor.lockState = CursorLockMode.None;
@@ -81,6 +105,10 @@ public class PauseMenuToggler : MonoBehaviour {
         IsPaused = false;
         if (pauseCanvas != null)
             pauseCanvas.gameObject.SetActive(false);
+
+        if (localPlayerController != null) {
+            localPlayerController.movementRestricted = false;
+        }
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -107,6 +135,11 @@ public class PauseMenuToggler : MonoBehaviour {
         if (settingsCanvas != null)
             settingsCanvas.gameObject.SetActive(true);
 
+        if (localPlayerController != null) {
+            localPlayerController.movementRestricted = true;
+        }
+
+
         IsPaused = true;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -121,6 +154,9 @@ public class PauseMenuToggler : MonoBehaviour {
         if (gameOverCanvas != null)
             gameOverCanvas.gameObject.SetActive(true);
 
+        if (localPlayerController != null) {
+            localPlayerController.movementRestricted = true;
+        }
         IsPaused = true;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;

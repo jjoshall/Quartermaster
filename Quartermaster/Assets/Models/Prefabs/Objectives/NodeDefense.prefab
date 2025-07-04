@@ -441,11 +441,13 @@ MonoBehaviour:
   objectiveRing: {fileID: 1871320238847786716}
   n_defenseCompleted:
     m_InternalValue: 0
-  nodeDefenseDuration: 30
+  nodeDefenseDuration: 3
   spawnCdMultiplier: 0.25
   globalAggroMultiplier: 0.1
   _turretItemPrefab: {fileID: 1895807861175784113, guid: 048cc1a8c3b42455786a91fa5e1dc21e, type: 3}
-  _turretItemsSpawned: []
+  onNodeDefenseDeactivated:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &3325286732709450222
 MonoBehaviour:
   m_ObjectHideFlags: 0

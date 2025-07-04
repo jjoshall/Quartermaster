@@ -33,6 +33,8 @@ public class FrontDoorAnimationController : NetworkBehaviour {
             isPaused = false;
         }
 
+        GameManager.instance.StartTimer();
+
         if (doorText != null) {
             doorText.SetActive(false); // Disable the door text
         }

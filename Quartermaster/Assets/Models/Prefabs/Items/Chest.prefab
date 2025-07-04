@@ -4961,6 +4961,7 @@ GameObject:
   - component: {fileID: -2367084607769179559}
   - component: {fileID: -6602655150204240151}
   - component: {fileID: -5090607004135235637}
+  - component: {fileID: 5709567113133685731}
   m_Layer: 0
   m_Name: Chest
   m_TagString: Untagged
@@ -5057,7 +5058,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.05, y: 1.24, z: 1.02}
+  m_Size: {x: 4, y: 4, z: 4}
   m_Center: {x: 0, y: 0.09, z: 0}
 --- !u!114 &6140705909028626934
 MonoBehaviour:
@@ -5258,3 +5259,24 @@ MonoBehaviour:
   references:
     version: 2
     RefIds: []
+--- !u!65 &5709567113133685731
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7402761068970283670}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.99999994, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}

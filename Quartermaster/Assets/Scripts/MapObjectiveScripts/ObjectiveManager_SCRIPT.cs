@@ -2,12 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Services.Analytics;
 using Unity.Netcode;
-using UnityEngine.Rendering.PostProcessing;
-using Unity.VisualScripting;
-using UnityEngine.Localization.SmartFormat.Utilities;
-using System;
 using TMPro;
-using UnityEngine.Analytics;
 
 public class ObjectiveManager : NetworkBehaviour {
 
@@ -22,7 +17,7 @@ public class ObjectiveManager : NetworkBehaviour {
 
     public List<ObjectiveType> minPerObjective; // minimum number of each objective to spawn
     [System.Serializable]
-    public struct ObjectiveType {   
+    public struct ObjectiveType {
         public int minimumToSpawn;
         public GameObject objectivePrefab;
     }
@@ -41,7 +36,8 @@ public class ObjectiveManager : NetworkBehaviour {
         if (instance == null) {
             instance = this;
             DontDestroyOnLoad(gameObject);
-        } else {
+        }
+        else {
             Destroy(gameObject);
 
         }
@@ -50,7 +46,7 @@ public class ObjectiveManager : NetworkBehaviour {
 
     #region RuntimeVars
     [Header("Runtime")]
-    private NetworkVariable<int> n_objectivesToWin 
+    private NetworkVariable<int> n_objectivesToWin
                             = new NetworkVariable<int>(); // initialized to N. decremented at runtime.
     private NetworkList<int> n_minPerObjective = new NetworkList<int>();
     // validpointsList.
@@ -69,23 +65,22 @@ public class ObjectiveManager : NetworkBehaviour {
 
     #endregion
 
-    void Start(){
+    void Start() {
         // InitializeObjectiveManager();
     }
-    public override void OnNetworkSpawn(){
-        if (IsServer){
+    public override void OnNetworkSpawn() {
+        if (IsServer) {
             InitializeObjectiveManager();
-        } else if (IsClient){
+        }
+        else if (IsClient) {
             Debug.Log("ObjectiveManager: OnNetworkSpawn() client.");
             for (int i = 0; i < n_randType.Count; i++) {
                 AddObjectiveToTaskList(n_randType[i], n_randValid[i]);
             }
             // Spawn n_activeobjectives
-            foreach (ulong netId in n_ActiveObjectives)
-            {
+            foreach (ulong netId in n_ActiveObjectives) {
                 NetworkObject netObj = NetworkManager.Singleton.SpawnManager.SpawnedObjects[netId];
-                if (netObj != null)
-                {
+                if (netObj != null) {
                     GameObject instance = Instantiate(netObj.gameObject, netObj.transform.position, netObj.transform.rotation);
                     instance.GetComponent<NetworkObject>().SpawnWithOwnership(netId);
                 }
@@ -93,51 +88,49 @@ public class ObjectiveManager : NetworkBehaviour {
         }
     }
 
-    private void InitializeObjectiveManager(){
+    private void InitializeObjectiveManager() {
         if (!IsServer) return;
         GrabValidPointsServerRpc();
         InitRuntimeNetworkVarsServerRpc();
         LowerBoundWinServerRpc();
         initialSpawnCount = Mathf.Min(initialSpawnCount, objectivesToWin);
-        SpawnObjectivesServerRpc(initialSpawnCount);  
+        SpawnObjectivesServerRpc(initialSpawnCount);
     }
 
 
     [ServerRpc(RequireOwnership = false)]
-    private void GrabValidPointsServerRpc()
-    {
+    private void GrabValidPointsServerRpc() {
         // get all children of this object
-        foreach (GameObject child in _objectiveSpawnPoints)
-        {
+        foreach (GameObject child in _objectiveSpawnPoints) {
             // add all children to the objectivesList
             _validPointsList.Add(child.gameObject);
             n_validPointHasObj.Add(false);
         }
-        
+
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void InitRuntimeNetworkVarsServerRpc(){
+    private void InitRuntimeNetworkVarsServerRpc() {
         n_objectivesToWin.Value = objectivesToWin;
-        for (int i = 0; i < minPerObjective.Count; i++){
+        for (int i = 0; i < minPerObjective.Count; i++) {
             n_minPerObjective.Add(minPerObjective[i].minimumToSpawn);
         }
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void LowerBoundWinServerRpc(){
-        
+    private void LowerBoundWinServerRpc() {
+
         int total = 0;                                         // grab total of min per objective.
-        for (int i = 0; i < n_minPerObjective.Count; i++){
+        for (int i = 0; i < n_minPerObjective.Count; i++) {
             total += n_minPerObjective[i];
         }
         n_objectivesToWin.Value = Mathf.Max(objectivesToWin, total);   // lower bound objectivesToWin
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SpawnObjectivesServerRpc(int count){
-        for (int i = 0; i < count; i++){
-            if (!TotalMinLessThanObjectivesToWin()){
+    private void SpawnObjectivesServerRpc(int count) {
+        for (int i = 0; i < count; i++) {
+            if (!TotalMinLessThanObjectivesToWin()) {
                 CullZeroesServerRpc();
             }
             // spawn a random objective.
@@ -147,19 +140,19 @@ public class ObjectiveManager : NetworkBehaviour {
     }
 
     // Checks the runtime network variables.
-    private bool TotalMinLessThanObjectivesToWin(){
+    private bool TotalMinLessThanObjectivesToWin() {
         int total = 0;
-        for (int i = 0; i < n_minPerObjective.Count; i++){
+        for (int i = 0; i < n_minPerObjective.Count; i++) {
             total += n_minPerObjective[i];
         }
         return total < n_objectivesToWin.Value;
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void CullZeroesServerRpc(){
+    private void CullZeroesServerRpc() {
         if (!IsServer) return;
-        for (int i = 0; i < minPerObjective.Count; i++){
-            if (minPerObjective[i].minimumToSpawn == 0){
+        for (int i = 0; i < minPerObjective.Count; i++) {
+            if (minPerObjective[i].minimumToSpawn == 0) {
                 minPerObjective.RemoveAt(i);
                 n_minPerObjective.RemoveAt(i);
             }
@@ -167,10 +160,10 @@ public class ObjectiveManager : NetworkBehaviour {
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SpawnRandomObjectiveServerRpc(){
+    private void SpawnRandomObjectiveServerRpc() {
         int randType = UnityEngine.Random.Range(0, minPerObjective.Count);  // random objective in range of minperobj
         GameObject prefab = minPerObjective[randType].objectivePrefab;
-        
+
         int randValid = GetRandomValidPoint();
         n_validPointHasObj[randValid] = true;
         Vector3 randomValidGround = RaycastToGround(_validPointsList[randValid]);
@@ -190,7 +183,7 @@ public class ObjectiveManager : NetworkBehaviour {
         var objType = minPerObjective[randType];
         objType.minimumToSpawn--;
         minPerObjective[randType] = objType;
-        if (minPerObjective[randType].minimumToSpawn <= 0){
+        if (minPerObjective[randType].minimumToSpawn <= 0) {
             minPerObjective.RemoveAt(randType);
             n_minPerObjective.RemoveAt(randType);
         }
@@ -214,19 +207,20 @@ public class ObjectiveManager : NetworkBehaviour {
         // taskList.text += minPerObjective[randType].objectivePrefab + "\n";
     }
 
-    private int GetRandomValidPoint(){
+    private int GetRandomValidPoint() {
         int rand = UnityEngine.Random.Range(0, _validPointsList.Count);
 
         int tries = 1000;
-        for (int i = 0; i < tries; i++){
-            if (n_validPointHasObj[rand]){
+        for (int i = 0; i < tries; i++) {
+            if (n_validPointHasObj[rand]) {
                 rand = UnityEngine.Random.Range(0, _validPointsList.Count);
-            } else {
+            }
+            else {
                 break;
             }
         }
 
-        if (n_validPointHasObj[rand]){
+        if (n_validPointHasObj[rand]) {
             Debug.Log("ObjectiveManager: GetRandomValidPoint() failed to find a valid point in " + tries + " tries. Returning last rand attempt.");
         }
 
@@ -235,14 +229,14 @@ public class ObjectiveManager : NetworkBehaviour {
 
     }
 
-    private Vector3 RaycastToGround(GameObject validPoint){
+    private Vector3 RaycastToGround(GameObject validPoint) {
         RaycastHit hit;
         LayerMask mask = LayerMask.GetMask("whatIsGround");
         float RAYCAST_DISTANCE = 10.0f;
-        if (Physics.Raycast(validPoint.transform.position, Vector3.down, out hit, RAYCAST_DISTANCE, mask)){
+        if (Physics.Raycast(validPoint.transform.position, Vector3.down, out hit, RAYCAST_DISTANCE, mask)) {
             return hit.point;
         }
-        if (hit.collider == null){
+        if (hit.collider == null) {
             return validPoint.transform.position;
         }
         return hit.point;
@@ -251,7 +245,7 @@ public class ObjectiveManager : NetworkBehaviour {
     // ==============================================================================================
     #region = Objectives
     [ServerRpc(RequireOwnership = false)]
-    public void ClearObjectiveServerRpc(NetworkObjectReference refe, int index){
+    public void ClearObjectiveServerRpc(NetworkObjectReference refe, int index) {
         if (AnalyticsManager_SCRIPT.Instance != null && AnalyticsManager_SCRIPT.Instance.IsAnalyticsReady()) {
             AnalyticsService.Instance.RecordEvent("ObjectiveCompleted");
         }
@@ -259,11 +253,11 @@ public class ObjectiveManager : NetworkBehaviour {
         UpdateTaskListClientRpc(index);
 
         if (!IsServer) return;
-        if (!refe.TryGet(out NetworkObject netObj)){
+        if (!refe.TryGet(out NetworkObject netObj)) {
             Debug.LogError("ObjectiveManager: ClearObjective() netObj is null.");
         }
         IObjective obj = netObj.GetComponent<IObjective>();
-        if (obj == null){
+        if (obj == null) {
             Debug.LogError("ObjectiveManager: ClearObjective() obj is null.");
             return;
         }
@@ -273,9 +267,10 @@ public class ObjectiveManager : NetworkBehaviour {
         netObj.Despawn(true);
 
         // spawn some kind of projectile?
-        if (n_objectivesToWin.Value > 0){
+        if (n_objectivesToWin.Value > 0) {
             SpawnObjectivesServerRpc(1);
-        } else {
+        }
+        else {
             ClearedAllObjectivesServerRpc();
         }
     }
@@ -312,14 +307,14 @@ public class ObjectiveManager : NetworkBehaviour {
         string prevText = (-1 * (previous - total)) + " / " + total + " Items Delivered: ";
 
         if (taskList.text.Contains("No items delivered yet. ")) {
-                taskList.text = taskList.text.Replace(
-                $"No items delivered yet. <size=1%>{index + 11}</size><color=red>Incomplete</color> ", $"{text}<size=1%>{index + 11}</size><color=red>Incomplete</color> "
-            );
-        }
             taskList.text = taskList.text.Replace(
-            $"{prevText}<size=1%>{index + 11}</size><color=red>Incomplete</color> ", $"{text}<size=1%>{index + 11}</size><color=red>Incomplete</color> "
+            $"No items delivered yet. <size=1%>{index + 11}</size><color=red>Incomplete</color> ", $"{text}<size=1%>{index + 11}</size><color=red>Incomplete</color> "
         );
-        
+        }
+        taskList.text = taskList.text.Replace(
+        $"{prevText}<size=1%>{index + 11}</size><color=red>Incomplete</color> ", $"{text}<size=1%>{index + 11}</size><color=red>Incomplete</color> "
+    );
+
     }
 
     #endregion 
@@ -327,7 +322,7 @@ public class ObjectiveManager : NetworkBehaviour {
     // ==============================================================================================
     #region = BossPhase172
     [ServerRpc(RequireOwnership = false)]
-    private void ClearedAllObjectivesServerRpc(){
+    private void ClearedAllObjectivesServerRpc() {
 
         if (n_objectivesToWin.Value <= (objectivesToWin * -1)) { // not sure how this conditional will interact with increasing the amount of objectives spawned
             ListCompleteClientRpc();
@@ -340,16 +335,16 @@ public class ObjectiveManager : NetworkBehaviour {
     }
 
     [ServerRpc]
-    private void DebugServerRpc(string msg){
+    private void DebugServerRpc(string msg) {
         Debug.Log(msg);
 
     }
     [ClientRpc]
-    private void DebugAllClientRpc(string msg){
+    private void DebugAllClientRpc(string msg) {
         Debug.Log(msg);
     }
     [ClientRpc]
-    private void ListCompleteClientRpc(){
+    private void ListCompleteClientRpc() {
         taskList.text += "\n" + "<color=green>All objectives complete!</color>" + "\n";
     }
     [ClientRpc]

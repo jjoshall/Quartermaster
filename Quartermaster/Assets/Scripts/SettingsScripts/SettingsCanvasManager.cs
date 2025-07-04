@@ -4,57 +4,45 @@ using TMPro;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
-public class SettingsCanvasManager : MonoBehaviour
-{
+public class SettingsCanvasManager : MonoBehaviour {
     [SerializeField] private Button returnToPrevBtn;
-    
+
     [SerializeField] private bool isMainMenuContext = false;
-    
+
     [SerializeField] private Canvas pauseCanvas;
     [SerializeField] private GameObject mainMenuCanvasPrefab;
     [SerializeField] private Canvas settingsCanvas;
-    [SerializeField] private GameObject codeField;
 
-    private void Awake()
-    {
-        if (returnToPrevBtn != null)
-        {
+    private void Awake() {
+        if (returnToPrevBtn != null) {
             returnToPrevBtn.onClick.AddListener(ReturnToPrevious);
         }
-        else
-        {
+        else {
             // Debug.LogError("Return button is not assigned in SettingsCanvasManager.");
         }
     }
 
-    private void ReturnToPrevious()
-    {
-        if (isMainMenuContext)
-        {
+    private void ReturnToPrevious() {
+        if (isMainMenuContext) {
             // Cursor.lockState = CursorLockMode.Locked;
             // Cursor.visible = false;
             settingsCanvas.gameObject.SetActive(false);
             mainMenuCanvasPrefab.SetActive(true);
-            if (pauseCanvas != null)
-            {
+            if (pauseCanvas != null) {
                 pauseCanvas.gameObject.SetActive(true);
             }
         }
-        else
-        {
-            if (pauseCanvas != null)
-            {
+        else {
+            if (pauseCanvas != null) {
                 pauseCanvas.gameObject.SetActive(true);
             }
             // gameObject.SetActive(false); commented this out for now bc pressing return would disable UIManager
         }
     }
 
-    private void AddHoverEffect(Button button)
-    {
+    private void AddHoverEffect(Button button) {
         TextMeshProUGUI buttonText = button.GetComponentInChildren<TextMeshProUGUI>();
-        if (buttonText == null)
-        {
+        if (buttonText == null) {
             Debug.LogWarning($"No TextMeshProUGUI found in {button.name}'s children.");
             return;
         }
@@ -73,19 +61,8 @@ public class SettingsCanvasManager : MonoBehaviour
         trigger.triggers.Add(entryExit);
     }
 
-    private void ChangeTextColor(TextMeshProUGUI text, Color color)
-    {
+    private void ChangeTextColor(TextMeshProUGUI text, Color color) {
         text.color = color;
-    }
-
-    public void ShowLobbyCodeField()
-    {
-        if (!codeField.gameObject.activeSelf) {
-            codeField.gameObject.SetActive(true);
-        }
-        else {
-            codeField.gameObject.SetActive(false);
-        }
     }
 }
 

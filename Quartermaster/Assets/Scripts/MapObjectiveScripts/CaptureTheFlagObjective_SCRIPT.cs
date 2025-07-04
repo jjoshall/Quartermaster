@@ -1,145 +1,73 @@
-using UnityEngine;
 using System.Collections.Generic;
-using System.Collections;
+using UnityEngine;
 using Unity.Netcode;
 
-public class CaptureTheFlagObjective : IObjective
-{
-    // public List<GameObject> nodes;
+public class CaptureTheFlagObjective : IObjective {
+    [Header("Defense Settings")]
+    [Tooltip("Duration in seconds to defend the node before it is cleared.")]
+    public float nodeDefenseDuration = 4f;
 
+    [SerializeField] private GameObject objectiveRing;
+    [SerializeField] private Transform beacon;
+
+    private float _currentDefenseTimer = 0f;
+    private List<Transform> _playersInRange = new List<Transform>();
     private bool _isComplete = false;
 
-    [SerializeField] private Transform beacon;
-    private Transform playerTransform;
+    public override bool IsComplete() => _isComplete;
 
-    public override bool IsComplete()
-    {
-        return _isComplete;
-        // throw new System.NotImplementedException();
-    }
-    #region Inspector
-    [SerializeField] private GameObject objectiveRing;
-
-    #endregion
-
-    #region Variables
-    // public NetworkVariable<bool> n_defenseCompleted = new NetworkVariable<bool>(false); // completed when players successfully complete the defense.
-    // private NetworkVariable<bool> n_nodeDefenseActive = new NetworkVariable<bool>(false); // active with players in range.
-
-    // [Tooltip("Duration in seconds to defend the node before it is cleared.")]
-    // public float nodeDefenseDuration = 60f; // time until node complete.
-    // private float _currentDefenseTimer = 0f;
-    // private List<GameObject> _playersInRange = new List<GameObject>();
-
-    // STRETCH GOAL: Additional node defense constraints.
-    //               - Keep track of player. Each player has to contribute to the inRange condition.
-    //               - 
-
-    // private float _particleTimer = 0f;
-    // private float _particleInterval = 2.0f;
-
-    #endregion 
-
-    #region = Setup
-
-    void Start()
-    {
-        // // n_defenseCompleted.Value = false;
-        // _currentDefenseTimer = 0f;
-        // // n_nodeDefenseActive.Value = false;
-        // _particleTimer = 0f;
-    }
-
-    public override void OnNetworkSpawn()
-    {
+    public override void OnNetworkSpawn() {
+        base.OnNetworkSpawn();
         if (!IsServer) return;
-        // // n_defenseCompleted.Value = false;
-        // _currentDefenseTimer = 0f;
-        // // n_nodeDefenseActive.Value = false;
-        // _particleTimer = 0f;
+        _currentDefenseTimer = 0f;
+        _playersInRange.Clear();
+        _isComplete = false;
     }
 
-    void Update(){
-        if (playerTransform.position.z < 7 && (playerTransform.position.x < 6 && playerTransform.position.x > -6)) {
+    private void Update() {
+        if (!IsServer || _isComplete) return;
+
+        if (_playersInRange.Count > 0) {
+            _currentDefenseTimer += Time.deltaTime;
+            ObjectiveManager.instance.NodeZoneTextHelperClientRpc(true);
+        }
+        else {
+            if (_currentDefenseTimer > 0f)
+                _currentDefenseTimer -= Time.deltaTime;
+
+            ObjectiveManager.instance.NodeZoneTextHelperClientRpc(false);
+        }
+
+        if (_currentDefenseTimer >= nodeDefenseDuration) {
+            _isComplete = true;
             ClearObjective();
             GameManager.instance.AddScoreServerRpc(200);
             Debug.Log("Total score " + GameManager.instance.totalScore.Value);
             beacon.gameObject.SetActive(false);
-            return;
         }
     }
 
-    #endregion 
 
+    public void PublicTriggerEnter(Collider other) {
+        if (!IsServer || !other.CompareTag("Player")) return;
 
-    #region = Logic
-
-    // private void UpdateDefenseTimer(){
-    //     // increment if hasPlayersinRange, decrement if no players in range
-    //     if (_currentDefenseTimer >= nodeDefenseDuration){
-    //         SetDefenseCompletedServerRpc(true);
-    //         ClearObjective();
-    //         GameManager.instance.AddScoreServerRpc(200);
-    //         Debug.Log("Total score " + GameManager.instance.totalScore.Value);
-    //         return;
-    //         // _particleInterval = 1000f;
-    //     }
-    //     if (n_nodeDefenseActive.Value){
-    //         _currentDefenseTimer += Time.deltaTime;
-    //     } else {
-    //         if (_currentDefenseTimer >= 0){
-    //             _currentDefenseTimer -= Time.deltaTime;
-    //         } else {
-    //             _currentDefenseTimer = 0;
-    //         }
-    //     }
-
-    //     // throw new System.NotImplementedException();
-    // }
-
-    // [ServerRpc(RequireOwnership = false)]
-    // public void SetDefenseCompletedServerRpc(bool completed){
-    //     n_defenseCompleted.Value = completed;
-    //     NodeZoneTextHelper();
-    // }
-
-    // [ServerRpc(RequireOwnership = false)]
-    // public void SetNodeDefenseActiveServerRpc(bool active){
-    //     n_nodeDefenseActive.Value = active;
-    // }   
-
-    // Using ObjectiveRing's trigger instead.
-    public void PublicTriggerEnter (Collider other){
-        if (other.gameObject.tag == "Player"){
-            playerTransform = other.gameObject.transform;
-            beacon.SetParent(playerTransform, worldPositionStays: true);
+        Transform player = other.transform;
+        if (!_playersInRange.Contains(player)) {
+            _playersInRange.Add(player);
+            beacon.SetParent(player, worldPositionStays: true);
         }
     }
 
-    public void PublicTriggerExit (Collider other){
-        if(other.gameObject.tag == "Player"){
-            // _playersInRange.Remove(other.gameObject);
-            // if(!HasPlayersInRange()){
-            //     SetNodeDefenseActiveServerRpc(false);
-            //     _currentDefenseTimer = 0f;
-            //     _particleTimer = 0f;
-            // }
-            // NodeZoneTextHelper();
+    public void PublicTriggerExit(Collider other) {
+        if (!IsServer || !other.CompareTag("Player")) return;
+
+        Transform player = other.transform;
+        if (_playersInRange.Remove(player)) {
+            // reset timer when everyone leaves
+            if (_playersInRange.Count == 0) {
+                _currentDefenseTimer = 0f;
+                ObjectiveManager.instance.NodeZoneTextHelperClientRpc(false);
+            }
         }
     }
-
-    #endregion
-
-    // #region = Helpers
-    // private float GetRatio(){
-    //     return _currentDefenseTimer / nodeDefenseDuration;
-    // }
-
-    // bool HasPlayersInRange(){
-    //     return _playersInRange.Count > 0;
-    // }
-
-    // #endregion
-
-
 }

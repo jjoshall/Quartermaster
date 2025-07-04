@@ -4,14 +4,12 @@ using System.Collections;
 using Unity.Netcode;
 using UnityEngine.Events;
 
-public class DefendNodeObjective : IObjective
-{
+public class DefendNodeObjective : IObjective {
     // public List<GameObject> nodes;
 
     private bool _isComplete = false;
 
-    public override bool IsComplete()
-    {
+    public override bool IsComplete() {
         return _isComplete;
         // throw new System.NotImplementedException();
     }
@@ -56,16 +54,14 @@ public class DefendNodeObjective : IObjective
 
     #region = Setup
 
-    void Start()
-    {
+    void Start() {
         // n_defenseCompleted.Value = false;
         _currentDefenseTimer = 0f;
         // n_nodeDefenseActive.Value = false;
         // _particleTimer = 0f;
     }
 
-    public override void OnNetworkSpawn()
-    {
+    public override void OnNetworkSpawn() {
         if (!IsServer) return;
         // n_defenseCompleted.Value = false;
         _currentDefenseTimer = 0f;
@@ -75,7 +71,7 @@ public class DefendNodeObjective : IObjective
 
     void Update() {
         if (!IsServer) return;
-        if (n_defenseCompleted.Value){
+        if (n_defenseCompleted.Value) {
             return;
         }
         UpdateDefenseTimer();
@@ -86,9 +82,9 @@ public class DefendNodeObjective : IObjective
 
     #region = Logic
 
-    private void UpdateDefenseTimer(){
+    private void UpdateDefenseTimer() {
         // increment if hasPlayersinRange, decrement if no players in range
-        if (_currentDefenseTimer >= nodeDefenseDuration){
+        if (_currentDefenseTimer >= nodeDefenseDuration) {
             SetDefenseCompletedServerRpc(true);
             ClearObjective();
             GameManager.instance.totalScore.Value += GameManager.instance.ScorePerObjective;
@@ -102,12 +98,12 @@ public class DefendNodeObjective : IObjective
                 if (health) {
                     if (health.Invincible.Value) {
                         SetNodeDefenseActiveServerRpc(false);
-                        NodeZoneTextHelper(false);   
+                        NodeZoneTextHelper(false);
                         _playersInRange.Remove(_playersInRange[i]);
                     }
                     else {
                         SetNodeDefenseActiveServerRpc(true);
-                        NodeZoneTextHelper(true);  
+                        NodeZoneTextHelper(true);
                     }
                 }
             }
@@ -117,12 +113,14 @@ public class DefendNodeObjective : IObjective
             NodeZoneTextHelper(false);
         }
 
-        if (n_nodeDefenseActive.Value){
+        if (n_nodeDefenseActive.Value) {
             _currentDefenseTimer += Time.deltaTime;
-        } else {
-            if (_currentDefenseTimer >= 0){
+        }
+        else {
+            if (_currentDefenseTimer >= 0) {
                 _currentDefenseTimer -= Time.deltaTime;
-            } else {
+            }
+            else {
                 _currentDefenseTimer = 0;
             }
         }
@@ -131,19 +129,17 @@ public class DefendNodeObjective : IObjective
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SetDefenseCompletedServerRpc(bool completed)
-    {
+    public void SetDefenseCompletedServerRpc(bool completed) {
         n_defenseCompleted.Value = completed;
         NodeZoneTextHelper(false);
         EnemySpawner.instance.globalAggroUpdateIntervalMultiplier = 1f;
         EnemySpawner.instance.spawnCooldownMultiplier = 1f;
-        
+
         SetNodeDefenseActiveServerRpc(false);
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SetNodeDefenseActiveServerRpc(bool active)
-    {
+    public void SetNodeDefenseActiveServerRpc(bool active) {
         if (active && !n_nodeDefenseActive.Value)
             SpawnTurretItemsServerRpc();
         if (!active && n_nodeDefenseActive.Value)
@@ -155,19 +151,18 @@ public class DefendNodeObjective : IObjective
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SpawnTurretItemsServerRpc()
-    {
-        for (int i = 0; i < 3; i++)
-        {
-            Vector3 spawnPosition = new Vector3(
-                transform.position.x + Random.Range(-2f, 2f),
-                transform.position.y + 2.0f,
-                transform.position.z + Random.Range(-2f, 2f)
-            );
-            GameObject turretItem = Instantiate(_turretItemPrefab, spawnPosition, Quaternion.identity);
-            turretItem.GetComponent<NetworkObject>().Spawn(true);
-            turretItem.GetComponent<TurretItem_MONO>().InitEvent(onNodeDefenseDeactivated);
-        }
+    private void SpawnTurretItemsServerRpc() {
+        return;
+        // for (int i = 0; i < 3; i++) {
+        //     Vector3 spawnPosition = new Vector3(
+        //         transform.position.x + Random.Range(-2f, 2f),
+        //         transform.position.y + 2.0f,
+        //         transform.position.z + Random.Range(-2f, 2f)
+        //     );
+        //     GameObject turretItem = Instantiate(_turretItemPrefab, spawnPosition, Quaternion.identity);
+        //     turretItem.GetComponent<NetworkObject>().Spawn(true);
+        //     turretItem.GetComponent<TurretItem_MONO>().InitEvent(onNodeDefenseDeactivated);
+        // }
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -185,20 +180,18 @@ public class DefendNodeObjective : IObjective
     }
 
     // Using ObjectiveRing's trigger instead.
-    public void PublicTriggerEnter(Collider other)
-    {
-        if (other.gameObject.tag == "Player")
-        {
+    public void PublicTriggerEnter(Collider other) {
+        if (other.gameObject.tag == "Player") {
             _playersInRange.Add(other.gameObject);
             SetNodeDefenseActiveServerRpc(true);
             NodeZoneTextHelper(true);
         }
     }
 
-    public void PublicTriggerExit (Collider other){
-        if(other.gameObject.tag == "Player"){
+    public void PublicTriggerExit(Collider other) {
+        if (other.gameObject.tag == "Player") {
             _playersInRange.Remove(other.gameObject);
-            if(!HasPlayersInRange()){
+            if (!HasPlayersInRange()) {
                 SetNodeDefenseActiveServerRpc(false);
                 _currentDefenseTimer = 0f;
                 // _particleTimer = 0f;
@@ -210,11 +203,11 @@ public class DefendNodeObjective : IObjective
     #endregion
 
     #region = Helpers
-    private float GetRatio(){
+    private float GetRatio() {
         return _currentDefenseTimer / nodeDefenseDuration;
     }
 
-    bool HasPlayersInRange(){
+    bool HasPlayersInRange() {
         return _playersInRange.Count > 0;
     }
 
