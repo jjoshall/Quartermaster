@@ -71,9 +71,7 @@ public class IPRelay : NetworkBehaviour {
         lobbyMatchList = Callback<LobbyMatchList_t>.Create(OnLobbyMatchList);
         lobbyChatUpdate = Callback<LobbyChatUpdate_t>.Create(OnLobbyChatUpdate);
 
-
-        // hide invite button if in editor
-
+        // hide invite & start buttons initially
         inviteFriendsButton.gameObject.SetActive(false);
         startGameButton.gameObject.SetActive(false);
     }
@@ -89,13 +87,9 @@ public class IPRelay : NetworkBehaviour {
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
         }
 
-
-        // callbacks to handle network shutdown if host or server dies
         NetworkManager.Singleton.OnClientStopped += HandleNetworkShutdown;
         NetworkManager.Singleton.OnServerStopped += HandleNetworkShutdown;
 
-        // for manual join, request steam lobby id if needed after joining unity relay
-        // if in editor, skip
         NetworkManager.Singleton.OnClientConnectedCallback += (clientId) => {
 #if !UNITY_EDITOR
             if (!NetworkManager.Singleton.IsHost && !alreadyInSteamLobby)
@@ -107,16 +101,13 @@ public class IPRelay : NetworkBehaviour {
     }
 
     private void Update() {
-
         if (gameObject.activeSelf) {
 #if !UNITY_EDITOR
             RefreshLobbyProfiles();
 #endif
         }
-
     }
 
-    //has some override issue with it but it didn't come up before so idk
 #pragma warning disable 0114
     private void OnDestroy() {
         if (NetworkManager.Singleton != null) {
@@ -124,93 +115,81 @@ public class IPRelay : NetworkBehaviour {
             NetworkManager.Singleton.OnServerStopped -= HandleNetworkShutdown;
         }
     }
-
+#pragma warning restore 0114
     #endregion
 
     #region Steam Functions
 
     public void CreateLobby(ELobbyType type = ELobbyType.k_ELobbyTypeFriendsOnly, int maxMembers = 4) {
         SteamMatchmaking.CreateLobby(type, maxMembers);
-        //Debug.LogError("Creating lobby...");
+
+        // hide both lobby buttons once pressed
         joinLobbyButton.gameObject.SetActive(false);
+        createLobbyButton.gameObject.SetActive(false);
 
         inviteFriendsButton.gameObject.SetActive(true);
 
-        //game start button enabled in createRelay if in editor        
 #if !UNITY_EDITOR
         startGameButton.gameObject.SetActive(true);
+        startGameButton.interactable = true;
 #endif
     }
 
     public void OnLobbyCreated(LobbyCreated_t result) {
         if (result.m_eResult != EResult.k_EResultOK) {
-            //Debug.LogError("Failed to create Steam lobby: " + result.m_eResult);
             return;
         }
 
         alreadyInSteamLobby = true;
         currentLobbyID = new CSteamID(result.m_ulSteamIDLobby);
-        //Debug.LogError("Steam lobby created with ID: " + currentLobbyID);
     }
 
     private void OnLobbyEntered(LobbyEnter_t enter) {
         currentLobbyID = new CSteamID(enter.m_ulSteamIDLobby);
-        //Debug.LogError($"Entered steam lobby with steam id: {currentLobbyID}");
 
 #if !UNITY_EDITOR
         RefreshLobbyProfiles();
 #endif
 
-
-
         if (NetworkManager.Singleton.IsHost) {
             SetRelayJoinCode(unityRelayJoinCode);
-            //Debug.LogError("set relay join code from OnLobbyEntered callback");
         }
 
-        if (alreadyInSteamLobby) {
-            //Debug.LogError("Already in steam lobby, skipping join code");
-        }
-        else {
+        if (!alreadyInSteamLobby) {
             string relayCode = SteamMatchmaking.GetLobbyData(currentLobbyID, "relay_join_code");
             if (!string.IsNullOrEmpty(relayCode)) {
-                //Debug.LogError($"Found relay code in lobby data: {relayCode}");
                 JoinRelay(relayCode);
                 alreadyInSteamLobby = true;
             }
-            else {
-                //ebug.LogError("No relay_join_code set for this lobby.");
-            }
         }
 
+        // hide lobby buttons
         createLobbyButton.gameObject.SetActive(false);
+        joinLobbyButton.gameObject.SetActive(false);
 
+        // ensure start button is visible, only interactable for host
+        startGameButton.gameObject.SetActive(true);
+        startGameButton.interactable = NetworkManager.Singleton.IsHost;
     }
 
     private void OnGameLobbyJoinRequested(GameLobbyJoinRequested_t request) {
-        //Debug.LogError("GameLobbyJoinRequested fired!");
         SteamMatchmaking.JoinLobby(request.m_steamIDLobby);
-
         manualJoinPanel.SetActive(false);
         joinLobbyButton.gameObject.SetActive(false);
     }
 
     private void OnLobbyMatchList(LobbyMatchList_t result) {
-        uint count = result.m_nLobbiesMatching;
-        if (count <= 0) {
-            Debug.LogError("No steam lobbies foudn with that relay code");
+        if (result.m_nLobbiesMatching <= 0) {
+            Debug.LogError("No steam lobbies found with that relay code");
             return;
         }
 
-        CSteamID foundLobby = SteamMatchmaking.GetLobbyByIndex(0);
-        //Debug.LogError($"Found steam lobby {foundLobby}");
-
+        var foundLobby = SteamMatchmaking.GetLobbyByIndex(0);
         SteamMatchmaking.JoinLobby(foundLobby);
     }
 
     private void OnLobbyChatUpdate(LobbyChatUpdate_t result) {
-        if (result.m_ulSteamIDLobby != (ulong)currentLobbyID)
-            return;
+        if (result.m_ulSteamIDLobby != (ulong)currentLobbyID) return;
 
         var steamID = new CSteamID(result.m_ulSteamIDUserChanged);
         uint flags = result.m_rgfChatMemberStateChange;
@@ -221,15 +200,14 @@ public class IPRelay : NetworkBehaviour {
         }
 
         bool left = (flags & (uint)EChatMemberStateChange.k_EChatMemberStateChangeLeft) != 0;
-        bool dropped = (flags & (uint)EChatMemberStateChange.k_EChatMemberStateChangeDisconnected) != 0;
-        if (left || dropped) {
-            if (lobbyMenuCanvas != null && lobbyMenuCanvas.gameObject.activeSelf) {
+        if (left || (flags & (uint)EChatMemberStateChange.k_EChatMemberStateChangeDisconnected) != 0) {
+            if (lobbyMenuCanvas?.gameObject.activeSelf == true) {
 #if !UNITY_EDITOR
                 RefreshLobbyProfiles();
 #endif
             }
 
-            CSteamID owner = SteamMatchmaking.GetLobbyOwner(currentLobbyID);
+            var owner = SteamMatchmaking.GetLobbyOwner(currentLobbyID);
             if (steamID == owner && !IsOwner) {
                 NetworkManager.Singleton.Shutdown();
                 SceneManager.LoadScene(MAIN_MENU_SCENE);
@@ -242,56 +220,30 @@ public class IPRelay : NetworkBehaviour {
     }
 
     public void SetRelayJoinCode(string joinCode) {
-        if (currentLobbyID == CSteamID.Nil) {
-            //Debug.LogError("No lobby created yet!");
-            return;
-        }
-
-        bool success = SteamMatchmaking.SetLobbyData(currentLobbyID, "relay_join_code", joinCode);
-        if (success) {
-            //Debug.LogError($"Set lobby relay join code to : {joinCode}");
-        }
-        else {
-            //Debug.LogError("Setting lobby relay join code failed!");
-        }
+        if (currentLobbyID == CSteamID.Nil) return;
+        SteamMatchmaking.SetLobbyData(currentLobbyID, "relay_join_code", joinCode);
     }
 
     public string GetRelayJoinCode() {
-        if (currentLobbyID == CSteamID.Nil) {
-            //Debug.LogError("No lobby created yet!");
-        }
-
-        string code = SteamMatchmaking.GetLobbyData(currentLobbyID, "relay_join_code");
-        //Debug.LogError($"Fetched relay join code for lobby: {code}");
-        return code;
+        if (currentLobbyID == CSteamID.Nil) return null;
+        return SteamMatchmaking.GetLobbyData(currentLobbyID, "relay_join_code");
     }
 
     public void InviteFriendToLobby(CSteamID friendSteamID) {
-        if (currentLobbyID == CSteamID.Nil) {
-            //Debug.LogError("No lobby created yet!");
-        }
-
-        bool success = SteamMatchmaking.InviteUserToLobby(currentLobbyID, friendSteamID);
-        // Debug.LogError(success
-        //     ? $"Sent steam lobby invite to {friendSteamID}"
-        //     : $"Failed to send invite to {friendSteamID}");
+        if (currentLobbyID == CSteamID.Nil) return;
+        SteamMatchmaking.InviteUserToLobby(currentLobbyID, friendSteamID);
     }
 
     public void OpenInviteDialog() {
 #if !UNITY_EDITOR
-        if (currentLobbyID == CSteamID.Nil)
-        {
-            //Debug.LogError("No lobby created yet!");
+        if (currentLobbyID != CSteamID.Nil) {
+            SteamFriends.ActivateGameOverlayInviteDialog(currentLobbyID);
         }
-
-        SteamFriends.ActivateGameOverlayInviteDialog(currentLobbyID);
-        //Debug.LogError("Opened steam overlay invite dialog.");
 #endif
     }
 
     private void ShutdownSteamLobby() {
         if (currentLobbyID != CSteamID.Nil) {
-            //Debug.LogError("leaving steam lobby after shutdown");
             SteamMatchmaking.LeaveLobby(currentLobbyID);
             currentLobbyID = CSteamID.Nil;
         }
@@ -303,8 +255,7 @@ public class IPRelay : NetworkBehaviour {
 
         var go = Instantiate(playerProfilePrefab, playerProfileDisplayArea.transform);
         var raw = go.GetComponentInChildren<RawImage>();
-        if (raw != null && tex != null)
-            raw.texture = tex;
+        if (raw != null && tex != null) raw.texture = tex;
     }
 
     private void RefreshLobbyProfiles() {
@@ -321,9 +272,8 @@ public class IPRelay : NetworkBehaviour {
     private Texture2D GetSteamImageAsTexture(int iImage) {
         if (iImage < 0) return null;
 
-        uint w, h;
-        if (!SteamUtils.GetImageSize(iImage, out w, out h) || w == 0 || h == 0)
-            return null;
+        SteamUtils.GetImageSize(iImage, out uint w, out uint h);
+        if (w == 0 || h == 0) return null;
 
         byte[] buf = new byte[w * h * 4];
         SteamUtils.GetImageRGBA(iImage, buf, buf.Length);
@@ -333,7 +283,6 @@ public class IPRelay : NetworkBehaviour {
         tex.Apply();
         return tex;
     }
-
     #endregion
 
     #region Relay Functions
@@ -343,13 +292,11 @@ public class IPRelay : NetworkBehaviour {
 #endif
 
         try {
-            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(3);
-            string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+            var allocation = await RelayService.Instance.CreateAllocationAsync(3);
+            var joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
             unityRelayJoinCode = joinCode;
             manualJoinCodeText.gameObject.SetActive(true);
             manualJoinCodeText.text = joinCode;
-
-            //Debug.LogError("Relay join code: " + joinCode);
 
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(
                 allocation.RelayServer.IpV4,
@@ -368,18 +315,15 @@ public class IPRelay : NetworkBehaviour {
 
 #if UNITY_EDITOR
             startGameButton.gameObject.SetActive(true);
+            startGameButton.interactable = true;
 #endif
         }
-        catch (RelayServiceException e) {
-            //Debug.LogError("RelayServiceException caught: " + e);
-        }
-
+        catch (RelayServiceException) { }
     }
 
     public async void JoinRelay(string joinCode) {
         try {
-            //Debug.LogError("Joining relay with code: " + joinCode);
-            JoinAllocation joinAlloc = await RelayService.Instance.JoinAllocationAsync(joinCode);
+            var joinAlloc = await RelayService.Instance.JoinAllocationAsync(joinCode);
 
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetClientRelayData(
                 joinAlloc.RelayServer.IpV4,
@@ -391,34 +335,22 @@ public class IPRelay : NetworkBehaviour {
             );
 
             NetworkManager.Singleton.StartClient();
-
-
         }
-        catch (RelayServiceException e) {
-            //Debug.LogError("Relay join failed: " + e);
-        }
-
-
+        catch (RelayServiceException) { }
     }
-
     #endregion
 
     #region RPC Functions
     [ClientRpc]
     private void StartGameClientRpc(ClientRpcParams rpcParams = default) {
-        if (lobbyMenuCanvas != null)
-            lobbyMenuCanvas.gameObject.SetActive(false);
-
-        if (playerUICanvas != null)
-            playerUICanvas.gameObject.SetActive(true);
+        lobbyMenuCanvas?.gameObject.SetActive(false);
+        playerUICanvas?.gameObject.SetActive(true);
 
         var localObj = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject();
         if (localObj != null) {
             var pc = localObj.GetComponent<PlayerController>();
-            if (pc != null)
-                pc.movementRestricted = false;
+            if (pc != null) pc.movementRestricted = false;
         }
-        // lock cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -426,38 +358,26 @@ public class IPRelay : NetworkBehaviour {
     [ClientRpc]
     private void DoorOpenClientRpc(ClientRpcParams rpcParams = default) {
         var doorScript = startingDoor.GetComponent<FrontDoorAnimationController>();
-        if (doorScript != null) {
-            doorScript.TriggerPlay();
-        }
+        if (doorScript != null) doorScript.TriggerPlay();
     }
 
     [ClientRpc]
     private void ReceiveSteamLobbyIDClientRpc(ulong lobbySteamID, ClientRpcParams rpcParams = default) {
         var receieveLobbyID = new CSteamID(lobbySteamID);
-        //Debug.LogError($"RPC - Recieved steam lobby id thru client rpc: {receieveLobbyID}");
         alreadyInSteamLobby = true;
         SteamMatchmaking.JoinLobby(receieveLobbyID);
-        //Debug.LogError("RPC - Joining steam lobby manuall with id: " + receieveLobbyID);
     }
 
     [ServerRpc(RequireOwnership = false)]
     private void RequestSteamLobbyIDServerRpc(ServerRpcParams rpcParams = default) {
-        if (currentLobbyID == CSteamID.Nil) {
-            //Debug.LogError("requeststeamlobbyid - No lobby created yet!");
-            return;
-        }
+        if (currentLobbyID == CSteamID.Nil) return;
 
         var sender = rpcParams.Receive.SenderClientId;
         var clientRpcParams = new ClientRpcParams {
-            Send = new ClientRpcSendParams {
-                TargetClientIds = new ulong[] { sender }
-            }
+            Send = new ClientRpcSendParams { TargetClientIds = new[] { sender } }
         };
-        //Debug.LogError($"Attempting to send steam lobby id {currentLobbyID} to client: {sender}");
-
         ReceiveSteamLobbyIDClientRpc(currentLobbyID.m_SteamID, clientRpcParams);
     }
-
     #endregion
 
     #region Helper Functions
@@ -476,6 +396,5 @@ public class IPRelay : NetworkBehaviour {
         NetworkManager.Singleton.Shutdown();
         ShutdownSteamLobby();
     }
-
     #endregion
 }
