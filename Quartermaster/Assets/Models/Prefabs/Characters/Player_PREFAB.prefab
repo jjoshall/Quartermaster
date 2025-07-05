@@ -511,7 +511,7 @@ MonoBehaviour:
   ImmunitySeconds: 0.5
   groundSpeed: 6
   maxAirSpeed: 5
-  airAcceleration: 5
+  airAcceleration: 7.5
   minSlideSpeed: 0.5
   slideDeceleration: 3
   backwardsMovementPenalty: 0.4
@@ -527,7 +527,7 @@ MonoBehaviour:
   GroundLayers:
     serializedVersion: 2
     m_Bits: 8
-  jumpForce: 4.5
+  jumpForce: 5
   visualTransform: {fileID: 6195205799938994444}
   crouchingSharpness: 5
   _devPrefab: {fileID: 533627647367738219, guid: 34171f0fbc7fbe143af57441fdc77eb0, type: 3}

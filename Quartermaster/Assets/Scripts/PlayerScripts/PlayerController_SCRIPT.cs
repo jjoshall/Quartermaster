@@ -44,7 +44,7 @@ public class PlayerController : NetworkBehaviour {
     public const float k_GravityForce = 20f;
 
     [Tooltip("Speed multiplier when holding sprint key")]
-    public const float k_SprintSpeedModifier = 1.7f;
+    public const float k_SprintSpeedModifier = 1.9f;
     public const float k_CrouchSpeedModifier = 0.5f;
     private float speedModifier = 1f;
     public float groundSpeed = 5f;
